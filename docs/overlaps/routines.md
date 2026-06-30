@@ -301,3 +301,28 @@ for w in pooled JawsM01 JawsM06 JawsM12 JawsM15 JawsM18 ChRM04 ChRM23 ACCM03 ACC
     /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_flow_empirical.py $w
 done
 ```
+
+## Decoder weights & cosine analysis — full reproduce path
+```bash
+cd /home/leon/dual/overlaps
+# 1) re-fit decoders and SAVE weights (raw neuron space). ~19 min; reuses the existing
+#    data/pca/X_all_nan_.pkl (no --rebuild). Writes a SEPARATE _raw fileset + weights pkl;
+#    does NOT touch the canonical X_..._0.0 tensors the other scripts read.
+/home/leon/mambaforge/envs/dual/bin/python run_overlaps.py --scaler none --save-weights
+#    -> data/overlaps/{X,labels,weights}_log_generalizing_overlaps_none_l1_ratio_0.0_raw.pkl
+# 2) cosine figures (need the weights pkl above):
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_cosine.py            # stability + alignment
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_orthogonalization.py # Naive→Expert test
+#    -> figures/overlaps/cosine/{png,svg}/
+```
+
+## Git / data hygiene (2026-06-30)
+- **Never commit data.** `.gitignore` excludes `*.pkl`, `*.pth`, `*.svg`, `*.pdf`, `*.pyc`,
+  `data/`. The pseudo-population (`data/pca/X_all_nan_.pkl`, ~20 GB), the CCGD tensors and the
+  weights pkls all live only on disk. Commit **code + docs + PNG** only.
+- History was cleaned with `git-filter-repo --path pca/results/ --invert-paths --force` to remove
+  two oversized pkls (177 MB + 59 MB) that the first "upload local repo" commit had baked in before
+  the ignore existed (they blocked `git push`). The on-disk copies were preserved; only history
+  changed. `origin` = `git@github.com:kiriclope/dual.git` (filter-repo drops the remote — re-add it
+  after any future rewrite). If a push is ever rejected for large files again, scan history with:
+  `git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectsize) %(rest)' | awk '$1=="blob" && $2>40000000'`.
