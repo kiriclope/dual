@@ -655,6 +655,18 @@ stripping the CI time-ramp & test dims), not "predict all latent variance." NB t
 also fit equally well by a LINEAR flow, so the trajectory fit can't distinguish bistable from monostable
 either — see `docs/overlaps/overview.md` (`--compare` caveat).
 
+**Task-computation version → RECONCILED (2026-07-01, `pca/exp_rank_task.py`).** The velocity/dynamics
+criterion FAILS (fit a fixed connectivity to condition-mean velocity: negative R² even at full rank —
+the delay is near-stationary → velocity R² at the noise floor; over the trial it's input-driven). So ask
+the well-posed GEOMETRIC question instead: the **dimensionality of the condition-mean (sample×test)
+trajectory manifold** (variance by PC, top-2 %, participation ratio PR). Result: **the task states live
+on a ~2-D manifold** — WM/choice subspace **top-2 PCs = 94% (Expert) / 92% (Naive), PR ≈ 2.2**; even the
+full 8-D condition-mean states have PR ≈ 2.2, top-2 ≈ 82%. ⇒ **RECONCILIATION: rank-2 IS good enough for
+the task-computation STATE GEOMETRY** (what the sample×choice flow portrays) — the WM/choice states are
+2-D — even though rank-2 is NOT sufficient to predict the full temporal DYNAMICS (test coding + CI ramp +
+transients add dims). So claim: "the WM/choice computation occupies a 2-D manifold (rank-2 geometry)",
+NOT "the latent dynamics is rank-2." `exp_rank_task.py` → `figures/pseudo/flow/rank_task_manifold.png`.
+
 ## No-lick push & choice readiness — SETTLED CONCLUSIONS (2026-06-23)
 
 > **READ THIS FIRST. It supersedes the detailed audit-trail log further down in this section**, which
