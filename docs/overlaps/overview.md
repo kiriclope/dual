@@ -118,6 +118,86 @@ of whichever sample has more data — avoids A/B cancellation near the origin, p
 `--pooled` reverts to A+B averaging. **Pooled (~1150 vel pts) is reliable; per-mouse (~128 pts) is
 sparse.** Canonical script: `fig_overlaps_flow_empirical.py [mouse|pooled] [--pooled]`.
 
+**Rank-2 low-rank port (2026-06-30 — `fig_overlaps_flow_lowrank_shared.py`).** The dPCA rank-2
+gain-modulated flow (`pca/fig_dpca_flow_lowrank_shared.py`) ported verbatim onto the CCGD plane
+(model/regimes/CV/plot unchanged; only the data section swapped — sample×choice from the codes via
+the matched `target` blocks). It renders the same 8-panel autonomous+inputs grid, but is **velocity-
+SNR-limited**, consistent with the rate-net verdict above: **pooled CV vel-R² ≈ 0** (Expert: partial
++0.035 > independent −0.015 > shared, same ordering as dPCA). **The stimulus (sample) input regimes
+DO validate** — A +0.93 / B +0.78 (independent), Cue +0.30, Go +0.13 — but the **autonomous field is
+weakly constrained (+0.02–0.11) and C/D do NOT validate (−0.05/−0.11)** (the overlaps *test* code is
+the weak, response-locked one — unlike dPCA where C/D were the best regimes). So: the fields render
+and the sample-driven flows are genuinely predictive, but don't over-read the autonomous wells or
+C/D — the CCGD velocity SNR is the ceiling (same conclusion as the empirical/rate-net analyses).
+
+**"Can the fits be improved?" — NO on velocity R² (data ceiling); and fixed points must sit at the
+trajectory endpoints (2026-07-01).** Both principled velocity denoisers were tested and FAIL:
+**temporal `--smooth`** (0.035→0.008: helps clean regimes, hurts noisy C/D → flat-to-down) and
+**multi-bin `--vstep`** (the empirical-flow VEL_STEP trick: WORSE at every step, 0.035→−0.07→−0.13,
+because a chord velocity ≠ the model's instantaneous tangent in fast/curved regimes). ⇒ the pooled
+velocity R² is genuinely at the CCGD velocity-SNR ceiling; `--vstep` default stays 1.
+
+**Improving the flows (2026-07-01) — the delay plane + endpoint anchoring.** Two levers fix the
+autonomous. **(#2, the big one) read the codes on the DELAY-trained axis** (`--train delay`, now the
+default) — we draw the *delay* flow, so use the delay axis: CV-honest, smoother (sample-code
+jaggedness 0.045 vs 0.064 on TEST), better A/B separation (3.0 vs 2.55), and it moves **B from +0.46
+(buried near the saddle on the TEST axis) to +1.25 — a real well** (both states in no-lick). (The
+weight-axis projection showed even bigger separation but is in-sample-confounded — only the fold-avg
+weight was saved, no CV; the delay-df is its CV-honest equivalent since the df *is* the weight-axis
+projection.) **(#1) endpoint anchoring** (`--anchor 8`, independent mode): add the settled trajectory
+endpoints as v=0 anchors in the LS so the field's attractors land ON the endpoints. Together: the
+autonomous is now **faithfully bistable — two attractors AT the A/B endpoints** (A≈−1.8 on its −1.76
+endpoint, B≈+1.6), streamlines converge to both, trajectories terminate there. Genuine (delay axis
+separates B), not forced. NB pooled CV drops (−0.17) because C/D are *more* noise on the delay axis
+(delay-trained test = the documented delay-confound) — expected; don't read response regimes on a
+delay axis. What FAILED: **#1 alone on the TEST plane** can't place B (too near the saddle → 2nd
+attractor lands at ~1.0, offset/fragile) — the plane change (#2) is what makes B a real well.
+
+**Input-driven windows = [odor onset, odor offset + calcium margin] (2026-07-01).** Each input regime
+is fit over the odor's presentation plus a margin for the slow calcium tail (GCaMP decay ~1.5–2 s),
+NOT the long arbitrary tail from the dPCA port. Odors: sample/STIM 15–17, distractor/DIST 30–32, test
+57–59; `--margin` (default 12 bins ≈2 s) → A/B 15–30, Go/NoGo/Cue 30–45, **C/D 57–72 (was 57–84)**.
+Cutting the post-response relaxation tail **fixed C/D**: in-sample vel-R² **C −0.05→+0.65, D −0.10→+0.48**,
+and they now show the proper **AC→lick / BC→no-lick bimodal diagonal** with trajectories reaching both
+fixed points (the dPCA C/D signature). Go/Cue also improved. The autonomous is NOT input-driven → keeps
+the delay maintenance window.
+
+**Single train axis + per-regime input windows (2026-07-01, final design).** ONE train axis for the
+whole figure (`--train`, default **delay** — draws the delay flow, faithful bistable autonomous). The
+only thing that varies per regime is the READ WINDOW = the odor±margin window above. The **window is
+what fixes C/D**, not the axis: on the single delay axis, moving C/D from the long 57–84 window to the
+odor window 57–72 takes them from −0.25 to **+0.46/+0.30** (the post-response relaxation tail was
+noise). So a per-regime *plane* is NOT needed — one axis suffices once the windows are right. (An
+earlier per-regime-plane version, delay for memory / test for C/D, was tried and reverted per the
+single-axis decision; test does make the C/D bimodal diagonal slightly cleaner, +0.65/+0.48, but a
+single delay axis keeps the panels comparable and the autonomous faithful.) **Anchor only the
+autonomous** (the true attractor regime; inputs are driven). Residual: Cue is the lowest-SNR panel.
+
+**Train-axis options (`--train`), pooled CV vel-R² and character:**
+- **`delay` (default)** — the principled fixed-axis; faithful bistable autonomous + strong Go/NoGo; C/D
+  softer. CV −0.23.
+- **`test`** — clean C/D bimodal (+0.65/+0.48) but weak autonomous B-well; Go/NoGo weak. CV −0.05.
+- **`ld`** — like delay, slightly noisier (fewer bins). CV −0.39.
+- **`diag`** — the generalization-matrix **diagonal** (train==test per bin) → each regime auto-read on
+  its contemporaneous decoder: **bistable autonomous AND clean C/D (+0.70/+0.57), best CV +0.17**. BUT the
+  axis **rotates per bin** so the plane isn't a fixed subspace → a flow/phase-portrait is looser/ill-defined
+  (works here only because adjacent-bin axes are stable, cosine 0.4–0.9); A/B fits also drop (+0.63 vs
+  +0.96, the stable sample regime prefers one fixed axis). Best-fitting but conceptually looser than `delay`.
+
+**FP placement — the key correction.** A flow is wrong if the trajectories don't terminate at the
+marked fixed points. Root-finding on the fitted field violates this at low SNR: verified at the CV
+gain (0.2) the field's one attractor sits on the **A** endpoint (−2.29,−0.30 ≈ data −2.09,−0.35;
+speed 0.02), while **B**'s shallow well is not classified though the data settles there (speed 0.03).
+So mark fixed points at the condition-mean **trajectory endpoints** (last-5-bin mean) — the overlaps
+subproject convention (`plot_flow2d.py`: "trajectory endpoint is correct by construction; root-found /
+speed-min fp is displaced in a noisy field"). Then trajectories terminate at the fps by construction,
+for every panel. **RETRACTED:** an earlier attempt to force autonomous bistability by *raising the
+gain* to hit bootstrap P₂≥0.5 (reported "P₂=0.62 at gain 0.7") was WRONG — the raised gain manufactured
+a 2nd attractor **off** the B endpoint (B endpoint speed rose 0.03→0.09), i.e. exactly the "fp not where
+the data goes" bug; removed. Honest reading: at the data-faithful CV gain the autonomous field is
+**monostable-leaning** (A well; B a shallow shoulder the data holds but the field doesn't) — consistent
+with the empirical-flow "A strong / B weak, don't over-read one well vs two."
+
 **Result.** Sample memory is encoded and **maintained** through the delay (A/B separate along the
 sample axis), and **both A and B Expert-DPA delay states are pulled into the no-lick (lower) half**
 of the choice axis — the predicted geometry — though **asymmetrically: A strongly (≈−0.66 BLσ below
