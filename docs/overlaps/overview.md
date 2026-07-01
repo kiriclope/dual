@@ -45,13 +45,17 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   The codes1d choice-in-delay separation may be **sample leakage** (on DPA, choice = match = sample==test);
   the stimulus-controlled test found only a small **Expert-only lick-readiness** (~0.18σ, marginal). Don't
   assert a strong maintained action *signal* — only the coexisting axis.
-- **Among nonlinear forms, rank-2 is the better fit (`--compare`, 2026-07-01).** The flow must be
-  nonlinear (bistable WM → linear is excluded by assumption), so the comparison is between the two
-  nonlinear 2-D forms at matched gain: **rank-2 gain-modulated `ż=−z+S(z)·Az+c`** (Az linear → never
-  saturates) vs the **generic rate-net `ż=−z+Wφ(gz)+b`** (tanh saturates at std≈2.8). Pooled in-sample
-  trajectory R² across a gain sweep: **rank-2 ≥ rate-net at every gain, and the gap widens in the
-  nonlinear regime** (g=1.5: +0.59 vs +0.10; g=2.0: +0.26 vs −0.26) — the rate-net collapses as its tanh
-  saturates. So the rank-2 mean-field reduction is the better nonlinear model for these trajectories.
+- **`--compare` (rank-2 vs rate-net) does NOT validate rank-2 — reviewer verdict (2026-07-01).** The
+  gain sweep shows rank-2 gain-modulated `S(z)·Az` fitting ≥ the generic rate-net `Wφ(gz)` with a gap
+  that widens at high gain, BUT this is **confounded by the std≈2.8 normalisation** (the rate-net's tanh
+  saturates only because of that scale; rescale and it vanishes) and I **fixed the rate-net gain high to
+  force saturation** — at its own fitted gain the rate-net picks small g, becomes ≈linear, and fits as
+  well as rank-2. So this is a statement about the parameterisation at our scale, a **footnote, not a
+  result**. More fundamentally, in the **2-D plane a 2×2 A is already full rank**, so nothing here tests
+  *rank*; and the slow trajectories are fit equally well by a linear flow (bistability underdetermined).
+  ⇒ **rank-2 is a MODELING CHOICE (to match the task-trained rank-2 RNN), not a property validated by the
+  overlaps trajectory fit.** The proper rank test needs a higher-D substrate (dPCA) — and there it fails
+  (see `docs/pca/flows_handoff.md`: rank-2 captures only ~62–67% of full-rank predictive R², no plateau).
 - **Rank-2 flows are a good DESCRIPTION, not a predictive model — and description is the goal.** The
   intent is to fit a rank-2 dynamics that *describes* the observed trajectories. With the trajectory
   objective (`--fit traj`, integrate-and-match-position), it does: **pooled in-sample trajectory R² ≈ +0.70**

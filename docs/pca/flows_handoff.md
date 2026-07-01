@@ -636,6 +636,25 @@ anchoring (v=0 anchors in the LS, `--anchor`). The plane change (not gain-raisin
 well; anchoring alone on the TEST plane can't (B too near the saddle). Defaults now `--train delay
 --anchor 8`.
 
+## "Is rank-2 good enough?" — reduced-rank sufficiency test (2026-07-01) — ANSWER: NO by prediction
+
+`pca/exp_rank_dpca.py [Naive|Expert] [horizon]` → `figures/pseudo/flow/rank_sufficiency_<STAGE>.png`.
+With dt=1 bin the discrete transition `z_{t+1}=A z_t+b` has **A ≈ the recurrent connectivity**, so
+constraining **rank(A)≤R** (reduced-rank regression) tests the connectivity rank directly. Sweep R,
+score **held-out `horizon`-step predictive R²** (CV over trials) on the dPCA latents (D=8).
+
+**Result (Expert, 3-step):** the curve **rises smoothly to full rank — NO elbow at 2.** Full 8-D:
+rank1 +0.49, **rank2 +0.62**, rank3 +0.71 … rank8 +0.92 (full); rank-2 = **67% of full**, ≥95% only at
+rank 7. Task 4-D (sample+choice): rank2 +0.52 = **62% of full-4D**, ≥95% at rank 4. ⇒ **rank-2 is NOT
+sufficient to predict the latent dynamics** — it is genuinely higher-D (each dPCA marginal carries its
+own timescale). **Reviewer verdict:** "rank-2 is good enough" **fails the predictive-sufficiency test**;
+rank-2 is a **modeling choice** (to match the task-trained rank-2 RNN / to draw the sample×choice
+portrait), NOT a validated property. If the claim is to survive it must be on a **task-computation**
+criterion (does rank-2 reproduce the sample×choice fixed-point structure / the WM-subspace flow after
+stripping the CI time-ramp & test dims), not "predict all latent variance." NB the slow trajectories are
+also fit equally well by a LINEAR flow, so the trajectory fit can't distinguish bistable from monostable
+either — see `docs/overlaps/overview.md` (`--compare` caveat).
+
 ## No-lick push & choice readiness — SETTLED CONCLUSIONS (2026-06-23)
 
 > **READ THIS FIRST. It supersedes the detailed audit-trail log further down in this section**, which
