@@ -14,6 +14,7 @@ mPFC encodes sample identity and lick action on near-orthogonal axes. With learn
 
 ### 1. Overlaps (`/home/leon/dual/overlaps/`)
 Cross-generalising decision codes (CCGD): decoders trained on sample identity and lick choice cross-generalise across time. Measures how the sample and choice codes co-evolve during the delay in the sample×choice plane.
+- **Results so far (2026-07-01):** (i) sample/choice/test axes **mutually orthogonal + temporally stable** (weight cosines); (ii) **no-lick push** deepens with learning, depth↔DPA accuracy (ρ=−0.67, p=0.05), and its **mechanism = sample×choice orthogonalise with learning** (p=0.020, 7/9 mice); (iii) dual coding **live in the delay** (choice code non-flat, ED/MD); (iv) faithful **bistable autonomous** rank-2 flow (dPCA port). See the consolidated summary at the top of `docs/overlaps/overview.md`.
 - See `docs/overlaps/overview.md`, `docs/overlaps/routines.md`, `docs/overlaps/feedback.md`
 
 ### 2. PCA / dPCA flows (`/home/leon/dual/pca/`)

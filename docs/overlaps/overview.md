@@ -1,5 +1,32 @@
 # Overlaps Subproject Overview
 
+## Results so far (2026-07-01) — consolidated
+
+The dual-coding hypothesis, now with a measured mechanism, from two independent angles
+(decoder-weight cosines + latent rank-2 flows). Detailed sections + scripts below.
+
+1. **Three independent, stable codes (geometry).** sample / choice / test are **mutually orthogonal**
+   (between-code weight cosine at the ±1/√N chance floor, every epoch, both stages) and **temporally
+   stable** (within-code cosine 0.4–0.9). → `fig_overlaps_cosine.py`; see *Interpretation & synthesis*.
+2. **No-lick push + its mechanism (learning).** Expert DPA delay states are pulled into the no-lick
+   half of the choice axis (asymmetric: A strong ≈−0.66, B weak); depth ↔ DPA accuracy across mice
+   (Spearman ρ=−0.67, p=0.050, `plot_scatter_perf.py`). Mechanism: **sample×choice orthogonalize with
+   learning** (anti-aligned Naive cos −0.07 → orthogonal Expert; Wilcoxon p=0.020, 7/9 mice,
+   reliability-controlled; *only* that pair) → `fig_overlaps_orthogonalization.py`. Orthogonalization
+   licenses the push without disrupting the sample code.
+3. **Dual coding is live in the delay.** The 9-epoch code sweep shows the choice/lick code **non-flat
+   already in the delay** (ED/MD) — a maintained no-lick action set coexisting with the held sample
+   memory (NOT foreknowledge; the correct lick needs the future test). → `fig_overlaps_codes_1d.py`.
+4. **Rank-2 latent flows (dPCA port).** `fig_overlaps_flow_lowrank_shared.py` — faithful **bistable
+   autonomous** WM flow (delay axis, endpoint-anchored) + input-driven panels (odor-timed windows).
+   Corroborates the geometry from the flow angle. CCGD velocity-SNR-limited; see *Rank-2 low-rank port*.
+
+**Infrastructure added:** decoder weights persist (`run_overlaps.py --save-weights`); traj2d all-trials
+variant; the cosine/orthogonalization/1D-codes/flow scripts above. **Headline figures:** the sample×choice
+trajectories (`plot_traj2d.py`) and the depth↔performance scatter (`plot_scatter_perf.py`).
+
+---
+
 ## What overlaps measures
 
 Cross-generalising decision codes (CCGD): a logistic decoder is trained for each target variable —
