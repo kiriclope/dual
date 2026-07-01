@@ -44,6 +44,11 @@ ANCHOR = float(sys.argv[sys.argv.index('--anchor') + 1]) if '--anchor' in sys.ar
 # Input-driven regimes span [odor ONSET, odor OFFSET + MARGIN]; the margin captures the slow calcium
 # tail after the odor turns off (GCaMP decay ~1.5–2 s). Default 12 bins ≈ 2 s at 6 Hz.
 MARGIN = int(sys.argv[sys.argv.index('--margin') + 1]) if '--margin' in sys.argv else 12
+# Fit objective: 'vel' (default) = closed-form LS on the condition-mean velocity; 'traj' = integrate the
+# flow from the trajectory start and minimise POSITION error (least_squares). Velocity R² scores the
+# noise-amplified derivative; the trajectory objective/metric scores the observable (position) and is
+# validated by held-out trajectory R² vs a LINEAR baseline (a=0). Independent mode only.
+FIT = sys.argv[sys.argv.index('--fit') + 1] if '--fit' in sys.argv else 'vel'
 
 # ── data: matched [sample, choice] plane from the CCGD codes (replaces dPCA latents) ──
 DUM = 'log_generalizing_overlaps_none_l1_ratio_0.0'
@@ -82,8 +87,9 @@ TRAIN = 'diag' if TRAINSEL == 'diag' else {'delay': o['bins_DELAY'], 'test': o['
 Z2, yc = codes(TRAIN)
 samp = yc['sample'].to_numpy(); test = yc['test'].to_numpy(); task = yc['tasks'].to_numpy(); ch = yc['choice'].to_numpy()
 go, nogo, dpa = task == 'DualGo', task == 'DualNoGo', task == 'DPA'
-os.makedirs('figures/overlaps/flow_lowrank_shared/png', exist_ok=True)
-os.makedirs('figures/overlaps/flow_lowrank_shared/svg', exist_ok=True)
+OUTDIR = 'figures/overlaps/flow_lowrank_traj' if FIT == 'traj' else 'figures/overlaps/flow_lowrank_shared'
+os.makedirs(f'{OUTDIR}/png', exist_ok=True)
+os.makedirs(f'{OUTDIR}/svg', exist_ok=True)
 
 # ── model + CV + plotting (dPCA script verbatim) — single train axis, per-regime input windows ──
 # autonomous is NOT input-driven → delay maintenance window; inputs = [odor onset, offset + margin].
@@ -166,14 +172,47 @@ def flow_indep(A, c, a, dd):
         P = np.atleast_2d(P); D = a ** 2 * (P ** 2).sum(0) + dd; S = gd(D, np.zeros(P.shape[1])); AP = A @ P
         return np.vstack([-P[0] + S * AP[0] + c[0], -P[1] + S * AP[1] + c[1]])
     return fl
+def sim(flow_fn, z0, n):                                             # Euler-integrate (dt=1 bin) with a guard
+    z = np.asarray(z0, float).copy(); out = [z.copy()]
+    for _ in range(n - 1):
+        z = np.clip(z + flow_fn(z[:, None]).ravel(), -30, 30); out.append(z.copy())
+    return np.array(out).T                                          # (2, n)
+def fit_indep_traj_one(means_r, w, a, dd, anch, wa):
+    # fit A,c so the flow INTEGRATED from each condition-mean start reproduces its trajectory (position).
+    tgt = [mu[:, w] for _, mu in means_r if mu[:, w].shape[1] >= 3]
+    if not tgt:
+        return np.zeros((2, 2)), np.zeros(2)
+    zs = np.concatenate([t[:, :-1].T for t in tgt]); vs = np.concatenate([np.diff(t, 1).T for t in tgt])
+    A0, c0 = fit_indep_one(zs, vs, a, dd, anch, wa)                 # velocity-fit init
+    def resid(p):
+        A = p[:4].reshape(2, 2); c = p[4:]; fl = flow_indep(A, c, a, dd); r = []
+        for t in tgt:
+            r.append((sim(fl, t[:, 0], t.shape[1]) - t).ravel())
+        for e in (anch if wa > 0 else []):
+            r.append(np.sqrt(wa) * fl(np.asarray(e, float)[:, None]).ravel())   # v=0 at endpoint
+        return np.concatenate(r)
+    sol = least_squares(resid, np.concatenate([A0.ravel(), c0]), max_nfev=150)
+    return sol.x[:4].reshape(2, 2), sol.x[4:]
 def fit_all_indep(means, a, dd, wa=0.0):
     flows = {}
     for r in range(NREG):
-        z, v = zv_one(means, r)
         anch = [mu[:, REG[r][2]][:, -5:].mean(1) for _, mu in means[r]]   # settled endpoints
-        A, c = fit_indep_one(z, v, a, dd, anch, wa if r == 0 else 0.0)    # anchor the autonomous only
+        wr = wa if r == 0 else 0.0                                        # anchor the autonomous only
+        if FIT == 'traj':
+            A, c = fit_indep_traj_one(means[r], REG[r][2], a, dd, anch, wr)
+        else:
+            z, v = zv_one(means, r); A, c = fit_indep_one(z, v, a, dd, anch, wr)
         flows[r] = flow_indep(A, c, a, dd)
     return flows, None
+def traj_r2_one(flow_fn, mu, w):                                    # in-sample trajectory R² for one cond
+    t = mu[:, w]
+    if t.shape[1] < 3: return np.nan
+    zsim = sim(flow_fn, t[:, 0], t.shape[1])
+    return 1 - ((zsim - t) ** 2).sum() / (((t - t.mean(1, keepdims=True)) ** 2).sum() + 1e-12)
+def traj_r2(flows, means, r):
+    vals = [traj_r2_one(flows[r], mu, REG[r][2]) for _, mu in means[r]]
+    vals = [v for v in vals if not np.isnan(v)]
+    return float(np.mean(vals)) if vals else np.nan
 
 
 # ---- partial pooling: shared A + ridge-penalized per-regime deviation ΔA_r (+ per-regime c) ----
@@ -206,25 +245,49 @@ def vr2(flows, means, r):
 
 
 folds = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(yc))))
-def cv(params):
-    rr = []
+def _cv_perreg(params):                                            # held-out {vel|traj} SSE/var per regime
+    num = np.zeros(NREG); den = np.zeros(NREG)
     for tr, te in folds:
         trm = np.zeros(len(yc), bool); trm[tr] = True; tem = np.zeros(len(yc), bool); tem[te] = True
         fl, _ = fit_mode(regime_means(trm), params); me = regime_means(tem)
-        num = den = 0.0
         for r in range(NREG):
-            z, v = zv_one(me, r)
-            if len(z) >= 3:
-                vp = fl[r](z.T).T; num += ((v - vp) ** 2).sum(); den += ((v - v.mean(0)) ** 2).sum()
-        rr.append(1 - num / (den + 1e-12))
-    return np.mean(rr)
-ADS = [(a, dd) for a in (0.2, 0.4, 0.7, 1.0) for dd in (0.3, 0.8, 2.0)]
-GRID = ([(a, dd, lam) for (a, dd) in ADS for lam in (0.2, 1.0, 5.0, 20.0, 100.0)] if MODE == 'partial' else ADS)
+            if FIT == 'traj':
+                for _, mu in me[r]:
+                    t = mu[:, REG[r][2]]
+                    if t.shape[1] >= 3:
+                        zsim = sim(fl[r], t[:, 0], t.shape[1])
+                        num[r] += ((zsim - t) ** 2).sum(); den[r] += ((t - t.mean(1, keepdims=True)) ** 2).sum()
+            else:
+                z, v = zv_one(me, r)
+                if len(z) >= 3:
+                    vp = fl[r](z.T).T; num[r] += ((v - vp) ** 2).sum(); den[r] += ((v - v.mean(0)) ** 2).sum()
+    return 1 - num / (den + 1e-12)                                 # per-regime held-out R²
+def cv(params):
+    r2 = _cv_perreg(params); return float(np.nanmean(r2))          # pooled held-out R²
+if FIT == 'traj':                                                  # traj fit is expensive → small grid
+    ADS = [(0.2, 2.0), (0.5, 2.0), (1.0, 0.8)]
+    GRID = ([(a, dd, 1.0) for (a, dd) in ADS] if MODE == 'partial' else ADS)
+else:
+    ADS = [(a, dd) for a in (0.2, 0.4, 0.7, 1.0) for dd in (0.3, 0.8, 2.0)]
+    GRID = ([(a, dd, lam) for (a, dd) in ADS for lam in (0.2, 1.0, 5.0, 20.0, 100.0)] if MODE == 'partial' else ADS)
 cvs = {p: cv(p) for p in GRID}; best = max(cvs, key=cvs.get)
-print(f'[{MODE}] {STAGE}  best params={best}  pooled CV vel-R²={cvs[best]:+.3f}')
+_metric = 'traj' if FIT == 'traj' else 'vel'
+print(f'[{MODE}] {STAGE}  best params={best}  pooled CV {_metric}-R²={cvs[best]:+.3f}')
 allm = regime_means(np.ones(len(yc), bool)); flows, _ = fit_mode(allm, best, wa=ANCHOR)
-for r, (nm, rm, w, _) in enumerate(REG):
-    print(f'  {nm:11s} vel-R²={vr2(flows, allm, r):+.2f}')
+if FIT == 'traj':
+    # GOAL = descriptive fit: does a rank-2 dynamics REPRODUCE the observed trajectories? -> in-sample
+    # trajectory R² per regime (the headline). Held-out rank-2-vs-linear is a secondary generalization note.
+    print('  in-sample trajectory R² (descriptive fit — does rank-2 reproduce the trajectories?):')
+    isr2 = [traj_r2(flows, allm, r) for r in range(NREG)]
+    for r, reg in enumerate(REG):
+        print(f'    {reg[0]:11s} {isr2[r]:+.2f}')
+    print(f'    {"POOLED":11s} {np.nanmean(isr2):+.2f}')
+    r2_rank2 = _cv_perreg(best); r2_lin = _cv_perreg((0.0,) + tuple(best[1:]))
+    print(f'  (secondary — held-out generalization: rank-2 pooled {np.nanmean(r2_rank2):+.2f} vs '
+          f'linear {np.nanmean(r2_lin):+.2f}; poor & ≈linear = descriptive, not predictive)')
+else:
+    for r, (nm, rm, w, _) in enumerate(REG):
+        print(f'  {nm:11s} vel-R²={vr2(flows, allm, r):+.2f}')
 
 LIM = 1.3 * max(np.abs(np.concatenate([mu[:, w] for r, (nm, rm, w, _) in enumerate(REG) for _, mu in allm[r]], axis=1)).max(), 1.0)
 
@@ -249,7 +312,8 @@ for ax, (r, (nm, rm, w, _)) in zip(axes.ravel(), enumerate(REG)):
     for ep in endpoints(r):                                          # fixed points = trajectory endpoints
         ax.plot(ep[0], ep[1], '*', mfc='yellow', mec='k', ms=15, zorder=7)
     ax.set_xlim(-LIM, LIM); ax.set_ylim(-LIM, LIM); ax.set_aspect('equal')
-    ax.set_title(f'{nm}   (R²={vr2(flows, allm, r):+.2f})', fontsize=11)
+    _r2 = traj_r2(flows, allm, r) if FIT == 'traj' else vr2(flows, allm, r)
+    ax.set_title(f'{nm}   ({_metric}-R²={_r2:+.2f})', fontsize=11)
     ax.set_xlabel('sample code'); ax.set_ylabel('choice code')
 fp_leg = [Line2D([0], [0], ls='', marker='*', mfc='yellow', mec='k', ms=13, label='fixed point = trajectory endpoint')]
 tr_leg = [Line2D([0], [0], color='#332288', lw=2.3, label='sample A'), Line2D([0], [0], color='#44AA99', lw=2.3, label='sample B'),
@@ -257,10 +321,12 @@ tr_leg = [Line2D([0], [0], color='#332288', lw=2.3, label='sample A'), Line2D([0
           Line2D([0], [0], ls='', marker='o', color='k', ms=6, label='trajectory end')]
 l1 = fig.legend(handles=fp_leg, loc='lower center', ncol=3, bbox_to_anchor=(0.3, -0.02), frameon=False, fontsize=10, title='fixed points')
 fig.legend(handles=tr_leg, loc='lower center', ncol=5, bbox_to_anchor=(0.72, -0.02), frameon=False, fontsize=10, title='trajectories'); fig.add_artist(l1)
-fig.suptitle(f'OVERLAPS rank-2 gain-modulated flows [{MODE}, train axis = {TRAINSEL}, anchor={ANCHOR:g}] — '
+_hdr = (f'descriptive in-sample traj-R²={np.nanmean([traj_r2(flows, allm, r) for r in range(NREG)]):+.2f}'
+        if FIT == 'traj' else f'pooled CV vel-R²={cvs[best]:+.2f}')
+fig.suptitle(f'OVERLAPS rank-2 gain-modulated flows [{MODE}, train axis = {TRAINSEL}, fit={FIT}, anchor={ANCHOR:g}] — '
              f'{STAGE}: autonomous + inputs  (single {TRAINSEL} axis; per-regime windows = odor±{MARGIN}bin margin; '
-             f'params={best}; pooled CV vel-R²={cvs[best]:+.2f})', y=1.0)
+             f'params={best}; {_hdr})', y=1.0)
 fig.tight_layout(rect=(0, 0.03, 1, 1))
-out = f'figures/overlaps/flow_lowrank_shared/png/overlaps_lowrank_{MODE}_{STAGE}_train{TRAINSEL}.png'
+out = f'{OUTDIR}/png/overlaps_lowrank_{MODE}_{STAGE}_train{TRAINSEL}.png'
 fig.savefig(out, dpi=300, bbox_inches='tight'); fig.savefig(out.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
 print('saved', out)

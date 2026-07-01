@@ -17,9 +17,11 @@ The dual-coding hypothesis, now with a measured mechanism, from two independent 
 3. **Dual coding is live in the delay.** The 9-epoch code sweep shows the choice/lick code **non-flat
    already in the delay** (ED/MD) — a maintained no-lick action set coexisting with the held sample
    memory (NOT foreknowledge; the correct lick needs the future test). → `fig_overlaps_codes_1d.py`.
-4. **Rank-2 latent flows (dPCA port).** `fig_overlaps_flow_lowrank_shared.py` — faithful **bistable
-   autonomous** WM flow (delay axis, endpoint-anchored) + input-driven panels (odor-timed windows).
-   Corroborates the geometry from the flow angle. CCGD velocity-SNR-limited; see *Rank-2 low-rank port*.
+4. **Rank-2 latent flows (dPCA port).** `fig_overlaps_flow_lowrank_shared.py` — a rank-2 gain-modulated
+   dynamics **describes the trajectories well** (`--fit traj`: pooled in-sample trajectory R² ≈ **+0.70**),
+   with a faithful **bistable autonomous** WM flow (delay axis, endpoint-anchored) + input-driven panels
+   (odor-timed windows) falling out of the fit. A low-D *description*, not out-of-sample prediction
+   (held-out ≈ linear); see *Rank-2 low-rank port* + Caveats.
 
 **Infrastructure added:** decoder weights persist (`run_overlaps.py --save-weights`); traj2d all-trials
 variant; the cosine/orthogonalization/1D-codes/flow scripts above. **Headline figures:** the sample×choice
@@ -43,11 +45,15 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   The codes1d choice-in-delay separation may be **sample leakage** (on DPA, choice = match = sample==test);
   the stimulus-controlled test found only a small **Expert-only lick-readiness** (~0.18σ, marginal). Don't
   assert a strong maintained action *signal* — only the coexisting axis.
-- **Rank-2 flows are DESCRIPTIVE, not predictive.** The per-regime R² quoted (A +0.96, C +0.70…) are
-  **IN-SAMPLE**; the honest **pooled CV vel-R² ≈ 0** (best +0.17 for diag). Bistability is **gain/anchor-
-  dependent** (monostable at the CV gain 0.2) and **shallow (robust in ~3/9 mice)** — an illustration of the
-  WM landscape, not a validated dynamical model. Researcher DOF (train epoch/window/plane/anchor/gain) were
-  tuned this session (failures retracted + documented, but not pre-registered).
+- **Rank-2 flows are a good DESCRIPTION, not a predictive model — and description is the goal.** The
+  intent is to fit a rank-2 dynamics that *describes* the observed trajectories. With the trajectory
+  objective (`--fit traj`, integrate-and-match-position), it does: **pooled in-sample trajectory R² ≈ +0.70**
+  (A/B ~1.0, autonomous +0.63, Go/NoGo +0.82/+0.75, C/D +0.64/+0.60; only Cue poor +0.15) — the bistable
+  autonomous + input-driven reshaping fall out of a 6-param-per-regime rank-2 fit, a real dimensionality
+  statement. **What it is NOT:** out-of-sample predictive — held-out trajectory R² is poor and **≈ a linear
+  flow** (the nonlinearity doesn't improve *generalization*; that's not the claim). Also: bistability is
+  gain/anchor-dependent (monostable at CV gain 0.2) and shallow (~3/9 mice); researcher DOF (train
+  epoch/window/plane/anchor/gain) tuned this session (failures retracted + documented, not pre-registered).
 
 **Bottom line to claim:** independent, temporally-stable codes + a population-level no-lick push that
 sharpens the memory/action geometry with learning. Suggestive: the sample×choice orthogonalisation.
