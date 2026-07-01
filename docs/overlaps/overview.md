@@ -45,6 +45,13 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   The codes1d choice-in-delay separation may be **sample leakage** (on DPA, choice = match = sample==test);
   the stimulus-controlled test found only a small **Expert-only lick-readiness** (~0.18σ, marginal). Don't
   assert a strong maintained action *signal* — only the coexisting axis.
+- **Among nonlinear forms, rank-2 is the better fit (`--compare`, 2026-07-01).** The flow must be
+  nonlinear (bistable WM → linear is excluded by assumption), so the comparison is between the two
+  nonlinear 2-D forms at matched gain: **rank-2 gain-modulated `ż=−z+S(z)·Az+c`** (Az linear → never
+  saturates) vs the **generic rate-net `ż=−z+Wφ(gz)+b`** (tanh saturates at std≈2.8). Pooled in-sample
+  trajectory R² across a gain sweep: **rank-2 ≥ rate-net at every gain, and the gap widens in the
+  nonlinear regime** (g=1.5: +0.59 vs +0.10; g=2.0: +0.26 vs −0.26) — the rate-net collapses as its tanh
+  saturates. So the rank-2 mean-field reduction is the better nonlinear model for these trajectories.
 - **Rank-2 flows are a good DESCRIPTION, not a predictive model — and description is the goal.** The
   intent is to fit a rank-2 dynamics that *describes* the observed trajectories. With the trajectory
   objective (`--fit traj`, integrate-and-match-position), it does: **pooled in-sample trajectory R² ≈ +0.70**
