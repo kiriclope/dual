@@ -9,11 +9,11 @@ The dual-coding hypothesis, now with a measured mechanism, from two independent 
    (between-code weight cosine at the ±1/√N chance floor, every epoch, both stages) and **temporally
    stable** (within-code cosine 0.4–0.9). → `fig_overlaps_cosine.py`; see *Interpretation & synthesis*.
 2. **No-lick push + its mechanism (learning).** Expert DPA delay states are pulled into the no-lick
-   half of the choice axis (asymmetric: A strong ≈−0.66, B weak); depth ↔ DPA accuracy across mice
-   (Spearman ρ=−0.67, p=0.050, `plot_scatter_perf.py`). Mechanism: **sample×choice orthogonalize with
-   learning** (anti-aligned Naive cos −0.07 → orthogonal Expert; Wilcoxon p=0.020, 7/9 mice,
-   reliability-controlled; *only* that pair) → `fig_overlaps_orthogonalization.py`. Orthogonalization
-   licenses the push without disrupting the sample code.
+   half of the choice axis (asymmetric: A strong ≈−0.66, B weak). Robust at the **population level**
+   (paired deepening; cross-method); the **individual depth↔performance correlation is borderline/fragile
+   — see Caveats** (`plot_scatter_perf.py` ρ=−0.67 p=0.050, but null on the dPCA side). Proposed mechanism:
+   **sample×choice orthogonalize with learning** (small, suggestive: |cos| 0.083→0.029, Wilcoxon p=0.020,
+   7/9 mice, reliability-controlled; *only* that pair) → `fig_overlaps_orthogonalization.py`.
 3. **Dual coding is live in the delay.** The 9-epoch code sweep shows the choice/lick code **non-flat
    already in the delay** (ED/MD) — a maintained no-lick action set coexisting with the held sample
    memory (NOT foreknowledge; the correct lick needs the future test). → `fig_overlaps_codes_1d.py`.
@@ -24,6 +24,34 @@ The dual-coding hypothesis, now with a measured mechanism, from two independent 
 **Infrastructure added:** decoder weights persist (`run_overlaps.py --save-weights`); traj2d all-trials
 variant; the cosine/orthogonalization/1D-codes/flow scripts above. **Headline figures:** the sample×choice
 trajectories (`plot_traj2d.py`) and the depth↔performance scatter (`plot_scatter_perf.py`).
+
+### Caveats — how much to trust each (2026-07-01, critical review)
+
+All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hooks are softer than they look.
+
+- **STRONG.** (i) Within-code temporal stability (cosine 0.4–0.9 ≫ floor). (ii) The **no-lick push
+  deepening with learning at the POPULATION level** (robust, cross-method: dPCA + overlaps + raw ΔF/F).
+- **"Orthogonal" = at the ±1/√N chance floor** = statistically *independent*, NOT actively orthogonalised
+  beyond chance (random axes in ~369-D are near-orthogonal anyway). Say "independent," not "orthogonalised."
+- **Orthogonalisation with learning is SUGGESTIVE, not established.** Real & reliability-controlled
+  (p=0.020, 7/9) but SMALL — |cos| 0.083→0.029, i.e. Naive only marginally above the 0.05 floor → Expert at
+  it; and it is **1 of 3 pairs tested** (borderline under multiple-comparison correction), n=9.
+- **Depth↔individual-performance — DROP as a headline.** Overlaps ρ=−0.67 is exactly at p=0.050 and
+  **disagrees with the dPCA side (null: r=+0.46, p=0.21)**. The push↔behaviour link is at the
+  population/average level, NOT individual differences (see `docs/pca/flows_handoff.md`).
+- **Dual coding "in the delay" = the GEOMETRY (stable action axis), not a strong trial-by-trial signal.**
+  The codes1d choice-in-delay separation may be **sample leakage** (on DPA, choice = match = sample==test);
+  the stimulus-controlled test found only a small **Expert-only lick-readiness** (~0.18σ, marginal). Don't
+  assert a strong maintained action *signal* — only the coexisting axis.
+- **Rank-2 flows are DESCRIPTIVE, not predictive.** The per-regime R² quoted (A +0.96, C +0.70…) are
+  **IN-SAMPLE**; the honest **pooled CV vel-R² ≈ 0** (best +0.17 for diag). Bistability is **gain/anchor-
+  dependent** (monostable at the CV gain 0.2) and **shallow (robust in ~3/9 mice)** — an illustration of the
+  WM landscape, not a validated dynamical model. Researcher DOF (train epoch/window/plane/anchor/gain) were
+  tuned this session (failures retracted + documented, but not pre-registered).
+
+**Bottom line to claim:** independent, temporally-stable codes + a population-level no-lick push that
+sharpens the memory/action geometry with learning. Suggestive: the sample×choice orthogonalisation.
+Descriptive only: the rank-2 flows. De-emphasise: individual depth↔perf and any strong delay action signal.
 
 ---
 
