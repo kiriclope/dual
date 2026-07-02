@@ -70,7 +70,7 @@ def fit_axis_weights(
     -------
     w : (n_neurons,)  mean weight across epoch_bins
     """
-    Xw, yw, _, _, _ = dataloader(
+    Xw, yw, _, _, _, _, _ = dataloader(
         X, y_df, target=target, stage=stage, context=context,
         correct=False, strata=False,
     )

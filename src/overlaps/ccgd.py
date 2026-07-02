@@ -49,9 +49,15 @@ def ccgd_validation(
         carries "weights": (n_train_times, n_features) fold-averaged discriminant
         axis in the (raw if raw=True) feature space, for cosine-similarity analyses.
     """
-    X_within, y_within, X_cross, y_cross, strata = X_y_data
+    if len(X_y_data) == 7:
+        X_within, y_within, X_cross, y_cross, X_laser, y_laser, strata = X_y_data
+    else:                              # backward compat: 5-tuple, no laser-on set
+        X_within, y_within, X_cross, y_cross, strata = X_y_data
+        X_laser, y_laser = None, None
     y_within_labels = y_within["labels"].to_numpy()
     y_cross_labels = y_cross["labels"].to_numpy()
+    has_laser = X_laser is not None and X_laser.shape[0] > 0
+    y_laser_labels = y_laser["labels"].to_numpy() if has_laser else None
 
     has_cross = X_cross.shape[0] > 0
     if not has_cross:
@@ -63,6 +69,7 @@ def ccgd_validation(
 
     within_probas, within_dfs, y_cv_within = [], [], []
     cross_probas, cross_dfs = [], []
+    laser_probas, laser_dfs = [], []
     null_info = {
         "within_mu": [], "within_sd": [],
         "cross_mu": [],  "cross_sd": [],
@@ -103,6 +110,20 @@ def ccgd_validation(
                                              y=y_cross_labels, signed=signed)
         else:
             cross_obs = None
+
+        # Laser-ON held-out projection through this fold's decoder. NOT null-
+        # calibrated — consistent with within/cross only when null_type is None
+        # (the canonical build). Fold-averaged after the loop.
+        if has_laser:
+            laser_obs = get_decision_values(est, X_laser, raw=raw,
+                                            remove_intercept=remove_intercept)
+            laser_obs = postprocess_decision(laser_obs, norms,
+                                             y=y_laser_labels, signed=signed)
+            laser_dfs.append(laser_obs)
+            l_proba = est.predict_proba(X_laser)[..., 1]
+            l_proba = (y_laser_labels[:, None, None] * l_proba
+                       + (1 - y_laser_labels[:, None, None]) * (1 - l_proba))
+            laser_probas.append(l_proba)
 
         within_null = cross_null = None
         if null_type == "weight":
@@ -175,15 +196,19 @@ def ccgd_validation(
     within_dfs = np.vstack(within_dfs)
     y_cv_within = pd.concat(y_cv_within, axis=0, ignore_index=True)
 
+    # within + optional cross-condition + optional laser-ON blocks (each fold-averaged)
+    y_blocks, p_blocks, d_blocks = [y_cv_within], [within_probas], [within_dfs]
     if has_cross:
-        cross_probas = np.mean(np.stack(cross_probas, axis=0), axis=0)
-        cross_dfs = np.mean(np.stack(cross_dfs, axis=0), axis=0)
-        y_cv = pd.concat([y_cv_within, y_cross], axis=0, ignore_index=True)
-        probas = np.vstack([within_probas, cross_probas])
-        dfs = np.vstack([within_dfs, cross_dfs])
-    else:
-        y_cv = y_cv_within
-        probas = within_probas
-        dfs = within_dfs
+        p_blocks.append(np.mean(np.stack(cross_probas, axis=0), axis=0))
+        d_blocks.append(np.mean(np.stack(cross_dfs, axis=0), axis=0))
+        y_blocks.append(y_cross)
+    if has_laser:
+        p_blocks.append(np.mean(np.stack(laser_probas, axis=0), axis=0))
+        d_blocks.append(np.mean(np.stack(laser_dfs, axis=0), axis=0))
+        y_blocks.append(y_laser)
+
+    y_cv = pd.concat(y_blocks, axis=0, ignore_index=True)
+    probas = np.vstack(p_blocks)
+    dfs = np.vstack(d_blocks)
 
     return probas, dfs, y_cv, null_info

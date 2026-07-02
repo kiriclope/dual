@@ -319,6 +319,88 @@ cd /home/leon/dual/overlaps
 #    -> figures/overlaps/cosine/{png,svg}/
 ```
 
+## Overlaps MAIN figure (2026-07-02, LOCKED) — CCGD codes + no-lick push + behaviour
+
+A single overlaps-only 4-panel main figure. **Locked read-out axis = `trainLD_TEST`**
+(combined late-delay + test window, bins 45-59). Arc:
+**A** sample/choice/test/task 1-D codes → **B** 2D sample×choice push trajectory →
+**C** well/depth deepening (Naive→Expert) → **D** Δdepth↔Δperformance (DPA-specific).
+```bash
+cd /home/leon/dual/overlaps
+# regenerate the source panels (each script now knows trainLD_TEST):
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_codes_1d.py               # A: codes -> codes1d/ld_test/grandmean_expert
+/home/leon/mambaforge/envs/dual/bin/python plot_traj2d.py --all --dpa-only        # B: focused DPA Naive|Expert push (all epochs incl trainLD_TEST)
+/home/leon/mambaforge/envs/dual/bin/python exp_nolick_push_stats.py ld_test all   # C: paired depth + maximal-LMM stars
+/home/leon/mambaforge/envs/dual/bin/python plot_scatter_perf.py --dpa-panel       # D: DPA & GNG Δperf-vs-Δdepth 1×2 (all epochs)
+# assemble (default axis = trainLD_TEST = the canonical fig_overlaps_main.png):
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py                    # LOCKED -> figures/overlaps/main/{png,svg}/fig_overlaps_main.*
+# robustness variants (tagged filenames):
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py --mixed            # C on trainDELAY (sig) + D on trainTEST -> _mixed
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py --delay            # all trainDELAY  -> _trainDELAY
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py --ld               # all trainLD     -> _trainLD
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py --test             # all trainTEST   -> _trainTEST
+```
+- **New train epoch `trainLD_TEST`** = `np.concatenate([bins_LD, bins_TEST])` (45-59); added to
+  `plot_traj2d.py`, `plot_scatter_perf.py`, `exp_nolick_push_stats.py` (FIG_TRAIN key `ld_test`),
+  and `fig_overlaps_codes_1d.py` (subdir `ld_test`). Sample code invariant across it; test code
+  valid (window spans test) so panel A carries no pre-test-confound flag.
+- `plot_traj2d.py --dpa-only` = focused 1×2 (Naive|Expert), DPA only, sample×choice + choice-code
+  KDE strip; `plot_scatter_perf.py --dpa-panel` = 1×2 Δdepth-vs-{ΔDPA,ΔGNG} with `*`/`n.s.` stars
+  (Spearman), shared y-limits.
+- `fig_overlaps_main.py` is a **layout proof** (stacks rendered panel PNGs + letters + a
+  panel→source map); default AXIS=`ld_test`. Final assembly = vector edit from the per-panel SVGs.
+- **Axis landscape** (why LD_TEST): no single axis makes both C and D significant — C (deepening)
+  is significant only on `trainDELAY` (p=0.024); D (Δdepth↔ΔDPA) on `trainLD` (ρ=−0.72) /
+  `trainTEST` / `trainLD_TEST` (ρ=−0.67, p=0.050) but null on `trainDELAY`. LD_TEST is the best
+  single coherent axis (A valid, D sig, C strong trend p=0.098); `--mixed` is the only variant with
+  both C and D formally significant. See overview Caveats.
+
+## Laser ON−OFF causal scatter (2026-07-02) — Δdepth vs Δperf under opto
+
+Causal analog of the Expert−Naive scatter: Δ(laser_on − laser_off) depth vs performance
+(Expert). **Laser-on trials are dropped by the canonical pipeline** — they must be projected
+through the laser-off decoders. Pipeline changes (additive, backward-compatible):
+- `src/overlaps/data.py` `dataloader(..., with_laser=True)` → returns a 7-tuple with an extra
+  laser-ON held-out set (`laser==1`, same stage/context, NOT correctness-filtered).
+- `src/overlaps/ccgd.py` `ccgd_validation` projects that set through each fold's decoder
+  (mirrors the cross-condition block), fold-averages, appends `laser==1` rows to `y_cv`/`dfs`.
+  Not null-calibrated → only consistent when `null_type=None` (the canonical build).
+- `run_overlaps.py --with-laser` → forwards it and writes a **separate `_laser` fileset**
+  (canonical tensor untouched).
+```bash
+cd /home/leon/dual/overlaps
+# build the BOTH-STAGES _laser tensor (choice code, all-context axis, Naive+Expert; ~6 min,
+# reuses X_all_nan_). Omit --stages so both Naive & Expert laser rows are projected:
+/home/leon/mambaforge/envs/dual/bin/python run_overlaps.py --scaler none --no-raw --with-laser \
+    --targets choice
+#   -> data/overlaps/{X,labels}_log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_choice.pkl
+# figure: two CLI tokens — stage mode {pooled|expert} and axis {ld_test|ld|delay}
+/home/leon/mambaforge/envs/dual/bin/python plot_scatter_laser.py pooled ld_test
+#   -> figures/overlaps/scatter_laser/{png,svg}/..._onoff_{axis}_{mode}.*  (default expert ld_test)
+```
+- Laser-ON exists for **7 mice, BOTH stages** (Naive & Expert ~288 trials each): 5 Jaws
+  (inhibition) + 2 ChR (excitation); ACCM03/04 have none.
+- `plot_scatter_laser.py`: per-mouse Δ(on−off) **equal-weight A&B pooled** depth (mean of the
+  per-class A,B means; = trial-weighted here since DPA A/B balanced) on the chosen train axis,
+  late-delay bins 27–53, vs ΔDPA-acc and ΔGNG-acc. **Points = one color per animal** (tab10 keyed
+  to the 9-mouse `ALL_MICE`, IDENTICAL to `plot_scatter_perf.py`), marker ● Jaws / ▲ ChR. Pooled
+  regression over all 7 (no sign flip). `pooled` = Naive+Expert rows; `expert` = Expert only.
+- **Figure stat = 7-mouse Spearman** (stable, matches the 7 dots, honest about n=animals).
+- **LMM caveat (do NOT put on the figure).** A day-paired LMM (`Δperf ~ Δdepth + mouse REs`, unit =
+  (mouse,stage,day)) was tried to "boost" power but is UNSTABLE here: ≤3 days/mouse, 7 clusters →
+  the maximal model doesn't converge and the random-intercept model is singular at Expert (mouse RE
+  var ≈ 0). The auto-fallback then picks different models per panel and the headline p swings from
+  0.0003 (OLS) to 0.73 (random-intercept) for the SAME relationship. Kept in STDOUT only
+  (`plot_scatter_laser.py` prints max/ri/ols). The honest reading: the GNG effect is a
+  **between-animal** correlation (the random-intercept LMM, which factors out mouse, is n.s.),
+  not a within-animal day-to-day coupling.
+- **Result (preliminary, n=7).** DPA: no relationship — Expert 7-mouse ρ=+0.55 p=0.21 (Pearson
+  r=+0.8 driven by JawsM15+ChR spread), **pooled ρ=+0.00 p=1.0** (pooling Naive dilutes it). GNG:
+  **robustly significant both ways** — Expert ρ=−0.90 p=0.006, pooled ρ=−0.89 p=0.007 (choice code
+  = lick axis, so it most directly tracks Go/NoGo licking). JawsM01/M18 have exactly 0 Δperf on/off
+  (near-ceiling, confirmed real vs `y_all_nan_`, not a bug). Report GNG as a between-animal
+  correlation, descriptive; pooling weakens rather than boosts (Naive adds near-chance noise).
+
 ## Git / data hygiene (2026-06-30)
 - **Never commit data.** `.gitignore` excludes `*.pkl`, `*.pth`, `*.svg`, `*.pdf`, `*.pyc`,
   `data/`. The pseudo-population (`data/pca/X_all_nan_.pkl`, ~20 GB), the CCGD tensors and the

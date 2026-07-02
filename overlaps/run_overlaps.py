@@ -158,6 +158,10 @@ flags.add_argument('--no-raw', dest='raw', action='store_false',
                    help='Disable raw-space weight back-projection')
 flags.add_argument('--correct', action='store_true',
                    help='Restrict to correct trials only')
+flags.add_argument('--with-laser', action='store_true', dest='with_laser',
+                   help='Also project laser-ON (laser==1) trials through the '
+                        'laser-off decoders; adds laser==1 rows and writes a '
+                        'separate _laser fileset (canonical tensor untouched)')
 flags.add_argument('--fit-param-epoch', action='store_true',
                    dest='fit_param_epoch',
                    help='Select C via epoch-averaged selector before fitting')
@@ -331,6 +335,8 @@ if args.raw:
     dum += '_raw'
 if args.fit_param_epoch:
     dum += '_fit_epoch'
+if args.with_laser:
+    dum += '_laser'
 if args.null_type:
     dum += f'_null_{args.null_type}'
 if sorted(args.mice) != sorted(ALL_MICE):
@@ -384,6 +390,7 @@ for mouse in args.mice:
                     X_df, y_df,
                     target=target, stage=stage, context=context,
                     correct=args.correct, strata=True,
+                    with_laser=args.with_laser,
                 )
 
                 probas, dfs, y_, null_info = ccgd_validation(
