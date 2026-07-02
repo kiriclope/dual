@@ -36,12 +36,16 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   **Quantified rigorously (2026-07-02, `exp_nolick_push_stats.py`):** the honest within-overlaps test is
   the **pooled (A&B) Naive→Expert deepening** of the late-delay choice-code depth (DPA) — a **medium-large,
   consistent** effect: Δ ≈ **−0.5 to −1.0 BLσ, dz ≈ −0.5 to −0.64, 7–8/9 mice deeper** (strongest on the
-  delay axis / all trials). **By the conservative TWO-SIDED Wilcoxon it is a TREND, not significant**
-  (pooled p2≈0.074; per-class A p2≈0.10, B p2≈0.13) — but there the **bootstrap 95% CI on the mean
-  EXCLUDES 0** ([−1.95, −0.10]) and the directional one-sided test (sign is a-priori) is p1≈0.037.
-  **Report it two-sided by default:** a population-level **trend** with a medium-large effect size and a
-  CI excluding 0, crossing p<0.05 only under the directional test. NOT significant per-sample-class or
-  per-mouse (A, B alone n.s. two-sided, CIs cross 0). So the strength is **cross-method convergence**
+  delay axis / all trials). **By the conservative TWO-SIDED test it is a TREND, not significant**
+  (pooled Wilcoxon p2≈0.074, paired t p2≈0.090; per-class A p2≈0.10, B p2≈0.13); the directional
+  one-sided test (sign is a-priori) is p1≈0.037. **Reconciled (2026-07-02, `exp_nolick_push_reconcile.py`):**
+  the percentile/BCa **bootstrap CIs that exclude 0** ([−1.93,−0.10]) are **ANTI-CONSERVATIVE at n=9** —
+  they use the ~1.96 normal quantile + a slightly smaller resampling SE, ~21% narrower than the honest
+  **t 95% CI [−2.14, +0.19] which INCLUDES 0**. So do NOT cite the bootstrap CI as significance; report
+  **p≈0.07–0.09 two-sided (t/Wilcoxon agree)** as the honest number. Not outlier-driven (rank-based
+  Wilcoxon, magnitude-insensitive, still 0.074, 7/9). **Report as a directional trend** with a
+  medium-large effect size, crossing p<0.05 only under the pre-specified one-sided test. NOT significant
+  per-sample-class or per-mouse. So the strength is **cross-method convergence**
   (dPCA + overlaps + raw ΔF/F), not the overlaps within-test p — consistent with dropping individual
   depth↔perf below.
   **Trial-level mixed model (2026-07-02, `exp_nolick_push_lmm.py`) — does NOT rescue significance:**
