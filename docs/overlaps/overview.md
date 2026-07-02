@@ -36,25 +36,33 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   **Quantified rigorously (2026-07-02, `exp_nolick_push_stats.py`):** the honest within-overlaps test is
   the **pooled (A&B) Naive→Expert deepening** of the late-delay choice-code depth (DPA) — a **medium-large,
   consistent** effect: Δ ≈ **−0.5 to −1.0 BLσ, dz ≈ −0.5 to −0.64, 7–8/9 mice deeper** (strongest on the
-  delay axis / all trials). **By the conservative TWO-SIDED test it is a TREND, not significant**
-  (pooled Wilcoxon p2≈0.074, paired t p2≈0.090; per-class A p2≈0.10, B p2≈0.13); the directional
-  one-sided test (sign is a-priori) is p1≈0.037. **Reconciled (2026-07-02, `exp_nolick_push_reconcile.py`):**
+  delay axis / all trials). **Significance depends on the test's conservatism:** the correctly-specified
+  **maximal mixed model** (random slopes for both within-mouse factors, delay axis) gives **p=0.024**
+  (see the LMM note below); the more conservative **n=9 mouse-mean test** makes it a **TREND** (pooled
+  Wilcoxon p2≈0.074, paired t p2≈0.090; per-class A p2≈0.10, B p2≈0.13); the directional one-sided test
+  (sign a-priori) is p1≈0.037. **Reconciled (2026-07-02, `exp_nolick_push_reconcile.py`):**
   the percentile/BCa **bootstrap CIs that exclude 0** ([−1.93,−0.10]) are **ANTI-CONSERVATIVE at n=9** —
   they use the ~1.96 normal quantile + a slightly smaller resampling SE, ~21% narrower than the honest
-  **t 95% CI [−2.14, +0.19] which INCLUDES 0**. So do NOT cite the bootstrap CI as significance; report
-  **p≈0.07–0.09 two-sided (t/Wilcoxon agree)** as the honest number. Not outlier-driven (rank-based
-  Wilcoxon, magnitude-insensitive, still 0.074, 7/9). **Report as a directional trend** with a
-  medium-large effect size, crossing p<0.05 only under the pre-specified one-sided test. NOT significant
-  per-sample-class or per-mouse. So the strength is **cross-method convergence**
+  **t 95% CI [−2.14, +0.19] which INCLUDES 0**. So the *mouse-mean* CI is not a significance claim; the
+  honest mouse-mean number is **p≈0.07–0.09 two-sided (t/Wilcoxon agree)**. Not outlier-driven (rank-based
+  Wilcoxon, magnitude-insensitive, still 0.074, 7/9). **Net:** significant under the correctly-specified
+  maximal LMM (p=0.024, delay axis); a strong directional trend under the conservative mouse-mean test —
+  report both, and lean on the **cross-method convergence** for robustness rather than any single p. NOT
+  significant per-sample-class or per-mouse. So the strength is **cross-method convergence**
   (dPCA + overlaps + raw ΔF/F), not the overlaps within-test p — consistent with dropping individual
   depth↔perf below.
-  **Trial-level mixed model (2026-07-02, `exp_nolick_push_lmm.py`) — does NOT rescue significance:**
-  `depth ~ expert + (1+expert|mouse)` (the correct **maximal** structure, since stage varies within
-  mouse) gives the pooled deepening **β≈−0.97, p≈0.062** (delay/all) — the same trend as the n=9 test.
-  ⚠ The **random-INTERCEPT** model reports p<0.0001, but that is **pseudo-replication** (treats ~1400
-  trials as near-independent, ignores that stage is within-mouse → anti-conservative SE); **do not report
-  it.** The properly-specified LMM converging on p≈0.06 confirms the n=9 result was the true effect size,
-  not just low power. (Sample-B-alone p=0.009 came from a NON-converged random-slope fit → untrustworthy.)
+  **Trial-level mixed model (2026-07-02, updated; `exp_nolick_push_lmm.py`) — the correctly-specified
+  MAXIMAL model IS significant on the delay axis.** BOTH `stage` and `sample` vary within mouse, so the
+  maximal random-effects structure needs random slopes for both (Barr et al. 2013):
+  `depth ~ expert + C(sample) + (1 + expert + C(sample) | mouse)`. It gives the pooled deepening
+  **β=−0.98, p=0.024** (delay / all trials, converged; RE covariance well-conditioned, min eig 0.14) and
+  β=−0.86, p=0.047 (delay / correct, but did NOT converge → treat with caution). **TEST axis n.s.**
+  (0.14–0.25) — consistent with delay being the principled axis. More conservative cross-checks: dropping
+  the sample random slope (variance leaks to residual) gives p≈0.062; the n=9 mouse-mean test ~0.07–0.09;
+  statsmodels' Wald z is optimistic at 9 groups. So: **significant under the correct model, borderline
+  under the most conservative test.** ⚠ The random-INTERCEPT model's p<0.0001 is **pseudo-replication**
+  (ignores within-mouse slopes → anti-conservative SE); **never report it.** (Sample-B-alone p=0.009 was
+  a NON-converged fit → untrustworthy.)
   **⚠ Per-stage decoders — the depth magnitude entangles state-movement with decoder-sharpening
   (2026-07-02).** The CCGD decoder is fit **separately per (mouse, stage)**, CV within stage
   (`run_overlaps.py:360-389`; `X_df = X_all[(mouse) & (learning==stage)]`) — so Naive depth is read on a

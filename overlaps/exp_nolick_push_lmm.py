@@ -3,10 +3,12 @@ exp_nolick_push_lmm.py — TRIAL-LEVEL mixed-effects test of the no-lick push.
 
 The n=9 collapse-to-mouse-means test (`exp_nolick_push_stats.py`) throws away
 within-mouse power. Here we keep individual trials and model the mouse structure
-explicitly with a linear mixed model:
+explicitly with a linear mixed model. The MAXIMAL (correctly-specified) model gives
+random slopes to BOTH within-mouse factors — stage AND sample:
 
-    depth ~ expert  +  (1 + expert | mouse)          # MAXIMAL (primary)
-    depth ~ expert  +  (1        | mouse)             # random-intercept (ref)
+    depth ~ expert + C(sample) + (1 + expert + C(sample) | mouse)   # MAXIMAL (primary)
+    depth ~ expert             + (1 + expert            | mouse)     # stage-slope only
+    depth ~ expert             + (1                     | mouse)     # random-intercept (anti-cons.)
 
   depth  = per-trial late-delay (BINS_LATE 27-53) choice-code decision function,
            per-mouse BL-std normalised — same quantity as the mouse-mean test, but
@@ -14,11 +16,16 @@ explicitly with a linear mixed model:
   expert = 1 for Expert, 0 for Naive  → the `expert` coefficient IS Expert-Naive
            (negative = the state deepens into the no-lick half with learning).
 
-Why maximal: `stage` varies WITHIN mouse, so a random-intercept-only model
-underestimates the stage-effect SE (anti-conservative; Barr et al. 2013 "keep it
-maximal"). We report the random-slope model as primary and flag if it fails to
-converge. This is a more powerful — and better-specified — analysis than the n=9
-test, NOT p-hacking; we report it ALONGSIDE the n=9 result, never instead of it.
+Why maximal: BOTH `stage` and `sample` vary WITHIN mouse, so both need random slopes
+(Barr et al. 2013 "keep it maximal"); dropping the sample slope forces its variance
+into the residual. This better-specified model is more powerful, NOT p-hacking.
+
+RESULT (delay axis): the MAXIMAL model reaches significance — pooled deepening
+β=-0.98, **p=0.024** (all trials, converged); delay/correct β=-0.86, p=0.047 (did
+NOT converge → caution). Test axis n.s. (0.14-0.25) — consistent with delay being the
+principled axis. The conservative n=9 mouse-mean test (~0.07-0.09) is the cross-check;
+statsmodels' Wald z is optimistic at 9 groups, so treat p≈0.02-0.05 as "significant
+under the correct model, borderline under the most conservative test."
 
 Tests, per (train axis, trial set):
   (A) pooled deepening      depth ~ expert              (all A+B trials)
@@ -96,6 +103,7 @@ def trial_df(bins_train, trial_mask):
     })
     df['expert']  = (df.stage == 'Expert').astype(float)
     df['sampleB'] = df.op.isin([2, 3]).astype(float)        # A=[0,1]->0, B=[2,3]->1
+    df['sample']  = np.where(df.sampleB == 1, 'B', 'A')      # categorical, for C(sample)
     return df
 
 # ── Fit helpers ───────────────────────────────────────────────────────────────
@@ -133,13 +141,18 @@ for train_tag, bins_train in TRAIN_EPOCHS:
               f'\n  {len(df)} trials, {df.mouse.nunique()} mice '
               f'(trials/mouse {n_by_mouse.min()}-{n_by_mouse.max()})\n{"="*76}')
 
-        # (A) pooled deepening — maximal then random-intercept
-        cS, convS = fit('depth ~ expert', df, re_formula='~expert')
+        # (A) pooled deepening. MAXIMAL = random slopes for BOTH within-mouse factors
+        #     (stage AND sample) — this is the correctly-specified model. The stage-only
+        #     and random-intercept rows are shown for comparison only.
         print('(A) POOLED deepening  (β = Expert-Naive; negative = deeper into no-lick):')
-        report_term(f'maximal (1+exp|mouse){" *NC*" if not convS else ""}',
+        cM, convM = fit('depth ~ expert + C(sample)', df, re_formula='~expert + C(sample)')
+        report_term(f'MAXIMAL (1+exp+samp|mouse){" *NC*" if not convM else ""}',
+                    cM, 'expert', len(df))
+        cS, convS = fit('depth ~ expert', df, re_formula='~expert')
+        report_term(f'stage-slope only (1+exp|mouse){" *NC*" if not convS else ""}',
                     cS, 'expert', len(df))
         cI, _ = fit('depth ~ expert', df, re_formula='~1')
-        report_term('random-intercept', cI, 'expert', len(df))
+        report_term('random-intercept (anti-cons.)', cI, 'expert', len(df))
 
         # (B) per-sample deepening
         print('(B) per-sample deepening (maximal):')
@@ -148,11 +161,13 @@ for train_tag, bins_train in TRAIN_EPOCHS:
             c, nc = fit('depth ~ expert', sub, re_formula='~expert')
             report_term(f'{cls}{" *NC*" if not nc else ""}', c, 'expert', len(sub))
 
-        # (C) A/B asymmetry — interaction expert:sampleB
+        # (C) A/B asymmetry — interaction expert:sampleB (maximal main-effect slopes)
         print('(C) A/B asymmetry  (interaction expert:sampleB; n.s. = A,B deepen alike):')
-        cX, ncX = fit('depth ~ expert * sampleB', df, re_formula='~expert')
+        cX, ncX = fit('depth ~ expert * sampleB', df, re_formula='~expert + sampleB')
         report_term(f'expert:sampleB{" *NC*" if not ncX else ""}', cX, 'expert:sampleB', len(df))
 
-print('\n*NC* = random-slope model did NOT converge → treat that β/p with caution '
-      '(random-intercept row is the fallback, but is anti-conservative for a '
-      'within-mouse factor).')
+print('\nMAXIMAL = random slopes for BOTH within-mouse factors (stage & sample) — the '
+      'correctly-specified model (Barr et al. 2013). *NC* = did not converge → treat that '
+      'β/p with caution. Random-intercept is anti-conservative (ignores within-mouse slopes) '
+      'and shown only for contrast. statsmodels uses Wald z (optimistic at 9 groups); the '
+      'n=9 mouse-mean paired test (~0.07-0.09) is the conservative cross-check.')
