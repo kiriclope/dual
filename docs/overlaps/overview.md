@@ -33,6 +33,43 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
 
 - **STRONG.** (i) Within-code temporal stability (cosine 0.4–0.9 ≫ floor). (ii) The **no-lick push
   deepening with learning at the POPULATION level** (robust, cross-method: dPCA + overlaps + raw ΔF/F).
+  **Quantified rigorously (2026-07-02, `exp_nolick_push_stats.py`):** the honest within-overlaps test is
+  the **pooled (A&B) Naive→Expert deepening** of the late-delay choice-code depth (DPA) — a **medium-large,
+  consistent** effect: Δ ≈ **−0.5 to −1.0 BLσ, dz ≈ −0.5 to −0.64, 7–8/9 mice deeper** (strongest on the
+  delay axis / all trials). **By the conservative TWO-SIDED Wilcoxon it is a TREND, not significant**
+  (pooled p2≈0.074; per-class A p2≈0.10, B p2≈0.13) — but there the **bootstrap 95% CI on the mean
+  EXCLUDES 0** ([−1.95, −0.10]) and the directional one-sided test (sign is a-priori) is p1≈0.037.
+  **Report it two-sided by default:** a population-level **trend** with a medium-large effect size and a
+  CI excluding 0, crossing p<0.05 only under the directional test. NOT significant per-sample-class or
+  per-mouse (A, B alone n.s. two-sided, CIs cross 0). So the strength is **cross-method convergence**
+  (dPCA + overlaps + raw ΔF/F), not the overlaps within-test p — consistent with dropping individual
+  depth↔perf below.
+  **Trial-level mixed model (2026-07-02, `exp_nolick_push_lmm.py`) — does NOT rescue significance:**
+  `depth ~ expert + (1+expert|mouse)` (the correct **maximal** structure, since stage varies within
+  mouse) gives the pooled deepening **β≈−0.97, p≈0.062** (delay/all) — the same trend as the n=9 test.
+  ⚠ The **random-INTERCEPT** model reports p<0.0001, but that is **pseudo-replication** (treats ~1400
+  trials as near-independent, ignores that stage is within-mouse → anti-conservative SE); **do not report
+  it.** The properly-specified LMM converging on p≈0.06 confirms the n=9 result was the true effect size,
+  not just low power. (Sample-B-alone p=0.009 came from a NON-converged random-slope fit → untrustworthy.)
+  **⚠ Per-stage decoders — the depth magnitude entangles state-movement with decoder-sharpening
+  (2026-07-02).** The CCGD decoder is fit **separately per (mouse, stage)**, CV within stage
+  (`run_overlaps.py:360-389`; `X_df = X_all[(mouse) & (learning==stage)]`) — so Naive depth is read on a
+  Naive-trained choice axis and Expert depth on an Expert-trained axis (distinct weight vectors in that
+  mouse's neuron space; hence the weights pkl is keyed `(mouse,stage,context,target)`). The logistic
+  **sign is pinned by the class labels** (lick=1/no-lick=0), so which side of 0 the delay state sits on
+  — and the *direction* of the Naive→Expert change — is valid. BUT a deeper Expert depth conflates (i)
+  the delay **state genuinely moving** into no-lick with (ii) the Expert **choice code being more
+  decodable** (larger decision-function magnitude). Per-mouse BL-std normalisation (pooled over stages)
+  rescales but does NOT undo the between-stage axis rotation. The clean control — project **both** stages
+  onto **one common axis** (Expert or pooled decoder; weights in the `_raw` pkl + raw activity from
+  `get_X_y_days`) and re-test — was **not run** (user declined). So report the deepening as a directional
+  claim; don't over-read its magnitude as pure geometry.
+- **A/B asymmetry ("A strong ≈−0.66 / B weak") is TRAIN-AXIS-DEPENDENT — scope it, don't headline it
+  (2026-07-02).** On the **trainTEST** axis A is deeper than B (B−A=+0.34 BLσ, dz+0.63, 1-sided p=0.064);
+  on the **delay axis the asymmetry vanishes/reverses** — B is pushed as deep or deeper than A
+  (B−A=−0.10, 1-sided p=0.88). This matches the flow section (the delay axis turns B from "buried near
+  the saddle" into a real no-lick well). ⇒ the asymmetry is a property of the TEST-axis representation,
+  not a general fact; both A and B are pushed into no-lick, comparably on the preferred delay axis.
 - **"Orthogonal" = at the ±1/√N chance floor** = statistically *independent*, NOT actively orthogonalised
   beyond chance (random axes in ~369-D are near-orthogonal anyway). Say "independent," not "orthogonalised."
 - **Orthogonalisation with learning is SUGGESTIVE, not established.** Real & reliability-controlled
@@ -272,10 +309,11 @@ with the empirical-flow "A strong / B weak, don't over-read one well vs two."
 
 **Result.** Sample memory is encoded and **maintained** through the delay (A/B separate along the
 sample axis), and **both A and B Expert-DPA delay states are pulled into the no-lick (lower) half**
-of the choice axis — the predicted geometry — though **asymmetrically: A strongly (≈−0.66 BLσ below
-baseline), B weakly (≈−0.11)**. Whether the residual delay flow reads as one well or two is shallow
-and representation-dependent — don't over-read it (the dPCA bistability set does not transfer; see
-`docs/pca/flows_handoff.md`).
+of the choice axis — the predicted geometry. The **A-strong/B-weak asymmetry (≈−0.66 vs ≈−0.11 BLσ)
+is specific to the trainTEST axis**; on the preferred **delay axis A and B are pushed comparably**
+(B is as deep or deeper) — see the rigorous stats caveat above (`exp_nolick_push_stats.py`). Whether
+the residual delay flow reads as one well or two is shallow and representation-dependent — don't
+over-read it (the dPCA bistability set does not transfer; see `docs/pca/flows_handoff.md`).
 
 ---
 
