@@ -73,7 +73,10 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   large real slope variance (SD 1.9) → same pseudo-replication. Only drop a random slope if its variance
   is ~0; here it is the dominant term. Figure (`exp_nolick_push_stats.py`) stars now use the **maximal-LMM
   p** per panel (pooled = both random slopes; A/B-only = stage slope), with **`n/c`** shown instead of a
-  star when the fit did not converge.
+  star when the fit did not converge. **Figures generated on both axes (2026-07-02):** on the **TEST**
+  axis nothing is significant (pooled p=0.141 all / 0.246 correct, A p=0.116, B `n/c`) — only the
+  **delay** axis reaches significance (pooled p=0.024). Confirms the deepening is a delay-axis effect,
+  not a property of the response-locked test axis.
   **⚠ Per-stage decoders — the depth magnitude entangles state-movement with decoder-sharpening
   (2026-07-02).** The CCGD decoder is fit **separately per (mouse, stage)**, CV within stage
   (`run_overlaps.py:360-389`; `X_df = X_all[(mouse) & (learning==stage)]`) — so Naive depth is read on a
