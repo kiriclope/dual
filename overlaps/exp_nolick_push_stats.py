@@ -31,10 +31,15 @@ import os, sys
 sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import warnings
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import statsmodels.formula.api as smf
 from scipy.stats import wilcoxon, ttest_1samp, ttest_rel
+
+warnings.filterwarnings('ignore')   # statsmodels LMM convergence chatter
 
 from src.common.options import set_options
 from src.pca.io import pkl_load
@@ -225,6 +230,32 @@ def panel_arrays(key):
 def stars(p):
     return '***' if p < 0.001 else '**' if p < 0.01 else '*' if p < 0.05 else 'n.s.'
 
+def panel_lmm_p(key):
+    """Maximal-LMM p for the Naive->Expert deepening in this panel (trial-level).
+    Pooled: both within-mouse factors get random slopes (stage AND sample).
+    A-only / B-only: sample is constant, so only the stage random slope.
+    Returns (p, converged)."""
+    base = ((y_single.tasks == 'DPA') & (y_single.target == 'choice') & fig_mask)
+    if key in ('A', 'B'):
+        base = base & y_single.odor_pair.isin([0, 1] if key == 'A' else [2, 3])
+    base = base.values
+    d = pd.DataFrame({
+        'depth':  Xe_fig[base][:, BINS_LATE].mean(1),
+        'mouse':  y_single.mouse.values[base],
+        'expert': (y_single.stage.values[base] == 'Expert').astype(float),
+        'sample': np.where(pd.Series(y_single.odor_pair.values[base]).isin([2, 3]), 'B', 'A'),
+    })
+    formula, re = ('depth ~ expert', '~expert')
+    if key == 'pooled':
+        formula, re = ('depth ~ expert + C(sample)', '~expert + C(sample)')
+    try:
+        res = smf.mixedlm(formula, d, groups=d['mouse'], re_formula=re).fit(reml=True, method='lbfgs')
+        return res.pvalues['expert'], bool(res.converged)
+    except Exception:
+        return np.nan, False
+
+Xe_fig = choice_axis(fig_bins)   # per-trial choice axis on the figure's train epoch
+
 sns.set_context('talk'); sns.set_style('ticks')
 plt.rc('axes.spines', top=False, right=False)
 matplotlib.rcParams['svg.fonttype'] = 'none'
@@ -248,22 +279,29 @@ for ax, (key, color, title) in zip(axes, PANELS):
         lo, hi = boot_ci(v)
         ax.errorbar(x + 0.06, v.mean(), yerr=[[v.mean() - lo], [hi - v.mean()]],
                     fmt='o', color='k', ms=7, capsize=4, lw=1.6, zorder=6)
-    # paired Naive->Expert deepening test. Star = TWO-SIDED Wilcoxon (conservative
-    # default, post-hoc analysis); one-sided reported alongside for transparency.
+    # Star = maximal-LMM p for the Naive->Expert deepening (correctly-specified,
+    # trial-level; pooled uses both within-mouse random slopes). dz + n/9 deeper and
+    # the conservative mouse-mean Wilcoxon are shown alongside for context.
     keep = ~(np.isnan(nai) | np.isnan(exp))
     d = exp[keep] - nai[keep]
-    try:
-        p2 = wilcoxon(d).pvalue
-        p1 = wilcoxon(d, alternative='less').pvalue
-    except ValueError:
-        p2 = p1 = np.nan
     dz = cohen_dz(d); n_deep = int((d < 0).sum())
-    ax.text(0.5, 0.98, stars(p2), transform=ax.transAxes, ha='center', va='top',
-            fontsize=20, fontweight='bold', color=color)
+    p_lmm, conv = panel_lmm_p(key)
+    try:
+        p_mm = wilcoxon(d).pvalue
+    except ValueError:
+        p_mm = np.nan
+    # a non-converged LMM p is untrustworthy → show a de-emphasised 'n/c', not a star
+    if conv and np.isfinite(p_lmm):
+        star_txt, star_col, nc = stars(p_lmm), color, ''
+    else:
+        star_txt, star_col, nc = 'n/c', '0.6', ' NC'
+    ax.text(0.5, 0.98, star_txt, transform=ax.transAxes, ha='center', va='top',
+            fontsize=20, fontweight='bold', color=star_col)
     ax.text(0.5, 0.88,
-            f'p={p2:.3f} (2-sided; 1-sided {p1:.3f})\n'
-            f'dz={dz:+.2f}   {n_deep}/{keep.sum()} deeper',
-            transform=ax.transAxes, ha='center', va='top', fontsize=9, color='0.3')
+            f'LMM p={p_lmm:.3f}{nc}\n'
+            f'dz={dz:+.2f}   {n_deep}/{keep.sum()} deeper\n'
+            f'(mouse-mean p={p_mm:.3f})',
+            transform=ax.transAxes, ha='center', va='top', fontsize=8.5, color='0.3')
     ax.axhline(0, ls='--', color='k', lw=0.8)
     ax.set_xlim(-0.3, 1.3); ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'])
     ax.set_title(title)
@@ -271,7 +309,7 @@ for ax, (key, color, title) in zip(axes, PANELS):
         ax.set_ylabel(f'choice-code depth\nlate delay, {ts_label}')
 
 fig.suptitle(f'No-lick push: late-delay choice code deepens Naive→Expert '
-             f'({fig_train_tag})   *=2-sided Wilcoxon p<0.05', fontsize=12)
+             f'({fig_train_tag})   *=maximal-LMM p<0.05  (NC=not converged)', fontsize=12)
 fig.tight_layout()
 os.makedirs(os.path.join(FIG_BASE, 'png'), exist_ok=True)
 os.makedirs(os.path.join(FIG_BASE, 'svg'), exist_ok=True)

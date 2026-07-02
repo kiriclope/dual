@@ -63,6 +63,17 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   under the most conservative test.** ⚠ The random-INTERCEPT model's p<0.0001 is **pseudo-replication**
   (ignores within-mouse slopes → anti-conservative SE); **never report it.** (Sample-B-alone p=0.009 was
   a NON-converged fit → untrustworthy.)
+  **Per-sample & the `(1|mouse)` trap — logged 2026-07-02 (delay axis).** Neither sample alone is
+  significant under the maximal model: **A-only** β=−1.18, SE=0.675, **p=0.080** (largest effect but
+  largest SE — its expert-**slope SD=1.90** ≫ intercept SD, i.e. mice vary hugely in how much they
+  deepen); **B-only** never converges (slope weakly identified, SD=0.47) → its small p is untrustworthy.
+  Only the **pooled** metric is significant (p=0.024) — pooling A+B (correlated r=0.75, both deepen)
+  doubles the trials and tightens the SE (0.43 vs A's 0.675). **Dropping the expert slope to `(1|mouse)`
+  is NOT a fix:** it "converges" and craters p (A →<0.0001, B →0.0006) precisely because it *ignores* the
+  large real slope variance (SD 1.9) → same pseudo-replication. Only drop a random slope if its variance
+  is ~0; here it is the dominant term. Figure (`exp_nolick_push_stats.py`) stars now use the **maximal-LMM
+  p** per panel (pooled = both random slopes; A/B-only = stage slope), with **`n/c`** shown instead of a
+  star when the fit did not converge.
   **⚠ Per-stage decoders — the depth magnitude entangles state-movement with decoder-sharpening
   (2026-07-02).** The CCGD decoder is fit **separately per (mouse, stage)**, CV within stage
   (`run_overlaps.py:360-389`; `X_df = X_all[(mouse) & (learning==stage)]`) — so Naive depth is read on a
