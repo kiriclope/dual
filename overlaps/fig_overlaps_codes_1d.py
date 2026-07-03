@@ -68,6 +68,12 @@ TRAIN_EPOCHS = [
     ('trainTEST',   o['bins_TEST']),   # test odor / readout (~9.5 s)
     ('trainCHOICE', o['bins_CHOICE']), # DPA choice / response (~9.5-10 s)
     ('trainDPARWD', o['bins_RWD2']),   # DPA reward / outcome (~11.5 s)
+    ('trainLD_TEST', np.concatenate([o['bins_LD'], o['bins_TEST']])),  # late delay + test combined (45-59)
+    ('trainTEST_CHOICE', np.concatenate([o['bins_TEST'], o['bins_CHOICE']])),        # test + choice (54-65)
+    ('trainLD_TEST_CHOICE',                                                          # LD + test + choice (45-65)
+     np.concatenate([o['bins_LD'], o['bins_TEST'], o['bins_CHOICE']])),
+    ('trainLDTEST05',                                                                # last 0.5s LD + first 0.5s TEST (51-56)
+     np.concatenate([o['bins_LD'][-3:], o['bins_TEST'][:3]])),
 ]
 TEST_ONSET = o['bins_TEST'][0]         # test odor absent before this bin
 # (title, target code, split column, [levels], [labels], [colours], dpa_only)
@@ -83,7 +89,9 @@ OUT = 'figures/overlaps/codes1d'
 # Each train epoch gets its own subdir; png/svg live under it (project convention).
 SUBDIR = {'trainSTIM': 'stim', 'trainED': 'ed', 'trainMD': 'md', 'trainGNGRWD': 'gng_rwd',
           'trainDELAY': 'delay', 'trainLD': 'ld', 'trainTEST': 'test',
-          'trainCHOICE': 'choice', 'trainDPARWD': 'dpa_rwd'}
+          'trainCHOICE': 'choice', 'trainDPARWD': 'dpa_rwd', 'trainLD_TEST': 'ld_test',
+          'trainTEST_CHOICE': 'test_choice', 'trainLD_TEST_CHOICE': 'ld_test_choice',
+          'trainLDTEST05': 'ldtest05'}
 
 X = pkl_load(f'X_{DUM}', path='../data/overlaps')
 y = pkl_load(f'labels_{DUM}', path='../data/overlaps')
@@ -100,6 +108,37 @@ def panel_title(ttl, code, dpa_only, test_valid):
     if code == 'test' and not test_valid:
         t += '  ⚠ pre-test confound'
     return t
+
+
+def grandmean_row(axes_row, df, base, test_valid, stage_label=None,
+                  show_titles=True, show_xlabel=True):
+    """Plot the 4 codes (per-mouse mean, then mean ± SEM over mice) into one row of
+    4 axes. stage_label (Naive/Expert) is prepended to the leftmost y-label."""
+    for c, (ttl, code, col, levels, labs, cols, dpa_only) in enumerate(VARS):
+        ax = axes_row[c]
+        ylab = (f'{stage_label} — code' if stage_label else 'code') if c == 0 else ''
+        setup(ax, ylab)
+        if not show_xlabel:
+            ax.set_xlabel('')
+        pbase = base & (y.tasks == 'DPA').to_numpy() if dpa_only else base
+        Zc = np.full_like(df, np.nan)
+        for mo in MICE:                               # per-mouse BL z-score of the code
+            mm = (y.mouse == mo).to_numpy() & (y.target == code).to_numpy()
+            z = df[mm]; z = z - z[:, BL].mean(); Zc[mm] = z / (df[mm][:, BL].std() + 1e-9)
+        for lv, lab, color in zip(levels, labs, cols):
+            per_mouse = []                            # one mean trajectory per mouse
+            for mo in MICE:
+                s = (pbase & (y.target == code).to_numpy()
+                     & (y.mouse == mo).to_numpy() & (y[col].to_numpy() == lv))
+                if s.sum() >= 3:
+                    per_mouse.append(np.nanmean(Zc[s], 0))
+            if len(per_mouse) >= 2:
+                M = np.stack(per_mouse, 0); n = M.shape[0]
+                plot_mean_sem(ax, xtime, M.mean(0), M.std(0, ddof=1) / np.sqrt(n),
+                              color, lw=1.8, label=f'{lab} (n={n})', zorder=2)
+        if show_titles:
+            ax.set_title(panel_title(ttl, code, dpa_only, test_valid), fontsize=11)
+        ax.legend(fontsize=8, frameon=False, loc='upper left')
 
 
 for TRAIN_TAG, TRAIN in TRAIN_EPOCHS:
@@ -143,25 +182,7 @@ for TRAIN_TAG, TRAIN in TRAIN_EPOCHS:
         # ---- grand mean 1 x 4: per-mouse mean trajectory, then mean ± SEM OVER MICE ----
         # (no trial pooling — each mouse contributes one trace, SEM is across the n<=9 mice)
         fig2, axes2 = plt.subplots(1, 4, figsize=(4 * W, H + 0.4), sharex=True)
-        for c, (ttl, code, col, levels, labs, cols, dpa_only) in enumerate(VARS):
-            ax = axes2[c]; setup(ax, 'code (BL σ)' if c == 0 else '')
-            pbase = base & (y.tasks == 'DPA').to_numpy() if dpa_only else base
-            Zc = np.full_like(df, np.nan)
-            for mo in MICE:                               # per-mouse BL z-score of the code
-                mm = (y.mouse == mo).to_numpy() & (y.target == code).to_numpy()
-                z = df[mm]; z = z - z[:, BL].mean(); Zc[mm] = z / (df[mm][:, BL].std() + 1e-9)
-            for lv, lab, color in zip(levels, labs, cols):
-                per_mouse = []                            # one mean trajectory per mouse
-                for mo in MICE:
-                    s = (pbase & (y.target == code).to_numpy()
-                         & (y.mouse == mo).to_numpy() & (y[col].to_numpy() == lv))
-                    if s.sum() >= 3:
-                        per_mouse.append(np.nanmean(Zc[s], 0))
-                if len(per_mouse) >= 2:
-                    M = np.stack(per_mouse, 0); n = M.shape[0]
-                    plot_mean_sem(ax, xtime, M.mean(0), M.std(0, ddof=1) / np.sqrt(n),
-                                  color, lw=1.8, label=f'{lab} (n={n})', zorder=2)
-            ax.set_title(panel_title(ttl, code, dpa_only, test_valid), fontsize=11); ax.legend(fontsize=8, frameon=False, loc='upper left')
+        grandmean_row(axes2, df, base, test_valid)
         fig2.suptitle(f'Overlaps 1-D codes — {STAGE} (per-mouse mean, then mean ± SEM over mice, {TRAIN_TAG})', y=1.04)
         fig2.tight_layout()
         p2 = os.path.join(OUT, sub, 'png', f'overlaps_codes1d_grandmean_{tag}.png')
@@ -173,7 +194,7 @@ for TRAIN_TAG, TRAIN in TRAIN_EPOCHS:
         # high-trial mice dominate). The honest error bar is the grandmean (over mice) above.
         fig3, axes3 = plt.subplots(1, 4, figsize=(4 * W, H + 0.4), sharex=True)
         for c, (ttl, code, col, levels, labs, cols, dpa_only) in enumerate(VARS):
-            ax = axes3[c]; setup(ax, 'code (BL σ)' if c == 0 else '')
+            ax = axes3[c]; setup(ax, 'code' if c == 0 else '')
             pbase = base & (y.tasks == 'DPA').to_numpy() if dpa_only else base
             Zc = np.full_like(df, np.nan)
             for mo in MICE:                               # per-mouse BL z-score of the code
@@ -191,3 +212,17 @@ for TRAIN_TAG, TRAIN in TRAIN_EPOCHS:
         p3 = os.path.join(OUT, sub, 'png', f'overlaps_codes1d_pooled_{tag}.png')
         fig3.savefig(p3, dpi=300, bbox_inches='tight'); fig3.savefig(p3.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
         plt.close(fig3); print('saved', p3)
+
+    # ---- combined 2 x 4 grand mean: Naive (top) + Expert (bottom) — main-figure panel A ----
+    figC, axesC = plt.subplots(2, 4, figsize=(4 * W, 2 * (H + 0.4)), sharex=True)
+    for ri, STG in enumerate(['Naive', 'Expert']):
+        b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
+        grandmean_row(axesC[ri], df, b, test_valid, stage_label=STG,
+                      show_titles=(ri == 0), show_xlabel=(ri == 1))
+    figC.suptitle(f'Overlaps 1-D codes — Naive (top) vs Expert (bottom) '
+                  f'(per-mouse mean, then mean ± SEM over mice, {TRAIN_TAG})', y=1.02)
+    figC.tight_layout()
+    pC = os.path.join(OUT, sub, 'png', 'overlaps_codes1d_grandmean_naive_expert.png')
+    figC.savefig(pC, dpi=300, bbox_inches='tight')
+    figC.savefig(pC.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
+    plt.close(figC); print('saved', pC)

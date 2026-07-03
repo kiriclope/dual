@@ -86,11 +86,14 @@ options = set_options(
 BINS_BL   = options['bins_BL']
 BINS_LATE = np.arange(27, 54)                                    # test-time late-delay window
 
-# Read-out (train) axis, selectable on the CLI: ld_test (default) | ld | delay
+# Read-out (train) axis, CLI-selectable: ld_test (default) | ld | delay | test | ldtest05
 AXES = {
     'ld_test': np.concatenate([options['bins_LD'], options['bins_TEST']]),  # 45-59
     'ld':      options['bins_LD'],                                           # 45-53
     'delay':   options['bins_DELAY'],                                        # 18-53
+    'test':    options['bins_TEST'],                                         # 54-59
+    # narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51-56, 8.5-9.33 s)
+    'ldtest05': np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]]),
 }
 AXIS = next((a for a in AXES if a in sys.argv[1:]), 'ld_test')
 BINS_TRAIN = AXES[AXIS]

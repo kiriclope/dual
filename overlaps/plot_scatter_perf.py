@@ -81,6 +81,8 @@ TRAIN_EPOCHS = [
     ('trainTEST_CHOICE', np.concatenate([options['bins_TEST'], options['bins_CHOICE']])),
     ('trainLD_TEST_CHOICE',
      np.concatenate([options['bins_LD'], options['bins_TEST'], options['bins_CHOICE']])),
+    # narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51-56)
+    ('trainLDTEST05', np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])),
 ]
 
 # ── Load ──────────────────────────────────────────────────────────────────────

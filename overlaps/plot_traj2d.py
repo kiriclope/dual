@@ -8,6 +8,12 @@ Epoch boundaries marked with symbols.
 
 Layout: 2 rows (Naive / Expert) × 3 cols (DPA / DualGo / DualNoGo).
 One figure per train epoch.
+
+Flags:
+  --all       use all laser-off trials (default: correct only)
+  --dpa-only  focused paper panel: DPA only, 1 row × 2 cols (Naive | Expert)
+              side-by-side, with the choice-code distribution strip. Written
+              alongside the full figure as <stem>_dpaonly.{png,svg}.
 """
 
 import matplotlib
@@ -21,6 +27,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 from scipy.stats import gaussian_kde
 import seaborn as sns
 
@@ -64,6 +71,7 @@ DATA_IN  = '../data/overlaps'
 # Trial set: 'correct' (default) = correct trials only; 'all' = all laser-off
 # (correct + incorrect). Pass 'all' (or --all) on the command line.
 TRIALS   = 'all' if {'all', '--all'} & set(sys.argv[1:]) else 'correct'
+DPA_ONLY = '--dpa-only' in sys.argv[1:]   # focused Naive|Expert DPA paper panel
 FIG_BASE = f'./figures/overlaps/traj2d/{TRIALS}'
 os.makedirs(os.path.join(FIG_BASE, 'png'), exist_ok=True)
 os.makedirs(os.path.join(FIG_BASE, 'svg'), exist_ok=True)
@@ -105,6 +113,13 @@ TRAIN_EPOCHS = [
     ('trainDELAY',  options['bins_DELAY']),
     ('trainCHOICE', options['bins_CHOICE']),
     ('trainED',     options['bins_ED']),
+    ('trainLD',     options['bins_LD']),
+    ('trainLD_TEST', np.concatenate([options['bins_LD'], options['bins_TEST']])),
+    ('trainTEST_CHOICE', np.concatenate([options['bins_TEST'], options['bins_CHOICE']])),
+    ('trainLD_TEST_CHOICE',
+     np.concatenate([options['bins_LD'], options['bins_TEST'], options['bins_CHOICE']])),
+    # narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51-56)
+    ('trainLDTEST05', np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])),
 ]
 
 # Trajectories are drawn up to the test offset (end of the test epoch).
@@ -163,6 +178,69 @@ def mouse_trajectories(X_ep, cond, stage, target, odor_pairs=None):
         trajs.append(X_ep[mask].mean(0))   # (T_test,)
     return trajs
 
+
+def draw_traj(ax, stage, cond, traj, xlim, ylim):
+    """Draw the per-odor-pair 2D trajectories for one (stage, cond) into ax."""
+    for pair_id in PAIR_LABELS:
+        xs, ys = traj[stage][cond][pair_id]
+        if not xs or not ys:
+            continue
+        color = PAIR_COLOR[pair_id]
+
+        # Truncate at the test offset
+        arr_x = np.stack(xs, 0)[:, :TRAJ_END]   # (n_mice, T')
+        arr_y = np.stack(ys, 0)[:, :TRAJ_END]
+        n_mice = arr_x.shape[0]
+        x_mean, y_mean = arr_x.mean(0), arr_y.mean(0)
+        x_sem = arr_x.std(0, ddof=1) / np.sqrt(n_mice)
+        y_sem = arr_y.std(0, ddof=1) / np.sqrt(n_mice)
+
+        # SEM-over-mice band around the mean path
+        sem_band(ax, x_mean, y_mean, x_sem, y_sem, color)
+        # Group-mean path coloured by time (light → full pair colour)
+        plot_gradient_line(ax, x_mean, y_mean, color)
+        add_arrows(ax, x_mean, y_mean, color, n_arrows=3)
+
+    ax.axhline(0, color='0.85', lw=0.6, zorder=0)
+    ax.axvline(0, color='0.85', lw=0.6, zorder=0)
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+    ax.set_aspect('equal', adjustable='box')
+    ax.set_xticks([-4, -2, 0, 2, 4])
+    ax.set_yticks([-2, 0, 2, 4, 6])
+    ax.tick_params(length=3, width=0.9)
+    for artist in ax.collections:
+        artist.set_clip_on(True)
+
+
+def draw_hist(ax_h, stage, cond, traj, ylim):
+    """Draw the choice-code (over BINS_DELAY) distribution strip; return legend handles."""
+    y_grid = np.linspace(ylim[0], ylim[1], 300)
+    hist_handles = []
+    for label, pairs, color in SAMPLE_SPLITS_HIST:
+        vals = []
+        for pair_id in pairs:
+            ys_list = traj[stage][cond][pair_id][1]
+            for y_traj in ys_list:
+                vals.extend(y_traj[BINS_DELAY].tolist())
+        if len(vals) < 2:
+            continue
+        kde  = gaussian_kde(vals, bw_method=0.4)
+        dens = kde(y_grid)
+        ax_h.fill_betweenx(y_grid, 0, dens, color=color, alpha=0.35, lw=0)
+        ax_h.plot(dens, y_grid, color=color, lw=1.2)
+        mean_val = np.mean(vals)
+        ax_h.axhline(mean_val, color=color, lw=1.4, ls='--', alpha=0.9, zorder=5)
+        hist_handles.append(Patch(facecolor=color, alpha=0.6, label=f'Sample {label}'))
+
+    ax_h.axhline(0, color='0.85', lw=0.6, zorder=0)
+    ax_h.set_xlim(left=0)
+    ax_h.tick_params(left=False, labelleft=False, bottom=False, labelbottom=False)
+    ax_h.spines['left'].set_visible(False)
+    ax_h.spines['bottom'].set_visible(False)
+    ax_h.spines['top'].set_visible(False)
+    return hist_handles
+
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 for train_tag, bins_train in TRAIN_EPOCHS:
@@ -191,6 +269,45 @@ for train_tag, bins_train in TRAIN_EPOCHS:
     xlim = (-4, 4)
     ylim = (-2, 6)
 
+    # ── Focused DPA-only paper panel: 1 row × 2 cols (Naive | Expert) ──────────
+    if DPA_ONLY:
+        cond = 'DPA'
+        hist_w = 0.9
+        fig = plt.figure(figsize=(2 * width + 2 * hist_w, height),
+                         constrained_layout=True)
+        gs  = gridspec.GridSpec(1, 4, figure=fig,
+                                width_ratios=[width, hist_w, width, hist_w])
+        ax0 = None
+        for ci, stage in enumerate(STAGES):
+            at = fig.add_subplot(gs[0, ci * 2])
+            ah = fig.add_subplot(gs[0, ci * 2 + 1], sharey=at)
+            if ax0 is None:
+                ax0 = at
+            else:
+                at.sharex(ax0)
+                at.sharey(ax0)
+            draw_traj(at, stage, cond, traj, xlim, ylim)
+            at.set_title(stage, pad=6)
+            at.set_xlabel('Sample code')
+            if ci == 0:
+                at.set_ylabel('Choice code')
+            hist_handles = draw_hist(ah, stage, cond, traj, ylim)
+            if ci == 0 and hist_handles:
+                ah.legend(handles=hist_handles, frameon=False, fontsize=7,
+                          loc='upper right', handlelength=0.8, handletextpad=0.3,
+                          labelspacing=0.25, borderaxespad=0.2)
+        # odor-pair legend on the last (Expert) trajectory panel
+        pair_handles = [Line2D([0], [0], color=PAIR_COLOR[p], lw=2.0,
+                               label=PAIR_LABELS[p]) for p in PAIR_LABELS]
+        fig.axes[-2].legend(handles=pair_handles, frameon=False, loc='upper right',
+                            handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3)
+        stem = f'{DUM}_{train_tag}_dpaonly'
+        fig.savefig(os.path.join(FIG_BASE, 'png', f'{stem}.png'), bbox_inches='tight')
+        fig.savefig(os.path.join(FIG_BASE, 'svg', f'{stem}.svg'), bbox_inches='tight')
+        plt.close(fig)
+        print(f'saved {os.path.join(FIG_BASE, "png", stem + ".png")}')
+        continue
+
     # ── Figure ────────────────────────────────────────────────────────────────
     n_rows, n_cols = len(STAGES), len(CONDITIONS)
     # Each condition gets a wide 2D panel + a narrow histogram strip.
@@ -218,37 +335,7 @@ for train_tag, bins_train in TRAIN_EPOCHS:
             ax   = axes_traj[ri, ci]
             ax_h = axes_hist[ri, ci]
 
-            for pair_id in PAIR_LABELS:
-                xs, ys = traj[stage][cond][pair_id]
-                if not xs or not ys:
-                    continue
-                color = PAIR_COLOR[pair_id]
-
-                # Truncate at the test offset
-                arr_x = np.stack(xs, 0)[:, :TRAJ_END]   # (n_mice, T')
-                arr_y = np.stack(ys, 0)[:, :TRAJ_END]
-                n_mice = arr_x.shape[0]
-                x_mean, y_mean = arr_x.mean(0), arr_y.mean(0)
-                x_sem = arr_x.std(0, ddof=1) / np.sqrt(n_mice)
-                y_sem = arr_y.std(0, ddof=1) / np.sqrt(n_mice)
-
-                # SEM-over-mice band around the mean path
-                sem_band(ax, x_mean, y_mean, x_sem, y_sem, color)
-
-                # Group-mean path coloured by time (light → full pair colour)
-                plot_gradient_line(ax, x_mean, y_mean, color)
-                add_arrows(ax, x_mean, y_mean, color, n_arrows=3)
-
-            ax.axhline(0, color='0.85', lw=0.6, zorder=0)
-            ax.axvline(0, color='0.85', lw=0.6, zorder=0)
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-            ax.set_aspect('equal', adjustable='box')
-            ax.set_xticks([-4, -2, 0, 2, 4])
-            ax.set_yticks([-2, 0, 2, 4, 6])
-            ax.tick_params(length=3, width=0.9)
-            for artist in ax.collections:
-                artist.set_clip_on(True)
+            draw_traj(ax, stage, cond, traj, xlim, ylim)
 
             if ri == 0:
                 ax.set_title(cond, pad=6)
@@ -261,36 +348,7 @@ for train_tag, bins_train in TRAIN_EPOCHS:
                             fontsize=11, rotation=-90, va='center', ha='left',
                             color='0.3')
 
-            # ── Histogram: choice code over BINS_DELAY ───────────────────────
-            y_grid   = np.linspace(ylim[0], ylim[1], 300)
-            hist_handles = []
-            for label, pairs, color in SAMPLE_SPLITS_HIST:
-                vals = []
-                for pair_id in pairs:
-                    ys_list = traj[stage][cond][pair_id][1]
-                    for y_traj in ys_list:
-                        vals.extend(y_traj[BINS_DELAY].tolist())
-                if len(vals) < 2:
-                    continue
-                kde  = gaussian_kde(vals, bw_method=0.4)
-                dens = kde(y_grid)
-                ax_h.fill_betweenx(y_grid, 0, dens,
-                                   color=color, alpha=0.35, lw=0)
-                ax_h.plot(dens, y_grid, color=color, lw=1.2)
-                mean_val = np.mean(vals)
-                ax_h.axhline(mean_val, color=color, lw=1.4,
-                             ls='--', alpha=0.9, zorder=5)
-                from matplotlib.patches import Patch
-                hist_handles.append(Patch(facecolor=color, alpha=0.6,
-                                          label=f'Sample {label}'))
-
-            ax_h.axhline(0, color='0.85', lw=0.6, zorder=0)
-            ax_h.set_xlim(left=0)
-            ax_h.tick_params(left=False, labelleft=False,
-                             bottom=False, labelbottom=False)
-            ax_h.spines['left'].set_visible(False)
-            ax_h.spines['bottom'].set_visible(False)
-            ax_h.spines['top'].set_visible(False)
+            hist_handles = draw_hist(ax_h, stage, cond, traj, ylim)
 
             if ri == 0:
                 ax_h.set_title('choice\ndist.', fontsize=8, pad=4,

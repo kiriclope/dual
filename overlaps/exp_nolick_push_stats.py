@@ -67,7 +67,12 @@ BINS_BL   = options['bins_BL']
 BINS_LATE = np.arange(27, 54)
 
 TRAIN_EPOCHS = [('trainTEST', options['bins_TEST']),      # canonical / headline
-                ('trainDELAY', options['bins_DELAY'])]    # robustness
+                ('trainDELAY', options['bins_DELAY']),    # robustness
+                ('trainLD', options['bins_LD']),          # late-delay robustness
+                ('trainLD_TEST',                          # late delay + test combined
+                 np.concatenate([options['bins_LD'], options['bins_TEST']])),
+                ('trainLDTEST05',                         # last 0.5s LD + first 0.5s TEST (51-56)
+                 np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]]))]
 
 # Sample A = odor_pairs [0,1] (indigo), Sample B = [2,3] (teal)  — CLAUDE.md convention
 SAMPLE_CLASSES = [('A', [0, 1]), ('B', [2, 3])]
@@ -208,7 +213,18 @@ for train_tag, bins_train in TRAIN_EPOCHS:
 #    Default = delay axis, correct trials (the preferred axis; A/B pushed comparably).
 
 FIG_TRAIN = {'test': ('trainTEST', options['bins_TEST']),
-             'delay': ('trainDELAY', options['bins_DELAY'])}
+             'delay': ('trainDELAY', options['bins_DELAY']),
+             'ld': ('trainLD', options['bins_LD']),
+             'ld_test': ('trainLD_TEST',
+                         np.concatenate([options['bins_LD'], options['bins_TEST']])),
+             'choice': ('trainCHOICE', options['bins_CHOICE']),
+             'test_choice': ('trainTEST_CHOICE',
+                             np.concatenate([options['bins_TEST'], options['bins_CHOICE']])),
+             'ld_test_choice': ('trainLD_TEST_CHOICE',
+                                np.concatenate([options['bins_LD'], options['bins_TEST'],
+                                                options['bins_CHOICE']])),
+             'ldtest05': ('trainLDTEST05',
+                          np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]]))}
 fig_axis, fig_ts = 'delay', 'correct'
 for a in sys.argv[1:]:
     if a in FIG_TRAIN:            fig_axis = a
