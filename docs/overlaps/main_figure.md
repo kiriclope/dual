@@ -30,7 +30,7 @@ teal). "Depth" = late-delay position on the choice code; negative = no-lick half
 
 | panel | content | headline stat |
 |---|---|---|
-| **A** | 1-D codes over the trial: sample / choice / test / task (task rides the choice axis). Read-out spans the test epoch → the **test code is valid** (no pre-test confound). | sample epoch-invariant; choice code non-flat in delay |
+| **A** | 1-D codes over the trial (sample / choice / test / task; task rides the choice axis), **2 rows: Naive (top) / Expert (bottom)** so the learning change is visible in the codes. Read-out spans the test epoch → the **test code is valid** (no pre-test confound). | sample epoch-invariant; choice/lick code non-flat in delay; deepens Naive→Expert |
 | **B** | The no-lick push in the sample × choice plane: DPA state Naive→Expert (focused 1×2, Naive \| Expert). | Expert DPA state sits deeper in no-lick |
 | **C** | Well deepening: per-mouse late-delay depth Naive→Expert + maximal-LMM stars. | pooled dz=−0.53, 8/9 mice, LMM **p=0.098** (trend) |
 | **D** | Δ accuracy vs Δ depth (**Expert−Naive**, learning), 1×2: ΔDPA and ΔGNG. | ΔDPA ρ=−0.67 **p=0.050** *; ΔGNG null → DPA-specific |
@@ -51,7 +51,7 @@ the right. `plot_scatter_perf.py --dpa-panel` achieves this by applying E's rcPa
 
 ## 3. The canonical CCGD tensor (build once, ~19 min)
 
-All four panels read the canonical (laser-off) tensor `log_generalizing_overlaps_none_l1_ratio_0.0`
+Panels A–D read the canonical (laser-off) tensor `log_generalizing_overlaps_none_l1_ratio_0.0`
 from `data/overlaps/`. Build it (reuses `data/pca/X_all_nan_.pkl`; DUM = **generalizing**, scaler
 `none`, l1_ratio 0.0, `null_type=None`, correct=False, contexts=all, both stages, all targets):
 
@@ -67,9 +67,11 @@ function, averaged over the **train** bins of the read-out axis, then over the *
 late-delay window `BINS_LATE = arange(27,54)`.
 
 Read-out axes (train bins): `trainLD_TEST` = bins **45–59** (`bins_LD` 45–53 ⊕ `bins_TEST` 54–59) —
-the locked axis. Others: `trainDELAY` 18–53, `trainLD` 45–53, `trainTEST` 54–59.
+the locked axis. Others: `trainDELAY` 18–53, `trainLD` 45–53, `trainTEST` 54–59, and
+**`trainLDTEST05`** = bins **51–56** (8.5–9.33 s) — the *narrow LD/TEST boundary*: last 0.5 s of LD
++ first 0.5 s of TEST (`bins_LD[-3:] ⊕ bins_TEST[:3]`; 0.5 s = 3 bins at frame_rate 6).
 
-## 4. Build the four panels
+## 4. Build the five panels
 
 Each panel script writes its own PNG+SVG under `figures/overlaps/…`; the assembler picks them up.
 
@@ -77,8 +79,9 @@ Each panel script writes its own PNG+SVG under `figures/overlaps/…`; the assem
 cd /home/leon/dual/overlaps
 
 # A — 1-D codes (regenerates the FULL epoch sweep: ~4 min, many epochs × stages × variants)
+#     emits a 2-row Naive/Expert grand-mean per epoch (grandmean_naive_expert) — panel A uses it
 /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_codes_1d.py
-#   -> figures/overlaps/codes1d/ld_test/png/overlaps_codes1d_grandmean_expert.png
+#   -> figures/overlaps/codes1d/ld_test/png/overlaps_codes1d_grandmean_naive_expert.png
 
 # B — no-lick push, focused DPA Naive|Expert (all laser-off trials)
 /home/leon/mambaforge/envs/dual/bin/python plot_traj2d.py --all --dpa-only
@@ -113,19 +116,21 @@ cd /home/leon/dual/overlaps
 lettered figure and prints the panel→source map. **Final publication assembly = vector-edit the
 per-panel SVG twins** listed in its output. The `AXES` dict maps each variant to
 `(codes_epoch, push_ax, deepset, scatter_ax)`. **Panel E** is appended only on axes with a laser
-twin (`LASER_AX = {ld_test, ld, delay}`, Expert stage via `LASER_MODE`); on `test`/`mixed`/`choice…`
-it is skipped (the assembler drops any missing panel), so those variants stay 4-panel.
+twin (`LASER_AX = {ld_test, ld, delay, test, ldtest05}`, Expert stage via `LASER_MODE`); on
+`mixed`/`choice…` it is skipped (the assembler drops any missing panel), so those variants stay
+4-panel.
 
-Axis variants (flag → filename tag):
+Axis variants (flag → filename tag; all 5-panel unless noted):
 
 | flag | panels-on | file suffix |
 |---|---|---|
 | *(none)* | `ld_test` — **locked** (A valid, D sig, C strong trend) | *(none)* |
-| `--mixed` | C on `trainDELAY` (p=0.024) + D on `trainTEST` (ρ=−0.67) | `_mixed` |
+| `--mixed` | C on `trainDELAY` (p=0.024) + D on `trainTEST` (ρ=−0.67); *4-panel, no E* | `_mixed` |
 | `--delay` | all `trainDELAY` | `_trainDELAY` |
 | `--test` | all `trainTEST` | `_trainTEST` |
 | `--ld` | all `trainLD` | `_trainLD` |
-| `--choice` / `--test_choice` / `--ld_test_choice` | choice-inclusive axes | `_trainCHOICE` etc. |
+| `--ldtest05` | all `trainLDTEST05` (narrow ±0.5 s LD/TEST boundary) | `_trainLDTEST05` |
+| `--choice` / `--test_choice` / `--ld_test_choice` | choice-inclusive axes; *4-panel, no E* | `_trainCHOICE` etc. |
 
 ## 6. Why `trainLD_TEST` is the locked axis
 
@@ -141,6 +146,18 @@ Axis variants (flag → filename tag):
 `--mixed` variant (C on delay, D on test) is the only one with **both** C and D formally
 significant, but it mixes axes across panels. Report `trainLD_TEST` as the main figure and cite
 `--mixed` / `--delay` for robustness.
+
+**Across the assembled variants** (C = deepening, D = learning scatter, E = laser scatter):
+
+| axis | C (deepening) | D (learning) | E (laser) |
+|---|---|---|---|
+| `trainLD_TEST` (locked) | p=0.098 (trend) | DPA ρ=−0.67 **p=0.050 \*** | GNG ρ=−0.90 **p=0.006 \*** |
+| `trainDELAY` | **p=0.024 \*** | null (ρ=−0.17) | GNG ρ=−0.70 p=0.078 |
+| `trainTEST` | p=0.141 | DPA ρ=−0.67 **p=0.050 \*** | GNG ρ=−0.94 **p=0.002 \*** (A test code has the pre-test confound) |
+| `trainLDTEST05` (±0.5 s) | p=0.067 (trend) | DPA ρ=−0.52 p=0.154 | GNG ρ=−0.77 **p=0.041 \*** |
+
+`trainLDTEST05` gives the strongest deepening trend of the coherent axes and keeps E-GNG significant,
+but weakens D-DPA to n.s. — it trades D-significance for a cleaner C.
 
 ## 7. Stats summary (n = 9 mice)
 
