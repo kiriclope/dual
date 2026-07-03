@@ -439,4 +439,75 @@ for train_tag, bins_train in TRAIN_EPOCHS:
         plt.close(fig)
         print(f'saved {os.path.join(fig_dir, "png", stem + ".png")}')
 
+      # ── AB twin: treat odor-A and odor-B samples as INDEPENDENT points ─────────
+      #   Same styling as _dpa_panel, but each mouse contributes TWO dots (sample A
+      #   and sample B), doubling n (9→18). x = per-sample Δ DPA depth; y = per-sample
+      #   Δ accuracy. Marker encodes sample (● A / ▲ B), color still encodes mouse; the
+      #   two dots of a mouse are joined by a thin line. Stats are over all 2×9 points.
+      with plt.rc_context(E_RC):
+        fig, axes = plt.subplots(1, 2, figsize=(9, 3.7))
+        specs = [(delta_dpa_perf_sample, 'Δ DPA accuracy (Exp−Naive)'),
+                 (delta_gng_perf_sample, 'Δ GNG accuracy (Exp−Naive)')]
+        ally = np.array([d[(m, c)] for d, _ in specs for m in ALL_MICE
+                         for c, *_ in [(0,), (1,)]], float)
+        ally = ally[~np.isnan(ally)]
+        ypad = (ally.max() - ally.min()) * 0.15 or 0.05
+        ylim = (ally.min() - ypad, ally.max() + ypad)
+        for ax, (yv_dict, ylabel) in zip(axes, specs):
+            xs, ys = [], []
+            for mouse in ALL_MICE:
+                pts_x, pts_y = [], []
+                for cls_label, _, _, _ in SAMPLE_CLASSES:
+                    xx = delta_choice_sample[(mouse, 'DPA', cls_label)]
+                    yy = yv_dict.get((mouse, cls_label), np.nan)
+                    pts_x.append(xx); pts_y.append(yy)
+                    xs.append(xx); ys.append(yy)
+                    if not (np.isnan(xx) or np.isnan(yy)):
+                        # marker convention IDENTICAL to panel E: shape = opto-group
+                        # (● Jaws / ▲ ChR / ■ ACC), fill = sample (A solid / B open)
+                        face = MOUSE_COLOR[mouse] if cls_label == 0 else 'w'
+                        ax.scatter(xx, yy, facecolors=face, edgecolors=MOUSE_COLOR[mouse],
+                                   marker=GMARKER[GROUP[mouse]], s=90, linewidths=1.2,
+                                   zorder=5,
+                                   label=mouse if (ax is axes[1] and cls_label == 0)
+                                   else None)
+                ax.plot(pts_x, pts_y, '-', color=MOUSE_COLOR[mouse],
+                        lw=0.8, alpha=0.5, zorder=3)
+            xs = np.array(xs, float); ys = np.array(ys, float)
+            regression_band(ax, xs, ys, color='0.25')
+            ax.axhline(0, ls=':', color='k', lw=0.8)
+            ax.axvline(0, ls=':', color='k', lw=0.8)
+            ax.set_ylim(ylim)
+            ok = ~(np.isnan(xs) | np.isnan(ys))
+            r_p, p_p = pearsonr(xs[ok], ys[ok])
+            r_s, p_s = spearmanr(xs[ok], ys[ok])
+            txt = (f'A&B indep (n={ok.sum()}): r={r_p:+.2f} p={p_p:.3f}  '
+                   f'ρ={r_s:+.2f} p={p_s:.3f}')
+            ax.text(0.5, 1.02, txt, transform=ax.transAxes, ha='center', va='bottom',
+                    fontsize=8.5, color='0.3')
+            star = '*' if p_s < 0.05 else 'n.s.'
+            ax.text(0.9, 0.93, star, transform=ax.transAxes, ha='center', va='top',
+                    fontsize=22, fontweight='bold', color='k' if p_s < 0.05 else '0.55')
+            ax.set_xlabel('Δ DPA choice-code depth')
+            ax.set_ylabel(ylabel)
+        # sample fill (A solid / B open) + per-mouse colors — matches panel E
+        sample_h = [mlines.Line2D([0],[0], marker='o', color='k', mfc='k', ls='none',
+                                  ms=8, label='odor A (solid)'),
+                    mlines.Line2D([0],[0], marker='o', color='k', mfc='w', ls='none',
+                                  ms=8, label='odor B (open)')]
+        mouse_h  = [mlines.Line2D([0],[0], marker='o', color=MOUSE_COLOR[m], ls='none',
+                                  ms=8, label=m) for m in ALL_MICE]
+        axes[1].legend(handles=sample_h + mouse_h, frameon=False, fontsize=8,
+                       loc='upper left', bbox_to_anchor=(1.01, 1),
+                       title='sample / mouse (● Jaws / ▲ ChR / ■ ACC)', title_fontsize=8)
+        fig.suptitle(f'Learning (Expert−Naive), A&B independent: Δ depth vs Δ performance  '
+                     f'({train_tag}, late delay {BINS_LATE[0]}–{BINS_LATE[-1]}, correct)',
+                     fontsize=11, y=1.02)
+        fig.tight_layout()
+        stem = f'{DUM}_{train_tag}_dpa_panel_ab'
+        fig.savefig(os.path.join(fig_dir, 'png', f'{stem}.png'), bbox_inches='tight')
+        fig.savefig(os.path.join(fig_dir, 'svg', f'{stem}.svg'), bbox_inches='tight')
+        plt.close(fig)
+        print(f'saved {os.path.join(fig_dir, "png", stem + ".png")}')
+
 print(f'\nScatter perf → {FIG_BASE}/')

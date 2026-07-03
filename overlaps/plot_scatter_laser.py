@@ -138,6 +138,19 @@ def _perf_mean(col, task_mask, laser_val):
     v = y.loc[m.values, col].dropna()
     return v.mean() if len(v) else np.nan
 
+# ── Per-sample-class variants (A = odor_pairs [0,1], B = [2,3]) for the AB twin ──
+def _depth_sample(mmask, laser_val, pairs):
+    """Late-delay DPA depth for ONE sample class (no A&B averaging)."""
+    m = (mmask & is_choice & is_dpa & STAGE_MASK & (y.laser == laser_val).values
+         & y.odor_pair.isin(pairs).values)
+    return float(depth_all[m].mean()) if m.sum() else np.nan
+
+def _perf_mean_sample(col, task_mask, laser_val, pairs):
+    m = ((y.target == 'choice') & task_mask & STAGE_MASK & (y.laser == laser_val)
+         & y.odor_pair.isin(pairs))
+    v = y.loc[m.values, col].dropna()
+    return v.mean() if len(v) else np.nan
+
 # ── Per-mouse Δ(on − off) ─────────────────────────────────────────────────────
 
 rows = []
@@ -308,6 +321,81 @@ fig.suptitle(f'Laser ON−OFF: Δ depth vs Δ performance  ({_stage_lbl}; '
 fig.tight_layout()
 for ext in ('png', 'svg'):
     out = os.path.join(FIG_BASE, ext, f'{DUM}_onoff_{AXIS}_{MODE}.{ext}')
+    fig.savefig(out, bbox_inches='tight')
+    print(f'saved {out}')
+plt.close(fig)
+
+# ── AB twin: odor-A and odor-B samples treated as INDEPENDENT points ──────────
+#   Each mouse contributes TWO Δ(on−off) dots (sample A, sample B), doubling n
+#   (7→14). Depth/accuracy are read per sample class (no A&B averaging). Marker
+#   still encodes group (● Jaws / ▲ ChR); the sample is encoded by fill (A solid /
+#   B open) and the two dots of a mouse are joined by a thin line. Stats over all 14.
+SAMPLE_CLASSES = [(0, [0, 1], 'odor A'), (1, [2, 3], 'odor B')]
+rows_ab = []
+for mouse in LASER_MICE:
+    mmask = (y.mouse == mouse).values
+    for cls_label, pairs, _ in SAMPLE_CLASSES:
+        d_on  = _depth_sample(mmask, 1, pairs)
+        d_off = _depth_sample(mmask, 0, pairs)
+        tm = (y.mouse == mouse)
+        rows_ab.append(dict(
+            mouse=mouse, group=GROUP[mouse], cls=cls_label,
+            d_depth=d_on - d_off,
+            d_dpa=(_perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 1, pairs)
+                   - _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 0, pairs)),
+            d_gng=(_perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 1, pairs)
+                   - _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 0, pairs)),
+        ))
+
+xdepth_ab = np.array([r['d_depth'] for r in rows_ab])
+ally = np.array([r[k] for k, _ in specs for r in rows_ab], float)
+ally = ally[~np.isnan(ally)]
+pad = (ally.max() - ally.min()) * 0.15 or 0.05
+ylim = (ally.min() - pad, ally.max() + pad)
+
+fig, axes = plt.subplots(1, 2, figsize=(9, 3.7))
+for ax, (key, ylabel) in zip(axes, specs):
+    yv = np.array([r[key] for r in rows_ab])
+    # connect the two sample dots of each mouse
+    for mouse in LASER_MICE:
+        idx = [i for i, r in enumerate(rows_ab) if r['mouse'] == mouse]
+        ax.plot(xdepth_ab[idx], yv[idx], '-', color=MOUSE_COLOR[mouse],
+                lw=0.8, alpha=0.5, zorder=3)
+    for i, r in enumerate(rows_ab):
+        # A = solid fill, B = open (white face); shape = group
+        face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'
+        ax.scatter(xdepth_ab[i], yv[i], facecolors=face,
+                   edgecolors=MOUSE_COLOR[r['mouse']], marker=GMARKER[r['group']],
+                   s=90, linewidths=1.2, zorder=5,
+                   label=(r['mouse'] if (ax is axes[1] and r['cls'] == 0) else None))
+    regression_band(ax, xdepth_ab, yv, color='0.25')
+    ax.axhline(0, ls=':', color='k', lw=0.8); ax.axvline(0, ls=':', color='k', lw=0.8)
+    ax.set_ylim(ylim)
+    txt, ps = stats_txt(xdepth_ab, yv)
+    print(f"  [AB] {ylabel:26s} {txt}")
+    ax.text(0.5, 1.02, txt, transform=ax.transAxes, ha='center', va='bottom',
+            fontsize=8.5, color='0.3')
+    star = '*' if ps < 0.05 else 'n.s.'
+    ax.text(0.9, 0.93, star, transform=ax.transAxes, ha='center', va='top',
+            fontsize=22, fontweight='bold', color='k' if ps < 0.05 else '0.55')
+    ax.set_xlabel('Δ DPA choice-code depth (on−off)')
+    ax.set_ylabel(ylabel)
+
+import matplotlib.lines as mlines
+sample_h = [mlines.Line2D([0],[0], marker='o', color='k', mfc='k', ls='none',
+                          ms=8, label='odor A (solid)'),
+            mlines.Line2D([0],[0], marker='o', color='k', mfc='w', ls='none',
+                          ms=8, label='odor B (open)')]
+mouse_h  = [mlines.Line2D([0],[0], marker='o', color=MOUSE_COLOR[m], ls='none',
+                          ms=8, label=m) for m in LASER_MICE]
+axes[1].legend(handles=sample_h + mouse_h, frameon=False, fontsize=8, loc='upper left',
+               bbox_to_anchor=(1.01, 1), title='sample / mouse (● Jaws / ▲ ChR)',
+               title_fontsize=8)
+fig.suptitle(f'Laser ON−OFF, A&B independent: Δ depth vs Δ performance  ({_stage_lbl}; '
+             f'train{AXIS.upper()}, late delay 27–53)', fontsize=11, y=1.02)
+fig.tight_layout()
+for ext in ('png', 'svg'):
+    out = os.path.join(FIG_BASE, ext, f'{DUM}_onoff_{AXIS}_{MODE}_ab.{ext}')
     fig.savefig(out, bbox_inches='tight')
     print(f'saved {out}')
 plt.close(fig)

@@ -78,6 +78,11 @@ AXIS = next((a for a in ('ld_test_choice', 'test_choice', 'choice', 'ldtest05', 
              if f'--{a}' in sys.argv[1:]), 'ld_test')   # default = locked main figure
 CODES_EP, PUSH_AX, DEEPSET, SCAT_AX = AXES[AXIS]
 
+# --ab : swap panels D and E to the A&B-independent twins (each mouse contributes
+# two dots, sample A and sample B — doubles n on both scatters). Same axis/stage.
+AB     = '--ab' in sys.argv[1:]
+AB_SUF = '_ab' if AB else ''
+
 # (letter, source PNG, one-line description) — SVG twins live beside each PNG.
 panels = [
     ('A', f'{FIG_ROOT}/codes1d/{CODES_EP}/png/overlaps_codes1d_grandmean_naive_expert.png',
@@ -86,8 +91,8 @@ panels = [
      f'no-lick push: DPA state Naive->Expert (sample x choice, {PUSH_AX})'),
     ('C', f'{FIG_ROOT}/nolick_push/png/{DUM}_nolick_push_paired_{DEEPSET}_all.png',
      f'well deepening: late-delay depth Naive->Expert + maximal-LMM ({PUSH_AX})'),
-    ('D', f'{FIG_ROOT}/scatter_perf/{SCAT_AX}/png/{DUM}_{SCAT_AX}_dpa_panel.png',
-     f'Delta perf vs Delta DPA-depth: DPA & GNG specificity ({SCAT_AX})'),
+    ('D', f'{FIG_ROOT}/scatter_perf/{SCAT_AX}/png/{DUM}_{SCAT_AX}_dpa_panel{AB_SUF}.png',
+     f'Delta perf vs Delta DPA-depth: DPA & GNG specificity ({SCAT_AX}{AB_SUF})'),
 ]
 
 # E — laser ON-OFF causal analog of D. Only the ld_test/ld/delay axes have a laser
@@ -98,8 +103,8 @@ LASER_MODE = 'expert'
 _lax = LASER_AX.get(AXIS)
 if _lax:
     panels.append(
-        ('E', f'{FIG_ROOT}/scatter_laser/png/{DUM}_laser_targets_choice_onoff_{_lax}_{LASER_MODE}.png',
-         f'laser ON-OFF causal: Delta depth vs Delta perf, DPA & GNG ({_lax}, {LASER_MODE})'))
+        ('E', f'{FIG_ROOT}/scatter_laser/png/{DUM}_laser_targets_choice_onoff_{_lax}_{LASER_MODE}{AB_SUF}.png',
+         f'laser ON-OFF causal: Delta depth vs Delta perf, DPA & GNG ({_lax}, {LASER_MODE}{AB_SUF})'))
 
 # ── Load images, drop any missing ─────────────────────────────────────────────
 loaded = []
@@ -143,7 +148,7 @@ TAG = {'ld_test': '', 'mixed': '_mixed', 'test': '_trainTEST',
        'delay': '_trainDELAY', 'ld': '_trainLD',   # ld_test = canonical (no tag)
        'choice': '_trainCHOICE', 'test_choice': '_trainTEST_CHOICE',
        'ld_test_choice': '_trainLD_TEST_CHOICE', 'ldtest05': '_trainLDTEST05'}
-tag = TAG[AXIS]
+tag = TAG[AXIS] + AB_SUF
 for ext in ('png', 'svg'):
     out = os.path.join(OUT_DIR, ext, f'fig_overlaps_main{tag}.{ext}')
     fig.savefig(out, bbox_inches='tight')

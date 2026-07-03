@@ -132,6 +132,39 @@ Axis variants (flag → filename tag; all 5-panel unless noted):
 | `--ldtest05` | all `trainLDTEST05` (narrow ±0.5 s LD/TEST boundary) | `_trainLDTEST05` |
 | `--choice` / `--test_choice` / `--ld_test_choice` | choice-inclusive axes; *4-panel, no E* | `_trainCHOICE` etc. |
 
+`--ab` composes with any of the above.
+
+### 5a. `--ab` — treat samples A and B as independent points (double the dots)
+
+`--ab` swaps panels **D and E** to their **A&B-independent twins**: instead of the equal-weight A&B
+pooled depth (one dot per mouse), each mouse contributes **two** dots — one for sample A, one for
+sample B — so n doubles (D: 9→18, E: 7→14). Depth and accuracy are read per sample class (no A&B
+averaging). Output is tagged `_ab` (`fig_overlaps_main_ab.{png,svg}`); the pooled figure is
+untouched. Panels A–C are unchanged.
+
+```bash
+# regenerate the twins (both scripts always emit the _ab file alongside the pooled one)
+/home/leon/mambaforge/envs/dual/bin/python plot_scatter_perf.py --dpa-panel   # -> ..._dpa_panel_ab.{png,svg}
+/home/leon/mambaforge/envs/dual/bin/python plot_scatter_laser.py expert ld_test  # -> ..._onoff_ld_test_expert_ab.{png,svg}
+# assemble with the twins (composes with axis flags, e.g. --ab --delay)
+/home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main.py --ab
+#   -> figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.png
+```
+
+**Shared marker convention (D and E identical):** shape = opto-group (**● Jaws / ▲ ChR / ■ ACC**;
+ACC only in D), **fill = sample (odor A solid / odor B open)**, color = mouse (tab10); the two dots
+of a mouse are joined by a thin mouse-colored line. Stats are over all 2N points.
+
+**The double dissociation survives the split** (`trainLD_TEST`):
+
+| panel | DPA column | GNG column |
+|---|---|---|
+| **D** (learning, n=18) | ρ=−0.58 **p=0.011 \*** | null (ρ=+0.12) |
+| **E** (laser, n=14) | null (ρ=+0.27) | ρ=−0.60 **p=0.024 \*** |
+
+D's DPA correlation is actually *tighter* than the n=9 pooled version (ρ=−0.67 p=0.050), and E keeps
+its between-animal GNG effect — so the A&B-pooled result is not an averaging artefact.
+
 ## 6. Why `trainLD_TEST` is the locked axis
 
 **No single axis makes both C (deepening) and D (scatter) formally significant:**
@@ -188,7 +221,8 @@ but weakens D-DPA to n.s. — it trades D-significance for a cleaner C.
 - LMM detail: `exp_nolick_push_lmm.py`
 - Tensor: `data/overlaps/{X,labels}_log_generalizing_overlaps_none_l1_ratio_0.0.pkl` (gitignored —
   rebuild §3)
-- Output: `overlaps/figures/overlaps/main/{png,svg}/fig_overlaps_main[_TAG].{png,svg}`
+- Output: `overlaps/figures/overlaps/main/{png,svg}/fig_overlaps_main[_TAG][_ab].{png,svg}`
+  (`--ab` = A&B-independent D/E twins, §5a)
 - Caption: `figure_captions.org` ("Figure X (Overlaps / CCGD)")
 - Sibling docs: `overview.md` (arc + caveats), `routines.md` (run commands),
   `laser_onoff.md` (the causal analog).
