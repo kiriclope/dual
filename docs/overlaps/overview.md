@@ -104,6 +104,21 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
 - **Depth↔individual-performance — DROP as a headline.** Overlaps ρ=−0.67 is exactly at p=0.050 and
   **disagrees with the dPCA side (null: r=+0.46, p=0.21)**. The push↔behaviour link is at the
   population/average level, NOT individual differences (see `docs/pca/flows_handoff.md`).
+  **Axis landscape (2026-07-02).** The correlation is **read-out-axis-dependent**: significant on
+  the late-delay/test axes — `trainLD` ρ=−0.72 p=0.030, `trainTEST` ρ=−0.67 p=0.050, `trainLD_TEST`
+  ρ=−0.67 p=0.050 — but **null on the full `trainDELAY`** (ρ=−0.17 p=0.67, n=9). **Specificity:** Δdepth
+  predicts Δ**DPA** accuracy, NOT Δ**GNG** accuracy (ρ≈0, null on every axis) — a genuine DPA-specific
+  link. It IS panel D of the **locked main figure** (`trainLD_TEST`), captioned as a population-level,
+  DPA-specific, n=9-borderline link (still sign-contested vs the dPCA side). Do not over-claim a
+  within-animal effect.
+- **Main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
+  deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
+  default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth
+  DEEPENING (C) is significant only on `trainDELAY` (maximal-LMM p=0.024); the behaviour SCATTER (D)
+  only on LD/TEST/LD_TEST. LD_TEST is the best coherent single axis (codes valid — window spans test;
+  D significant ρ=−0.67; C a strong trend p=0.098, dz=−0.53, 8/9). The `--mixed` variant (C=trainDELAY,
+  D=trainTEST) is the only one with BOTH formally significant. Robustness variants saved as
+  `fig_overlaps_main_{mixed,trainDELAY,trainLD,trainTEST}.png`.
 - **Dual coding "in the delay" = the GEOMETRY (stable action axis), not a strong trial-by-trial signal.**
   The codes1d choice-in-delay separation may be **sample leakage** (on DPA, choice = match = sample==test);
   the stimulus-controlled test found only a small **Expert-only lick-readiness** (~0.18σ, marginal). Don't
@@ -161,7 +176,8 @@ sample axis.
 |---|---|---|
 | `plot_traj2d.py` | 2D trajectory over time + KDE strip | correct (default) or `all` laser-off (`all`/`--all` arg) |
 | `plot_flow2d.py` | Empirical flow field (speed + streamlines) | all laser-off |
-| `plot_scatter_perf.py` | Δ choice loc. vs Δ performance | x: correct; y: all |
+| `plot_scatter_perf.py` | Δ choice loc. vs Δ performance (Expert−Naive brain↔behavior scatter) | x: correct; y: all |
+| `plot_scatter_laser.py {pooled\|expert} {ld_test\|ld\|delay}` | **Causal analog: Δ(laser ON−OFF) depth vs Δ(ON−OFF) accuracy** (DPA & GNG), per-animal colors, ● Jaws inhibit / ▲ ChR excite. 7 laser mice, both stages. GNG a robust between-animal correlation (ρ≈−0.9); DPA null. **Full method + reproduction: `docs/overlaps/laser_onoff.md`** | ON & OFF (all) |
 | `plot_geometry.py` | Late-delay positions per (mouse, odor_pair) | correct only |
 | `plot_marginal.py` | 1D code vs time (Naive/Expert) | all laser-off |
 | `plot_occupancy.py` | 2D KDE occupancy at BINS_LATE | all laser-off |
@@ -173,7 +189,8 @@ sample axis.
 | `fig_overlaps_cosine.py` | cosine similarity of the decoder **weight axes** (neuron space): within-code epoch×epoch stability + between-code alignment vs chance ±1/√N. Result: codes mutually **orthogonal** all trial (sharpen with learning); axes temporally stable. Needs `run_overlaps.py --save-weights` (→ `weights_*_raw.pkl`) | all laser-off |
 | `fig_overlaps_codes_1d.py` | 1D codes: sample/choice/test each on its own code (**DPA-only**) + task on choice code (all tasks); **nine train epochs sweeping the trial (stim/ed/md/gng_rwd/delay/ld/test/choice/dpa_rwd) × both stages**; grand-mean over mice + per-mouse 9×4 grid + pooled reference; pre-test anchors flag the test panel ⚠ pre-test confound. NB the Go/NoGo distractor + GNG reward are **Dual-only** — on the DPA-only panels ed/md/gng_rwd/ld are uninterrupted maintenance timepoints (events live in the task panel). Key: sample epoch-invariant (stable memory), **choice/lick code non-flat in the delay = maintained no-lick action set (dual-coding), not foreknowledge** | correct |
 
-See `docs/overlaps/routines.md` for run commands and output paths.
+See `docs/overlaps/routines.md` for run commands and output paths, and
+`docs/overlaps/laser_onoff.md` for the standalone laser ON−OFF method + reproduction guide.
 
 ---
 
