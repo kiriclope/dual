@@ -918,6 +918,95 @@ per-neuron 1/s reweight (constant in time) → cannot bend a time course. The pu
   than the wells) and **saturates** to a uniform translation at the h needed for depth>1. Use `1−S(z)`
   (grows with activity) instead.
 
+## FULL-ARC "STORY" MAIN FIGURE (built 2026-07-02)
+
+`pca/fig_dpca_story_main.py` → `figures/pseudo/story/{png,svg}/fig_dpca_story_main[_all].{png,svg}`.
+Portrait full-page (8.6×12.6") self-contained composite telling the WHOLE dPCA arc in 4 bands (native
+GridSpec, imports only `src/pca` library, copies thin glue — source scripts NOT import-safe).
+**RESTRUCTURED 2026-07-02 (3rd user pass)** — portrait 9.2×12.9", 4-band GridSpec (`hspace=0.5`, less
+whitespace). Headers computed from axes tops, left-aligned. **Sec 1 = ONE row of 3 equal panels** (A
+schematic, B EVR scree, C marginal contrasts). **Per-task variance** now computed (`marginal_variance`:
+demixed condition-mean variance per dPCA marginal): **time 54%, tasks 31%, sample 7%, choice 7%, test 1%**
+— shown as `% of demixed variance` in C's legend. **Sec 3 = NO per-flow panel letters**, equation printed
+above the grid (no longer collides), 2×3 tight/large. **Sec 4 (5th pass — the push is a GATED DEFORMATION, not a rigid slide).** The no-lick input must enter
+INSIDE the gain nonlinearity: `ẏ = −y − h·r(z)`, `r(z)=1−S(z)=⟨tanh²(√(a²‖z‖²+δ)ξ)⟩` (`rgate`, GATE_A=0.9,
+GATE_D=0.12). r≈0 near the origin (linear regime, S≈1) and ≈1 at the wells (saturated, S≈0), so the drive
+pushes ONLY the wells (high ‖z‖) down while the centre/saddle stays pinned at 0 — a manifold deformation.
+Naive = flat reference (h=0, wells at 0); Expert = `make_flow(fx, hE)` with hE auto-tuned (1.3 correct / 1.4
+all) so the wells reach `push=dE−dN` (−0.63 / −0.66). Ghost stars at the naive level + white `learning push`
+arrows show the wells being deformed down; the saddle stays at 0 in BOTH panels (contrast this with the
+earlier `−(y−y_tgt)` linear pull, which slid the WHOLE plane down — WRONG). dN/dE (abs, LATE window) ≈
+−0.86/−1.39; learned push (=dE−dN) ≈ −0.53.
+**Panel J FIXED (6th pass).** OLD J was wrong two ways: (a) the "sample" control was the A/B **centroid**
+on the sample axis = ~0 BY SYMMETRY (A−, B+ cancel) → a trivial Δ−0.03 that can't show anything; (b) it
+plotted ABSOLUTE depths (naive −1.2) which contradicts the flow's naive=0. NEW J: **J1 "no-lick push"** =
+per-mouse push anchored to each mouse's naive well (0, cyan ref) → mean −0.59, **p=0.012**/0.027, matches
+the flow's −0.53. **J2 "sample memory"** = the separation **|B−A|** (a real quantity; `load_mouse` now
+also orients the SAMPLE axis B>A, else the sign was arbitrary per mouse) — preserved/sharpened N +1.65→E
++2.33 (p=0.10 correct / 0.02 all), confirming the two wells stay separated while pushed down. Depth window
+aligned to `LATE` in both `stage_delay` and `depth_of`. **NB `y['sample']` not `y.sample`** (the latter
+hits `DataFrame.sample`).
+**(4th pass, superseded — naive-anchored but push was a rigid pull)** (H Naive
+/ I Expert / J stats): plane = sample × no-lick(tasks), scaled ×2.8 by the pre-trial DPA ref. **Both panels
+share ONE sample bistability** (`fit_sample_bistab`, 1-D gain-modulated low-rank fit on the pooled A/B delay
+means) so the wells sit at the SAME x — only the vertical push changes. **Naive-anchored:** the naive DPA
+well is the y-origin (`draw_st` shifts trajectories by −dN), so **Naive wells sit at 0** and the **Expert
+wells are pushed to `push = dE − dN`** (−0.63 correct / −0.66 all) — the learned deepening (the paired
+p=0.012 effect). The Expert panel draws ghost stars at the naive level + white `learning push` arrows down to
+the deep wells; the A/B memories descend from delay-onset into the wells, deeper for Expert. y=0 dashed cyan
+= "naive memory level". **This replaces the earlier per-stage-Go referencing (WRONG: different baseline per
+panel, both wells below 0 — not a clean comparison).** Per-mouse tasks-depth stats unchanged (`depth_of`):
+**p=0.012** correct/**0.027** all, sample control Δ−0.03. dN/dE (abs, pre-trial ref, ×2.8) ≈ −1.03/−1.66.
+**(prior 2nd pass, superseded)** — portrait 9×15.6", 5-row GridSpec, section headers placed
+from computed axes tops (`_top()` + gap), left-aligned so they clear panel letters; `hspace=0.95`:
+- **1 Low-dimensional (A schematic, B EVR scree, C marginal contrasts)** — A = hand-drawn dPCA cartoon
+  (population → demix → sample/test/choice/tasks/time). B = **EVR scree (decaying, all 8 PCs)** of the
+  condition-mean manifold, Expert vs Naive (`exp_rank_task.py` SVD, `f-sample-test_dpca`): top-2 **94% wm /
+  82% all, PR 2.2** + honest-scope. C = the 4 dPCA marginal **contrasts** on ONE axis (sample B−A/test D−C/
+  choice lick−no-lick/tasks Go−NoGo), epoch shading `EP_SHADE` incl **GNG cue+rwd** (from `add_vlines`).
+- **2 Trajectories (D–G)** — per-condition marginal time courses: sample(A/B), test(C/D), sample:test=choice
+  (lick/no-lick), tasks(DPA/Go/NoGo), mean±SEM (glue `plot_mouse_dpca_traj.py` load/stat). Epoch shading, no
+  epoch labels (those live on C).
+- **3 Computation flows (H–M, sample×choice)** — **rank-2 gain-modulated low-rank flows** (`fig_dpca_flow_
+  lowrank_shared.py` INDEPENDENT `ż=−z+S(z)A_r z+c_r`, `S=⟨φ′(√(a²‖z‖²+δ)ξ)⟩`; std-2.8 over FULL trial). Big
+  & tight (2×3, wspace 0.06) like the analysis fig; **no per-flow R² labels** (only regime name), **shared
+  x/y axis labels** placed from the grid bbox. **Fit equation printed under the header.** autonomous 2-att,
+  C/D bimodal. `--panels 4`.
+- **4 Learning — LOW-RANK PUSH (N–P, sample×action)** — ported `fig_dpca_flow_lowrank_shared.py` **--push**
+  autonomous machinery (`stage_push`: rank-2 gain-mod bistability fit on sample×choice via `fit_a`, gain
+  auto-raised to 2 wells, + gated no-lick drive `−h(1−S)` tuned to the observed action-axis depth). Naive vs
+  Expert on the **choice+tasks action axis** (depth −0.44→−0.83 correct / −0.41→−0.78 all — Expert deeper =
+  learning). Per-mouse tasks-depth stats (`depth_of`, tasks DUM) unchanged: **p=0.012** correct/**0.027** all,
+  sample control Δ−0.03. NB the low-rank push `h` is small (~0.2) vs the old gated model (~3) — different
+  gate scaling; the DATA depth (title) carries the deepening.
+`--all-trials` → `_all`; `--panels 4`. NO large-array load. Reproduces SETTLED stats. Vector-edit SVG for
+final. Comprehensive narrative fig; `fig_dpca_nolick_main.py` = focused push supplement.
+
+## MAIN PAPER FIGURE — no-lick push (built 2026-07-02)
+
+`pca/fig_dpca_nolick_main.py` → `figures/pseudo/flow/main/{png,svg}/fig_dpca_nolick_main[_all].{png,svg}`.
+Self-contained 4-panel main-text composite of the SETTLED no-lick-push result (house style copied from
+`overlaps/fig_overlaps_main.py`: bold left letters, PNG@300+editable SVG). Imports the stable `src/pca`
+library (`pkl_load`, `fit_rnn_flow`, `flow_fixed_points`) and **copies** the thin panel glue from the
+source scripts (they are NOT import-safe — they `savefig` at import). Vertical axis = **tasks (lick/no-lick
+action) marginal only**; CI/time excluded (decided). Panels:
+- **A** — pooled Naive vs Expert gated-deformation flow on the **[sample, tasks]** plane (glue = `stage_flow`
+  from `fig_dpca_flow_learning_ingain.py`): both bistable (2 attractors + saddle), Expert wells deeper below
+  the cyan lick baseline (depth −0.97→−1.57, h 2.75→3.37). The Expert half doubles as the landscape (no
+  duplicate panel).
+- **B** — per-mouse (n=9): tasks-axis late-delay depth dives Naive→Expert (**p=0.012** correct / **0.027**
+  all, 8/9·7/9) while the **SAME depth metric on the sample axis stays flat at 0** (Δ≈−0.03, p=0.73) =
+  specificity control, shared y. (NB the control is the signed sample-axis *position*, not the sample
+  *separation* — separation actually rises slightly +0.16 n.s.; use the signed-position version to match the
+  vetted Δ−0.04.)
+- **C** — Expert raw ΔF/F vs z-scored no-lick projection, **r=0.995** (not a normalization artifact; glue from
+  `fig_dpca_descent_rawdff.py`, loads the 10 GB `X_all_no_scale.pkl`).
+- **D** — per-mouse tasks-axis depth across CI removal q0/q1/q2 (glue from `fig_dpca_nolick_ci_qsweep.py`): the
+  Naive/Expert gap persists (≈−0.6 at every q) → not the global timing ramp.
+Flag `--all-trials` (default correct-only) → `_all` tag. All numbers reproduce the SETTLED stats. Final
+publication assembly = vector-edit the SVG. Panels A/B use the canonical per-mouse **Expert basis** (both
+stages), i.e. the powerful estimate; the conservative pooled-stage-axis proof lives in `fig_dpca_nolick_pooledbasis.py`.
+
 ## Open issues / where to pick up
 
 - **SESSION CLOSE 2026-06-23 — no-lick-push arc DONE & SETTLED** (see "No-lick push & choice readiness —
