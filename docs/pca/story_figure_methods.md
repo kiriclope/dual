@@ -55,15 +55,25 @@ test 1%**. (Proxy — uses demixed trajectories, not encoder/decoder reconstruct
 
 ---
 
-## Section 2 — condition-mean trajectories  (D–G)
+## Section 2 — dPCA-axis trajectories, Naive vs Expert (D) + axis mixing (E)
 
-`section2_traj`. Same loader/orientation as C. Four panels of per-condition time courses (mean±SEM):
-sample (A/B), test (C/D), sample:test=choice (lick/no-lick), tasks (DPA/Go/NoGo). Epoch shading only
-(labels omitted — they live on C).
+**Panel D — 2×4 trajectory grid.** `section2_traj(axes, dum, stage, …)`, same loader/orientation as C,
+called **twice**: top row **Naive** (`BASE_N`, `stage='Naive'`), bottom row **Expert** (`BASE`,
+`'Expert'`). Four columns of per-condition time courses (mean±SEM): sample (A/B), test (C/D),
+sample:test=choice (lick/no-lick), tasks (DPA/Go/NoGo). Column titles + epoch labels on the Naive row;
+**y-scale shared per column** (Expert axes visibly sharper/larger); row identity = bold left ylabel.
+
+**Panel E — FULL pairwise axis mixing** (`section2_mixing`), a slopegraph Naive→Expert of **|cos| between
+the leading dPCA decoder axes of every pair** among {sample, test, choice, tasks} (pooled
+`pseudo_weights_…tasks_dpca` per stage; 0 = demixed, 1 = collinear). Same 3319 neurons both stages →
+**neuron bootstrap** (2000×) gives a paired p per pair. Learning does **two** things (rest stay orthogonal):
+**choice–task BINDS** 0.147→0.222 (Δ+0.076, p<0.001 ***) and **sample–test DEMIXES** 0.098→0.033
+(Δ−0.065, p=0.008 **); the other four pairs are |cos|<0.1, n.s. (grey). CI is a neuron bootstrap, not
+across-animal.
 
 ---
 
-## Section 3 — the computation: rank-2 gain-modulated flows  (H–M, sample × choice, pooled)
+## Section 3 — the computation: rank-2 gain-modulated flows  (sample × choice, pooled)
 
 `section3`, glue from `fig_dpca_flow_lowrank_shared.py` (INDEPENDENT per-regime model). Plane = sample ×
 choice (`sample`, `sample:test`), pooled over mice, **each axis normalized to std 2.8 over the FULL
@@ -100,7 +110,7 @@ grid; `--panels 4` keeps autonomous / sample A / cue / test C.
 
 ---
 
-## Section 4 — learning pushes the memory into no-lick  (H Naive, I Expert, J/K stats)
+## Section 4 — learning pushes the memory into no-lick  (F Naive, G Expert, H stats)
 
 Plane = **sample × tasks(no-lick)**, `load_st`: normalize each axis to std 2.8 by the pre-trial DPA ref
 (`0:12`), orient the tasks axis so no-lick is negative.
@@ -128,7 +138,7 @@ naive level + white "learning push" arrows mark the deformation.
 
 > `dN, dE = stage_delay(...)` measure the DPA no-lick depth over `LATE` on the pooled common frame.
 
-**Panel J — per-mouse quantification** (`load_mouse`, `depth_of`; the 9 per-mouse DUMs). Per mouse,
+**Panel H — per-mouse quantification** (`load_mouse`, `depth_of`; the 9 per-mouse DUMs). Per mouse,
 normalize sample×tasks to std 2.8 by the pre-trial DPA ref; **orient BOTH axes** (tasks no-lick negative;
 sample B>A). `depth_of` returns, over `LATE`:
 - `uy` = no-lick depth = mean over A,B of the tasks-axis late-delay value (A/B centroid).
@@ -138,15 +148,11 @@ sample B>A). `depth_of` returns, over `LATE`:
 - **J2 "sample memory":** `sep` Naive vs Expert — preserved/sharpened (N +1.65 → E +2.33, p=0.10 correct
   / 0.02 all). Confirms the two wells stay separated while pushed down.
 
-**Panel K — tasks↔choice axis mixing** (`section4_mixing`). Metric = **|cos| between the leading `tasks`
-and `sample:test`/choice dPCA decoder axes** (pooled `pseudo_weights_…tasks_dpca`, per stage; 0 = demixed,
-1 = collinear). Both stages share the same 3319 neurons → **neuron bootstrap** (2000×) gives a paired CI.
-**N 0.147 → E 0.222, Δ+0.076, p<0.001.** Learning binds the decision and cue-driven action axes into a
-shared lick/no-lick code (a second readout of the same learning process; CI is a neuron bootstrap, not
-across-animal).
+*(The full pairwise axis-mixing metric — incl. choice↔task — is **panel E in section 2** (it quantifies the
+relations among the axes whose trajectories panel D shows).)*
 
-> Anchoring J1 to naive does **not** change the paired p (it subtracts a per-mouse constant). It only
-> makes J read consistently with the naive=0 flow.
+> Anchoring the push to naive does **not** change the paired p (it subtracts a per-mouse constant). It only
+> makes panel H read consistently with the naive=0 flow.
 
 ---
 

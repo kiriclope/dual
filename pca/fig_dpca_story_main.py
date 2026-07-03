@@ -3,9 +3,10 @@
 Portrait full-page figure telling the whole arc, top to bottom:
   1. OVERVIEW (A dPCA schematic, B EVR scree, C marginal contrasts)  — the state manifold is ~2-D and
      each dPCA axis carries one task variable.
-  2. TRAJECTORIES (D–G)  — condition-mean time courses of each marginal: sample, test, sample:test(choice), tasks.
-  3. THE COMPUTATION (H–M)  — rank-2 gain-modulated (low-rank) flow fields on sample×choice + the fit equation.
-  4. LEARNING (N–P)  — the low-rank no-lick push (--push model) deepens the wells with learning + stats.
+  2. TRAJECTORIES + MIXING (D, E)  — Naive-vs-Expert dPCA-axis time courses (D, 2×4 grid) + full pairwise
+     axis mixing (E, slopegraph: choice↔task binds, sample↔test demixes).
+  3. THE COMPUTATION  — partial-pooled gain-modulated flow fields on sample×choice + the fit equation (unlettered grid).
+  4. LEARNING (F, G, H)  — the gated no-lick push deepens the wells with learning + per-mouse stats.
 
 Self-contained: imports only the stable library (src.pca.io.pkl_load, src.pca.dynamics.flow_fixed_points)
 and COPIES thin glue from exp_rank_task.py (sec1B), plot_mouse_dpca_traj.py (sec1C/sec2),
@@ -46,7 +47,8 @@ TAG = '_all' if A.all_trials else ''
 TRIALSET = 'all trials' if A.all_trials else 'correct trials'
 
 DUM_ST = 'pseudo_ALL_{}_zscore_5x1_scale_blcenter_f-sample-test_dpca'            # sec1B, sec3
-BASE = 'pseudo_ALL_Expert_zscore_5x1_scale_blcenter_f-sample-test-tasks_dpca'    # sec1C, sec2, sec4
+TASKDUM = 'pseudo_ALL_{}_zscore_5x1_scale_blcenter_f-sample-test-tasks_dpca'     # sec1C, sec2, sec4 (per stage)
+BASE = TASKDUM.format('Expert'); BASE_N = TASKDUM.format('Naive')                # Expert / Naive tasks DUMs
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 FS = 6.0
 SAMPLE_COL = {0: '#332288', 1: '#44AA99'}
@@ -144,12 +146,12 @@ def section1_evr(ax):
 
 
 # ══ shared dPCA-marginal loader (plot_mouse_dpca_traj.py glue) ═════════════════
-def load_marg(dum):
+def load_marg(dum, stage='Expert'):
     X = pkl_load(f'pseudo_traj_{dum}', path='../data/pca')
     y = pkl_load(f'pseudo_labels_{dum}', path='../data/pca')
     labels = pkl_load(f'pseudo_marglabels_{dum}', path='../data/pca')
     IDX = {nm: labels.index(nm) for nm in dict.fromkeys(labels)}
-    m = ((y.laser == 0) & (y.learning == 'Expert') & (y.performance == 1)).to_numpy()
+    m = ((y.laser == 0) & (y.learning == stage) & (y.performance == 1)).to_numpy()
     Z = X[m].astype(float)
     Z = (Z - Z.mean((0, 2), keepdims=True)) / Z.std((0, 2), keepdims=True)
     yc = y[m].reset_index(drop=True)
@@ -215,8 +217,8 @@ def section1_contrast(ax):
 
 
 # ══ SECTION 2 — per-condition marginal TRAJECTORIES (4 panels) ════════════════
-def section2_traj(axes):
-    Z, yc, IDX = load_marg(BASE); tt = np.arange(Z.shape[2]) / FS
+def section2_traj(axes, dum, stage, titles=True, xlabel=True, legend=True):
+    Z, yc, IDX = load_marg(dum, stage); tt = np.arange(Z.shape[2]) / FS
     B = (yc['sample'] == 1).to_numpy(); Dd = (yc['test'] == 1).to_numpy()
     lick = (yc['sample'] == yc['test']).to_numpy()
     dpa = (yc['tasks'] == 'DPA').to_numpy()
@@ -232,10 +234,13 @@ def section2_traj(axes):
             ax.fill_between(tt, mu - se, mu + se, color=col, alpha=0.25, lw=0)
             ax.plot(tt, mu, color=col, lw=1.8, label=lab)
         ax.axhline(0, color='0.75', lw=0.5)
-        ax.set_xlim(0, 14); ax.set_title(nm, fontsize=9); ax.set_xlabel('time (s)', fontsize=8)
-        ax.legend(fontsize=6.8, loc='upper left', framealpha=0.85, handlelength=1.0)
+        ax.set_xlim(0, 14)
+        if titles: ax.set_title(nm, fontsize=9)
+        if xlabel: ax.set_xlabel('time (s)', fontsize=8)
+        else: ax.tick_params(labelbottom=False)
+        if legend: ax.legend(fontsize=6.6, loc='upper left', framealpha=0.85, handlelength=1.0)
         ax.spines[['top', 'right']].set_visible(False)
-    axes[0].set_ylabel('dPCA component (z)', fontsize=8)
+    axes[0].set_ylabel(f'{stage}\ndPCA (z)', fontsize=8.5, fontweight='bold')
 
 
 # ══ SECTION 3 — rank-2 gain-modulated flows (fig_dpca_flow_lowrank_shared.py glue) ══
@@ -567,77 +572,91 @@ def section4(axL, axM, axN1, axN2):
     axN2.set_title(f'sample memory\npreserved (p={p_s:.2f})', fontsize=8)
     axN2.set_ylabel('separation |B−A|', fontsize=8)
     for ax in (axN1, axN2):
-        ax.set_xticks([0, 1]); ax.set_xticklabels(['N', 'E'], fontsize=8); ax.set_xlim(-0.3, 1.3)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=7.5); ax.set_xlim(-0.3, 1.3)
         ax.spines[['top', 'right']].set_visible(False)
     print(f'sec4 per-mouse: push mean {push_m.mean():+.2f} p={p_t:.3f} ({n_deep}/9 deepen) | '
           f'sample sep N {sep[:, 0].mean():+.2f}→E {sep[:, 1].mean():+.2f} p={p_s:.2f}')
 
 
-TASKDUM = 'pseudo_ALL_{}_zscore_5x1_scale_blcenter_f-sample-test-tasks_dpca'
-
-
-def section4_mixing(ax):
-    # Learning-induced MIXING of the two lick/no-lick axes: |cos| between the leading tasks (cue-driven
-    # action) and sample:test/choice (decision) dPCA decoder axes, per stage. Same neurons in both stages
-    # → neuron bootstrap gives a paired CI. Rises Naive→Expert: the decision and action axes co-align.
+def section2_mixing(ax):
+    # FULL pairwise axis mixing, Naive vs Expert: |cos| between the leading dPCA decoder axes of every pair
+    # among {sample, test, choice=sample:test, tasks}. Same 3319 neurons both stages → neuron bootstrap on
+    # the change gives a paired p. Learning does TWO things: BINDS choice↔task (the lick/no-lick code, ↑)
+    # and DEMIXES the two memory axes sample↔test (↓); the other four pairs stay orthogonal.
+    MARGS = ['sample', 'test', 'sample:test', 'tasks']; SH = {'sample': 'sample', 'test': 'test', 'sample:test': 'choice', 'tasks': 'task'}
     def axes_of(st):
         W = np.asarray(pkl_load(f'pseudo_weights_{TASKDUM.format(st)}', path='../data/pca'), float)
         lab = pkl_load(f'pseudo_marglabels_{TASKDUM.format(st)}', path='../data/pca')
-        it = [i for i, l in enumerate(lab) if l == 'tasks'][0]
-        ic = [i for i, l in enumerate(lab) if l == 'sample:test'][0]
-        return W, it, ic
+        idx = {m: [i for i, l in enumerate(lab) if l == m][0] for m in MARGS}     # leading comp / marginal
+        return W, idx
 
-    def lcos(W, it, ic):
-        return abs(float(W[it] / np.linalg.norm(W[it]) @ (W[ic] / np.linalg.norm(W[ic]))))
-    WN, itN, icN = axes_of('Naive'); WE, itE, icE = axes_of('Expert')
-    cN, cE = lcos(WN, itN, icN), lcos(WE, itE, icE)
-    N = WN.shape[1]; rng = np.random.RandomState(0); bs = np.empty((2000, 2))
-    for b in range(2000):
-        idx = rng.randint(0, N, N)
-        bs[b] = lcos(WN[:, idx], itN, icN), lcos(WE[:, idx], itE, icE)
-    db = bs[:, 1] - bs[:, 0]; p = 2 * min((db > 0).mean(), (db < 0).mean())
-
-    def ci(x):
-        x = np.sort(x); return x[int(.025 * len(x))], x[int(.975 * len(x))]
-    lo = [cN - ci(bs[:, 0])[0], cE - ci(bs[:, 1])[0]]; hi = [ci(bs[:, 0])[1] - cN, ci(bs[:, 1])[1] - cE]
-    ax.errorbar([0, 1], [cN, cE], yerr=[lo, hi], fmt='-o', color='k', lw=2.3, ms=6, capsize=3, zorder=5)
-    ax.set_xticks([0, 1]); ax.set_xticklabels(['N', 'E'], fontsize=8); ax.set_xlim(-0.3, 1.3)
-    ax.set_ylim(bottom=0); ax.spines[['top', 'right']].set_visible(False)
-    ax.set_title(f'tasks–choice\nmixing ({"p<0.001" if p < 0.001 else f"p={p:.3f}"})', fontsize=8)
-    ax.set_ylabel('|cos(tasks, choice)|', fontsize=8)
-    print(f'sec4 mixing: |cos| Naive {cN:.3f}→Expert {cE:.3f}  Δ{cE - cN:+.3f} p={p:.3f}')
+    def cos(W, i, j):
+        return abs(float(W[i] / np.linalg.norm(W[i]) @ (W[j] / np.linalg.norm(W[j]))))
+    WN, iN = axes_of('Naive'); WE, iE = axes_of('Expert')
+    prs = [(a, b) for a in range(4) for b in range(a + 1, 4)]
+    cN = {pr: cos(WN, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]]) for pr in prs}
+    cE = {pr: cos(WE, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) for pr in prs}
+    N = WN.shape[1]; rng = np.random.RandomState(0); B = 2000
+    boot = {pr: np.empty(B) for pr in prs}
+    for b in range(B):
+        ix = rng.randint(0, N, N); wn, we = WN[:, ix], WE[:, ix]
+        for pr in prs:
+            boot[pr][b] = cos(we, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) - cos(wn, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]])
+    pval = {pr: 2 * min((boot[pr] > 0).mean(), (boot[pr] < 0).mean()) for pr in prs}
+    HL = {(2, 3): '#cc3311', (0, 1): '#377eb8'}                                   # choice-task ↑, sample-test ↓
+    for pr in prs:                                                                # n.s. pairs first (grey, thin)
+        if pr in HL: continue
+        ax.plot([0, 1], [cN[pr], cE[pr]], '-', color='0.75', lw=1.0, marker='o', ms=2.5, zorder=2)
+    for pr, col in HL.items():                                                    # the two significant pairs
+        star = '***' if pval[pr] < 0.001 else ('**' if pval[pr] < 0.01 else ('*' if pval[pr] < 0.05 else ''))
+        ax.plot([0, 1], [cN[pr], cE[pr]], '-o', color=col, lw=2.4, ms=6, zorder=5)
+        ax.annotate(f'{SH[MARGS[pr[0]]]}–{SH[MARGS[pr[1]]]} {star}', (1, cE[pr]), xytext=(6, 0),
+                    textcoords='offset points', va='center', ha='left', color=col, fontsize=7.5, fontweight='bold')
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=7.5); ax.set_xlim(-0.3, 1.85)
+    ax.set_ylim(bottom=-0.005); ax.spines[['top', 'right']].set_visible(False)
+    ax.set_title('axis mixing', fontsize=9); ax.set_ylabel('|cos| between axes', fontsize=8)
+    for pr in prs:
+        print(f'sec2 mix {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f}→E {cE[pr]:.3f} Δ{cE[pr]-cN[pr]:+.3f} p={pval[pr]:.3f}')
 
 
 # ══ ASSEMBLE ══════════════════════════════════════════════════════════════════
 print(f'[{TRIALSET}]  sec3 panels={A.panels}')
-fig = plt.figure(figsize=(9.6, 12.6))
-gs = fig.add_gridspec(4, 12, height_ratios=[0.95, 0.9, 2.05, 1.05],
-                      hspace=0.58, wspace=0.62, left=0.072, right=0.978, top=0.93, bottom=0.055)
+fig = plt.figure(figsize=(9.6, 14.9))
+gs = fig.add_gridspec(4, 12, height_ratios=[0.95, 1.8, 2.05, 1.05],
+                      hspace=0.5, wspace=0.62, left=0.072, right=0.978, top=0.94, bottom=0.05)
 
 np3 = A.panels
 ncol3 = 4 if np3 == 8 else 2
 axSch = fig.add_subplot(gs[0, 0:4]); axEvr = fig.add_subplot(gs[0, 4:8]); axCon = fig.add_subplot(gs[0, 8:12])
-axTr = [fig.add_subplot(gs[1, k * 3:(k + 1) * 3]) for k in range(4)]
+gsT = gs[1, 0:12].subgridspec(2, 5, width_ratios=[1, 1, 1, 1, 0.9], hspace=0.30, wspace=0.55)  # Naive/Expert rows + mixing
+axTrN = [fig.add_subplot(gsT[0, k]) for k in range(4)]      # D — Naive row
+axTrE = [fig.add_subplot(gsT[1, k]) for k in range(4)]      #     Expert row
+axMix = fig.add_subplot(gsT[0:2, 4])                        # E — full pairwise mixing (spans both rows)
 gsF = gs[2, 0:12].subgridspec(2, ncol3, hspace=0.14, wspace=0.05)
 axF = [fig.add_subplot(gsF[i // ncol3, i % ncol3]) for i in range(np3)]
 gsL = gs[3, 0:12].subgridspec(1, 4, width_ratios=[1.1, 1.1, 0.5, 0.5], wspace=0.5)
 axLf = fig.add_subplot(gsL[0]); axMf = fig.add_subplot(gsL[1])
 axN1 = fig.add_subplot(gsL[2]); axN2 = fig.add_subplot(gsL[3])
-axN3 = fig.add_axes([0.9, 0.06, 0.07, 0.1])              # mixing panel; positioned in the post-draw block
 
 schematic(axSch)
 s1 = section1_evr(axEvr)
 print(f'sec1: Expert top2 all {s1["Expert"][0]:.2%} / wm {s1["Expert"][1]:.2%} PR {s1["Expert"][2]:.2f}')
 section1_contrast(axCon)
-section2_traj(axTr)
+section2_traj(axTrN, BASE_N, 'Naive', titles=True, xlabel=False, legend=True)
+section2_traj(axTrE, BASE, 'Expert', titles=False, xlabel=True, legend=False)
+section2_mixing(axMix)                                   # full pairwise axis mixing, Naive vs Expert
+for k in range(4):                                       # share y-scale per marginal so N vs E is comparable
+    ylo = min(axTrN[k].get_ylim()[0], axTrE[k].get_ylim()[0])
+    yhi = max(axTrN[k].get_ylim()[1], axTrE[k].get_ylim()[1])
+    axTrN[k].set_ylim(ylo, yhi); axTrE[k].set_ylim(ylo, yhi)
 section3(axF, ncol3)
 section4(axLf, axMf, axN1, axN2)
-section4_mixing(axN3)
 
 # panel letters (none on the section-3 flow grid, per request)
 plabel(axSch, 'A'); plabel(axEvr, 'B'); plabel(axCon, 'C')
-for ax, Lc in zip(axTr, ['D', 'E', 'F', 'G']): plabel(ax, Lc)
-for ax, Lc in zip([axLf, axMf, axN1, axN3], ['H', 'I', 'J', 'K']): plabel(ax, Lc)
+plabel(axTrN[0], 'D')                                    # sec-2 trajectory grid (Naive/Expert × 4 marginals)
+plabel(axMix, 'E')                                       # sec-2 full pairwise axis mixing
+for ax, Lc in zip([axLf, axMf, axN1], ['F', 'G', 'H']): plabel(ax, Lc)
 # shared flow-grid axis labels (one x, one y — not one per flow)
 fb = np.array([[a.get_position().x0, a.get_position().y0, a.get_position().x1, a.get_position().y1] for a in axF])
 fx0, fy0, fx1, fy1 = fb[:, 0].min(), fb[:, 1].min(), fb[:, 2].max(), fb[:, 3].max()
@@ -649,7 +668,7 @@ def _top(axs):
 def sechead(y, tx):
     fig.text(0.075, y, tx, ha='left', va='bottom', fontsize=10.5, fontweight='bold')
 sechead(_top(axSch) + 0.024, '1.  Low-dimensional dPCA geometry & per-task variance')
-sechead(_top(axTr) + 0.014, '2.  Condition-mean trajectories of each dPCA axis')
+sechead(_top(axTrN) + 0.012, '2.  dPCA-axis trajectories (Naive vs Expert) & axis mixing')
 sechead(_top(axF) + 0.046, '3.  The computation: partial-pooled gain-modulated flows (sample × choice, pooled)')
 fig.text(0.075, _top(axF) + 0.027, r'$\dot z = -z + S(z)\,(A_{\mathrm{sh}}\!+\!\Delta A_r)\,z + c_r,\ \ '
          r"S(z)=\langle\varphi'(\sqrt{a^2\|z\|^2+\delta}\,\xi)\rangle$"
@@ -684,11 +703,12 @@ _flow_cbar([_x0 + 2 * (_w3 + _g), _y4, 0.011, _h3], label='')                 # 
 _r = max(a.get_position().x1 for a in axF)                                    # section-3 grid extent
 _t = max(a.get_position().y1 for a in axF); _b = min(a.get_position().y0 for a in axF)
 _flow_cbar([_r + 0.010, _b, 0.011, _t - _b])                                 # section-3 (right of the grid)
-# stat panels J/K/L (no-lick push, sample separation, tasks–choice mixing): evenly spaced on the right
+# stat panels J/K (no-lick push, sample separation): evenly spaced in the right region
 _jy = axN1.get_position().y0; _jh = axN1.get_position().height
-_jxs = _x0 + 2 * (_w3 + _g) + 0.105; _jw = 0.104; _jg = (0.978 - _jxs - 3 * _jw) / 2
-for _k, _axj in enumerate([axN1, axN2, axN3]):
-    _axj.set_position([_jxs + _k * (_jw + _jg), _jy, _jw, _jh])
+_jxs = _x0 + 2 * (_w3 + _g) + 0.105; _jgap = 0.10; _stats = [axN1, axN2]
+_jw = (0.978 - _jxs - _jgap * (len(_stats) - 1)) / len(_stats)
+for _k, _axj in enumerate(_stats):
+    _axj.set_position([_jxs + _k * (_jw + _jgap), _jy, _jw, _jh])
 
 OUT = 'figures/pseudo/story'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

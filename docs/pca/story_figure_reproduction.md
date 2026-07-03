@@ -141,14 +141,35 @@ reconstruction). WM axes are low-variance but decodable — state plainly.
 
 ---
 
-## 6. Section 2 — condition-mean trajectories (D–G)  `section2_traj`
-Same loader/orientation as C. Four panels, per-condition mean±SEM (`stat()`): sample (A/B), test (C/D),
-sample:test/choice (lick/no-lick), tasks (DPA/Go/NoGo). Epoch shading only (labels on C). Shows each
-demixed axis rises at its variable's epoch (sample→delay, test→test, choice/tasks→post-cue).
+## 6. Section 2 — dPCA-axis trajectories (Naive vs Expert) (D) + axis mixing (E)  `section2_traj`, `section2_mixing`
+**Panel D — a 2×4 trajectory grid.** `section2_traj(axes, dum, stage, …)` draws one stage's four
+per-condition mean±SEM (`stat()`) time courses — sample (A/B), test (C/D), sample:test/choice (lick/no-lick),
+tasks (DPA/Go/NoGo) — into a row. **Top row = Naive** (`BASE_N = TASKDUM.format('Naive')`, `stage='Naive'`),
+**bottom row = Expert** (`BASE`, `'Expert'`); the shared loader `load_marg(dum, stage)` masks
+`y.learning == stage` and orients each stage's axes by its own data (B>A @ delay, D>C / lick / Go @ test).
+Column titles + epoch labels on the Naive row only; **y-scale is shared per column** (assembly loop unions
+the two rows' ylims) so Naive-vs-Expert is directly comparable — the Expert axes are visibly sharper/larger
+(e.g. choice reaches ±1 Expert vs ±0.7 Naive). Row identity = the bold left ylabel (`Naive`/`Expert`).
+
+### Panel E — FULL pairwise axis mixing (Naive vs Expert) — `section2_mixing(ax)`
+The complete mixing picture, not just one pair: **|cos| between the leading dPCA decoder axes of every pair**
+among `{sample, test, sample:test=choice, tasks}` (0 = demixed/orthogonal, 1 = collinear), from the pooled
+per-stage `pseudo_weights_…f-sample-test-tasks_dpca` (16 comp × 3319 neurons). Drawn as a **slopegraph**
+Naive→Expert; both stages share the **same 3319 neurons** so a **neuron bootstrap** (2000×) on each pair's
+change gives a paired p. Learning does **two** things and the rest stay orthogonal:
+- **choice–task BINDS** (red, ***): |cos| **0.147 → 0.222, Δ+0.076, p<0.001** — the decision axis and the
+  cue-driven action axis fuse into a shared lick/no-lick code (static counterpart of the section-3 cue/Go/NoGo
+  flows, and a second readout of the section-4 no-lick push).
+- **sample–test DEMIXES** (blue, **): |cos| **0.098 → 0.033, Δ−0.065, p=0.008** — the two working-memory axes
+  *separate* with training.
+- the other four pairs (sample–choice, sample–task, test–choice, test–task) are all |cos| < 0.1 and n.s.
+  (grey, thin) → the code is otherwise cleanly demixed.
+> ⚠ CI is a **neuron bootstrap** (samples the decoder's neurons), not an across-animal test — per-mouse
+> `tasks` DUMs don't exist yet. For animal-level error bars, refit dPCA per mouse per stage.
 
 ---
 
-## 7. Section 3 — the computation: rank-2 gain-modulated flows (H–M)  `section3`
+## 7. Section 3 — the computation: rank-2 gain-modulated flows  `section3`
 
 **Plane:** sample × choice (`isam=lab.index('sample')`, `icho=lab.index('sample:test')`) from
 `DUM_ST.format('Expert')`, pooled. `Z2 = Z[m][:,[isam,icho]] ; Z2 /= Z2.std((0,2)) ; Z2 *= 2.8`
@@ -214,7 +235,7 @@ often monostable), then max CV among those — stays fully in the partial model,
 
 ---
 
-## 8. Section 4 — learning pushes the memory into no-lick (H, I, J, K)
+## 8. Section 4 — learning pushes the memory into no-lick (F Naive, G Expert, H push + memory)
 
 Plane = **sample × tasks(no-lick)**. **The push depth and the landscape are fit from data; only the
 gate's spatial profile is a modeling choice.**
@@ -256,7 +277,7 @@ settles at 0, Expert at `push`); on Expert, ghost stars at the naive level + whi
 to the deformed wells; ★/□/✖ fixed points.
 **Results:** dN=−0.86, dE=−1.39, **push=−0.53**, hE=1.10 (all-trials: push −0.56, hE 1.40).
 
-### 8.6 Panel J — per-mouse quantification — `depth_of`, `section4` stats
+### 8.6 Panel H — per-mouse quantification (no-lick push + sample memory) — `depth_of`, `section4` stats
 Per mouse (`load_mouse`, both axes oriented), over `LATE`:
 - `uy` = no-lick depth = mean over A,B of the tasks-axis value (A/B centroid).
 - `sep` = **sample memory** = `mean(B) − mean(A)` on the sample axis (separation |B−A|).
@@ -272,18 +293,8 @@ Per mouse (`load_mouse`, both axes oriented), over `LATE`:
 Old J (removed) was wrong: its control was the sample **centroid** ((A+B)/2 ≈ 0 by symmetry — trivial),
 and it plotted absolute depths inconsistent with the naive=0 flow. See `story_figure_review.md`.
 
-### 8.7 Panel K — tasks↔choice axis mixing — `section4_mixing(ax)`
-A second, independent learning readout: how much the **`tasks`** axis (cue-driven lick/no-lick *action*)
-and the **`sample:test`/choice** axis (decide-to-lick) **mix** in neural space, Naive vs Expert. Metric =
-**|cos| between the leading `tasks` and `choice` dPCA decoder axes** (0 = demixed/orthogonal, 1 = collinear),
-from the pooled per-stage `pseudo_weights_…f-sample-test-tasks_dpca` (decoder, 16 comp × 3319 neurons;
-`tasks` = comps 4–5, `sample:test` = 6–7). Both stages share the **same 3319 neurons**, so a **neuron
-bootstrap** (2000×, same resampled neurons) gives a paired CI. **Result: |cos| N 0.147 → E 0.222,
-Δ+0.076, p<0.001** (2-D subspace overlap agrees: 0.039 → 0.063). Interpretation: learning **binds the
-decision and action axes into a shared lick/no-lick code** — the same process that pushes the memory into
-no-lick (this *is* the tasks→choice coupling that section-3's cue/Go/NoGo flows show dynamically).
-> ⚠ CI is a **neuron bootstrap** (samples the decoder's neurons), not an across-animal test — per-mouse
-> `tasks` DUMs don't exist yet. For animal-level error bars, refit dPCA per mouse per stage.
+*(The full pairwise axis-mixing metric — including tasks↔choice — is **panel E in section 2** (see §6),
+since it quantifies the relations among the axes whose trajectories panel D shows.)*
 
 ---
 
@@ -298,13 +309,13 @@ no-lick (this *is* the tasks→choice coupling that section-3's cue/Go/NoGo flow
 | `load_marg`, `stat`, `cstat` | dPCA marginal loader (+sign orient), mean/SEM, contrast |
 | `marginal_variance` | per-task variance proxy |
 | `section1_contrast` | Sec 1C the 4 marginal contrasts + variance legend |
-| `section2_traj` | Sec 2 D–G per-condition trajectories |
+| `section2_traj` | Sec 2 panel D — one stage's 4 per-condition trajectories (called twice: Naive + Expert rows) |
 | `fit_indep_one`, `flow_indep`, `section3` | Sec 3 rank-2 gain-modulated per-regime flows + CV |
 | `load_st`, `fit_sample_bistab`, `stage_delay` | Sec 4 plane load, bistability fit, delay means/depth |
 | `rgate`, `make_flow` | Sec 4 gated no-lick input + flow builder |
 | `draw_st` | Sec 4 flow render (deformation, ghosts, arrows) |
 | `load_mouse`, `depth_of`, `section4` | Sec 4 per-mouse stats (J1 push, J2 memory) + assembly |
-| `section4_mixing` | Panel K — tasks↔choice \|cos\| mixing, Naive vs Expert (neuron bootstrap) |
+| `section2_mixing` | Panel E — FULL pairwise axis \|cos\| mixing (all 6 pairs), Naive vs Expert slopegraph (neuron bootstrap) |
 
 ---
 
@@ -319,7 +330,8 @@ no-lick (this *is* the tasks→choice coupling that section-3's cue/Go/NoGo flow
 | no-lick push (flow) | dN→dE, push, hE | −0.86→−1.39, −0.53, 1.10 | push −0.56, hE 1.40 |
 | no-lick push (per-mouse) | mean, p, n deepen | −0.59, **0.012**, 8/9 | −0.56, **0.027**, 7/9 |
 | sample memory | sep N→E, p | +1.65→+2.33, 0.10 | +1.44→+2.48, **0.02** |
-| tasks↔choice mixing | \|cos\| N→E, p (neuron boot) | 0.147→0.222, **<0.001** | ~same |
+| choice↔task mixing (bind) | \|cos\| N→E, p (neuron boot) | 0.147→0.222, **<0.001** | ~same |
+| sample↔test mixing (demix) | \|cos\| N→E, p (neuron boot) | 0.098→0.033, **0.008** | ~same |
 
 ---
 
@@ -330,7 +342,7 @@ no-lick (this *is* the tasks→choice coupling that section-3's cue/Go/NoGo flow
 3. **Sec-4 gate profile is a modeling choice** (`GATE_A/D`, form). The **push depth and landscape are
    data-fit**; `hE` reproduces the measured push. Naive=0 is a display anchor (absolute dN=−0.86,
    dE=−1.39).
-4. **Flows are POOLED** across the 9 mice; per-mouse variability is only in panel J.
+4. **Flows are POOLED** across the 9 mice; per-mouse variability is only in the section-4 stats (panel H).
 5. **`y['sample']` not `y.sample`**; orient every axis you take a signed quantity on; never fit an
    autonomous flow on an input-driven ramp (why sec-4 fits the bistability on the sample axis and adds
    the no-lick drive separately).
