@@ -100,7 +100,7 @@ grid; `--panels 4` keeps autonomous / sample A / cue / test C.
 
 ---
 
-## Section 4 — learning pushes the memory into no-lick  (H Naive, I Expert, J stats)
+## Section 4 — learning pushes the memory into no-lick  (H Naive, I Expert, J/K stats)
 
 Plane = **sample × tasks(no-lick)**, `load_st`: normalize each axis to std 2.8 by the pre-trial DPA ref
 (`0:12`), orient the tasks axis so no-lick is negative.
@@ -137,6 +137,13 @@ sample B>A). `depth_of` returns, over `LATE`:
   **p=0.012** (0.027 all); mean −0.59 (matches the flow's −0.53); 8/9 deepen.
 - **J2 "sample memory":** `sep` Naive vs Expert — preserved/sharpened (N +1.65 → E +2.33, p=0.10 correct
   / 0.02 all). Confirms the two wells stay separated while pushed down.
+
+**Panel K — tasks↔choice axis mixing** (`section4_mixing`). Metric = **|cos| between the leading `tasks`
+and `sample:test`/choice dPCA decoder axes** (pooled `pseudo_weights_…tasks_dpca`, per stage; 0 = demixed,
+1 = collinear). Both stages share the same 3319 neurons → **neuron bootstrap** (2000×) gives a paired CI.
+**N 0.147 → E 0.222, Δ+0.076, p<0.001.** Learning binds the decision and cue-driven action axes into a
+shared lick/no-lick code (a second readout of the same learning process; CI is a neuron bootstrap, not
+across-animal).
 
 > Anchoring J1 to naive does **not** change the paired p (it subtracts a per-mouse constant). It only
 > makes J read consistently with the naive=0 flow.

@@ -214,7 +214,7 @@ often monostable), then max CV among those — stays fully in the partial model,
 
 ---
 
-## 8. Section 4 — learning pushes the memory into no-lick (H, I, J)
+## 8. Section 4 — learning pushes the memory into no-lick (H, I, J, K)
 
 Plane = **sample × tasks(no-lick)**. **The push depth and the landscape are fit from data; only the
 gate's spatial profile is a modeling choice.**
@@ -272,6 +272,19 @@ Per mouse (`load_mouse`, both axes oriented), over `LATE`:
 Old J (removed) was wrong: its control was the sample **centroid** ((A+B)/2 ≈ 0 by symmetry — trivial),
 and it plotted absolute depths inconsistent with the naive=0 flow. See `story_figure_review.md`.
 
+### 8.7 Panel K — tasks↔choice axis mixing — `section4_mixing(ax)`
+A second, independent learning readout: how much the **`tasks`** axis (cue-driven lick/no-lick *action*)
+and the **`sample:test`/choice** axis (decide-to-lick) **mix** in neural space, Naive vs Expert. Metric =
+**|cos| between the leading `tasks` and `choice` dPCA decoder axes** (0 = demixed/orthogonal, 1 = collinear),
+from the pooled per-stage `pseudo_weights_…f-sample-test-tasks_dpca` (decoder, 16 comp × 3319 neurons;
+`tasks` = comps 4–5, `sample:test` = 6–7). Both stages share the **same 3319 neurons**, so a **neuron
+bootstrap** (2000×, same resampled neurons) gives a paired CI. **Result: |cos| N 0.147 → E 0.222,
+Δ+0.076, p<0.001** (2-D subspace overlap agrees: 0.039 → 0.063). Interpretation: learning **binds the
+decision and action axes into a shared lick/no-lick code** — the same process that pushes the memory into
+no-lick (this *is* the tasks→choice coupling that section-3's cue/Go/NoGo flows show dynamically).
+> ⚠ CI is a **neuron bootstrap** (samples the decoder's neurons), not an across-animal test — per-mouse
+> `tasks` DUMs don't exist yet. For animal-level error bars, refit dPCA per mouse per stage.
+
 ---
 
 ## 9. Routine inventory (quick index)
@@ -291,6 +304,7 @@ and it plotted absolute depths inconsistent with the naive=0 flow. See `story_fi
 | `rgate`, `make_flow` | Sec 4 gated no-lick input + flow builder |
 | `draw_st` | Sec 4 flow render (deformation, ghosts, arrows) |
 | `load_mouse`, `depth_of`, `section4` | Sec 4 per-mouse stats (J1 push, J2 memory) + assembly |
+| `section4_mixing` | Panel K — tasks↔choice \|cos\| mixing, Naive vs Expert (neuron bootstrap) |
 
 ---
 
@@ -305,6 +319,7 @@ and it plotted absolute depths inconsistent with the naive=0 flow. See `story_fi
 | no-lick push (flow) | dN→dE, push, hE | −0.86→−1.39, −0.53, 1.10 | push −0.56, hE 1.40 |
 | no-lick push (per-mouse) | mean, p, n deepen | −0.59, **0.012**, 8/9 | −0.56, **0.027**, 7/9 |
 | sample memory | sep N→E, p | +1.65→+2.33, 0.10 | +1.44→+2.48, **0.02** |
+| tasks↔choice mixing | \|cos\| N→E, p (neuron boot) | 0.147→0.222, **<0.001** | ~same |
 
 ---
 

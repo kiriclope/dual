@@ -573,6 +573,41 @@ def section4(axL, axM, axN1, axN2):
           f'sample sep N {sep[:, 0].mean():+.2f}→E {sep[:, 1].mean():+.2f} p={p_s:.2f}')
 
 
+TASKDUM = 'pseudo_ALL_{}_zscore_5x1_scale_blcenter_f-sample-test-tasks_dpca'
+
+
+def section4_mixing(ax):
+    # Learning-induced MIXING of the two lick/no-lick axes: |cos| between the leading tasks (cue-driven
+    # action) and sample:test/choice (decision) dPCA decoder axes, per stage. Same neurons in both stages
+    # → neuron bootstrap gives a paired CI. Rises Naive→Expert: the decision and action axes co-align.
+    def axes_of(st):
+        W = np.asarray(pkl_load(f'pseudo_weights_{TASKDUM.format(st)}', path='../data/pca'), float)
+        lab = pkl_load(f'pseudo_marglabels_{TASKDUM.format(st)}', path='../data/pca')
+        it = [i for i, l in enumerate(lab) if l == 'tasks'][0]
+        ic = [i for i, l in enumerate(lab) if l == 'sample:test'][0]
+        return W, it, ic
+
+    def lcos(W, it, ic):
+        return abs(float(W[it] / np.linalg.norm(W[it]) @ (W[ic] / np.linalg.norm(W[ic]))))
+    WN, itN, icN = axes_of('Naive'); WE, itE, icE = axes_of('Expert')
+    cN, cE = lcos(WN, itN, icN), lcos(WE, itE, icE)
+    N = WN.shape[1]; rng = np.random.RandomState(0); bs = np.empty((2000, 2))
+    for b in range(2000):
+        idx = rng.randint(0, N, N)
+        bs[b] = lcos(WN[:, idx], itN, icN), lcos(WE[:, idx], itE, icE)
+    db = bs[:, 1] - bs[:, 0]; p = 2 * min((db > 0).mean(), (db < 0).mean())
+
+    def ci(x):
+        x = np.sort(x); return x[int(.025 * len(x))], x[int(.975 * len(x))]
+    lo = [cN - ci(bs[:, 0])[0], cE - ci(bs[:, 1])[0]]; hi = [ci(bs[:, 0])[1] - cN, ci(bs[:, 1])[1] - cE]
+    ax.errorbar([0, 1], [cN, cE], yerr=[lo, hi], fmt='-o', color='k', lw=2.3, ms=6, capsize=3, zorder=5)
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['N', 'E'], fontsize=8); ax.set_xlim(-0.3, 1.3)
+    ax.set_ylim(bottom=0); ax.spines[['top', 'right']].set_visible(False)
+    ax.set_title(f'tasks–choice\nmixing ({"p<0.001" if p < 0.001 else f"p={p:.3f}"})', fontsize=8)
+    ax.set_ylabel('|cos(tasks, choice)|', fontsize=8)
+    print(f'sec4 mixing: |cos| Naive {cN:.3f}→Expert {cE:.3f}  Δ{cE - cN:+.3f} p={p:.3f}')
+
+
 # ══ ASSEMBLE ══════════════════════════════════════════════════════════════════
 print(f'[{TRIALSET}]  sec3 panels={A.panels}')
 fig = plt.figure(figsize=(9.6, 12.6))
@@ -588,6 +623,7 @@ axF = [fig.add_subplot(gsF[i // ncol3, i % ncol3]) for i in range(np3)]
 gsL = gs[3, 0:12].subgridspec(1, 4, width_ratios=[1.1, 1.1, 0.5, 0.5], wspace=0.5)
 axLf = fig.add_subplot(gsL[0]); axMf = fig.add_subplot(gsL[1])
 axN1 = fig.add_subplot(gsL[2]); axN2 = fig.add_subplot(gsL[3])
+axN3 = fig.add_axes([0.9, 0.06, 0.07, 0.1])              # mixing panel; positioned in the post-draw block
 
 schematic(axSch)
 s1 = section1_evr(axEvr)
@@ -596,11 +632,12 @@ section1_contrast(axCon)
 section2_traj(axTr)
 section3(axF, ncol3)
 section4(axLf, axMf, axN1, axN2)
+section4_mixing(axN3)
 
 # panel letters (none on the section-3 flow grid, per request)
 plabel(axSch, 'A'); plabel(axEvr, 'B'); plabel(axCon, 'C')
 for ax, Lc in zip(axTr, ['D', 'E', 'F', 'G']): plabel(ax, Lc)
-for ax, Lc in zip([axLf, axMf, axN1], ['H', 'I', 'J']): plabel(ax, Lc)
+for ax, Lc in zip([axLf, axMf, axN1, axN3], ['H', 'I', 'J', 'K']): plabel(ax, Lc)
 # shared flow-grid axis labels (one x, one y — not one per flow)
 fb = np.array([[a.get_position().x0, a.get_position().y0, a.get_position().x1, a.get_position().y1] for a in axF])
 fx0, fy0, fx1, fy1 = fb[:, 0].min(), fb[:, 1].min(), fb[:, 2].max(), fb[:, 3].max()
@@ -637,14 +674,21 @@ _x0 = axLf.get_position().x0; _fy1 = axN1.get_position().y1; _g = 0.014; _y4 = _
 axLf.set_position([_x0, _y4, _w3, _h3])
 axMf.set_position([_x0 + _w3 + _g, _y4, _w3, _h3])
 
-def _flow_cbar(rect):
+def _flow_cbar(rect, label='flow speed |ż|  (per panel)'):
     sm = plt.cm.ScalarMappable(norm=plt.Normalize(0, 1), cmap='magma'); sm.set_array([])
-    cb = fig.colorbar(sm, cax=fig.add_axes(rect)); cb.set_label('flow speed |ż|  (per panel)', fontsize=7.5)
+    cb = fig.colorbar(sm, cax=fig.add_axes(rect))
+    if label:
+        cb.set_label(label, fontsize=7.5)
     cb.set_ticks([0, 1]); cb.set_ticklabels(['slow', 'fast']); cb.ax.tick_params(labelsize=7)
-_flow_cbar([_x0 + 2 * (_w3 + _g), _y4, 0.011, _h3])                          # section-4 (right of Expert)
+_flow_cbar([_x0 + 2 * (_w3 + _g), _y4, 0.011, _h3], label='')                 # section-4 (label-free; sec-3 carries it)
 _r = max(a.get_position().x1 for a in axF)                                    # section-3 grid extent
 _t = max(a.get_position().y1 for a in axF); _b = min(a.get_position().y0 for a in axF)
 _flow_cbar([_r + 0.010, _b, 0.011, _t - _b])                                 # section-3 (right of the grid)
+# stat panels J/K/L (no-lick push, sample separation, tasks–choice mixing): evenly spaced on the right
+_jy = axN1.get_position().y0; _jh = axN1.get_position().height
+_jxs = _x0 + 2 * (_w3 + _g) + 0.105; _jw = 0.104; _jg = (0.978 - _jxs - 3 * _jw) / 2
+for _k, _axj in enumerate([axN1, axN2, axN3]):
+    _axj.set_position([_jxs + _k * (_jw + _jg), _jy, _jw, _jh])
 
 OUT = 'figures/pseudo/story'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
