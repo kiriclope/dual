@@ -41,6 +41,14 @@ In D the **DPA** column is significant; in E the **GNG** column is — consisten
 code being the lick axis (the causal lick-axis perturbation tracks Go/NoGo; the learning correlate
 tracks DPA).
 
+**D and E share an identical style** so they read as a matched pair: same figsize (9×3.7) @300 dpi,
+per-animal tab10 colors (same key as `plot_scatter_perf.py`), group markers ● Jaws / ▲ ChR (D also
+has ■ ACC for its 2 extra mice, n=9 vs E's n=7), thin axis lines, the same
+`all (n=N): r=… p=…  ρ=… p=…` stat line with a Spearman-driven `*`/`n.s.`, and a per-mouse legend on
+the right. `plot_scatter_perf.py --dpa-panel` achieves this by applying E's rcParams via a local
+`rc_context` (so the script's other, larger-font figures are untouched); its x-label drops the
+"(Exp−Naive)" tag to avoid the two labels overlapping (the contrast is in the panel title).
+
 ## 3. The canonical CCGD tensor (build once, ~19 min)
 
 All four panels read the canonical (laser-off) tensor `log_generalizing_overlaps_none_l1_ratio_0.0`
@@ -80,7 +88,7 @@ cd /home/leon/dual/overlaps
 /home/leon/mambaforge/envs/dual/bin/python exp_nolick_push_stats.py ld_test all
 #   -> figures/overlaps/nolick_push/png/{DUM}_nolick_push_paired_ld_test_all.png
 
-# D — Δdepth ↔ Δperf (Expert−Naive), 1×2 DPA & GNG specificity panel
+# D — Δdepth ↔ Δperf (Expert−Naive), 1×2 DPA & GNG specificity panel (styled to match E)
 /home/leon/mambaforge/envs/dual/bin/python plot_scatter_perf.py --dpa-panel
 #   -> figures/overlaps/scatter_perf/trainLD_TEST/png/{DUM}_trainLD_TEST_dpa_panel.png
 
