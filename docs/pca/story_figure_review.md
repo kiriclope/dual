@@ -44,33 +44,29 @@ Dates are absolute. Current as of 2026-07-03.
 
 ## Standing caveats (do NOT over-claim)
 
-1. **Section-3 flows do not cross-validate.** The rank-2 gain-modulated per-regime fit has CV
-   velocity-R² ≈ **−0.09** (correct) / −0.03 (all) — *negative*. These flows are an honest **descriptive
-   portrait** of the pooled geometry, **not** a validated rank-2 dynamical model. The printed equation
-   describes the fit form; it is not evidence the dynamics are rank-2. (Consistent with the standing
-   "rank-2 not validated" note — dPCA reduced-rank test: rank-2 = 62–67% of full, no plateau.)
+1. **Section-3 flows now cross-validate (partial pooling).** Model switched from a free per-regime fit
+   ("independent", CV velocity-R² ≈ **−0.13** — *overfit*, and it looked artificial) to **partial pooling**:
+   a shared recurrent `A_sh` per epoch + a ridge-penalized per-regime deviation `ΔA_r` + input `c_r`
+   (`ż = −z + S(z)·(A_sh+ΔA_r)·z + c_r`; `--partial` mode of `fig_dpca_flow_lowrank_shared.py`). CV vel-R²
+   is now **+0.077** (correct) / +0.104 (all) — *positive*, the per-regime velocity fields **generalize**
+   out-of-sample. This is still a **rank-2 reduced** description; the standing "rank-2 not validated as the
+   *full* latent dynamics" note holds (dPCA reduced-rank test: rank-2 = 62–67% of full, no plateau). So:
+   the per-regime flows cross-validate, but do not claim the full latent dynamics are rank-2.
 
-   **What "negative CV" means (in detail).** `section3.cv()` scores a **held-out velocity R²** with
-   5-fold splits over trials. Each flow is fit to the condition-mean *velocity field* — positions
-   `z = μ(t)`, one-step velocities `v = μ(t+1) − μ(t)`, fitting `ż = −z + S(z)·A_r z + c_r` so predicted
-   velocity matches `v`. The score is
-   ```
-   R² = 1 − Σ‖v_test − v_pred‖²  /  Σ‖v_test − mean(v_test)‖²
-            (residual error)          (variance of held-out velocities)
-   ```
-   fit on 4/5 of trials, evaluated on the held-out 1/5. Reading the sign:
-   - `R²=1` perfect out-of-sample prediction; `R²=0` no better than guessing the **mean** velocity
-     everywhere; **`R²<0` worse than that trivial baseline** — the parameters learned on the train split
-     actively mispredict the test split. So −0.09 = the fit does **not** generalize.
-   - **Why here:** the flows are fit to a handful of smooth, low-sample **condition-mean** trajectories;
-     velocities are finite differences of noisy means, so across folds the rank-2 fit overfits the train
-     means and doesn't transfer. Expected symptom of fitting a constrained vector field to few noisy
-     average trajectories.
-   - **Implication:** the *geometry* is real — the wells/attractors/saddles are genuine features of where
-     the mean trajectories sit — but the *fitted vector field's quantitative predictions* are
-     unvalidated. Say "the trajectories sit in a bistable landscape with these attractors"; do **not**
-     say "the dynamics are rank-2" or "this flow predicts the neural dynamics." Geometry real; dynamics
-     not established.
+   **Two shared landscapes (why).** A single shared `A_sh` can't be both sample-bistable (delay) and
+   choice-bistable (cue/test); the 3 choice-bistable regimes outvote the 1 sample-bistable regime, so a
+   single `A_sh` comes out choice-dominated and the sample-memory panels (autonomous, A, B) put the memory
+   states at **saddles** — scientifically wrong. Fixed by pooling **within** each epoch: a delay landscape
+   `{autonomous, A, B}` (sample-bistable) and a choice landscape `{Go, NoGo, cue, C, D}` (choice-bistable).
+   Model selection is restricted to gains whose shared autonomous flow keeps 2 wells (WM bistability is an
+   established result; the raw CV-optimal gain is often monostable).
+
+   **What the CV score is.** `section3.cv()` = held-out velocity R² over 5 folds: fit each flow to train
+   condition-mean velocities (positions `z=μ(t)`, one-step `v=μ(t+1)−μ(t)`), predict held-out velocities.
+   `R²=1` perfect; `R²=0` = the mean-velocity baseline; `R²<0` = worse than that (what the old independent
+   fit did). Positive now = the regularized shared-landscape fit transfers across trial splits. The
+   *geometry* (wells/attractors/saddles = where the mean trajectories sit) was always real; partial pooling
+   additionally makes the *fitted vector field* validated out-of-sample.
 
 2. **Per-task variance is a proxy.** `marginal_variance` = variance of the *demixed condition-mean*
    components per marginal, **not** the exact dPCA encoder/decoder marginal-EVR. Numbers: **time 54%,

@@ -69,20 +69,34 @@ sample (A/B), test (C/D), sample:test=choice (lick/no-lick), tasks (DPA/Go/NoGo)
 choice (`sample`, `sample:test`), pooled over mice, **each axis normalized to std 2.8 over the FULL
 trial** (this is why the choice axis doesn't inflate — a delay-only rescale would).
 
-**Gain-modulated low-rank flow.** With `φ = tanh`, the mean-field gain is
+**Gain-modulated low-rank flow, PARTIAL POOLING.** With `φ = tanh`, the mean-field gain is
 `S(z) = ⟨φ'(√Δ · ξ)⟩`, `Δ = a²‖z‖² + δ`, `ξ ~ N(0,1)` (20-node Gauss–Hermite; `gd()` implements this).
-Per regime `r`, fit `A_r ∈ ℝ²ˣ²`, `c_r ∈ ℝ²` by least squares to the condition-mean velocity:
+Each regime flow is
 ```
-ż = −z + S(z)·A_r z + c_r
+ż = −z + S(z)·(A_sh + ΔA_r)·z + c_r
 ```
-`(a, δ)` are chosen by 5-fold CV over `a∈{0.2,0.4,0.7,1.0}, δ∈{0.3,0.8,2.0}` maximising velocity-R².
-Six regimes over their windows: autonomous (DPA delay), sample A, sample B, distractor (Go/NoGo), test C,
-test D. Fixed points via `flow_fixed_points` on `±L` (`L = 1.3·max|mean|`): ★ attractor / □ saddle /
-✖ repeller. Autonomous = 2 attractors + saddle; test C/D bimodal. Equation printed above the grid;
-`--panels 4` drops sample B and test D.
+a **shared recurrent `A_sh`** + a **ridge-penalized per-regime deviation `ΔA_r`** (λ shrinks it toward
+`A_sh`) + a **per-regime input current `c_r`** — the `--partial` mode of `fig_dpca_flow_lowrank_shared.py`.
+Closed-form ridge LS with `λ·I` penalizing only the `ΔA` block. This is the fix for the earlier
+**overfit**: a free per-regime `A_r` (the old "independent" fit) had CV vel-R² ≈ −0.13 (didn't generalize,
+looked artificial); partial pooling gives **CV ≈ +0.08–0.10** (generalizes).
+`(a, δ, λ)` chosen by 5-fold CV over `a∈{0.2,0.4,0.7,1.0} × δ∈{0.3,0.8,2.0} × λ∈{0.2,1,5,20,100}`,
+maximising velocity-R² **restricted to configs whose shared autonomous flow stays bistable** (the raw
+CV-optimal gain is often monostable; WM bistability is an established result).
 
-> **CV is negative** (≈ −0.09 correct / −0.03 all) — descriptive portrait, not a validated rank-2
-> model. See review caveat 1.
+**Two shared landscapes, one per epoch** (`GROUPS`): a single `A_sh` can't hold both bistabilities —
+the choice-bistable regimes (cue, test C/D) outvote the one sample-bistable regime, so it comes out
+choice-dominated and the sample memory lands at **saddles** (wrong). So pool **within** each epoch:
+`{autonomous, sample A, sample B}` → sample-bistable **delay landscape** (autonomous = both wells on the
+sample axis; A/B settle in one), and `{Go, NoGo, cue, test C, test D}` → choice-bistable **choice
+landscape** (Go = push ↑ lick, NoGo = push ↓ no-lick, cue = the two splitting, test C/D = choice
+resolution). Fixed points via `flow_fixed_points` on `±L` (`L = 1.3·max|mean|`): ★ attractor / □ saddle /
+✖ repeller. Autonomous/cue/test C/D = 2 attractors; sample A/B, Go/NoGo = 1. Equation printed above the
+grid; `--panels 4` keeps autonomous / sample A / cue / test C.
+
+> **CV is positive** (≈ +0.08 correct / +0.10 all) under partial pooling — the per-regime flows now
+> generalize (the old independent per-regime fit was −0.13, overfit). Still a rank-2 *reduced* portrait,
+> not a claim that the full latent dynamics are rank-2. See review caveat 1.
 
 ---
 

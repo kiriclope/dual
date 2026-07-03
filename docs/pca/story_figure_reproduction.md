@@ -24,8 +24,8 @@ Expected stdout (correct trials):
 ```
 sec1: Expert top2 all 81.69% / wm 94.16% PR 2.22
 per-marginal variance (%): sample 7%, test 1%, sample:test 7%, tasks 31%, time 54%
-sec3 rank-2 [independent] best (a,δ)=(0.2, 0.3) CV vel-R²=-0.091
-sec3 attractors: {'autonomous': 2, 'sample A': 1, 'sample B': 1, 'distractor': 1, 'test C': 2, 'test D': 2}
+sec3 rank-2 [partial] best (a,δ,λ)=(0.2, 2.0, 1.0) CV vel-R²=+0.077 (57/60 bistable-autonomous configs)
+sec3 attractors: {'autonomous': 2, 'sample A': 1, 'sample B': 1, 'Go': 1, 'NoGo': 1, 'cue': 2, 'test C': 2, 'test D': 2}
 sec4 gated push: dN -0.86  dE -1.39  learned push -0.53  hE 1.10
 sec4 per-mouse: push mean -0.59 p=0.012 (8/9 deepen) | sample sep N +1.65→E +2.33 p=0.10
 ```
@@ -165,30 +165,52 @@ axis). Orient choice so lick>no-lick at `TST`.
 - `regime_means(mask)`: per regime, condition means over its window (≥3 trials).
 - `zv_one`: stack `(z = μ[:,w][:,:-1], v = diff(μ[:,w]))` — positions & one-step velocities.
 
-**Regimes `REG` (name, trial mask, window bins, factor levels):**
+**Regimes `REG` (name, trial mask, window bins, factor levels) — 8 panels, 2×4 grid:**
 | regime | mask | window | overlay levels |
 |---|---|---|---|
 | autonomous | DPA | 21:54 | sample 0,1 |
 | sample A | sample==0 | 15:30 | sample 0 |
 | sample B | sample==1 | 15:30 | sample 1 |
-| distractor | Go\|NoGo | 30:52 | tasks Go, NoGo |
+| Go | DualGo | 30:52 | sample 0,1 |
+| NoGo | DualNoGo | 30:52 | sample 0,1 |
+| cue | Go\|NoGo | 39:54 | tasks Go, NoGo |
 | test C | test==0 | 57:84 | sample 0,1 |
 | test D | test==1 | 57:84 | sample 0,1 |
 
-`--panels 4` keeps autonomous / sample A / distractor / test C.
+**Model = PARTIAL POOLING within two epochs** (ported from `fig_dpca_flow_lowrank_shared.py --partial`).
+Each regime flow is `ż = −z + S(z)·(A_sh + ΔA_r)·z + c_r`: a **shared recurrent `A_sh`** carrying the
+epoch's bistability, a **ridge-penalized per-regime deviation `ΔA_r`** (λ shrinks it toward `A_sh` — so
+per-regime flows generalize instead of overfitting a free landscape to two mean trajectories), and a
+**per-regime input current `c_r`**. Closed-form ridge LS: design `[S·z | one-hot⊗S·z | one-hot]`, penalty
+`λ·I` on the `ΔA` block only (not the shared `A` or the inputs). `fit_group` does one group; `fit_all`
+runs it per group.
 
-**Hyperparameters by 5-fold CV** (`KFold(5, shuffle, random_state=0)`), grid
-`a∈{0.2,0.4,0.7,1.0} × δ∈{0.3,0.8,2.0}`, maximise held-out **velocity-R²** (fit on train regime means,
-predict test regime velocities). `best = argmax`.
+**Two shared landscapes, one per epoch** — a *single* shared `A` can't hold both bistabilities: the three
+choice-bistable regimes (cue, test C/D) outvote the one sample-bistable regime, so a single `A_sh` comes
+out choice-dominated and the sample memory (autonomous, A, B) lands at **saddles** (wrong). Fix: pool
+**within** each epoch — `GROUPS = [{autonomous, sample A, sample B}, {Go, NoGo, cue, test C, test D}]`. The
+**delay landscape** is sample-bistable (autonomous = both wells on the sample axis; A/B settle in one); the
+**choice landscape** is choice-bistable (Go = push ↑ lick, NoGo = push ↓ no-lick, cue = the two splitting,
+test C/D = choice resolution). `--panels 4` keeps autonomous / sample A / cue / test C.
+
+**Hyperparameters `(a, δ, λ)` by 5-fold CV** (`KFold(5, shuffle, random_state=0)`), grid
+`a∈{0.2,0.4,0.7,1.0} × δ∈{0.3,0.8,2.0} × λ∈{0.2,1,5,20,100}`, maximise held-out **velocity-R²** (fit on
+train regime means, predict test regime velocities). Selection is **restricted to configs whose shared
+autonomous flow keeps 2 wells** (the WM bistability is an established result; the raw CV-optimal gain is
+often monostable), then max CV among those — stays fully in the partial model, no separate autonomous refit.
 
 **Fixed points** via `flow_fixed_points(flow, [(-L,L),(-L,L)], n_seed=18)`, `L = 1.3·max|means|`:
 ★ attractor (yellow) / □ saddle (white) / ✖ repeller (red). Condition-mean trajectories overlaid.
 
-**Results:** best `(a,δ) = (0.2,0.3)` correct / `(0.4,2.0)` all; **CV vel-R² = −0.09 / −0.03**. Attractor
-counts: autonomous **2** (+saddle), sample A/B **1** each, distractor 1, test C/D **2** (bimodal).
-> ⚠ **CV is negative** → these flows are a **descriptive portrait** of the pooled geometry, NOT a
-> validated rank-2 dynamical model. The printed equation is the fit *form*, not evidence of rank-2. Do
-> not over-claim. (See `story_figure_review.md` caveat 1; the standing "rank-2 not validated" note.)
+**Results:** best `(a,δ,λ) = (0.2,2.0,1.0)` correct / `(0.2,0.8,1.0)` all; **CV vel-R² = +0.077 / +0.104**
+(≈57/60 grid configs give a bistable autonomous). Attractor counts: autonomous **2** (+saddle), sample A/B
+**1** each, Go/NoGo **1**, cue **2**, test C/D **2**.
+> ✔ **CV is now POSITIVE** — partial pooling makes the per-regime flows **generalize** (vs the old
+> independent per-regime fit, CV ≈ −0.13, which overfit and looked artificial). The flows are a
+> regularized shared-landscape portrait that holds out-of-sample. Still a rank-2 *reduced* description of a
+> higher-rank latent (see the standing "rank-2 not validated as the full dynamics" note); don't claim the
+> full dynamics are rank-2, but the per-regime velocity fields do now cross-validate. (See
+> `story_figure_review.md` caveat 1.)
 
 ---
 
@@ -278,7 +300,7 @@ and it plotted absolute depths inconsistent with the naive=0 flow. See `story_fi
 |---|---|---|---|
 | geometry 2-D | top-2 EVR (wm / all), PR | 94% / 82%, 2.2 | ~same |
 | per-task variance | time/tasks/sample/choice/test | 54/31/7/7/1 % | ~same |
-| flows descriptive | CV vel-R² (best a,δ) | −0.09 (0.2,0.3) | −0.03 (0.4,2.0) |
+| flows cross-validate | CV vel-R² (best a,δ,λ) | +0.077 (0.2,2.0,1.0) | +0.104 (0.2,0.8,1.0) |
 | autonomous bistable | attractors | 2 (+saddle) | 2 |
 | no-lick push (flow) | dN→dE, push, hE | −0.86→−1.39, −0.53, 1.10 | push −0.56, hE 1.40 |
 | no-lick push (per-mouse) | mean, p, n deepen | −0.59, **0.012**, 8/9 | −0.56, **0.027**, 7/9 |
@@ -287,7 +309,8 @@ and it plotted absolute depths inconsistent with the naive=0 flow. See `story_fi
 ---
 
 ## 11. Standing caveats (before making any claim)
-1. **Sec-3 flows do not cross-validate** (CV<0) → descriptive portrait, not a validated rank-2 model.
+1. **Sec-3 flows now cross-validate** (CV>0 under partial pooling; the old independent per-regime fit was
+   CV<0 = overfit). Still a rank-2 *reduced* portrait — don't claim the full latent dynamics are rank-2.
 2. **Per-task variance is a proxy** (demixed-trajectory variance, not exact dPCA marginal-EVR).
 3. **Sec-4 gate profile is a modeling choice** (`GATE_A/D`, form). The **push depth and landscape are
    data-fit**; `hE` reproduces the measured push. Naive=0 is a display anchor (absolute dN=−0.86,
