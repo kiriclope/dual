@@ -7,7 +7,9 @@ Read these docs at the start of every session:
 - `docs/shared_feedback.md` — coding principles and past errors
 
 Then load the subproject docs for the area being worked on:
-- **Overlaps**: `docs/overlaps/overview.md`, `docs/overlaps/routines.md`, `docs/overlaps/feedback.md`
+- **Overlaps**: `docs/overlaps/overview.md`, `docs/overlaps/routines.md`, `docs/overlaps/feedback.md` —
+  for the main figure start with `docs/overlaps/main_figure.md` (full reproduction guide: hypothesis,
+  routines, method, results, caveats); `docs/overlaps/laser_onoff.md` is the laser ON−OFF causal analog
 - **PCA**: `docs/pca/README.md` (index) — for the dPCA story main figure start with
   `docs/pca/story_figure_reproduction.md` (full reproduction guide: hypotheses, routines, math, results,
   caveats); also `story_figure_methods.md`, `story_figure_review.md`, `flows_handoff.md`

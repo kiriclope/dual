@@ -189,8 +189,9 @@ sample axis.
 | `fig_overlaps_cosine.py` | cosine similarity of the decoder **weight axes** (neuron space): within-code epoch×epoch stability + between-code alignment vs chance ±1/√N. Result: codes mutually **orthogonal** all trial (sharpen with learning); axes temporally stable. Needs `run_overlaps.py --save-weights` (→ `weights_*_raw.pkl`) | all laser-off |
 | `fig_overlaps_codes_1d.py` | 1D codes: sample/choice/test each on its own code (**DPA-only**) + task on choice code (all tasks); **nine train epochs sweeping the trial (stim/ed/md/gng_rwd/delay/ld/test/choice/dpa_rwd) × both stages**; grand-mean over mice + per-mouse 9×4 grid + pooled reference; pre-test anchors flag the test panel ⚠ pre-test confound. NB the Go/NoGo distractor + GNG reward are **Dual-only** — on the DPA-only panels ed/md/gng_rwd/ld are uninterrupted maintenance timepoints (events live in the task panel). Key: sample epoch-invariant (stable memory), **choice/lick code non-flat in the delay = maintained no-lick action set (dual-coding), not foreknowledge** | correct |
 
-See `docs/overlaps/routines.md` for run commands and output paths, and
-`docs/overlaps/laser_onoff.md` for the standalone laser ON−OFF method + reproduction guide.
+See `docs/overlaps/routines.md` for run commands and output paths,
+`docs/overlaps/main_figure.md` for the standalone MAIN-figure hypothesis + method + reproduction
+guide, and `docs/overlaps/laser_onoff.md` for the laser ON−OFF (causal) analog.
 
 ---
 
