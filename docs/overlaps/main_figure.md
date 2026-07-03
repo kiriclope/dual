@@ -1,8 +1,9 @@
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
-The overlaps-only main paper figure: a 4-panel arc (A→D) showing the **dual code** and its
-**learning-driven no-lick push**, all read on one axis. Assembled by
-`overlaps/fig_overlaps_main.py` from four per-analysis panel scripts.
+The overlaps-only main paper figure: a 5-panel arc (A→E) showing the **dual code**, its
+**learning-driven no-lick push**, and the **acute-optogenetic test** of the same link, all read on
+one axis. Assembled by `overlaps/fig_overlaps_main.py` from five per-analysis panel scripts
+(E = the laser ON−OFF causal analog of D).
 
 Everything runs from `/home/leon/dual/overlaps` with
 `/home/leon/mambaforge/envs/dual/bin/python`.
@@ -25,14 +26,20 @@ is the acute-perturbation counterpart to the laser ON−OFF scatter (`laser_onof
 **Codes / conventions:** Sample A = odor_pairs [0,1] (#332288 indigo), Sample B = [2,3] (#44AA99
 teal). "Depth" = late-delay position on the choice code; negative = no-lick half.
 
-## 2. What the figure shows (4 panels, all on `trainLD_TEST`)
+## 2. What the figure shows (5 panels, all on `trainLD_TEST`)
 
 | panel | content | headline stat |
 |---|---|---|
 | **A** | 1-D codes over the trial: sample / choice / test / task (task rides the choice axis). Read-out spans the test epoch → the **test code is valid** (no pre-test confound). | sample epoch-invariant; choice code non-flat in delay |
 | **B** | The no-lick push in the sample × choice plane: DPA state Naive→Expert (focused 1×2, Naive \| Expert). | Expert DPA state sits deeper in no-lick |
 | **C** | Well deepening: per-mouse late-delay depth Naive→Expert + maximal-LMM stars. | pooled dz=−0.53, 8/9 mice, LMM **p=0.098** (trend) |
-| **D** | Δ accuracy vs Δ depth (Expert−Naive), 1×2: ΔDPA and ΔGNG. | ΔDPA ρ=−0.67 **p=0.050** *; ΔGNG null → DPA-specific |
+| **D** | Δ accuracy vs Δ depth (**Expert−Naive**, learning), 1×2: ΔDPA and ΔGNG. | ΔDPA ρ=−0.67 **p=0.050** *; ΔGNG null → DPA-specific |
+| **E** | **Causal analog of D**: Δ accuracy vs Δ depth (**laser ON−OFF**, Expert), 1×2 DPA & GNG, 7 laser mice (● Jaws inhibit / ▲ ChR excite). Full method: `laser_onoff.md`. | ΔGNG ρ=−0.90 **p=0.006** *; ΔDPA null (mirror of D) |
+
+**Read D↔E together:** same Δdepth↔Δaccuracy relationship, learning (D) vs acute perturbation (E).
+In D the **DPA** column is significant; in E the **GNG** column is — consistent with the choice
+code being the lick axis (the causal lick-axis perturbation tracks Go/NoGo; the learning correlate
+tracks DPA).
 
 ## 3. The canonical CCGD tensor (build once, ~19 min)
 
@@ -73,9 +80,14 @@ cd /home/leon/dual/overlaps
 /home/leon/mambaforge/envs/dual/bin/python exp_nolick_push_stats.py ld_test all
 #   -> figures/overlaps/nolick_push/png/{DUM}_nolick_push_paired_ld_test_all.png
 
-# D — Δdepth ↔ Δperf, 1×2 DPA & GNG specificity panel
+# D — Δdepth ↔ Δperf (Expert−Naive), 1×2 DPA & GNG specificity panel
 /home/leon/mambaforge/envs/dual/bin/python plot_scatter_perf.py --dpa-panel
 #   -> figures/overlaps/scatter_perf/trainLD_TEST/png/{DUM}_trainLD_TEST_dpa_panel.png
+
+# E — laser ON−OFF causal analog (Expert, ld_test). Needs the _laser tensor first
+#     (see docs/overlaps/laser_onoff.md §4: run_overlaps.py --with-laser --targets choice)
+/home/leon/mambaforge/envs/dual/bin/python plot_scatter_laser.py expert ld_test
+#   -> figures/overlaps/scatter_laser/png/{DUM}_laser_targets_choice_onoff_ld_test_expert.png
 ```
 (`DUM` = `log_generalizing_overlaps_none_l1_ratio_0.0`. Scripts B and D loop over all TRAIN_EPOCHS,
 so one run produces every axis variant; A regenerates the whole codes sweep; C takes
@@ -89,10 +101,12 @@ cd /home/leon/dual/overlaps
 #   -> figures/overlaps/main/{png,svg}/fig_overlaps_main.png
 ```
 
-`fig_overlaps_main.py` is a **layout proof** — it stacks the four already-rendered panel PNGs into
-one lettered figure and prints the panel→source map. **Final publication assembly = vector-edit the
+`fig_overlaps_main.py` is a **layout proof** — it stacks the already-rendered panel PNGs into one
+lettered figure and prints the panel→source map. **Final publication assembly = vector-edit the
 per-panel SVG twins** listed in its output. The `AXES` dict maps each variant to
-`(codes_epoch, push_ax, deepset, scatter_ax)`.
+`(codes_epoch, push_ax, deepset, scatter_ax)`. **Panel E** is appended only on axes with a laser
+twin (`LASER_AX = {ld_test, ld, delay}`, Expert stage via `LASER_MODE`); on `test`/`mixed`/`choice…`
+it is skipped (the assembler drops any missing panel), so those variants stay 4-panel.
 
 Axis variants (flag → filename tag):
 
@@ -144,7 +158,8 @@ significant, but it mixes axes across panels. Report `trainLD_TEST` as the main 
 
 - Assembler: `overlaps/fig_overlaps_main.py`
 - Panels: `fig_overlaps_codes_1d.py` (A), `plot_traj2d.py --all --dpa-only` (B),
-  `exp_nolick_push_stats.py <axis> all` (C), `plot_scatter_perf.py --dpa-panel` (D)
+  `exp_nolick_push_stats.py <axis> all` (C), `plot_scatter_perf.py --dpa-panel` (D),
+  `plot_scatter_laser.py expert ld_test` (E — needs the `_laser` tensor, see `laser_onoff.md`)
 - LMM detail: `exp_nolick_push_lmm.py`
 - Tensor: `data/overlaps/{X,labels}_log_generalizing_overlaps_none_l1_ratio_0.0.pkl` (gitignored —
   rebuild §3)
