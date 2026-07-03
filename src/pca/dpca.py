@@ -134,7 +134,7 @@ def cv_dpca(
     X, y, folds, factors,
     epoch=None, bl_bins=None, levels=None,
     learning='Expert', norm='zscore', soft=1e-3,
-    mouse_slices=None, q=2, ridge=1e-2, show_pbar=True,
+    mouse_slices=None, q=2, ridge=1e-2, show_pbar=True, perf_filter=True,
 ):
     """Cross-validated dPCA on the within-mouse pseudo-population.
 
@@ -161,7 +161,9 @@ def cv_dpca(
     if isinstance(factors, str):
         factors = [factors]
 
-    m_clean = (y.laser == 0) & (y.learning == learning) & (y.performance == 1)
+    m_clean = (y.laser == 0) & (y.learning == learning)
+    if perf_filter:                                    # default: fit on correct trials only
+        m_clean = m_clean & (y.performance == 1)       # perf_filter=False → include errors (decouples choice)
     yc = y.loc[m_clean].reset_index(drop=True).copy()
     yc['_tid'] = np.arange(len(yc))
     Xc = X[m_clean.to_numpy()]
