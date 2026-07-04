@@ -190,8 +190,19 @@ All in `overlaps/`; outputs under `overlaps/figures/overlaps/behavior/`. PNG @dp
   dual-GNG performance vs day (LMM group + group×day). Result: dual training significantly
   impairs DPA (group p≈0.001, group×day p≈0.008); GNG is learned fastest.
 - `--batch <Silencing-…> --delta` → **between-group Δ(opto − control)** silencing effect per
-  condition vs day + panel-E LMM `perf ~ group×day + (1|mouse)` group-effect forest. Result
-  (all three batches): silencing effect essentially null on gross behaviour (CIs cross 0).
+  condition vs day + panel-E LMM `perf ~ group×day + (1|mouse)` group-effect forest.
+- `--batch <Silencing-…> --ctrlopto` → control-vs-opto **absolute** learning curves for 3
+  metrics (DPA perf, GNG perf, DPA-unpaired), per-day Welch stars + per-panel LMM group test.
+
+  **Silencing effect is batch-specific** (LMM group effect, opto−control at mean day):
+  | batch | DPA perf | GNG perf | DPA unpaired |
+  |---|---|---|---|
+  | ACC | ns (p=0.57) | ns (p=0.63) | ns |
+  | ACC-Prl | β=−0.06 **p=0.009**, group×day p=0.0003 | ns | β=−0.12 **p=0.014**, group×day p<0.001 |
+  | Prl-ACC | ns (group×day p=0.067) | β=−0.05 **p=0.017** | — |
+
+  I.e. ACC-Prl silencing impairs DPA (esp. unpaired), Prl-ACC silencing impairs GNG, ACC null.
+  (Earlier "gross behaviour is null" was an overstatement from looking at ACC alone.)
 
 Colours: DPA/paired `#d62728` red · GNG/Go `#1f77b4` blue · NoGo `#2ca02c` green ·
 dual-DPA `#ff7f0e` orange (compare figure only).

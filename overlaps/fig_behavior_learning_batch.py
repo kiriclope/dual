@@ -285,6 +285,119 @@ if '--delta' in sys.argv[1:]:
     sys.exit(0)
 
 
+# ── --ctrlopto : control vs opto absolute curves — DPA / GNG / DPA-unpaired ────
+if '--ctrlopto' in sys.argv[1:]:
+    from scipy.stats import ttest_ind
+    g1, g2 = ('control', 'opto') if 'Silencing' in BATCH else ('DPA', 'Dual')
+    d1, d2 = load_batch(BATCH, g1), load_batch(BATCH, g2)
+    days = list(range(1, int(max(d1.day.max(), d2.day.max())) + 1))
+    xt = days if len(days) <= 10 else list(range(2, len(days) + 1, 2))
+    C1, C2 = '#888888', '#332288'                    # control grey / opto indigo
+
+    def _dual(df):
+        return df.tasks.isin(['DualGo', 'DualNoGo'])
+
+    import matplotlib.lines as mlines
+    METRICS = [('A  DPA performance', 'DPA',      'performance', lambda df: df.tasks == 'DPA'),
+               ('B  GNG performance', 'GNG',      'odr_perf',    _dual),
+               ('C  DPA unpaired',    'DPA unp.', 'performance', lambda df: (df.tasks == 'DPA') & (df.pair == 0))]
+
+    def pmd(df, col, mask_fn):
+        return (df[mask_fn(df)].groupby(['mouse', 'day'])[col].mean()
+                .reset_index().rename(columns={col: 'perf'}))
+
+    fig, (axA, axB, axC, axD) = plt.subplots(1, 4, figsize=(19.5, 4.4))
+    coefs = []                                  # (short, gβ,glo,ghi,gp, iβ,ilo,ihi,ip) for panel D
+    for ax, (title, short, col, mask_fn) in zip((axA, axB, axC), METRICS):
+        p1, p2 = pmd(d1, col, mask_fn), pmd(d2, col, mask_fn)
+        lo, hi = [], []
+        for p, color, lab in [(p1, C1, g1), (p2, C2, g2)]:
+            m, s = [], []
+            for day in days:
+                v = p.loc[p.day == day, 'perf'].dropna().values
+                m.append(v.mean() if len(v) else np.nan)
+                s.append(v.std(ddof=1) / np.sqrt(len(v)) if len(v) > 1 else (0.0 if len(v) else np.nan))
+            m, s, x = np.array(m), np.array(s), np.array(days, float)
+            ok = ~np.isnan(m)
+            ax.plot(x[ok], m[ok], '-o', color=color, lw=2, ms=5,
+                    label=f'{lab} (n={p.mouse.nunique()})', zorder=3)
+            ax.fill_between(x[ok], (m - s)[ok], (m + s)[ok], color=color, alpha=0.18, lw=0, zorder=1)
+            if ok.any():
+                lo.append(np.nanmin((m - s)[ok])); hi.append(np.nanmax((m + s)[ok]))
+        ylo = max(0.0, min(lo) - 0.05) if lo else 0.3
+        yhi = min(1.06, max(hi) + 0.06) if hi else 1.05
+        ax.set_ylim(ylo, yhi)
+        for day in days:                                  # per-day control-vs-opto Welch stars
+            a = p1.loc[p1.day == day, 'perf'].dropna().values
+            b = p2.loc[p2.day == day, 'perf'].dropna().values
+            if len(a) >= N_MIN and len(b) >= N_MIN and not (np.all(a == a[0]) and np.all(b == b[0])):
+                pv = float(ttest_ind(b, a, equal_var=False).pvalue)
+                if star(pv):
+                    ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
+                            fontsize=10, fontweight='bold')
+        g = pd.concat([p1.assign(grp=g1), p2.assign(grp=g2)], ignore_index=True)   # LMM group test
+        g['dayc'] = g['day'] - g['day'].mean()
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                res = smf.mixedlm(f"perf ~ C(grp, Treatment('{g1}'))*dayc", g, groups=g['mouse']).fit()
+            ci = res.conf_int()
+            gn = [i for i in res.params.index if i.startswith('C(grp') and ':' not in i][0]
+            in_ = [i for i in res.params.index if i.startswith('C(grp') and ':' in i][0]
+            coefs.append((short, float(res.params[gn]), float(ci.loc[gn, 0]), float(ci.loc[gn, 1]),
+                          float(res.pvalues[gn]), float(res.params[in_]), float(ci.loc[in_, 0]),
+                          float(ci.loc[in_, 1]), float(res.pvalues[in_])))
+            print(f'{title}: {g2}-{g1} beta={res.params[gn]:+.3f} group p={res.pvalues[gn]:.4f} '
+                  f'groupxday p={res.pvalues[in_]:.4f}')
+        except Exception:
+            coefs.append((short, *[np.nan] * 8))
+        if ylo < 0.5 < yhi:
+            ax.axhline(0.5, ls=':', color='0.5', lw=1)
+        ax.set_xticks(xt); ax.set_xlabel('training day')
+        ax.legend(frameon=False, fontsize=9, loc='lower right')
+        ax.spines[['top', 'right']].set_visible(False)
+        ax.set_title(title, loc='left', fontweight='bold', fontsize=11)
+    axA.set_ylabel('performance')
+
+    # Panel D — LMM group effect (opto−control) per metric: group β (○) + group×day β (□)
+    for i, (short, gb, glo, ghi, gp, ib, ilo, ihi, ip) in enumerate(coefs):
+        for dx, val, vlo, vhi, pv, mk in [(-0.14, gb, glo, ghi, gp, 'o'),
+                                          (0.14, ib, ilo, ihi, ip, 's')]:
+            if not np.isfinite(val):
+                continue
+            cc = 'k' if (np.isfinite(pv) and pv < 0.05) else '0.6'
+            axD.errorbar(i + dx, val, yerr=[[val - vlo], [vhi - val]], fmt=mk, color=cc,
+                         ms=6, capsize=3, lw=1.5, zorder=3)
+            if np.isfinite(pv) and star(pv):
+                axD.text(i + dx, vhi + 0.003, star(pv), ha='center', va='bottom',
+                         fontsize=9, fontweight='bold')
+    axD.axhline(0, ls='--', color='0.4', lw=1)
+    axD.set_xticks(range(len(coefs)))
+    axD.set_xticklabels([c[0] for c in coefs], rotation=20, ha='right')
+    axD.set_xlim(-0.6, len(coefs) - 0.4)
+    axD.set_ylabel(f'{g2} − {g1}   (β, Δ performance)')
+    axD.set_title('D  LMM group effect (95% CI)', loc='left', fontweight='bold', fontsize=11)
+    axD.spines[['top', 'right']].set_visible(False)
+    axD.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=6, label='group (at mean day)'),
+                        mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=6, label='group×day (slope)')],
+               frameon=False, fontsize=8, loc='best')
+
+    fig.suptitle(f'Control vs Opto learning curves — {BATCH} '
+                 f'({g1} n={d1.mouse.nunique()}, {g2} n={d2.mouse.nunique()})', fontsize=13, y=0.99)
+    fig.text(0.5, 0.005,
+             'Curves: mean ± SEM across mice; top stars = per-day Welch t-test control vs opto (exploratory, uncorrected).  '
+             'Panel D: LMM perf ~ group×day + (1|mouse), between-mouse.  * p<0.05  ** p<0.01  *** p<0.001',
+             ha='center', va='bottom', fontsize=8, color='0.35')
+    fig.tight_layout(rect=(0, 0.05, 1, 0.94))
+    OUT = 'figures/overlaps/behavior/batch'
+    os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
+    for ext in ('png', 'svg'):
+        p = f'{OUT}/{ext}/behavior_learning_batch_{SHORT.get(BATCH, BATCH)}_ctrlopto.{ext}'
+        fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
+    plt.close(fig)
+    sys.exit(0)
+
+
 d = load_batch(BATCH, GROUP)
 MICE = sorted(d.mouse.unique(), key=lambda s: int(s.rsplit('_', 1)[1]))
 DAYS = list(range(1, int(d.day.max()) + 1))
