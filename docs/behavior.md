@@ -231,6 +231,31 @@ ceiling artifact, ns. Read-out: a **shared competence/engagement factor + small 
 not efficient DPA/GNG resource allocation. Caveats: n=9 mice (between-animal tests underpowered →
 lean on trial-level GEE); coupling is associational, not a causal capacity manipulation; ON = n=7.
 
+### The behavioural main figure — `fig_behavior_main.py`
+
+Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-laser pickle,
+`target=='choice'`, `laser==0`). `figures/overlaps/behavior/{png,svg}/behavior_main.*`. Layout =
+`GridSpec(3,12)`; message-based panel titles. Panels:
+- **A** — schematics: (i) a setup cartoon, (ii) the DPA+GNG **task scheme** (`dual_task_scheme.svg`),
+  (iii) the **Curriculum training** pipeline (`dual_training_scheme_vector.svg`, hand-authored vector,
+  conventions colours: DPA red / GNG blue / dual orange; "shaping" = paired-trials-only task version,
+  GNG has "training" not shaping). Cartoon is sized **smaller** than the task scheme.
+- **B–E** — the five learning curves from `fig_behavior_learning.py` (helpers copied per repo
+  convention): B DPA-vs-GNG, C Go-vs-NoGo, D paired-vs-unpaired, E unpaired-by-task; per-day LMM stars.
+- **F** — LMM effect-size forest (condition + condition×day βs).
+- **G** — **intrusive licks impair DPA early**: NoGo trials, no-lick vs intrusive-lick DPA accuracy,
+  Naive vs Expert, per-mouse lines + mean±SEM, GEE(DPA-correct ~ lick, clustered by mouse) OR/p with
+  significance brackets (Naive OR=0.56 **p=.006 `**`**; Expert OR=0.76 p=.50 `ns`).
+- **H** — **experts reach a suboptimal balance**: per-mouse DPA-vs-GNG scatter (Naive→Expert), y=x,
+  Pearson/Spearman + mean gap-to-optimal.
+
+The panel-A cartoon is a **continuous-line B&W vector** traced from the original `~/dual/mouse.svg`
+illustration by `overlaps/make_mouse_lineart.py`: rsvg-render → darkness-threshold (L<135) to its own
+bold outlines → morphological close → erase baked-in labels + stray apparatus fragments → flip
+horizontal so the mouse faces the task → **vectorise with potrace** (`potracer`, pure-python; `pip
+install potracer` in env `dual`) → emit `mouse_lineart.svg` (traced path + vector labels
+Head-fixed/Odor/Water). Re-run the script to regenerate; the figure just renders the SVG.
+
 **Training batches** — `fig_behavior_learning_batch.py` (`figures/overlaps/behavior/batch/`):
 - `--batch <name> --group <control|opto|DPA|Dual>` → 5-panel per-group curves. Panels use
   **data-adaptive per-panel y-limits**; chance line drawn only when in range; N_MIN=4.
