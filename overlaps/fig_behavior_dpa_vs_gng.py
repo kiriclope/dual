@@ -93,8 +93,14 @@ def per_mouse(mask, col, stage, laser_val):
     return out
 
 
-IS_DPA = d.tasks == 'DPA'
-IS_DUAL = d.tasks.isin(['DualGo', 'DualNoGo'])
+UNPAIRED = '--unpaired' in sys.argv[1:]
+SUFFIX = '_unpaired' if UNPAIRED else ''
+XLAB = 'DPA unpaired performance' if UNPAIRED else 'DPA performance'
+# --unpaired restricts BOTH axes to the unpaired (pair==0) trial subset, so DPA and
+# GNG are measured on the same trials (matches fig_behavior_dual_cost.py).
+IS_DPA = (d.tasks == 'DPA') & (d.pair == 0) if UNPAIRED else (d.tasks == 'DPA')
+IS_DUAL = (d.tasks.isin(['DualGo', 'DualNoGo']) & (d.pair == 0) if UNPAIRED
+           else d.tasks.isin(['DualGo', 'DualNoGo']))
 
 
 def make(laser_val, tag, laser_label):
@@ -142,17 +148,17 @@ def make(laser_val, tag, laser_label):
                         color='k' if p_s < 0.05 else '0.55')
             ax.set_xlim(lim); ax.set_ylim(lim)
             ax.set_aspect('equal')
-            ax.set_xlabel('DPA performance')
+            ax.set_xlabel(XLAB)
             ax.set_title(stage, fontweight='bold')
-        axes[0].set_ylabel('GNG performance')
+        axes[0].set_ylabel('GNG unpaired performance' if UNPAIRED else 'GNG performance')
         axes[1].legend(frameon=False, fontsize=8, loc='upper left',
                        bbox_to_anchor=(1.01, 1),
                        title='mouse (● Jaws / ▲ ChR / ■ ACC)', title_fontsize=8)
-        fig.suptitle(f'DPA vs GNG performance per animal — laser {laser_label}',
-                     fontsize=12, y=1.02)
+        fig.suptitle(f'{"DPA-unpaired" if UNPAIRED else "DPA"} vs GNG performance per animal '
+                     f'— laser {laser_label}', fontsize=12, y=1.02)
         fig.tight_layout()
         for ext in ('png', 'svg'):
-            p = f'{OUT}/{ext}/behavior_dpa_vs_gng_{tag}.{ext}'
+            p = f'{OUT}/{ext}/behavior_dpa_vs_gng{SUFFIX}_{tag}.{ext}'
             fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
         plt.close(fig)
 

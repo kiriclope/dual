@@ -66,6 +66,10 @@ LAB = ('../data/overlaps/'
 y = pickle.load(open(LAB, 'rb'))
 d = y[(y.target == 'choice') & (y.laser == 0)].copy()      # OFF trials, one row/trial
 
+UNPAIRED = '--unpaired' in sys.argv[1:]
+SUFFIX = '_unpaired' if UNPAIRED else ''
+DLAB = 'DPA(unp)' if UNPAIRED else 'DPA'
+
 OUT = 'figures/overlaps/behavior'
 os.makedirs(f'{OUT}/png', exist_ok=True)
 os.makedirs(f'{OUT}/svg', exist_ok=True)
@@ -78,8 +82,12 @@ def compute():
         ds = d[d.stage == stage]
         for m in ALL_MICE:
             dm = ds[ds.mouse == m]
-            pure = dm[dm.tasks == 'DPA'].performance.dropna()
+            puredf = dm[dm.tasks == 'DPA']
             dual = dm[dm.tasks.isin(['DualGo', 'DualNoGo'])]
+            if UNPAIRED:                                    # DPA-unpaired trials only
+                puredf = puredf[puredf.pair == 0]
+                dual = dual[dual.pair == 0]
+            pure = puredf.performance.dropna()
             dualp = dual.performance.dropna()
             if len(pure) and len(dualp):
                 A[stage][m] = (pure.mean(), dualp.mean())
@@ -103,9 +111,9 @@ def paired_stats(pts):
 
 data = compute()
 PANELS = [
-    ('A', 'Dual-task cost (DPA)', 'DPA accuracy · pure', 'DPA accuracy · dual',
+    ('A', f'Dual-task cost ({DLAB})', f'{DLAB} accuracy · pure', f'{DLAB} accuracy · dual',
      'below diagonal = dual-task cost'),
-    ('B', 'Trial coupling (DPA × GNG)', 'DPA acc | GNG-error', 'DPA acc | GNG-correct',
+    ('B', f'Trial coupling ({DLAB} × GNG)', f'{DLAB} acc | GNG-error', f'{DLAB} acc | GNG-correct',
      'above diagonal = shared engagement,\nnot a trade-off'),
 ]
 
@@ -154,10 +162,10 @@ with plt.rc_context(E_RC):
     axes[1].legend(handles=stage_h + mouse_h, frameon=False, fontsize=8,
                    loc='upper left', bbox_to_anchor=(1.01, 1),
                    title='stage / mouse (● Jaws / ▲ ChR / ■ ACC)', title_fontsize=8)
-    fig.suptitle('DPA↔GNG is not a capacity trade-off (recorded cohort, laser OFF)',
-                 fontsize=12, y=1.01)
+    fig.suptitle(f'{DLAB}↔GNG is not a capacity trade-off (recorded cohort, laser OFF'
+                 f'{", unpaired only" if UNPAIRED else ""})', fontsize=12, y=1.01)
     fig.tight_layout()
     for ext in ('png', 'svg'):
-        p = f'{OUT}/{ext}/behavior_dual_cost.{ext}'
+        p = f'{OUT}/{ext}/behavior_dual_cost{SUFFIX}.{ext}'
         fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
     plt.close(fig)

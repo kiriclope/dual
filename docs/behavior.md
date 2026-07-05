@@ -197,17 +197,39 @@ All in `overlaps/`; outputs under `overlaps/figures/overlaps/behavior/`. PNG @dp
   Result: DPA & GNG **co-vary across animals when Naive** (OFF r=+0.66 p=0.051, ρ=+0.55; ON
   r=+0.74 p=0.055) but **decouple by Expert** (OFF r=+0.10 ρ=+0.35 ns; ON r=+0.43 ρ=+0.57 ns).
   A shared "good-learner" axis early that dissolves as animals specialise.
-- `fig_behavior_dual_cost.py` — **is DPA↔GNG a capacity trade-off? No.** Two y=x scatters
-  (OFF, one dot/mouse/stage, open Naive → filled Expert joined by a line): **A** dual-task cost
-  = DPA acc pure (x) vs dual (y); Expert points fall just below the diagonal (Δ=−0.030 paired
-  **p=0.048**; Naive Δ=−0.021 ns) → a small fixed cost. **B** trial coupling = DPA acc | GNG-error
-  (x) vs | GNG-correct (y); Expert points sit **above** the diagonal (Δ=+0.097 **p=0.025**; Naive
-  Δ=−0.003 ns) → DPA is *better* on GNG-correct trials, a shared good/bad-trial engagement axis,
-  the OPPOSITE sign of a trade-off. Combined with the between-animal dominance structure (Expert
-  OFF: 7/9 animals dominated, "front" = the two near-ceiling animals JawsM01/M18, not a
-  descending trade-off envelope), learning is **NOT Pareto-optimal**: best learners improve on
-  both tasks; no DPA↔GNG resource trade-off at any level (between-animal, across-session,
-  or trial-by-trial).
+  `--unpaired` restricts **both** axes to unpaired (`pair==0`) trials (DPA *and* GNG on the same
+  trials — `pair` is a DPA property but the whole-trial subset is kept consistent). On unpaired
+  trials the Expert slope flips slightly negative (OFF r=−0.37, ON similar) but stays ns — a
+  ceiling artifact (experts pinned at DPA≈1.0 can only vary GNG-downward), not a real trade-off.
+- `fig_behavior_dual_cost.py [--unpaired]` — **is DPA↔GNG a capacity trade-off? No.** Two y=x
+  scatters (OFF, one dot/mouse/stage, open Naive → filled Expert joined by a line): **A** dual-task
+  cost = DPA acc pure (x) vs dual (y); Expert points fall just below the diagonal (Δ=−0.030 paired
+  **p=0.048**; Naive ns) → a small fixed cost. **B** trial coupling = DPA acc | GNG-error (x) vs |
+  GNG-correct (y); Expert points sit **above** the diagonal (Δ=+0.097 **p=0.025**; Naive ns) → DPA
+  is *better* on GNG-correct trials, opposite sign of a trade-off.
+- `fig_behavior_pareto.py [--all] [--on]` — Pareto front made **explicit** (ringed = non-dominated,
+  faded + shaded = dominated interior, grey staircase = frontier). Default unpaired-OFF; `--all` =
+  all trials, `--on` = laser ON (n=7, ACC dropped). A point is non-dominated if no animal beats it
+  on *both* DPA & GNG. Result: **dominated interior, not a frontier** — Expert OFF 3/9 on front
+  (6/9 dominated), Expert ON 1/7 (JawsM18 dominates the field). Not a Pareto-optimal population.
+- `fig_behavior_dual_cost_trials.py [--on]` — the cost analysis at the **trial level** (GEE
+  logistic, each trial a data point, clustered by mouse; forest of odds ratios, 4 rows =
+  {all,unpaired}×{Naive,Expert}). **Dual-task cost:** OR(dual)≈0.8, marginal (Expert OFF p=0.07).
+  **Trial coupling:** OR(GNG-correct) is **>1 and significant in Expert** — OFF all OR=2.03
+  **p=0.001**, ON all OR=2.54 **p<0.001**, ON unpaired OR=1.88 **p=0.002** (Naive ns throughout).
+  Getting GNG right ~doubles the odds of DPA correct on the same trial = shared engagement, the
+  OPPOSITE of a within-trial trade-off. (Note statsmodels `gee` is Gaussian-free logistic here.)
+
+**Conclusion — DPA↔GNG is not a capacity trade-off; learning is NOT Pareto-optimal** (holds OFF
+and ON). Consistent across all three levels: (1) between animals — dominated interior, best
+learners improve on *both* (Naive positive coupling r≈+0.7, decouples by Expert, ns); (2) explicit
+Pareto front — only 1–3 of 7–9 animals non-dominated, no descending envelope; (3) trial-by-trial —
+DPA & GNG correctness **positively** coupled (Expert OR≈2, p≤.002), not negatively. There *is* a
+small fixed dual-task cost (~2–3 pp / OR≈0.8, marginal) — a mild shared capacity overhead, not a
+resource traded between tasks. The "trade-off-shaped" tilt on unpaired-Expert trials is a DPA
+ceiling artifact, ns. Read-out: a **shared competence/engagement factor + small fixed dual cost**,
+not efficient DPA/GNG resource allocation. Caveats: n=9 mice (between-animal tests underpowered →
+lean on trial-level GEE); coupling is associational, not a causal capacity manipulation; ON = n=7.
 
 **Training batches** — `fig_behavior_learning_batch.py` (`figures/overlaps/behavior/batch/`):
 - `--batch <name> --group <control|opto|DPA|Dual>` → 5-panel per-group curves. Panels use
