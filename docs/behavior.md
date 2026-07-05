@@ -297,10 +297,14 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
 - **F–H** — recorded cohort, transient delay-only laser, **within-mouse ON vs OFF, Jaws
   inhibition only (n=5)**: DPA & GNG OFF/ON curves + within-mouse LMM forest
   (`perf ~ laser×day + (1|mouse)`) — all CIs cross 0 → **no gross behavioural effect**.
-- **I, J** — overlaps causal coupling, laser ON−OFF, **Jaws only, A&B taken as independent
-  points** (5 mice → 10 pts), depth = DPA choice-code late-delay on the **trainLD** axis
-  (bins 45-53), late-delay test-time window 27-53. **Square** panels (`set_box_aspect(1)`),
-  Pearson-based star. I (ΔDPA) n.s. (r≈+0.39); J (ΔGNG) `*` (r≈−0.66 p≈0.037).
+- **I** — per-mouse choice-code depth, laser **OFF vs ON** (Jaws, A&B-pooled paired lines +
+  group mean±SEM). Shows the laser moves each animal's code (M06 up, M01/M15 down, others flat)
+  while the group mean is ~flat — the shift here is the x-axis of J/K, and explains "code moves
+  per-mouse yet no gross behavioural effect" (panel H).
+- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only, A&B taken as independent
+  points** (5 mice → 10 pts, all trials), depth = DPA choice-code late-delay on the **trainLD**
+  axis (bins 45-53), late-delay test-time window 27-53. **Square** panels (`set_box_aspect(1)`),
+  Pearson-based star. J (ΔDPA) n.s. (r≈+0.39); K (ΔGNG) `*` (r≈−0.66 p≈0.037).
 
 Design notes (settled after iteration — see [[project_behavior_opto_figure]]): F–J are
 Jaws-only by request; the batch (B–E) is a different chronic cohort, so the figure deliberately

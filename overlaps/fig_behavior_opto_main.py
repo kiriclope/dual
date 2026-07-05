@@ -15,9 +15,11 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   H  Within-mouse LMM laser effect (ON−OFF) per metric: Jaws β±95%CI (○).
      perf ~ laser*day + (1|mouse).  (Jaws inhibition only, n=5.)
   ── Same projection · overlaps causal coupling (laser ON−OFF) ──
-  I  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws, Expert; A&B indep., 10 pts)
-  J  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (specificity / the coupled one)
-  Depth read on the trainLD axis (bins 45-53) for both; late-delay window (27-53); square panels.
+  I  Per-mouse choice-code depth, laser OFF vs ON (Jaws, A&B pooled) — the manipulation
+     moves each animal's code (its shift is the x-axis of J/K); group mean flat.
+  J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws, Expert; A&B indep., 10 pts)
+  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (specificity / the coupled one)
+  Depth read on the trainLD axis (bins 45-53); late-delay window (27-53); J/K square, all trials.
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
 (B–E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
@@ -436,11 +438,32 @@ axD.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                                   label='Jaws inhibition (LMM, n=5)')],
            frameon=False, fontsize=7.5, loc='best')
 
-# ── I, J: overlaps causal coupling — Δdepth vs Δaccuracy — ROW 3 ──────────────
+# ── I: per-mouse laser effect on the choice code (OFF vs ON depth, Jaws) ──────
+#   Absolute A&B-pooled DPA choice-code depth per mouse under laser OFF vs ON — shows
+#   the laser reliably moves each animal's code (the shift that is the scatters' x-axis).
+axK = fig.add_subplot(gs_body[2, 0:4])
+_offon = {m: (_pooled_depth((y.mouse == m).values, 0),
+              _pooled_depth((y.mouse == m).values, 1)) for m in JAWS}
+_offs = np.array([_offon[m][0] for m in JAWS]); _ons = np.array([_offon[m][1] for m in JAWS])
+for m in JAWS:
+    axK.plot([0, 1], _offon[m], '-o', color=MOUSE_COLOR[m], lw=1.3, ms=6,
+             mec='w', mew=0.6, label=m, zorder=3)
+for xx, vv in [(-0.22, _offs), (1.22, _ons)]:                # group mean ± SEM
+    mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(np.isfinite(vv).sum())
+    axK.errorbar(xx, mn, yerr=se, fmt='s', color='k', ms=7, capsize=4, lw=1.5, zorder=5)
+axK.axhline(0, ls=':', color='0.5', lw=1)
+axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
+axK.set_xlim(-0.5, 1.5)
+axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD)')
+axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
+           ncol=1, handletextpad=0.3)
+
+# ── J, K: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
 #   Jaws only, A&B taken as INDEPENDENT points (each mouse → odor-A solid + odor-B open,
 #   joined by a thin line); stats over all 10 points.
-axE = fig.add_subplot(gs_body[2, 0:5])
-axF = fig.add_subplot(gs_body[2, 5:10])
+axE = fig.add_subplot(gs_body[2, 4:8])
+axF = fig.add_subplot(gs_body[2, 8:12])
 ally = np.array([r[k] for k in ('d_dpa', 'd_gng') for r in rows_ab], float)
 ally = ally[~np.isnan(ally)]
 pad = (ally.max() - ally.min()) * 0.15 or 0.05
@@ -469,11 +492,9 @@ for ax, key, ylab, msg in [
     ax.set_xlabel('Δ DPA choice-code depth (on−off, trainLD)'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
     ax.set_box_aspect(1)                                  # square panels
-_sample_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=8, label='odor A (solid)'),
-             mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=8, label='odor B (open)')]
-_mouse_h = [mlines.Line2D([0], [0], marker='o', color=MOUSE_COLOR[m], ls='none', ms=8, label=m) for m in JAWS]
-axF.legend(handles=_sample_h + _mouse_h, frameon=False, fontsize=7.5, loc='center left',
-           bbox_to_anchor=(1.0, 0.5), title='sample / mouse (Jaws)', title_fontsize=7.5)
+_sample_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
+             mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B')]
+axE.legend(handles=_sample_h, frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
 # ── G, H, I: batch ACC-Prl control vs opto learning curves — ROW 1 ────────────
 axG = fig.add_subplot(gs_body[0, 0:3])
@@ -542,9 +563,9 @@ axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
            frameon=False, fontsize=7.5, loc='best')
 
 # ── panel letters + row banners ───────────────────────────────────────────────
-# reading order: A scheme · B–E batch · F–H recorded · I–J overlaps
+# reading order: A scheme · B–E batch · F–H recorded · I–K overlaps
 for _ax, _L in [(axA, 'A'), (axG, 'B'), (axH, 'C'), (axI, 'D'), (axJ, 'E'),
-                (axB, 'F'), (axC, 'G'), (axD, 'H'), (axE, 'I'), (axF, 'J')]:
+                (axB, 'F'), (axC, 'G'), (axD, 'H'), (axK, 'I'), (axE, 'J'), (axF, 'K')]:
     panel_letter(_ax, _L)
 
 
@@ -562,8 +583,9 @@ fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '
          'LMM perf ~ group×day + (1|mouse); per-day stars Welch, uncorrected.  '
          'F–H recorded cohort within-mouse (interleaved laser), Jaws inhibition n=5; LMM perf ~ laser×day + (1|mouse); '
-         'F/G per-day stars = one-sample ΔON−OFF.  I–J overlaps Δ(on−off), depth = DPA choice-code late-delay '
-         '(trainLD), odor A&B as independent points (5 Jaws → 10 pts); star = Pearson.  '
+         'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
+         'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD), odor A&B as independent points '
+         '(5 Jaws → 10 pts); star = Pearson.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 
