@@ -182,6 +182,32 @@ All in `overlaps/`; outputs under `overlaps/figures/overlaps/behavior/`. PNG @dp
   Per-mouse/day accuracy proportions + random-intercept LMM; per-day stars via per-day LMM.
 - `fig_behavior_learning_delta.py [--jaws|--chr]` — **within-mouse Δ(ON−OFF)** laser effect.
 - `fig_behavior_laser_compare.py [--jaws|--chr]` — OFF-vs-ON summary + within-mouse LMM.
+- `fig_behavior_learning_offon.py [--jaws|--chr]` — OFF vs ON **absolute** learning curves,
+  the recorded-cohort analog of the batch `--ctrlopto`: 4 panels (A DPA perf, B GNG perf,
+  C DPA unpaired; OFF grey / ON indigo) + panel D within-mouse LMM `perf ~ laser×day +
+  (1|mouse)` laser-effect forest. Default emits pooled + `_jaws` + `_chr` (opsins split —
+  opposite manipulations). Result: **no significant gross behavioural laser effect** (Jaws
+  n=5: DPA p=0.40, GNG p=0.24, unpaired p=0.90; ChR n=2 → mean Δ only). Contrast with the
+  batches' between-group silencing, which IS behavioural in ACC-Prl/Prl-ACC — the recorded
+  laser moves the neural code, not gross behaviour.
+- `fig_behavior_dpa_vs_gng.py` — per-animal **DPA perf (x) vs GNG perf (y)** scatter in the
+  main-figure convention (tab10 per-mouse colours, ● Jaws / ▲ ChR / ■ ACC markers, white edge,
+  y=x diagonal, across-animal regression line + Pearson/Spearman). Two panels Naive | Expert;
+  emitted for laser OFF (`_off`, n=9) and ON (`_on`, n=7 — ACC mice have no laser trials).
+  Result: DPA & GNG **co-vary across animals when Naive** (OFF r=+0.66 p=0.051, ρ=+0.55; ON
+  r=+0.74 p=0.055) but **decouple by Expert** (OFF r=+0.10 ρ=+0.35 ns; ON r=+0.43 ρ=+0.57 ns).
+  A shared "good-learner" axis early that dissolves as animals specialise.
+- `fig_behavior_dual_cost.py` — **is DPA↔GNG a capacity trade-off? No.** Two y=x scatters
+  (OFF, one dot/mouse/stage, open Naive → filled Expert joined by a line): **A** dual-task cost
+  = DPA acc pure (x) vs dual (y); Expert points fall just below the diagonal (Δ=−0.030 paired
+  **p=0.048**; Naive Δ=−0.021 ns) → a small fixed cost. **B** trial coupling = DPA acc | GNG-error
+  (x) vs | GNG-correct (y); Expert points sit **above** the diagonal (Δ=+0.097 **p=0.025**; Naive
+  Δ=−0.003 ns) → DPA is *better* on GNG-correct trials, a shared good/bad-trial engagement axis,
+  the OPPOSITE sign of a trade-off. Combined with the between-animal dominance structure (Expert
+  OFF: 7/9 animals dominated, "front" = the two near-ceiling animals JawsM01/M18, not a
+  descending trade-off envelope), learning is **NOT Pareto-optimal**: best learners improve on
+  both tasks; no DPA↔GNG resource trade-off at any level (between-animal, across-session,
+  or trial-by-trial).
 
 **Training batches** — `fig_behavior_learning_batch.py` (`figures/overlaps/behavior/batch/`):
 - `--batch <name> --group <control|opto|DPA|Dual>` → 5-panel per-group curves. Panels use
