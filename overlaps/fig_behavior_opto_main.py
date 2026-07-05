@@ -664,8 +664,8 @@ axL.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', 
 axM = fig.add_subplot(gs_body[3, 4:8])
 axN = fig.add_subplot(gs_body[3, 8:12])
 _XG = {'DPA': (0.0, 1.0), 'GNG': (2.3, 3.3)}
-for ax, met, ylab, ttl in [(axM, 'd', "sensitivity  d′", 'Sensitivity (d′) unchanged'),
-                           (axN, 'c', 'criterion  c', 'Bias (criterion) unchanged')]:
+for ax, met, ylab, ttl in [(axM, 'd', "sensitivity  d′", 'Behavioural d′ unchanged (control)'),
+                           (axN, 'c', 'criterion  c', 'Behavioural bias unchanged (control)')]:
     for tk, (x0, x1) in _XG.items():
         off = np.array(SDT[tk][met][0], float); on = np.array(SDT[tk][met][1], float)
         for j, m in enumerate(JAWS):
@@ -711,7 +711,7 @@ def row_banner(ax_left, text, dy=0.014):
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
 row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (Expert, 5 Jaws · A&B independent, 10 pts)')
-row_banner(axL, 'Mechanism · trial-level coupling + signal-detection (Expert, 5 Jaws; choice code predicts DPA, transient laser spares d′ & bias)')
+row_banner(axL, 'Mechanism (L, neural→behaviour readout) + behavioural control (M,N) · Expert, 5 Jaws: code predicts DPA choice; transient laser spares behavioural d′ & bias')
 
 fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '

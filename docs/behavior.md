@@ -314,10 +314,18 @@ Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
   identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
   DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
   (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
-- **M, N** — signal-detection **d′** (sensitivity) and **criterion** (bias) per mouse,
-  loglinear-corrected, laser OFF vs ON, paired-t on ΔON−OFF. **All n.s.** (d′: DPA p=0.19, GNG
-  p=0.37; c: DPA p=0.66, GNG p=0.99). The transient laser spares BOTH sensitivity and bias — the
-  "shifts bias not sensitivity" hypothesis is **not** supported; reinforces panel H.
+- **M, N** — **behavioural control**: signal-detection **d′** (sensitivity) and **criterion**
+  (bias) per mouse, loglinear-corrected, laser OFF vs ON, paired-t on ΔON−OFF. **All n.s.**
+  (d′: DPA p=0.19, GNG p=0.37; c: DPA p=0.66, GNG p=0.99). The transient laser spares BOTH
+  sensitivity and bias — the "shifts bias not sensitivity" hypothesis is **not** supported;
+  reinforces panel H. Labelled "(control)" — these are *behavioural* SDT, not a neural-geometry
+  result. A neural-axis version (neurometric d′/criterion on the `depth` DV) was tried and
+  **rejected**: `depth` at late-delay 27–53 does not linearly separate stimulus *or* choice
+  (d′≈0; only the DPA-axis↔Go/NoGo lick-coupling shows, noisy/n.s.). `depth` behaves as a code
+  *engagement/quality* signal (predicts correctness, panel L) rather than a discrimination axis,
+  so it has no honest SDT decomposition. A genuine neural-discriminability panel would need
+  tensor-level cross-validated decoding (choice target is saved; a stimulus/sensitivity axis
+  would need a `run_overlaps.py --with-laser` re-run for that target).
 
 Design notes (settled after iteration — see [[project_behavior_opto_figure]]): F–J are
 Jaws-only by request; the batch (B–E) is a different chronic cohort, so the figure deliberately
