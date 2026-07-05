@@ -306,6 +306,17 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
   axis (bins 45-53), late-delay test-time window 27-53. **Square** panels (`set_box_aspect(1)`),
   Pearson-based star. J (ΔDPA) n.s. (r≈+0.39); K (ΔGNG) `*` (r≈−0.66 p≈0.037).
 
+Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
+- **L** — trial-level **GEE logistic** `accuracy ~ depth_z + laser`, cluster-robust by mouse
+  (exchangeable), OR per within-mouse SD of depth. The pseudoreplication-proof version of the
+  coupling. **DPA OR=1.43 p=0.0008 `***`** (choice-code depth predicts DPA accuracy same-trial);
+  **GNG OR=0.96 p=0.63 n.s.** (GNG arm regresses GNG accuracy on the DPA-choice-axis projection
+  measured on GNG trials — depth is defined for every trial).
+- **M, N** — signal-detection **d′** (sensitivity) and **criterion** (bias) per mouse,
+  loglinear-corrected, laser OFF vs ON, paired-t on ΔON−OFF. **All n.s.** (d′: DPA p=0.19, GNG
+  p=0.37; c: DPA p=0.66, GNG p=0.99). The transient laser spares BOTH sensitivity and bias — the
+  "shifts bias not sensitivity" hypothesis is **not** supported; reinforces panel H.
+
 Design notes (settled after iteration — see [[project_behavior_opto_figure]]): F–J are
 Jaws-only by request; the batch (B–E) is a different chronic cohort, so the figure deliberately
 mixes a within-mouse Jaws story (F–H) with a between-group batch story (B–E). The recorded

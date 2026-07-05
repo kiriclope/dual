@@ -51,8 +51,9 @@ import matplotlib.image as mpimg
 import matplotlib.lines as mlines
 import seaborn as sns
 import scipy.io as sio
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from scipy.stats import ttest_1samp, ttest_ind, pearsonr, spearmanr, linregress, t as t_dist
+from scipy.stats import ttest_1samp, ttest_ind, pearsonr, spearmanr, linregress, t as t_dist, norm
 
 from src.common.options import set_options
 from src.pca.io import pkl_load
@@ -348,12 +349,75 @@ def regression_band(ax, xs, ys, color='0.25'):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# Recorded within-mouse laser MECHANISM (Jaws, Expert) — for row-4 panels L,M,N
+# ══════════════════════════════════════════════════════════════════════════════
+_dfl = pd.DataFrame({
+    'mouse': y.mouse.values, 'laser': y.laser.values, 'tasks': y.tasks.values,
+    'pair': y.pair.values, 'perf': y.performance.values, 'odr': y.odr_perf.values,
+    'depth': depth_all, 'is_choice': (y.target == 'choice').values, 'stage': y.stage.values,
+})
+_dfl = _dfl[_dfl.is_choice & _dfl.mouse.isin(JAWS) & (_dfl.stage == 'Expert')].copy()
+_dfl['depth_z'] = _dfl.groupby('mouse')['depth'].transform(          # per-mouse z-score
+    lambda v: (v - v.mean()) / v.std(ddof=0) if v.std(ddof=0) > 0 else v * 0.0)
+
+
+def _gee_depth(sub, ycol):
+    """Trial-level cluster-robust logistic: ycol ~ depth_z + laser, GEE grouped by mouse.
+    Returns depth OR (per SD), 95% CI, p, n-trials. Handles pseudoreplication."""
+    d = sub.dropna(subset=[ycol, 'depth_z', 'laser'])
+    try:
+        g = smf.gee(f'{ycol} ~ depth_z + laser', groups=d['mouse'], data=d,
+                    family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
+        ci = g.conf_int()
+        return (float(np.exp(g.params['depth_z'])), float(np.exp(ci.loc['depth_z', 0])),
+                float(np.exp(ci.loc['depth_z', 1])), float(g.pvalues['depth_z']), len(d))
+    except Exception as e:
+        print('  GEE failed:', e)
+        return (np.nan, np.nan, np.nan, np.nan, 0)
+
+
+MM = {'DPA': _gee_depth(_dfl[_dfl.tasks == 'DPA'], 'perf'),
+      'GNG': _gee_depth(_dfl[_dfl.tasks != 'DPA'], 'odr')}
+print('\nTrial-level GEE  depth→accuracy (OR/SD, p, n):')
+for k, v in MM.items():
+    print(f'  {k}: OR={v[0]:.3f}  p={v[3]:.4f}  (n={v[4]})')
+
+
+def _dc(hit, ns, fa, nn):
+    """d' and criterion with loglinear (Hautus) correction."""
+    HR = (hit + 0.5) / (ns + 1); FA = (fa + 0.5) / (nn + 1)
+    return norm.ppf(HR) - norm.ppf(FA), -0.5 * (norm.ppf(HR) + norm.ppf(FA))
+
+
+# per-(mouse, laser) d' & criterion — DPA (signal=paired) and GNG (signal=Go)
+SDT = {tk: {'d': {0: [], 1: []}, 'c': {0: [], 1: []}} for tk in ('DPA', 'GNG')}
+for _mo in JAWS:
+    for _las in (0, 1):
+        _sub = _dfl[(_dfl.mouse == _mo) & (_dfl.laser == _las)]
+        _sp, _su = _sub[(_sub.tasks == 'DPA') & (_sub.pair == 1)], _sub[(_sub.tasks == 'DPA') & (_sub.pair == 0)]
+        _dp, _cr = (_dc(_sp.perf.sum(), len(_sp), len(_su) - _su.perf.sum(), len(_su))
+                    if len(_sp) and len(_su) else (np.nan, np.nan))
+        SDT['DPA']['d'][_las].append(_dp); SDT['DPA']['c'][_las].append(_cr)
+        _sg, _sn = _sub[_sub.tasks == 'DualGo'], _sub[_sub.tasks == 'DualNoGo']
+        _dp, _cr = (_dc(_sg.odr.sum(), len(_sg), len(_sn) - _sn.odr.sum(), len(_sn))
+                    if len(_sg) and len(_sn) else (np.nan, np.nan))
+        SDT['GNG']['d'][_las].append(_dp); SDT['GNG']['c'][_las].append(_cr)
+print('SDT (mean OFF→ON, paired-t p):')
+for tk in ('DPA', 'GNG'):
+    for met in ('d', 'c'):
+        _o, _n = np.array(SDT[tk][met][0], float), np.array(SDT[tk][met][1], float)
+        _dd = (_n - _o)[np.isfinite(_n - _o)]
+        _pp = float(ttest_1samp(_dd, 0).pvalue) if len(_dd) > 1 else np.nan
+        print(f"  {tk} {met}': {np.nanmean(_o):+.2f} → {np.nanmean(_n):+.2f}  (p={_pp:.3f})")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(13, 15.6))
-outer = fig.add_gridspec(2, 1, height_ratios=[2.5, 4.0], hspace=0.05,
-                         left=0.055, right=0.985, top=0.99, bottom=0.04)
-gs_body = outer[1].subgridspec(3, 12, height_ratios=[1.0, 1.0, 1.22], hspace=0.42, wspace=0.62)
+fig = plt.figure(figsize=(13, 19.0))
+outer = fig.add_gridspec(2, 1, height_ratios=[2.1, 4.6], hspace=0.05,
+                         left=0.055, right=0.985, top=0.99, bottom=0.035)
+gs_body = outer[1].subgridspec(4, 12, height_ratios=[1.0, 1.0, 1.22, 1.0], hspace=0.42, wspace=0.62)
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
@@ -562,10 +626,68 @@ axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=7.5, loc='best')
 
+# ── L: trial-level GEE — choice-code depth → accuracy (cluster-robust) — ROW 4 ─
+axL = fig.add_subplot(gs_body[3, 0:4])
+for i, tk in enumerate(('DPA', 'GNG')):
+    orr, lo, hi, pv, n = MM[tk]
+    if not np.isfinite(orr):
+        continue
+    cc = RED if tk == 'DPA' else BLUE
+    sig = np.isfinite(pv) and pv < 0.05
+    axL.errorbar(i, orr, yerr=[[orr - lo], [hi - orr]], fmt='o', color=cc,
+                 mfc=cc if sig else 'white', ms=10, capsize=4, lw=1.8, zorder=3)
+    lab = star(pv) if star(pv) else 'n.s.'
+    axL.text(i, hi + (hi - lo) * 0.06, lab, ha='center', va='bottom',
+             fontsize=11, fontweight='bold', color='k' if sig else '0.5')
+    axL.text(i, lo - (hi - lo) * 0.10, f'OR={orr:.2f}', ha='center', va='top', fontsize=7, color='0.35')
+axL.axhline(1, ls='--', color='0.4', lw=1)
+axL.set_xticks([0, 1]); axL.set_xticklabels(['DPA', 'GNG'])
+axL.set_xlim(-0.6, 1.6)
+_his = [MM[t][2] for t in ('DPA', 'GNG') if np.isfinite(MM[t][2])]
+_los = [MM[t][1] for t in ('DPA', 'GNG') if np.isfinite(MM[t][1])]
+axL.set_ylim(min(_los + [0.9]) - 0.08, max(_his + [1.1]) * 1.16)   # headroom for star
+axL.set_ylabel('depth → accuracy\n(OR per SD, GEE)')
+axL.set_title('Code depth predicts accuracy (trial-level)', loc='left', fontweight='bold', fontsize=TITLE_FS)
+
+# ── M, N: signal-detection — d′ (sensitivity) and criterion (bias), OFF vs ON ──
+axM = fig.add_subplot(gs_body[3, 4:8])
+axN = fig.add_subplot(gs_body[3, 8:12])
+_XG = {'DPA': (0.0, 1.0), 'GNG': (2.3, 3.3)}
+for ax, met, ylab, ttl in [(axM, 'd', "sensitivity  d′", 'Sensitivity (d′) unchanged'),
+                           (axN, 'c', 'criterion  c', 'Bias (criterion) unchanged')]:
+    for tk, (x0, x1) in _XG.items():
+        off = np.array(SDT[tk][met][0], float); on = np.array(SDT[tk][met][1], float)
+        for j, m in enumerate(JAWS):
+            if np.isfinite(off[j]) and np.isfinite(on[j]):
+                ax.plot([x0, x1], [off[j], on[j]], '-', color=MOUSE_COLOR[m], lw=0.9, alpha=0.5, zorder=2)
+        for xx, vv, col in [(x0, off, OFF_C), (x1, on, ON_C)]:
+            ok = np.isfinite(vv)
+            mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(ok.sum())
+            ax.errorbar(xx, mn, yerr=se, fmt='o', color=col, ms=11, capsize=4, lw=2,
+                        mec='k', mew=0.6, zorder=5)
+        dd = on - off; dd = dd[np.isfinite(dd)]
+        pv = float(ttest_1samp(dd, 0).pvalue) if len(dd) > 1 else np.nan
+        lab = star(pv) if star(pv) else 'n.s.'
+        ytop = np.nanmax(np.concatenate([off, on]))
+        ax.text((x0 + x1) / 2, ytop, lab, ha='center', va='bottom', fontsize=11,
+                fontweight='bold', color='k' if (np.isfinite(pv) and pv < 0.05) else '0.5')
+    ax.axhline(0, ls=':', color='0.6', lw=0.9)
+    ax.set_xticks([0, 1, 2.3, 3.3]); ax.set_xticklabels(['OFF', 'ON', 'OFF', 'ON'])
+    ax.set_xlim(-0.5, 3.8)
+    for xc, tk in [(0.5, 'DPA'), (2.8, 'GNG')]:
+        ax.text(xc, -0.15, tk, transform=ax.get_xaxis_transform(), ha='center', va='top',
+                fontsize=8.5, fontweight='bold', color='0.3')
+    ax.set_ylabel(ylab)
+    ax.set_title(ttl, loc='left', fontweight='bold', fontsize=TITLE_FS)
+axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', ms=8, mec='k', label='laser OFF'),
+                    mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
+           frameon=False, fontsize=7.5, loc='best')
+
 # ── panel letters + row banners ───────────────────────────────────────────────
-# reading order: A scheme · B–E batch · F–H recorded · I–K overlaps
+# reading order: A scheme · B–E batch · F–H recorded · I–K overlaps · L–N mechanism
 for _ax, _L in [(axA, 'A'), (axG, 'B'), (axH, 'C'), (axI, 'D'), (axJ, 'E'),
-                (axB, 'F'), (axC, 'G'), (axD, 'H'), (axK, 'I'), (axE, 'J'), (axF, 'K')]:
+                (axB, 'F'), (axC, 'G'), (axD, 'H'), (axK, 'I'), (axE, 'J'), (axF, 'K'),
+                (axL, 'L'), (axM, 'M'), (axN, 'N')]:
     panel_letter(_ax, _L)
 
 
@@ -578,6 +700,7 @@ def row_banner(ax_left, text, dy=0.014):
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
 row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (Expert, 5 Jaws · A&B independent, 10 pts)')
+row_banner(axL, 'Mechanism · trial-level coupling + signal-detection (Expert, 5 Jaws; choice code predicts DPA, transient laser spares d′ & bias)')
 
 fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '
@@ -586,6 +709,8 @@ fig.text(0.5, 0.004,
          'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
          'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD), odor A&B as independent points '
          '(5 Jaws → 10 pts); star = Pearson.  '
+         'L trial-level GEE logistic accuracy ~ depth_z + laser, cluster-robust by mouse (OR per within-mouse SD of depth). '
+         'M/N signal-detection d′ & criterion per mouse (loglinear-corrected), OFF vs ON, star = paired t on ΔON−OFF.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 
