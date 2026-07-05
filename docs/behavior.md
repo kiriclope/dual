@@ -280,6 +280,36 @@ Head-fixed/Odor/Water). Re-run the script to regenerate; the figure just renders
 Colours: DPA/paired `#d62728` red · GNG/Go `#1f77b4` blue · NoGo `#2ca02c` green ·
 dual-DPA `#ff7f0e` orange (compare figure only).
 
+### The behavioural OPTO figure — `fig_behavior_opto_main.py`
+
+Companion to the main figure; one unified story about the **ACC→mPFC(Prl)** projection across
+manipulation regimes. `figures/overlaps/behavior/{png,svg}/behavior_opto_main.*`. Layout =
+nested gridspec (full-width scheme banner over a 3-row body), message-titled panels, row
+banners naming the design (within-mouse vs between-group). Helpers copied inline from
+`fig_behavior_learning_offon.py`, `fig_behavior_learning_batch.py --ctrlopto`, and
+`plot_scatter_laser.py`, so those stay untouched. Panels:
+- **A** — scheme from `~/dual/opto.png` (recorded-cohort design: hSyn-GCaMP6s imaging in mPFC +
+  CaMKII-Jaws-tdTomato in ACC, 635 nm laser-on 50 % pseudo-random delay trials). Placed
+  full-width (`aspect='auto'` scheme axis; its own baked-in `a`/`b`).
+- **B–E** — training batch **ACC-Prl**, chronic every-trial silencing, between-group opto vs
+  control (9 v 9): DPA impaired / GNG spared / DPA-unpaired deficit / LMM group-effect forest
+  (`perf ~ group×day + (1|mouse)`; DPA β≈−0.06 `**`, unpaired β≈−0.12 `*`, group×day `***`).
+- **F–H** — recorded cohort, transient delay-only laser, **within-mouse ON vs OFF, Jaws
+  inhibition only (n=5)**: DPA & GNG OFF/ON curves + within-mouse LMM forest
+  (`perf ~ laser×day + (1|mouse)`) — all CIs cross 0 → **no gross behavioural effect**.
+- **I, J** — overlaps causal coupling, laser ON−OFF, **Jaws only, A&B taken as independent
+  points** (5 mice → 10 pts), depth = DPA choice-code late-delay on the **trainLD** axis
+  (bins 45-53), late-delay test-time window 27-53. **Square** panels (`set_box_aspect(1)`),
+  Pearson-based star. I (ΔDPA) n.s. (r≈+0.39); J (ΔGNG) `*` (r≈−0.66 p≈0.037).
+
+Design notes (settled after iteration — see [[project_behavior_opto_figure]]): F–J are
+Jaws-only by request; the batch (B–E) is a different chronic cohort, so the figure deliberately
+mixes a within-mouse Jaws story (F–H) with a between-group batch story (B–E). The recorded
+Jaws/ChR laser and the ACC-Prl batch target the **same ACC→mPFC(Prl) projection**
+(`docs/overlaps/laser_onoff.md`). Panels I/J can also reproduce main-figure panel E of
+`fig_overlaps_main_ab.svg` (all 7 mice, trainLD_TEST, Spearman star) by widening the mouse set +
+axis — the committed version is the Jaws/trainLD/Pearson variant.
+
 ---
 
 ## 7. Key statistical stance (see also `docs/shared_feedback.md`)
