@@ -361,6 +361,52 @@ over-read it (the dPCA bistability set does not transfer; see `docs/pca/flows_ha
 
 ---
 
+## Composite "story" figure — `fig_overlaps_story_main.py` (2026-07-05, final design)
+
+The overlaps analog of the dPCA story main figure's **§3 (input-driven rank-2 flow grid)** + **§4
+(no-lick learning push)**, in one composite. Row 1 = 8-panel Expert flow grid (autonomous, A, B, Go,
+NoGo, Cue, C, D) on the sample×choice CCGD plane; row 2 = Naive vs Expert DPA autonomous flow + the
+per-mouse choice-code push slopegraph (D) + a sample-memory specificity control (E). Flags: `--panels
+{8,4}`, `--all-trials` (correct→all-laser-off, TAG `_all`). Output `figures/overlaps/story/{png,svg}/`.
+
+**FINAL DESIGN — per-regime decoders + per-group ridge (the config that holds every feature at once):**
+- **Each input is decoded on the axis that actually carries it**, not one shared plane. `EPOCHS`/`REG_EPOCH`:
+  autonomous→DELAY decoder; A/B→STIM; **Go/NoGo/Cue→RESPONSE (choice/lick) decoder** (`bins_CHOICE`);
+  C/D→TEST. Decoder (train epoch) and READ window are independent: each regime is read over its own
+  **event + GCaMP-margin** window (`_win`, MARGIN=3 bins = 0.5 s < MD; A/B stim, Go/NoGo distractor,
+  Cue cue, C/D test) on its decoder plane.
+- **Partial pooling by decoder group** (`groups_of` keys on `REG_EPOCH`): {autonomous}@DELAY, {A,B}@STIM,
+  {Go,NoGo,Cue}@RESP, {C,D}@TEST. Within a group: shared A + ridge-penalised per-regime ΔA_r + input c_r.
+- **Per-group ridge**: each group CV-tunes its OWN (a,δ,λ) on held-out velocity R². This is essential —
+  C/D need a **low** ridge (λ=0.2) to keep the bistable diagonal, while a single global λ, once the
+  Go/NoGo decoder changes, gets CV-driven to λ=20 and **washes the C/D diagonal out**. Autonomous group
+  is restricted to bistable-autonomous gains (≥2 attractors), then max-CV. Root-found fixed points.
+
+**Result (Expert):** autonomous bistable on the lick baseline; A/B in opposite sample wells; **Go↑**,
+**NoGo↓** (attractor in the no-lick half — but see caveat), Cue splits Go↑/NoGo↓; **C/D two-attractor
+diagonals** (C = A-top/B-bottom, D flipped). §4 push Δ=**−0.84** (correct) / **−0.98** (all), reproducing
+`exp_nolick_push_stats.py` (delay decoder, pooled A/B). Per-group held-out CV vel-R² mean ≈ +0.28 (Expert):
+C/D +0.63, A/B +0.37, Go/NoGo/Cue +0.31, autonomous −0.20.
+
+**WHY a single fixed plane fails — the dPCA method does NOT transfer (probe, 2026-07-05).** The dPCA §3
+keeps ONE demixed plane for all 8 regimes (two epoch-shared landscapes, one global ridge, long windows)
+and it looks clean because dPCA's demixed sample/choice axes are strong. Porting that verbatim to
+overlaps **erases the structure**: on a single fixed delay-plane the best CV is only +0.076 and **C/D come
+out monostable, Go/NoGo/Cue monostable** — because (i) the lick code is barely driven at the delay/
+distractor/cue epochs, so Go↑/NoGo↓ only reads on the RESPONSE decoder; and (ii) the delay-choice axis
+can't resolve test identity, so the C/D diagonal only reads on the TEST decoder. The input structure is
+**time-varying** and lives in epoch-specific decoders; a single-epoch CCGD decoder captures one time-slice.
+So the per-regime decoders are **required**, not a stylistic choice — this was tried both ways and reverted.
+
+**Caveats (on the figure).** (1) Descriptive fit at the overlaps **velocity noise floor** — fixed points
+are root-found but the held-out CV is modest; don't over-read exact well counts. (2) **NoGo-below-baseline
+requires the RESPONSE decoder** — on the contemporaneous distractor decoder NoGo sits ~baseline (Go +1.08 /
+NoGo +0.31), and on MD Go +1.84 / NoGo +0.35; only the response/lick axis puts NoGo clearly below the lick
+baseline. (3) Go/NoGo/Cue use **Dual trials only** (671 DualGo / 682 DualNoGo, no DPA). (4) MD+margin would
+bleed into the cue window — not used in the final (distractor/response used instead).
+
+---
+
 ## Interpretation & synthesis (2026-06-24) — the dual-coding geometry, with a mechanism
 
 The codes (1D sweep), the weight-based cosines, and the cross-stage test tell one story.
