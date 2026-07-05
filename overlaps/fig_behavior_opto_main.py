@@ -369,7 +369,7 @@ def show_scheme(ax, path, aspect='equal'):
 
 
 # ── A: opto scheme banner ─────────────────────────────────────────────────────
-SCHEME = '/home/leon/dual/opto.png'          # recorded-cohort design (self-labelled a/b)
+SCHEME = '../opto.png'                        # recorded-cohort design (self-labelled a/b)
 axA = fig.add_subplot(outer[0])
 show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
 
