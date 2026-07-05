@@ -362,11 +362,12 @@ _dfl['depth_z'] = _dfl.groupby('mouse')['depth'].transform(          # per-mouse
 
 
 def _gee_depth(sub, ycol):
-    """Trial-level cluster-robust logistic: ycol ~ depth_z + laser, GEE grouped by mouse.
-    Returns depth OR (per SD), 95% CI, p, n-trials. Handles pseudoreplication."""
-    d = sub.dropna(subset=[ycol, 'depth_z', 'laser'])
+    """Trial-level cluster-robust logistic: ycol ~ depth_z, GEE grouped by mouse.
+    Returns depth OR (per SD), 95% CI, p, n-trials. Handles pseudoreplication.
+    Fit within a single laser condition (OFF vs ON compared side-by-side)."""
+    d = sub.dropna(subset=[ycol, 'depth_z'])
     try:
-        g = smf.gee(f'{ycol} ~ depth_z + laser', groups=d['mouse'], data=d,
+        g = smf.gee(f'{ycol} ~ depth_z', groups=d['mouse'], data=d,
                     family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
         ci = g.conf_int()
         return (float(np.exp(g.params['depth_z'])), float(np.exp(ci.loc['depth_z', 0])),
@@ -376,11 +377,16 @@ def _gee_depth(sub, ycol):
         return (np.nan, np.nan, np.nan, np.nan, 0)
 
 
-MM = {'DPA': _gee_depth(_dfl[_dfl.tasks == 'DPA'], 'perf'),
-      'GNG': _gee_depth(_dfl[_dfl.tasks != 'DPA'], 'odr')}
-print('\nTrial-level GEE  depth→accuracy (OR/SD, p, n):')
-for k, v in MM.items():
-    print(f'  {k}: OR={v[0]:.3f}  p={v[3]:.4f}  (n={v[4]})')
+# depth→accuracy readout fit SEPARATELY for laser OFF vs ON (does silencing change it?)
+MM = {}
+for _tk, _yc, _s0 in [('DPA', 'perf', _dfl[_dfl.tasks == 'DPA']),
+                      ('GNG', 'odr', _dfl[_dfl.tasks != 'DPA'])]:
+    MM[_tk] = {las: _gee_depth(_s0[_s0.laser == las], _yc) for las in (0, 1)}
+print('\nTrial-level GEE  depth→accuracy (OR/SD, p, n)  by laser:')
+for _tk in ('DPA', 'GNG'):
+    for las, tag in [(0, 'OFF'), (1, 'ON ')]:
+        v = MM[_tk][las]
+        print(f'  {_tk} {tag}: OR={v[0]:.3f}  p={v[3]:.4f}  (n={v[4]})')
 
 
 def _dc(hit, ns, fa, nn):
@@ -626,28 +632,33 @@ axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=7.5, loc='best')
 
-# ── L: trial-level GEE — choice-code depth → accuracy (cluster-robust) — ROW 4 ─
+# ── L: trial-level GEE — choice-code depth → accuracy, OFF vs ON — ROW 4 ───────
 axL = fig.add_subplot(gs_body[3, 0:4])
-for i, tk in enumerate(('DPA', 'GNG')):
-    orr, lo, hi, pv, n = MM[tk]
-    if not np.isfinite(orr):
-        continue
-    cc = RED if tk == 'DPA' else BLUE
-    sig = np.isfinite(pv) and pv < 0.05
-    axL.errorbar(i, orr, yerr=[[orr - lo], [hi - orr]], fmt='o', color=cc,
-                 mfc=cc if sig else 'white', ms=10, capsize=4, lw=1.8, zorder=3)
-    lab = star(pv) if star(pv) else 'n.s.'
-    axL.text(i, hi + (hi - lo) * 0.06, lab, ha='center', va='bottom',
-             fontsize=11, fontweight='bold', color='k' if sig else '0.5')
-    axL.text(i, lo - (hi - lo) * 0.10, f'OR={orr:.2f}', ha='center', va='top', fontsize=7, color='0.35')
+_LG = {'DPA': (0.0, 1.0), 'GNG': (2.3, 3.3)}
+_lhi, _llo = [], []
+for tk, (x0, x1) in _LG.items():
+    for xx, las, col in [(x0, 0, OFF_C), (x1, 1, ON_C)]:
+        orr, lo, hi, pv, n = MM[tk][las]
+        if not np.isfinite(orr):
+            continue
+        sig = np.isfinite(pv) and pv < 0.05
+        axL.errorbar(xx, orr, yerr=[[orr - lo], [hi - orr]], fmt='o', color=col,
+                     mfc=col if sig else 'white', ms=10, capsize=4, lw=1.8, mec='k', mew=0.6, zorder=4)
+        axL.text(xx, hi, star(pv) if star(pv) else 'n.s.', ha='center', va='bottom',
+                 fontsize=9, fontweight='bold', color='k' if sig else '0.55')
+        _lhi.append(hi); _llo.append(lo)
 axL.axhline(1, ls='--', color='0.4', lw=1)
-axL.set_xticks([0, 1]); axL.set_xticklabels(['DPA', 'GNG'])
-axL.set_xlim(-0.6, 1.6)
-_his = [MM[t][2] for t in ('DPA', 'GNG') if np.isfinite(MM[t][2])]
-_los = [MM[t][1] for t in ('DPA', 'GNG') if np.isfinite(MM[t][1])]
-axL.set_ylim(min(_los + [0.9]) - 0.08, max(_his + [1.1]) * 1.16)   # headroom for star
+axL.set_xticks([0, 1, 2.3, 3.3]); axL.set_xticklabels(['OFF', 'ON', 'OFF', 'ON'])
+axL.set_xlim(-0.5, 3.8)
+axL.set_ylim(min(_llo + [0.9]) - 0.08, max(_lhi + [1.1]) * 1.14)
+for xc, tk in [(0.5, 'DPA'), (2.8, 'GNG')]:
+    axL.text(xc, -0.15, tk, transform=axL.get_xaxis_transform(), ha='center', va='top',
+             fontsize=8.5, fontweight='bold', color='0.3')
 axL.set_ylabel('depth → accuracy\n(OR per SD, GEE)')
-axL.set_title('Code depth predicts accuracy (trial-level)', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axL.set_title('Code→behaviour readout vs silencing', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axL.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', ms=8, mec='k', label='laser OFF'),
+                    mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
+           frameon=False, fontsize=7, loc='best')
 
 # ── M, N: signal-detection — d′ (sensitivity) and criterion (bias), OFF vs ON ──
 axM = fig.add_subplot(gs_body[3, 4:8])
@@ -709,7 +720,8 @@ fig.text(0.5, 0.004,
          'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
          'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD), odor A&B as independent points '
          '(5 Jaws → 10 pts); star = Pearson.  '
-         'L trial-level GEE logistic accuracy ~ depth_z + laser, cluster-robust by mouse (OR per within-mouse SD of depth). '
+         'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
+         '(OR per within-mouse SD of depth; readout preserved under silencing). '
          'M/N signal-detection d′ & criterion per mouse (loglinear-corrected), OFF vs ON, star = paired t on ΔON−OFF.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')

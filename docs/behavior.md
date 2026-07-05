@@ -307,11 +307,13 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
   Pearson-based star. J (ΔDPA) n.s. (r≈+0.39); K (ΔGNG) `*` (r≈−0.66 p≈0.037).
 
 Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
-- **L** — trial-level **GEE logistic** `accuracy ~ depth_z + laser`, cluster-robust by mouse
-  (exchangeable), OR per within-mouse SD of depth. The pseudoreplication-proof version of the
-  coupling. **DPA OR=1.43 p=0.0008 `***`** (choice-code depth predicts DPA accuracy same-trial);
-  **GNG OR=0.96 p=0.63 n.s.** (GNG arm regresses GNG accuracy on the DPA-choice-axis projection
-  measured on GNG trials — depth is defined for every trial).
+- **L** — trial-level **GEE logistic** `accuracy ~ depth_z`, cluster-robust by mouse
+  (exchangeable), OR per within-mouse SD of depth, **fit SEPARATELY for laser OFF vs ON**
+  (side-by-side). The opto-specific test: is the code→behaviour readout changed by silencing?
+  **No — DPA readout is preserved: OFF OR=1.41 p=0.007 `**`, ON OR=1.46 p=0.014 `*`** (nearly
+  identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
+  DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
+  (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
 - **M, N** — signal-detection **d′** (sensitivity) and **criterion** (bias) per mouse,
   loglinear-corrected, laser OFF vs ON, paired-t on ΔON−OFF. **All n.s.** (d′: DPA p=0.19, GNG
   p=0.37; c: DPA p=0.66, GNG p=0.99). The transient laser spares BOTH sensitivity and bias — the
