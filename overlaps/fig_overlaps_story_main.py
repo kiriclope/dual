@@ -32,7 +32,7 @@ warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from scipy.stats import wilcoxon
-from sklearn.model_selection import KFold
+from sklearn.model_selection import RepeatedKFold
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from src.common.options import set_options
@@ -45,11 +45,12 @@ matplotlib.rcParams['font.family'] = 'Arial'
 ap = argparse.ArgumentParser()
 ap.add_argument('--panels', type=int, default=8, choices=[8, 4])
 ap.add_argument('--all-trials', action='store_true', help='correct-only (default) -> all laser-off')
+ap.add_argument('--stability', type=int, default=0, metavar='B',
+                help='mouse-subsample stability of the §3 flows (B resamples of 7/9 mice); prints, no figure')
 args = ap.parse_args()
 CORRECT = not args.all_trials
 TAG = '' if CORRECT else '_all'
-MARGIN = 3                # calcium tail after event offset: 0.5 s @ 6 Hz — kept < MD (1 s = 6 bins) so a
-#                           regime's window/decoder never bleeds into the next epoch (distractor↛cue etc.)
+MARGIN = 3                # calcium tail after event offset: 0.5 s @ 6 Hz (< MD, so no epoch bleed)
 VSTEP = 1                 # adjacent-bin velocity (dPCA exact port)
 
 # ── data / constants ──────────────────────────────────────────────────────────
@@ -84,34 +85,43 @@ def _win(bins):
 # read window per input = its EVENT epoch + calcium MARGIN (GCaMP Ca2+ tail, 0.5 s @ 6 Hz).
 WIN_STIM, WIN_DIST = _win(o['bins_STIM']), _win(o['bins_DIST'])
 WIN_CUE, WIN_TEST = _win(o['bins_CUE']), _win(o['bins_TEST'])
-# DECODER (train epoch) per regime — independent of the READ window (REG below). A/B decoded
-# contemporaneously at stim, C/D at test; Go/NoGo/Cue decoded on the RESPONSE (lick) axis — the lick code
-# is barely driven at the distractor/cue epochs, so Go↑/NoGo↓/Cue-split only read on the response decoder —
-# but READ over their own distractor/cue window. autonomous keeps the delay decoder. Regimes sharing a
-# decoder pool ONE landscape and each such group CV-tunes its OWN ridge λ (so C/D keep a low ridge → the
-# bistable diagonal, independent of the other groups' optimum).
-EPOCHS = {'DELAY': o['bins_DELAY'], 'STIM': WIN_STIM, 'TEST': WIN_TEST, 'RESP': o['bins_CHOICE']}
-REG_EPOCH = {'autonomous': 'DELAY', 'A input': 'STIM', 'B input': 'STIM', 'Go input': 'RESP',
-             'NoGo input': 'RESP', 'Cue input': 'RESP', 'C input': 'TEST', 'D input': 'TEST'}
+# DECODER (train epoch) per regime — independent of the READ window (REG below). A/B ride the DELAY
+# decoder WITH autonomous (their sample wells sit on the WM bistable landscape; the choice axis is
+# meaningless at stim, so a stim decoder gave A/B a garbage vertical position). C/D decoded at test;
+# Go/NoGo/Cue on the RESPONSE (lick) axis — the lick code is barely driven at the distractor/cue epochs,
+# so Go↑/NoGo↓/Cue-split only read on the response decoder — but READ over their own distractor/cue window.
+# Regimes sharing a decoder pool ONE landscape and each such group CV-tunes its OWN ridge λ.
+# each value = (sample_bins, choice_bins) for that regime's plane. C/D use a MIXED plane: sample @TEST
+# (A neg / B pos — symmetric x separation; the delay decoder lets B fade to ~0) × choice/lick @RESPONSE
+# (match AC/BD → +y, mismatch AD/BC → −y). Result: C = AC(top-left)/BC(bottom-right), D = AD(bottom-left)/
+# BD(top-right) — the two opposite DIAGONALS. A single test decoder for both axes gives weak y (mismatch≈0).
+EPOCHS = {'DELAY': (o['bins_DELAY'],), 'CUE': (o['bins_CUE'],),
+          'TEST': (o['bins_TEST'], o['bins_CHOICE']), 'RESP': (o['bins_CHOICE'],)}
+REG_EPOCH = {'autonomous': 'DELAY', 'A input': 'DELAY', 'B input': 'DELAY', 'Go input': 'RESP',
+             'NoGo input': 'RESP', 'Cue input': 'CUE', 'C input': 'TEST', 'D input': 'TEST'}
 
 
-def codes(stage, correct, train_bins):
-    """Matched [sample, choice] plane at a train epoch for one stage, per-mouse BL-std normed, ×2.8."""
+def codes(stage, correct, sample_bins, choice_bins=None, mice=None):
+    """Matched [sample, choice] plane; sample decoded at sample_bins, choice at choice_bins (default = same
+    epoch). Per-mouse BL-std normed, ×2.8. Separate epochs let C/D read sample memory @delay × match @test.
+    `mice` restricts to a subset (stability subsampling)."""
+    choice_bins = sample_bins if choice_bins is None else choice_bins
     base = (y.laser == 0) & (y.learning == stage)
     if correct:                                          # canonical overlaps correct: DPA-correct AND
         base = base & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_perf == 1))  # GNG-correct on Dual
+    if mice is not None:                                 # mouse-subsample for the stability check
+        base = base & y.mouse.isin(mice)
 
-    df = X[..., train_bins, :].mean(-2)[:, 1].astype(float)
-    for mo in MICE:
-        mm = (y.mouse == mo).to_numpy(); sd = df[mm][:, BL].std()
-        if sd > 0:
-            df[mm] /= sd
-
-    def block(tgt):
+    def block(tgt, tb):
+        df = X[..., tb, :].mean(-2)[:, 1].astype(float)
+        for mo in MICE:
+            mm = (y.mouse == mo).to_numpy(); sd = df[mm][:, BL].std()
+            if sd > 0:
+                df[mm] /= sd
         mb = (base & (y.target == tgt)).to_numpy(); yb = y[mb].reset_index(drop=True)
         order = yb.sort_values(KEY, kind='stable').index.to_numpy()
         return df[mb][order], yb.iloc[order].reset_index(drop=True)
-    ds, _ = block('sample'); dc, yc = block('choice')
+    ds, _ = block('sample', sample_bins); dc, yc = block('choice', choice_bins)
     Z2 = np.stack([ds, dc], axis=1).astype(float); Z2 = Z2 / Z2.std((0, 2), keepdims=True) * 2.8
     return Z2, yc
 
@@ -120,8 +130,8 @@ def build_reg(yc):
     samp = yc['sample'].to_numpy(); test = yc['test'].to_numpy(); task = yc['tasks'].to_numpy()
     go, nogo, dpa = task == 'DualGo', task == 'DualNoGo', task == 'DPA'
     return [('autonomous', dpa, np.arange(21, 54), ('sample', (0, 1))),
-            ('A input', samp == 0, WIN_STIM, ('sample', (0,))),
-            ('B input', samp == 1, WIN_STIM, ('sample', (1,))),
+            ('A input', samp == 0, np.arange(12, 30), ('sample', (0,))),   # stim→early delay: well forms
+            ('B input', samp == 1, np.arange(12, 30), ('sample', (1,))),
             ('Go input', go, WIN_DIST, ('sample', (0, 1))),
             ('NoGo input', nogo, WIN_DIST, ('sample', (0, 1))),
             ('Cue input', go | nogo, WIN_CUE, ('tasks', ('DualGo', 'DualNoGo'))),
@@ -205,23 +215,26 @@ GRID = [(a, dd, lam) for a in (0.2, 0.4, 0.7, 1.0) for dd in (0.3, 0.8, 2.0)
 def fit_stage(stage, correct):
     planes = {}; yc = None
     for en in EPOCHS:
-        Z2, yc = codes(stage, correct, EPOCHS[en]); planes[en] = Z2   # one plane per decoder epoch
+        Z2, yc = codes(stage, correct, *EPOCHS[en]); planes[en] = Z2   # one plane per decoder epoch
     REG = build_reg(yc); NREG = len(REG)
     allm = regime_means(REG, planes, yc, np.ones(len(yc), bool))
     span = np.concatenate([mu[:, REG[r][2]] for r in range(NREG) for _, mu in allm[r]], axis=1)
     L = 1.3 * max(float(np.abs(span).max()), 1.0)
-    folds = list(KFold(5, shuffle=True, random_state=0).split(np.arange(len(yc))))
+    folds = list(RepeatedKFold(n_splits=5, n_repeats=10, random_state=0).split(np.arange(len(yc))))
+    fold_data = []                                        # precompute per-fold train/test regime means ONCE
+    for tr, te in folds:                                  #   (they don't depend on (a,δ,λ) — reuse across grid)
+        trm = np.zeros(len(yc), bool); trm[tr] = True; tem = np.zeros(len(yc), bool); tem[te] = True
+        fold_data.append((regime_means(REG, planes, yc, trm), regime_means(REG, planes, yc, tem)))
 
     # PER-GROUP ridge: each decoder group CV-tunes its OWN (a,δ,λ) so C/D keep a low ridge (bistable
-    # diagonal) while the response group keeps Go↑/NoGo↓. Score = held-out velocity R² on that group.
+    # diagonal) while the response group keeps Go↑/NoGo↓. Score = held-out velocity R², averaged over the
+    # 50 splits of 10×5-fold repeated CV (more stable hyperparameter selection than a single 5-fold split).
     def cv_group(subset, a, dd, lam):
         rr = []
-        for tr, te in folds:
-            trm = np.zeros(len(yc), bool); trm[tr] = True; tem = np.zeros(len(yc), bool); tem[te] = True
-            fl = fit_group(REG, regime_means(REG, planes, yc, trm), a, dd, lam, subset)
-            me = regime_means(REG, planes, yc, tem); num = den = 0.0
+        for trm_m, tem_m in fold_data:
+            fl = fit_group(REG, trm_m, a, dd, lam, subset); num = den = 0.0
             for r in subset:
-                z, v = zv_one(REG, me, r)
+                z, v = zv_one(REG, tem_m, r)
                 if len(z) >= 3:
                     vp = fl[r](z.T).T; num += ((v - vp) ** 2).sum(); den += ((v - v.mean(0)) ** 2).sum()
             rr.append(1 - num / (den + 1e-12))
@@ -231,7 +244,7 @@ def fit_stage(stage, correct):
         fl = fit_group(REG, allm, *p, subset)
         return sum(k == 'attractor' for _, k, _ in flow_fixed_points(fl[0], [(-L, L), (-L, L)], n_seed=18)) >= 2
 
-    flows = {}; cvbest = []
+    flows = {}; cvbest = []; best_by = {}
     for g in groups_of(REG):
         cvs = {p: cv_group(g, *p) for p in GRID}
         if 0 in g:                                    # autonomous group → restrict to bistable configs
@@ -240,9 +253,10 @@ def fit_stage(stage, correct):
         else:
             best = max(GRID, key=lambda p: cvs[p]); tag = ''
         flows.update(fit_group(REG, allm, *best, g)); cvbest.append(cvs[best])
+        best_by[REG_EPOCH[REG[g[0]][0]]] = best       # per decoder-group hyperparams (for stability refits)
         print(f'  {stage:6s} [{"/".join(REG[r][0].split()[0] for r in g):11s}] '
               f'(a,δ,λ)={best}  vel-R²={cvs[best]:+.3f}{tag}')
-    return dict(REG=REG, allm=allm, flows=flows, cv=float(np.mean(cvbest)), L=L)
+    return dict(REG=REG, allm=allm, flows=flows, cv=float(np.mean(cvbest)), L=L, best=best_by)
 
 
 def panel_lim(allm, idxs):
@@ -340,11 +354,51 @@ def slopegraph(ax, nai, exp, color, ylabel, title, side='less'):
 
 
 # ── build ──────────────────────────────────────────────────────────────────────
-print(f'=== OVERLAPS story figure  (per-regime decoders, per-group ridge; Go/NoGo/Cue on response; '
+print(f'=== OVERLAPS story figure  (per-regime decoders, per-group ridge; Go/NoGo on response, Cue on cue; '
       f'{"correct" if CORRECT else "all-laser-off"}, panels={args.panels}) ===')
 ST = {s: fit_stage(s, CORRECT) for s in STAGES}
 REG = ST['Expert']['REG']
 idx3 = list(range(8)) if args.panels == 8 else PANELS4
+
+
+def run_stability(B, K=7):
+    """Subsample K of the 9 mice B times; refit the §3 flows at the full-data per-group hyperparams and
+    record whether each qualitative feature survives. (§4 push already has a per-mouse bootstrap CI in D.)"""
+    rng = np.random.default_rng(0); best = ST['Expert']['best']
+    keys = ['auto bistable', 'A/B split (Ax<Bx)', 'Go↑', 'NoGo↓', 'C diag (AC>BC)', 'D diag (BD>AD)']
+    hits = {k: [] for k in keys}
+    for _ in range(B):
+        sub = list(rng.choice(MICE, size=K, replace=False))
+        planes = {en: codes('Expert', CORRECT, *EPOCHS[en], mice=sub)[0] for en in EPOCHS}
+        yc = codes('Expert', CORRECT, *EPOCHS['DELAY'], mice=sub)[1]
+        rg = build_reg(yc); allm = regime_means(rg, planes, yc, np.ones(len(yc), bool))
+        span = np.concatenate([mu[:, rg[r][2]] for r in range(len(rg)) for _, mu in allm[r]], axis=1)
+        L = 1.3 * max(float(np.abs(span).max()), 1.0)
+        fl = {}
+        for g in groups_of(rg):
+            fl.update(fit_group(rg, allm, *best[REG_EPOCH[rg[g[0]][0]]], g))
+
+        def end(r, lv, ax):                              # last-3-bin mean of regime r, level lv, on axis ax
+            for l, mu in allm[r]:
+                if l == lv:
+                    return mu[ax, rg[r][2]][-3:].mean()
+            return np.nan
+        na = sum(k == 'attractor' for _, k, _ in flow_fixed_points(fl[0], [(-L, L), (-L, L)], n_seed=18))
+        hits['auto bistable'].append(na >= 2)
+        hits['A/B split (Ax<Bx)'].append(end(1, 0, 0) < end(2, 1, 0))
+        hits['Go↑'].append(np.nanmean([end(3, 0, 1), end(3, 1, 1)]) > 0)
+        hits['NoGo↓'].append(np.nanmean([end(4, 0, 1), end(4, 1, 1)]) < 0)
+        hits['C diag (AC>BC)'].append(end(6, 0, 1) > end(6, 1, 1))
+        hits['D diag (BD>AD)'].append(end(7, 1, 1) > end(7, 0, 1))
+    print(f'\n=== §3 flow stability — {B}× subsample {K}/{len(MICE)} mice (Expert, {"correct" if CORRECT else "all"}, '
+          f'fixed full-data hyperparams) ===')
+    for k in keys:
+        print(f'  {k:20s}: {100 * np.nanmean(hits[k]):5.1f}%  of subsamples')
+
+
+if args.stability:
+    run_stability(args.stability)
+    sys.exit(0)
 
 # push arrays (delay axis, correct/all, DPA)
 mask = (y.laser == 0) if not CORRECT else (
@@ -408,9 +462,9 @@ fig.legend(handles=fp_leg + tr_leg, loc='lower center', ncol=5, frameon=False, f
            bbox_to_anchor=(0.5, -0.015))
 cvE, cvN = ST['Expert']['cv'], ST['Naive']['cv']
 fig.suptitle('OVERLAPS story — rank-2 gain-modulated flows on the sample×choice CCGD plane   '
-             f'[per-regime decoders, per-group ridge; Go/NoGo/Cue on response; {"correct" if CORRECT else "all-laser-off"}]\n'
-             '§3 (row 1) computation, Expert: each input decoded on the axis that carries it (A/B stim, C/D '
-             'test, Go/NoGo/Cue on the RESPONSE/lick axis), read over its event+GCaMP-margin window; per-decoder '
+             f'[per-regime decoders, per-group ridge; Go/NoGo on response, Cue on cue; {"correct" if CORRECT else "all-laser-off"}]\n'
+             '§3 (row 1) computation, Expert: each input decoded on the axis that carries it (A/B on the delay '
+             'landscape, C/D test, Go/NoGo on the RESPONSE/lick axis, Cue on the cue decoder), read over its window; per-decoder '
              'shared landscape + ridge ΔA_r + input c_r → autonomous bistable, Go↑, NoGo↓, C/D split the '
              'diagonals.   §4 (row 2) learning: DPA delay well deepens Naive→Expert into the no-lick half.\n'
              f'DESCRIPTIVE fit — per-group held-out CV vel-R² (mean) = {cvE:+.2f} (Expert) / {cvN:+.2f} (Naive); '

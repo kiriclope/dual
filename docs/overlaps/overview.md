@@ -361,49 +361,61 @@ over-read it (the dPCA bistability set does not transfer; see `docs/pca/flows_ha
 
 ---
 
-## Composite "story" figure — `fig_overlaps_story_main.py` (2026-07-05, final design)
+## Composite "story" figure — `fig_overlaps_story_main.py` (2026-07-06, final design)
 
 The overlaps analog of the dPCA story main figure's **§3 (input-driven rank-2 flow grid)** + **§4
 (no-lick learning push)**, in one composite. Row 1 = 8-panel Expert flow grid (autonomous, A, B, Go,
 NoGo, Cue, C, D) on the sample×choice CCGD plane; row 2 = Naive vs Expert DPA autonomous flow + the
 per-mouse choice-code push slopegraph (D) + a sample-memory specificity control (E). Flags: `--panels
-{8,4}`, `--all-trials` (correct→all-laser-off, TAG `_all`). Output `figures/overlaps/story/{png,svg}/`.
+{8,4}`, `--all-trials` (correct→all-laser-off, TAG `_all`), `--stability B` (see below). Output
+`figures/overlaps/story/{png,svg}/fig_overlaps_story_main{,_p4,_all}.{png,svg}`.
 
-**FINAL DESIGN — per-regime decoders + per-group ridge (the config that holds every feature at once):**
-- **Each input is decoded on the axis that actually carries it**, not one shared plane. `EPOCHS`/`REG_EPOCH`:
-  autonomous→DELAY decoder; A/B→STIM; **Go/NoGo/Cue→RESPONSE (choice/lick) decoder** (`bins_CHOICE`);
-  C/D→TEST. Decoder (train epoch) and READ window are independent: each regime is read over its own
-  **event + GCaMP-margin** window (`_win`, MARGIN=3 bins = 0.5 s < MD; A/B stim, Go/NoGo distractor,
-  Cue cue, C/D test) on its decoder plane.
-- **Partial pooling by decoder group** (`groups_of` keys on `REG_EPOCH`): {autonomous}@DELAY, {A,B}@STIM,
-  {Go,NoGo,Cue}@RESP, {C,D}@TEST. Within a group: shared A + ridge-penalised per-regime ΔA_r + input c_r.
-- **Per-group ridge**: each group CV-tunes its OWN (a,δ,λ) on held-out velocity R². This is essential —
-  C/D need a **low** ridge (λ=0.2) to keep the bistable diagonal, while a single global λ, once the
-  Go/NoGo decoder changes, gets CV-driven to λ=20 and **washes the C/D diagonal out**. Autonomous group
-  is restricted to bistable-autonomous gains (≥2 attractors), then max-CV. Root-found fixed points.
+**FINAL DESIGN — each regime on the axis(es) that carry it (`EPOCHS`/`REG_EPOCH`).** The `codes(stage,
+correct, sample_bins, choice_bins)` helper builds the [sample, choice] plane with the **two axes decoded
+at possibly different epochs** (generalizing CCGD, so a decoder trained at one epoch is read across all
+test time). Per regime:
+- **autonomous + A/B → DELAY decoder** (sample & choice both @delay). A/B are POOLED WITH autonomous (their
+  sample wells sit on the WM bistable landscape). *A/B were originally on a stim decoder — that gave A a
+  garbage vertical position, because the choice axis is meaningless at stim; delay fixed it.*
+- **Go/NoGo → RESPONSE (lick) decoder** (`bins_CHOICE`), read over the distractor+margin window — the lick
+  code is barely driven at the distractor epoch, so Go↑/NoGo↓ only reads on the response axis.
+- **Cue → CUE decoder**, read over the cue+margin window (user choice: contemporaneous cue; fits worse than
+  response — CV ≈ −1.0 — but is the requested axis).
+- **C/D → MIXED plane: sample@TEST × choice@RESPONSE**, read over the test+margin window. This is what makes
+  the **diagonals**: sample@test gives symmetric A(−)/B(+) x-separation (the delay decoder lets B fade to
+  ~0 by test → no x-split); choice@response gives strong match(AC,BD)→+y vs mismatch(AD,BC)→−y. Measured
+  corners: AC(−1.5,+3.1) BC(+0.8,−1.5) AD(−1.7,−1.5) BD(+0.5,+2.9) → C = AC top-left/BC bottom-right, D =
+  AD bottom-left/BD top-right (opposite diagonals). Read window = event + GCaMP MARGIN (`_win`, 3 bins=0.5 s).
+- **Correctness (default):** canonical overlaps mask `performance==1 & ((tasks=='DPA')|(odr_perf==1))` —
+  DPA-correct AND GNG-correct on Dual trials (matches §4 and `exp_nolick_push_stats`). `codes` filters on
+  this; an earlier `performance==1`-only version leaked GNG-error Dual trials into Cue / sample A/B.
 
-**Result (Expert):** autonomous bistable on the lick baseline; A/B in opposite sample wells; **Go↑**,
-**NoGo↓** (attractor in the no-lick half — but see caveat), Cue splits Go↑/NoGo↓; **C/D two-attractor
-diagonals** (C = A-top/B-bottom, D flipped). §4 push Δ=**−0.84** (correct) / **−0.98** (all), reproducing
-`exp_nolick_push_stats.py` (delay decoder, pooled A/B). Per-group held-out CV vel-R² mean ≈ +0.28 (Expert):
-C/D +0.63, A/B +0.37, Go/NoGo/Cue +0.31, autonomous −0.20.
+**Partial pooling by decoder group** (`groups_of` keys on `REG_EPOCH`): {autonomous, A, B}@DELAY,
+{Go, NoGo}@RESP, {Cue}@CUE, {C, D}@TEST. Within a group: shared A + ridge-penalised per-regime ΔA_r + input
+c_r. **Per-group ridge** — each group CV-tunes its OWN (a,δ,λ); C/D need a low λ=0.2 for the bistable
+diagonal (a single global λ washes it out). Hyperparameters selected by **10×5-fold repeated CV** on
+held-out velocity R² (`RepeatedKFold`; per-fold regime means precomputed once so the 10× repeats are cheap).
+Autonomous restricted to bistable gains, then max-CV. Root-found fixed points (★ attractor / □ saddle / ✕ repeller).
 
-**WHY a single fixed plane fails — the dPCA method does NOT transfer (probe, 2026-07-05).** The dPCA §3
-keeps ONE demixed plane for all 8 regimes (two epoch-shared landscapes, one global ridge, long windows)
-and it looks clean because dPCA's demixed sample/choice axes are strong. Porting that verbatim to
-overlaps **erases the structure**: on a single fixed delay-plane the best CV is only +0.076 and **C/D come
-out monostable, Go/NoGo/Cue monostable** — because (i) the lick code is barely driven at the delay/
-distractor/cue epochs, so Go↑/NoGo↓ only reads on the RESPONSE decoder; and (ii) the delay-choice axis
-can't resolve test identity, so the C/D diagonal only reads on the TEST decoder. The input structure is
-**time-varying** and lives in epoch-specific decoders; a single-epoch CCGD decoder captures one time-slice.
-So the per-regime decoders are **required**, not a stylistic choice — this was tried both ways and reverted.
+**Result (Expert):** autonomous bistable on the lick baseline; A/B opposite sample wells; **Go↑, NoGo↓**,
+**Cue** split, **C/D opposite diagonals**. §4 push Δ=**−0.84** (correct)/**−0.98** (all), reproducing
+`exp_nolick_push_stats.py`. Per-group CV vel-R² (Expert): C/D **+0.75**, A/B(+auto) +0.15, Go/NoGo −0.03,
+Cue −1.0.
 
-**Caveats (on the figure).** (1) Descriptive fit at the overlaps **velocity noise floor** — fixed points
-are root-found but the held-out CV is modest; don't over-read exact well counts. (2) **NoGo-below-baseline
-requires the RESPONSE decoder** — on the contemporaneous distractor decoder NoGo sits ~baseline (Go +1.08 /
-NoGo +0.31), and on MD Go +1.84 / NoGo +0.35; only the response/lick axis puts NoGo clearly below the lick
-baseline. (3) Go/NoGo/Cue use **Dual trials only** (671 DualGo / 682 DualNoGo, no DPA). (4) MD+margin would
-bleed into the cue window — not used in the final (distractor/response used instead).
+**Robustness (`--stability B`, mouse subsampling).** Draw 7/9 mice B× (200), refit the §3 flows at the
+full-data hyperparameters, record which qualitative features survive. Expert/correct: **A/B split 100%,
+NoGo↓ 100%, C-diagonal 100%, D-diagonal 100%, Go↑ 90%** — the input-driven structure is highly robust to
+which mice are included. **Autonomous bistability only 43%** → the two-well autonomous is FRAGILE (flips
+monostable in most subsamples); keep the bistability language soft (consistent with the "monostable-leaning
+autonomous, A strong / B weak" conclusion above). The §4 push already carries a per-mouse bootstrap CI in
+panel D (Δ=−0.84 [−1.87,+0.06], 7/9). CV is 10×5 repeated (above); the flows are DESCRIPTIVE (velocity
+noise floor) — don't over-read exact well counts.
+
+**WHY a single fixed plane fails — the dPCA method does NOT transfer (probe).** dPCA §3 keeps ONE demixed
+plane for all regimes; porting that verbatim to overlaps **erases the structure** (single fixed delay-plane:
+best CV +0.076, C/D and Go/NoGo monostable). The lick code isn't driven at delay/distractor (Go↑/NoGo↓ needs
+the response decoder) and the delay-choice axis can't resolve test (C/D diagonal needs sample@test×choice@resp).
+The input structure is **time-varying** → epoch-specific decoders are REQUIRED, not stylistic. Tried both, reverted.
 
 ---
 
