@@ -23,10 +23,11 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
   L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
      the code→behaviour READOUT survives silencing (DPA OR≈1.4 both; GNG ns).
-  M  d′ laser ON vs OFF scatter (per mouse), DPA memory code: sample-axis d′(A vs B) at
-     late delay (bins_LD 45-53) — on unity = spared (OFF 1.02 → ON 0.89, ns).
+  M  d′ laser ON vs OFF scatter, DPA memory code: sample-axis d′(A vs B) at late delay
+     (bins_LD 45-53). 5 Jaws × {Naive○, Expert●} = 10 pts; on unity = spared.
+     LMM d′~laser+stage+(1|mouse): laser p=0.34 (ns).
   N  d′ ON vs OFF scatter, GNG code: choice-axis d′(Go vs NoGo) at mid-delay
-     (bins_MD 33-38, the Go/NoGo cue) — on unity = spared (OFF 0.65 → ON 0.44, ns).
+     (bins_MD 33-38, the Go/NoGo cue). 10 pts; LMM laser p=0.74 (ns) — spared.
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
 (B–E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
@@ -167,27 +168,41 @@ def _dprime(v, mask, pos, neg):
     return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
 
 
-# M — sample A vs B at late-delay (sample tensor `ys`)
+# M — sample A vs B at late-delay (sample tensor `ys`); N — choice-axis Go vs NoGo at mid-delay.
+# Points = 5 Jaws × {Naive, Expert} (10 per panel); stat = LMM d′ ~ laser + stage + (1|mouse)
+# (mouse random effect handles the repeated measures). NB the trial-level signal×laser interaction
+# looks p<.001 but is pseudoreplication — it vanishes under a random slope, so we DON'T use it.
+STAGES = ['Naive', 'Expert']
 _sA, _sB = (ys['sample'].values == 1), (ys['sample'].values == 0)
-_baseS = (ys.stage == 'Expert').values & (ys.tasks == 'DPA').values
+_sdpa = (ys.tasks == 'DPA').values
 sLD = sdf_diag[:, options['bins_LD']].mean(1)
-# N — Go vs NoGo at mid-delay on the choice axis (choice tensor `y`, cdf_diag)
 _gGo, _gNo = (y.tasks == 'DualGo').values, (y.tasks == 'DualNoGo').values
-_baseG = (y.stage == 'Expert').values
 cMD = cdf_diag[:, options['bins_MD']].mean(1)
 
-# per-mouse d′ under laser OFF and ON, for each measure (→ ON-vs-OFF scatters)
-DPR = {k: {0: np.full(len(JAWS), np.nan), 1: np.full(len(JAWS), np.nan)} for k in ('sample', 'gng')}
-for j, mo in enumerate(JAWS):
-    msk_s = _baseS & (ys.mouse.values == mo)
-    msk_g = _baseG & (y.mouse.values == mo)
-    for las in (0, 1):
-        DPR['sample'][las][j] = _dprime(sLD, msk_s & (ys.laser.values == las), _sA, _sB)
-        DPR['gng'][las][j] = _dprime(cMD, msk_g & (y.laser.values == las), _gGo, _gNo)
-for k, ttl in [('sample', 'A/B late-delay'), ('gng', 'Go/NoGo mid-delay')]:
-    dd = (DPR[k][1] - DPR[k][0]); dd = dd[np.isfinite(dd)]
-    print(f'd′ {ttl}: OFF {np.nanmean(DPR[k][0]):+.2f} → ON {np.nanmean(DPR[k][1]):+.2f}'
-          f'  (Δ p={float(ttest_1samp(dd, 0).pvalue):.3f})')
+
+def _build_dpr(v, base, mo_arr, la_arr, st_arr, pos, neg):
+    rows = []
+    for st in STAGES:
+        for m in JAWS:
+            cell = base & (mo_arr == m) & (st_arr == st)
+            rows.append(dict(mouse=m, stage=st,
+                             off=_dprime(v, cell & (la_arr == 0), pos, neg),
+                             on=_dprime(v, cell & (la_arr == 1), pos, neg)))
+    return pd.DataFrame(rows)
+
+
+def _lmm_laser(dfw):
+    long = pd.concat([dfw.assign(d=dfw.off, laser=0), dfw.assign(d=dfw.on, laser=1)]).dropna(subset=['d'])
+    r = smf.mixedlm('d ~ C(laser) + C(stage)', long, groups=long['mouse']).fit(reml=False)
+    lc = [k for k in r.params.index if 'laser' in k][0]
+    return float(r.params[lc]), float(r.pvalues[lc])
+
+
+DPR = {'sample': _build_dpr(sLD, _sdpa, ys.mouse.values, ys.laser.values, ys.stage.values, _sA, _sB),
+       'gng': _build_dpr(cMD, (_gGo | _gNo), y.mouse.values, y.laser.values, y.stage.values, _gGo, _gNo)}
+LMM_DPR = {k: _lmm_laser(v) for k, v in DPR.items()}
+for k in ('sample', 'gng'):
+    print(f'{k} d′ (10 pts): LMM laser β={LMM_DPR[k][0]:+.3f} p={LMM_DPR[k][1]:.3f}')
 
 is_choice = (y.target == 'choice').values
 is_dpa = (y.tasks == 'DPA').values
@@ -700,22 +715,25 @@ axM = fig.add_subplot(gs_body[3, 4:8])
 axN = fig.add_subplot(gs_body[3, 8:12])
 
 
-def _dprime_scatter(ax, off, on, title):
-    vals = np.concatenate([off, on]); vals = vals[np.isfinite(vals)]
+def _dprime_scatter(ax, dfw, lmm, title):
+    vals = np.concatenate([dfw.off.values, dfw.on.values]); vals = vals[np.isfinite(vals)]
     lo = min(0.0, vals.min()) - 0.1; hi = vals.max() + 0.15
     ax.plot([lo, hi], [lo, hi], '--', color='0.5', lw=1, zorder=1)          # unity = spared
-    for j, m in enumerate(JAWS):
-        ax.scatter(off[j], on[j], color=MOUSE_COLOR[m], s=110, ec='k', lw=0.5, zorder=4)
-    d = (on - off)[np.isfinite(on - off)]; pv = float(ttest_1samp(d, 0).pvalue)
+    for _, r in dfw.iterrows():
+        fc = MOUSE_COLOR[r.mouse] if r.stage == 'Expert' else 'w'           # Expert filled / Naive open
+        ax.scatter(r.off, r.on, facecolors=fc, edgecolors=MOUSE_COLOR[r.mouse], s=105, lw=1.3, zorder=4)
     ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
     ax.set_xlabel("d′  laser OFF"); ax.set_ylabel("d′  laser ON")
     ax.set_title(title, loc='left', fontweight='bold', fontsize=TITLE_FS)
-    ax.text(0.5, 0.02, f'meanΔ={np.nanmean(on - off):+.2f}  p={pv:.2f}', transform=ax.transAxes,
+    ax.text(0.5, 0.02, f'LMM laser p={lmm[1]:.2f}  (n=10, +1|mouse)', transform=ax.transAxes,
             ha='center', va='bottom', fontsize=7.5, color='0.3')
 
 
-_dprime_scatter(axM, DPR['sample'][0], DPR['sample'][1], 'DPA memory code (A vs B, late delay)')
-_dprime_scatter(axN, DPR['gng'][0], DPR['gng'][1], 'GNG code (Go vs NoGo, mid-delay)')
+_dprime_scatter(axM, DPR['sample'], LMM_DPR['sample'], 'DPA memory code (A vs B, late delay)')
+_dprime_scatter(axN, DPR['gng'], LMM_DPR['gng'], 'GNG code (Go vs NoGo, mid-delay)')
+axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
+                    mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
+           frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
 # ── panel letters + row banners ───────────────────────────────────────────────
 # reading order: A scheme · B–E batch · F–H recorded · I–K overlaps · L–N mechanism
@@ -745,9 +763,10 @@ fig.text(0.5, 0.004,
          '(5 Jaws → 10 pts); star = Pearson.  '
          'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
          '(OR per within-mouse SD of depth; readout preserved under silencing). '
-         'M,N per-mouse code discriminability d′ laser ON vs OFF (points on unity = spared): M = sample axis odor A vs B '
-         'at late delay (bins_LD 45-53, DPA memoranda; --targets sample tensor); N = choice axis Go vs NoGo at mid-delay '
-         '(bins_MD 33-38, GNG cue). Dashed = unity; meanΔ + paired-t on ΔON−OFF inset.  '
+         'M,N code discriminability d′ laser ON vs OFF, 5 Jaws × {Naive ○, Expert ●} = 10 pts (points on unity = spared): '
+         'M = sample axis odor A vs B at late delay (bins_LD 45-53, DPA memoranda; --targets sample tensor); '
+         'N = choice axis Go vs NoGo at mid-delay (bins_MD 33-38, GNG cue). Dashed = unity; stat = LMM '
+         'd′ ~ laser + stage + (1|mouse) [trial-level signal×laser interaction is pseudoreplication, ns under random slope].  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 

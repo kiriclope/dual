@@ -314,14 +314,20 @@ Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
   identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
   DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
   (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
-- **M** — **d′ laser ON vs OFF scatter** (per mouse) of the **DPA memory code**: sample-axis
-  discriminability **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON,
-  dashed **unity line** = spared, square (`set_box_aspect(1)`), meanΔ + paired-t inset.
-  **Spared: OFF 1.02 → ON 0.89, Δ p=0.71** (points scatter around unity; M15 the low outlier).
+- **M** — **d′ laser ON vs OFF scatter** of the **DPA memory code**: sample-axis discriminability
+  **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON, dashed **unity
+  line** = spared, square. **10 points = 5 Jaws × {Naive ○, Expert ●}.**
 - **N** — **d′ ON vs OFF scatter** of the **GNG code**: **choice-axis** discriminability
-  **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, the Go/NoGo cue). **Spared: OFF 0.65 →
-  ON 0.44, Δ p=0.47** (M12 below unity, M18 above). The choice axis separates Go/NoGo (d′ peaks
-  ≈0.56 at mid-delay), so no separate distractor decode is needed.
+  **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, the Go/NoGo cue). The choice axis separates
+  Go/NoGo (d′ peaks ≈0.56 at mid-delay) so no separate distractor decode is needed. Same 10-point
+  Naive/Expert design.
+
+**Stat (M,N)** = LMM **`d′ ~ laser + stage + (1|mouse)`** (mouse random effect handles the
+repeated Naive/Expert + OFF/ON measures; converges). **Laser n.s.: sample p=0.34, GNG p=0.74 →
+discriminability spared.** IMPORTANT — a trial-level `signal×laser` mixed model looks significant
+(p<.001) but that is **pseudoreplication**: with a random *slope* for the effect it collapses
+(sample p=0.34 non-conv, GNG p=0.10). The per-mouse effect is heterogeneous in sign, so the
+mouse-level LMM (n.s.) is the honest read — do NOT headline the trial-level interaction.
 
 Windows: A/B read at late delay (memoranda held to the comparison), Go/NoGo at mid-delay (cue
 onset) — both inside the laser/delay window. The **sample axis is decoded separately**
