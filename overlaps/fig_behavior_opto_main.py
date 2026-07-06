@@ -583,8 +583,10 @@ pad = (ally.max() - ally.min()) * 0.15 or 0.05
 ylim = (ally.min() - pad, ally.max() + pad)
 _STMK = {'Expert': 'o', 'Naive': '^'}                       # Expert circle / Naive triangle
 for ax, key, ylab, msg in [
-        (axE, 'd_dpa', 'Δ DPA accuracy (on−off)', 'Depth vs ΔDPA (positive trend)'),
-        (axF, 'd_gng', 'Δ GNG accuracy (on−off)', 'Depth change predicts ΔGNG')]:
+        (axE, 'd_dpa', 'Δ DPA accuracy (on−off)',
+         'Depth vs ΔDPA' if POSTER else 'Depth vs ΔDPA (positive trend)'),
+        (axF, 'd_gng', 'Δ GNG accuracy (on−off)',
+         'Depth vs ΔGNG' if POSTER else 'Depth change predicts ΔGNG')]:
     xdep = np.array([r['d_depth'] for r in rows_ab])
     yv = np.array([r[key] for r in rows_ab])
     for mouse in JAWS:                                   # join A&B within each mouse×stage
@@ -725,8 +727,10 @@ def _dprime_scatter(ax, dfw, lmm, title):
             ha='center', va='bottom', fontsize=7.5, color='0.3')
 
 
-_dprime_scatter(axM, DPR['sample'], LMM_DPR['sample'], 'DPA memory code (A vs B, late delay)')
-_dprime_scatter(axN, DPR['gng'], LMM_DPR['gng'], 'GNG code (Go vs NoGo, mid-delay)')
+_dprime_scatter(axM, DPR['sample'], LMM_DPR['sample'],
+                'DPA memory (A vs B)' if POSTER else 'DPA memory code (A vs B, late delay)')
+_dprime_scatter(axN, DPR['gng'], LMM_DPR['gng'],
+                'GNG code (Go vs NoGo)' if POSTER else 'GNG code (Go vs NoGo, mid-delay)')
 axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
                     mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
            frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
