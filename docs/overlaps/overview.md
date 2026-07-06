@@ -377,15 +377,17 @@ test time). Per regime:
 - **autonomous + A/B → DELAY decoder** (sample & choice both @delay). A/B are POOLED WITH autonomous (their
   sample wells sit on the WM bistable landscape). *A/B were originally on a stim decoder — that gave A a
   garbage vertical position, because the choice axis is meaningless at stim; delay fixed it.*
-- **Go/NoGo → RESPONSE (lick) decoder** (`bins_CHOICE`), read over the distractor+margin window — the lick
-  code is barely driven at the distractor epoch, so Go↑/NoGo↓ only reads on the response axis.
-- **Cue → CUE decoder**, read over the cue+margin window (user choice: contemporaneous cue; fits worse than
-  response — CV ≈ −1.0 — but is the requested axis).
-- **C/D → MIXED plane: sample@TEST × choice@RESPONSE**, read over the test+margin window. This is what makes
-  the **diagonals**: sample@test gives symmetric A(−)/B(+) x-separation (the delay decoder lets B fade to
-  ~0 by test → no x-split); choice@response gives strong match(AC,BD)→+y vs mismatch(AD,BC)→−y. Measured
-  corners: AC(−1.5,+3.1) BC(+0.8,−1.5) AD(−1.7,−1.5) BD(+0.5,+2.9) → C = AC top-left/BC bottom-right, D =
-  AD bottom-left/BD top-right (opposite diagonals). Read window = event + GCaMP MARGIN (`_win`, 3 bins=0.5 s).
+- **Go/NoGo → RESPONSE (lick) decoder** (`bins_CHOICE`), read over the **memory delay MD** (`WIN_MD`,
+  bins 33–41) — the lick code is barely driven early, so Go↑/NoGo↓ only reads on the response axis; the READ
+  window is MD (updated 2026-07-06; was the distractor window).
+- **Cue → CUE decoder**, read over the **GNG reward RWD** (`WIN_RWD`, bins 42–47) (updated 2026-07-06; was
+  the cue window). Contemporaneous cue axis; fits worse than response but is the requested axis.
+- **C/D → MIXED plane: sample@TEST × choice@RESPONSE**, read over **`WIN_CD` = bins 57–62** (t 9.5–10.5 s,
+  ±0.5 s straddling the test→choice boundary — where the diagonal forms; updated 2026-07-06, was test+margin,
+  which lifted C/D CV +0.28→+0.64). This is what makes the **diagonals**: sample@test gives symmetric
+  A(−)/B(+) x-separation (the delay decoder lets B fade to ~0 by test → no x-split); choice@response gives
+  strong match(AC,BD)→+y vs mismatch(AD,BC)→−y → C = AC top-left/BC bottom-right, D = AD bottom-left/BD
+  top-right (opposite diagonals). Read windows for A/B/autonomous = event + GCaMP MARGIN (`_win`, 3 bins=0.5 s).
 - **Correctness (default):** canonical overlaps mask `performance==1 & ((tasks=='DPA')|(odr_perf==1))` —
   DPA-correct AND GNG-correct on Dual trials (matches §4 and `exp_nolick_push_stats`). `codes` filters on
   this; an earlier `performance==1`-only version leaked GNG-error Dual trials into Cue / sample A/B.
@@ -395,12 +397,38 @@ test time). Per regime:
 c_r. **Per-group ridge** — each group CV-tunes its OWN (a,δ,λ); C/D need a low λ=0.2 for the bistable
 diagonal (a single global λ washes it out). Hyperparameters selected by **10×5-fold repeated CV** on
 held-out velocity R² (`RepeatedKFold`; per-fold regime means precomputed once so the 10× repeats are cheap).
-Autonomous restricted to bistable gains, then max-CV. Root-found fixed points (★ attractor / □ saddle / ✕ repeller).
+Autonomous restricted to bistable gains, then max-CV.
+
+**Flags `--mode {partial,shared,independent}` and `--input {inside,outside}` (2026-07-06).** `--mode` sets the
+per-group landscape pooling: partial = shared A_sh + ridge ΔA_r (default); shared = ONE A_sh per group;
+**independent = per-regime A_r (no pooling)** — the current preferred panel is `independent`+`inside`.
+`--input`: **inside** (default) = the rank-2 low-rank RNN form ż=−z+S(z)(A z+b_r), drive INSIDE the gain
+(Mastrogiuseppe & Ostojic 2018; Dubreuil et al. 2022); **outside** = the previous external-current form
+ż=−z+S(z)(A z)+c_r. inside≈outside on every group (correct form costs nothing). Output stems now
+`fig_overlaps_story_main_{mode}_{input}[_all]`.
+
+**Endpoint anchoring + markers (2026-07-06).** The fit pins v=0 at each regime's DRAWN trajectory end (last
+bin, weight `W_ANCHOR`) so a root-found fixed point sits exactly there → **trajectories terminate on the
+fixed points**. Fixed points are drawn as **white-filled circles** (edge: black=attractor, grey=saddle,
+red=repeller). Layout: no top caption; legend hugs the push row; **bold** panel titles (the `[XXX dec.]`
+suffix removed); **significance markers** on D & E (one-sided Wilcoxon, ★/ns — both read **ns** on the
+per-mouse test: push p1=0.064 trend, control p=0.67).
 
 **Result (Expert):** autonomous bistable on the lick baseline; A/B opposite sample wells; **Go↑, NoGo↓**,
 **Cue** split, **C/D opposite diagonals**. §4 push Δ=**−0.84** (correct)/**−0.98** (all), reproducing
-`exp_nolick_push_stats.py`. Per-group CV vel-R² (Expert): C/D **+0.75**, A/B(+auto) +0.15, Go/NoGo −0.03,
-Cue −1.0.
+`exp_nolick_push_stats.py`. Per-group CV vel-R² (Expert, `independent`+`inside`): C/D **+0.64**, auto/A/B
+−0.17, Go/NoGo −0.17, Cue −0.18 (partial mode: C/D +0.54, auto/A/B +0.13). The fields are DESCRIPTIVE
+(velocity noise floor); only C/D and the autonomous landscape are meaningfully CV-positive.
+
+**Trajectory-fit twin `fig_overlaps_story_traj.py`** — identical decoders/windows/markers/layout, but fits
+each flow so the INTEGRATED trajectory reproduces the observed path (position) via `least_squares`, scored
+by held-out **trajectory R²** (`τR²`). Same `--mode`/`--input`; kept fully in sync (2026-07-06). Expert
+held-out τR² (`independent`+`inside`): C/D +0.68, auto/A/B +0.50, Go/NoGo +0.18, Cue −0.10 (the RWD window
+tames the old Cue blow-up, −20→−0.1). Output `figures/overlaps/story_traj/…`.
+
+**Methods figures** (`figures/overlaps/methods/…`): `fig_flow_methods_schematic.py` — a clean 3-panel
+talk cartoon (recurrent double-well landscape → gain-modulated velocity arrows → field+attractors) with the
+ż=−z+S(z)(A z+b) equation; `fig_flow_methods_explainer.py` — the abstract low-rank-RNN derivation slide.
 
 **Robustness (`--stability B`, mouse subsampling).** Draw 7/9 mice B× (200), refit the §3 flows at the
 full-data hyperparameters, record which qualitative features survive. Expert/correct: **A/B split 100%,

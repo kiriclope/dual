@@ -14,17 +14,23 @@ of the dPCA `tasks` axis):
 
 HONEST SCOPE (settled in docs/overlaps/overview.md): fitted flow on the overlaps CCGD data is at the
 velocity noise floor (held-out vel-R²≈0, ≈ linear). The rank-2 fit is DESCRIPTIVE, not predictive. To get
-coherent, dPCA-like input fields we use the dPCA §3 construction — TWO-GROUP PARTIAL POOLING: one shared
-bistable landscape A per epoch group (delay {autonomous,A,B} / choice {Go,NoGo,Cue,C,D}), + a ridge-shrunk
-per-regime deviation ΔA_r, + a per-regime input current c_r, so each input rides the group's common
-landscape (a single global A can't hold both bistabilities). Model selection is restricted to gains whose
-shared autonomous flow stays bistable. Fixed points are root-found on the fitted field (★ attractor /
+coherent, dPCA-like input fields we use the dPCA §3 construction — PARTIAL POOLING BY DECODER GROUP: each
+group of regimes sharing a decoder epoch pools one shared landscape A. FOUR groups: {autonomous,A,B}@DELAY,
+{Go,NoGo}@RESP, {Cue}@CUE, {C,D}@TEST (the last on a mixed sample@TEST × choice@RESP plane). Each group adds
+a ridge-shrunk per-regime deviation ΔA_r + a per-regime input current c_r, so each input rides its group's
+common landscape (a single global A can't hold every bistability). Model selection is restricted to gains
+whose shared autonomous flow stays bistable. Fixed points are root-found on the fitted field (★ attractor /
 □ saddle / ✕ repeller), same as the dPCA figure. The figure says so.
 
 Usage:
   cd /home/leon/dual/overlaps
-  python fig_overlaps_story_main.py [--panels 8|4] [--all-trials] [--train delay|test|ld|wide]
-Saves figures/overlaps/story/{png,svg}/fig_overlaps_story_main[_all].{png,svg}.
+  python fig_overlaps_story_main.py [--panels 8|4] [--all-trials] [--input inside|outside]
+                                   [--mode partial|shared|independent] [--stability B]
+    --input inside (default): low-rank RNN, drive b_r INSIDE the gain S(z)(A z + b_r) (closed-form: the
+                              input column becomes S·b_r; the β_r variance term is omitted here).
+    --input outside         : previous form, external additive current S(z)(A z) + c_r.
+    --mode partial (default): per group, shared A_sh + ridge ΔA_r.  shared: one A_sh.  independent: per-regime A_r.
+Saves figures/overlaps/story/{png,svg}/fig_overlaps_story_main_<mode>_<input>[_all].{png,svg}.
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, argparse, warnings
@@ -47,11 +53,21 @@ ap.add_argument('--panels', type=int, default=8, choices=[8, 4])
 ap.add_argument('--all-trials', action='store_true', help='correct-only (default) -> all laser-off')
 ap.add_argument('--stability', type=int, default=0, metavar='B',
                 help='mouse-subsample stability of the §3 flows (B resamples of 7/9 mice); prints, no figure')
+ap.add_argument('--input', choices=['inside', 'outside'], default='inside',
+                help='per-regime drive: inside (default, low-rank RNN) = S(z)(A z + b_r), b_r inside the '
+                     'gain (closed-form: input column S·b_r; the β_r variance term is omitted here — the '
+                     'trajectory figure fits it); outside (previous) = S(z)(A z) + c_r, external current')
+ap.add_argument('--mode', choices=['partial', 'shared', 'independent'], default='partial',
+                help='per-group recurrent-landscape pooling: partial = shared A_sh + ridge ΔA_r (default); '
+                     'shared = ONE A_sh per group (ΔA_r≡0); independent = per-regime A_r (no shared, no ridge)')
 args = ap.parse_args()
 CORRECT = not args.all_trials
+INSIDE = args.input == 'inside'
+MODE = args.mode
 TAG = '' if CORRECT else '_all'
 MARGIN = 3                # calcium tail after event offset: 0.5 s @ 6 Hz (< MD, so no epoch bleed)
 VSTEP = 1                 # adjacent-bin velocity (dPCA exact port)
+W_ANCHOR = 20.0           # weight of the v=0 endpoint anchors (pin a fixed point where each trajectory settles)
 
 # ── data / constants ──────────────────────────────────────────────────────────
 DUM = 'log_generalizing_overlaps_none_l1_ratio_0.0'
@@ -85,11 +101,13 @@ def _win(bins):
 # read window per input = its EVENT epoch + calcium MARGIN (GCaMP Ca2+ tail, 0.5 s @ 6 Hz).
 WIN_STIM, WIN_DIST = _win(o['bins_STIM']), _win(o['bins_DIST'])
 WIN_CUE, WIN_TEST = _win(o['bins_CUE']), _win(o['bins_TEST'])
+WIN_MD, WIN_RWD = _win(o['bins_MD']), _win(o['bins_RWD'])   # Go/NoGo read over MD; Cue read over GNG reward
+WIN_CD = np.arange(57, 63)          # C/D read: ±0.5 s straddling test→choice (t 9.5–10.5), where the diagonal forms
 # DECODER (train epoch) per regime — independent of the READ window (REG below). A/B ride the DELAY
 # decoder WITH autonomous (their sample wells sit on the WM bistable landscape; the choice axis is
 # meaningless at stim, so a stim decoder gave A/B a garbage vertical position). C/D decoded at test;
-# Go/NoGo/Cue on the RESPONSE (lick) axis — the lick code is barely driven at the distractor/cue epochs,
-# so Go↑/NoGo↓/Cue-split only read on the response decoder — but READ over their own distractor/cue window.
+# Go/NoGo on the RESPONSE (lick) axis, Cue on the CUE decoder — the lick code is barely driven early, so
+# Go↑/NoGo↓ only read on the response decoder; READ windows: Go/NoGo over MD, Cue over the GNG reward (RWD).
 # Regimes sharing a decoder pool ONE landscape and each such group CV-tunes its OWN ridge λ.
 # each value = (sample_bins, choice_bins) for that regime's plane. C/D use a MIXED plane: sample @TEST
 # (A neg / B pos — symmetric x separation; the delay decoder lets B fade to ~0) × choice/lick @RESPONSE
@@ -132,11 +150,11 @@ def build_reg(yc):
     return [('autonomous', dpa, np.arange(21, 54), ('sample', (0, 1))),
             ('A input', samp == 0, np.arange(12, 30), ('sample', (0,))),   # stim→early delay: well forms
             ('B input', samp == 1, np.arange(12, 30), ('sample', (1,))),
-            ('Go input', go, WIN_DIST, ('sample', (0, 1))),
-            ('NoGo input', nogo, WIN_DIST, ('sample', (0, 1))),
-            ('Cue input', go | nogo, WIN_CUE, ('tasks', ('DualGo', 'DualNoGo'))),
-            ('C input', test == 0, WIN_TEST, ('sample', (0, 1))),
-            ('D input', test == 1, WIN_TEST, ('sample', (0, 1)))]
+            ('Go input', go, WIN_MD, ('sample', (0, 1))),        # read Go over the memory delay (MD)
+            ('NoGo input', nogo, WIN_MD, ('sample', (0, 1))),    # read NoGo over MD
+            ('Cue input', go | nogo, WIN_RWD, ('tasks', ('DualGo', 'DualNoGo'))),   # read Cue over GNG reward
+            ('C input', test == 0, WIN_CD, ('sample', (0, 1))),
+            ('D input', test == 1, WIN_CD, ('sample', (0, 1)))]
 PANELS4 = [0, 1, 5, 6]                                # autonomous, A, Cue, C
 
 
@@ -161,16 +179,24 @@ def zv_one(REG, means, r):
     return (np.concatenate(zs), np.concatenate(vs)) if zs else (np.empty((0, 2)), np.empty((0, 2)))
 
 
-def flow_indep(A, c, a, dd):
+def build_flow(A, inp, a, dd):
+    """--input inside (low-rank RNN): ż = -z + S(z)·(A z + b), drive b INSIDE the gain (β variance term
+    omitted in this closed-form fit).  --input outside: ż = -z + S(z)·(A z) + c, external current."""
     def fl(P):
         P = np.atleast_2d(P); D = a ** 2 * (P ** 2).sum(0) + dd; S = gd(D, np.zeros(P.shape[1])); AP = A @ P
-        return np.vstack([-P[0] + S * AP[0] + c[0], -P[1] + S * AP[1] + c[1]])
+        if INSIDE:
+            return np.vstack([-P[0] + S * (AP[0] + inp[0]), -P[1] + S * (AP[1] + inp[1])])
+        return np.vstack([-P[0] + S * AP[0] + inp[0], -P[1] + S * AP[1] + inp[1]])
     return fl
 
 
-# ── PARTIAL POOLING by decoder epoch (dPCA §3 method) ──────────────────────────
-# Regimes sharing a decoder (same plane) pool ONE landscape: shared A + ridge-penalised per-regime ΔA_r +
-# per-regime input current c_r. Groups: {autonomous}@DELAY, {A,B}@STIM, {Go,NoGo,Cue}@RESP, {C,D}@TEST.
+# ── POOLING by decoder epoch (dPCA §3 method) ──────────────────────────────────
+# Regimes sharing a decoder (same plane) form a group: {autonomous,A,B}@DELAY, {Go,NoGo}@RESP, {Cue}@CUE,
+# {C,D}@TEST.  --mode sets how the recurrent landscape is pooled within a group (fit_group):
+#   partial (default): shared A_sh + ridge-λ per-regime ΔA_r  (A_r = A_sh + ΔA_r).
+#   shared           : ONE A_sh per group (ΔA_r ≡ 0) — inputs differ only by their drive.
+#   independent      : per-regime A_r, no shared term, no ridge.
+# NOTE the CUE group is a SINGLE regime, so partial/shared/independent coincide there.
 def groups_of(REG):
     g = {}
     for r in range(len(REG)):
@@ -179,26 +205,46 @@ def groups_of(REG):
 
 
 def fit_group(REG, means, a, dd, lam, subset):
-    Z_, V_, R_ = [], [], []
+    Z_, V_, R_, W_ = [], [], [], []
     for loc, r in enumerate(subset):
         z, v = zv_one(REG, means, r)
         if len(z):
-            Z_.append(z); V_.append(v); R_.append(np.full(len(z), loc))
+            Z_.append(z); V_.append(v); R_.append(np.full(len(z), loc)); W_.append(np.ones(len(z)))
+        for _, mu in means[r]:                        # anchor v=0 at the DRAWN trajectory end (last bin) so
+            e = mu[:, REG[r][2]][:, -1]               #   the root-found fixed point sits exactly there
+            Z_.append(e[None]); V_.append(np.zeros((1, 2))); R_.append(np.full(1, loc)); W_.append(np.full(1, W_ANCHOR))
     if not Z_:
         return {}
-    z = np.concatenate(Z_); v = np.concatenate(V_); rid = np.concatenate(R_).astype(int); ng = len(subset)
+    z = np.concatenate(Z_); v = np.concatenate(V_); rid = np.concatenate(R_).astype(int)
+    w = np.concatenate(W_); ng = len(subset)
     D = a ** 2 * (z ** 2).sum(1) + dd; S = gd(D, np.zeros(len(z)))
     OH = np.eye(ng)[rid]; shF = np.column_stack([S * z[:, 0], S * z[:, 1]])
     devF = (OH[:, :, None] * shF[:, None, :]).reshape(len(z), ng * 2)                  # per-regime S·z
-    F = np.column_stack([shF, devF, OH]); Pn = F.shape[1]
-    reg = np.zeros((Pn, Pn)); reg[2:2 + 2 * ng, 2:2 + 2 * ng] = lam * np.eye(2 * ng)   # ridge ΔA only
-    FtF = F.T @ F + reg; A_sh = np.zeros((2, 2)); dA = np.zeros((ng, 2, 2)); C = np.zeros((ng, 2))
-    for d in (0, 1):
-        cd = np.linalg.solve(FtF, F.T @ (v[:, d] + z[:, d])); A_sh[d] = cd[0:2]
-        for loc in range(ng):
-            dA[loc, d] = cd[2 + 2 * loc:2 + 2 * loc + 2]
-        C[:, d] = cd[2 + 2 * ng:]
-    return {r: flow_indep(A_sh + dA[loc], C[loc], a, dd) for loc, r in enumerate(subset)}
+    inpF = (S[:, None] * OH) if INSIDE else OH        # input cols: S·b_r (inside gain) vs c_r (external)
+    Wt = np.sqrt(w)[:, None]                           # weighted LS — anchor rows carry weight W_ANCHOR
+    A = np.zeros((ng, 2, 2)); C = np.zeros((ng, 2))
+    if MODE == 'shared':                              # one A_sh per group + per-regime drive (no ΔA_r)
+        F = np.column_stack([shF, inpF]) * Wt
+        for d in (0, 1):
+            cd = np.linalg.lstsq(F, (v[:, d] + z[:, d]) * Wt[:, 0], rcond=None)[0]
+            A[:, d] = cd[0:2]; C[:, d] = cd[2:]       # same A_sh broadcast to every regime
+    elif MODE == 'independent':                       # per-regime A_r + drive, no shared term, no ridge
+        F = np.column_stack([devF, inpF]) * Wt
+        for d in (0, 1):
+            cd = np.linalg.lstsq(F, (v[:, d] + z[:, d]) * Wt[:, 0], rcond=None)[0]
+            for loc in range(ng):
+                A[loc, d] = cd[2 * loc:2 * loc + 2]
+            C[:, d] = cd[2 * ng:]
+    else:                                             # partial: shared A_sh + ridge-λ per-regime ΔA_r
+        Fu = np.column_stack([shF, devF, inpF]); F = Fu * Wt; Pn = Fu.shape[1]
+        reg = np.zeros((Pn, Pn)); reg[2:2 + 2 * ng, 2:2 + 2 * ng] = lam * np.eye(2 * ng)   # ridge ΔA only
+        FtF = F.T @ F + reg
+        for d in (0, 1):
+            cd = np.linalg.solve(FtF, F.T @ ((v[:, d] + z[:, d]) * Wt[:, 0]))
+            for loc in range(ng):
+                A[loc, d] = cd[0:2] + cd[2 + 2 * loc:2 + 2 * loc + 2]                        # A_sh + ΔA_r
+            C[:, d] = cd[2 + 2 * ng:]
+    return {r: build_flow(A[loc], C[loc], a, dd) for loc, r in enumerate(subset)}
 
 
 def fit_all(REG, means, a, dd, lam):
@@ -209,7 +255,7 @@ def fit_all(REG, means, a, dd, lam):
 
 
 GRID = [(a, dd, lam) for a in (0.2, 0.4, 0.7, 1.0) for dd in (0.3, 0.8, 2.0)
-        for lam in (0.2, 1.0, 5.0, 20.0, 100.0)]
+        for lam in ((0.2, 1.0, 5.0, 20.0, 100.0) if MODE == 'partial' else (0.0,))]   # ridge only in partial
 
 
 def fit_stage(stage, correct):
@@ -244,7 +290,7 @@ def fit_stage(stage, correct):
         fl = fit_group(REG, allm, *p, subset)
         return sum(k == 'attractor' for _, k, _ in flow_fixed_points(fl[0], [(-L, L), (-L, L)], n_seed=18)) >= 2
 
-    flows = {}; cvbest = []; best_by = {}
+    flows = {}; cvbest = []; best_by = {}; cv_groups = []
     for g in groups_of(REG):
         cvs = {p: cv_group(g, *p) for p in GRID}
         if 0 in g:                                    # autonomous group → restrict to bistable configs
@@ -252,11 +298,12 @@ def fit_stage(stage, correct):
             best = max(bist or GRID, key=lambda p: cvs[p]); tag = f'  ({len(bist)}/{len(GRID)} bist)'
         else:
             best = max(GRID, key=lambda p: cvs[p]); tag = ''
+        glabel = "/".join(REG[r][0].split()[0] for r in g)
         flows.update(fit_group(REG, allm, *best, g)); cvbest.append(cvs[best])
+        cv_groups.append((glabel, cvs[best]))         # per-group held-out CV (kept unaveraged for the caption)
         best_by[REG_EPOCH[REG[g[0]][0]]] = best       # per decoder-group hyperparams (for stability refits)
-        print(f'  {stage:6s} [{"/".join(REG[r][0].split()[0] for r in g):11s}] '
-              f'(a,δ,λ)={best}  vel-R²={cvs[best]:+.3f}{tag}')
-    return dict(REG=REG, allm=allm, flows=flows, cv=float(np.mean(cvbest)), L=L, best=best_by)
+        print(f'  {stage:6s} [{glabel:11s}] (a,δ,λ)={best}  vel-R²={cvs[best]:+.3f}{tag}')
+    return dict(REG=REG, allm=allm, flows=flows, cv=float(np.mean(cvbest)), cv_groups=cv_groups, L=L, best=best_by)
 
 
 def panel_lim(allm, idxs):
@@ -279,9 +326,9 @@ def draw_panel(ax, st, r, LIM, baseline=False):
         ax.plot(mu[0, w][0], mu[1, w][0], 'o', color=col, ms=5, mfc='w', zorder=6)       # start
         ax.plot(mu[0, w][-1], mu[1, w][-1], '*', color=col, ms=12, zorder=6)             # end
     for pt, kind, _ in flow_fixed_points(flows[r], [(-LIM, LIM), (-LIM, LIM)], n_seed=18):
-        mk = {'attractor': ('*', 'yellow', 13), 'saddle': ('s', 'w', 8),
-              'repeller': ('X', 'r', 9)}.get(kind, ('*', 'y', 10))
-        ax.plot(pt[0], pt[1], mk[0], mfc=mk[1], mec='k', ms=mk[2], zorder=7)
+        mec = {'attractor': 'k', 'saddle': '0.55', 'repeller': 'r'}.get(kind, 'k')     # edge = FP type
+        ms = 10 if kind == 'attractor' else 8
+        ax.plot(pt[0], pt[1], 'o', mfc='white', mec=mec, ms=ms, mew=1.3, zorder=8)     # white-filled circle
     ax.set_xlim(-LIM, LIM); ax.set_ylim(-LIM, LIM); ax.set_aspect('equal')
     ax.set_xticks([]); ax.set_yticks([])
 
@@ -350,11 +397,19 @@ def slopegraph(ax, nai, exp, color, ylabel, title, side='less'):
     ax.set_title(f'{title}\nΔ={d.mean():+.2f} [{lo:+.2f},{hi:+.2f}]\n'
                  f'p={p2:.3f} (1s {p1:.3f})  dz={cohen_dz(d):+.2f}  {n_dir}/{len(d)}', fontsize=7.5)
     ax.set_ylabel(ylabel, fontsize=8); ax.tick_params(labelsize=7)
+    mark = '***' if p1 < 1e-3 else '**' if p1 < 1e-2 else '*' if p1 < 5e-2 else 'ns'   # one-sided Wilcoxon
+    yt = np.concatenate([a, b]); ytop, ybot = float(np.nanmax(yt)), float(np.nanmin(yt))
+    pad = 0.07 * (ytop - ybot + 1e-9); ybar = ytop + 1.4 * pad
+    ax.plot([0, 0, 1, 1], [ybar - 0.5 * pad, ybar, ybar, ybar - 0.5 * pad], color='k', lw=1.0, clip_on=False)
+    ax.text(0.5, ybar, mark, ha='center', va='bottom', fontweight='bold',
+            fontsize=13 if mark != 'ns' else 9.5)
+    ax.set_ylim(ybot - pad, ybar + 3.4 * pad)
     return d
 
 
 # ── build ──────────────────────────────────────────────────────────────────────
-print(f'=== OVERLAPS story figure  (per-regime decoders, per-group ridge; Go/NoGo on response, Cue on cue; '
+print(f'=== OVERLAPS story figure  (per-regime decoders; mode={MODE}; Go/NoGo on response, Cue on cue; '
+      f'input={args.input} [{"low-rank: b_r inside gain" if INSIDE else "external current c_r"}]; '
       f'{"correct" if CORRECT else "all-laser-off"}, panels={args.panels}) ===')
 ST = {s: fit_stage(s, CORRECT) for s in STAGES}
 REG = ST['Expert']['REG']
@@ -423,7 +478,7 @@ axF = []
 for k, r in enumerate(idx3):
     ax = fig.add_subplot(gsF[k // nc3, k % nc3]); axF.append(ax)
     draw_panel(ax, ST['Expert'], r, LIM3, baseline=(r == 0))
-    ax.set_title(f'{REG[r][0]}   [{REG_EPOCH[REG[r][0]]} dec.]', fontsize=9.5)
+    ax.set_title(REG[r][0], fontsize=11, fontweight='bold')
     if k % nc3 == 0:
         ax.set_ylabel('choice code', fontsize=9)
     if k // nc3 == nr3 - 1:
@@ -436,7 +491,7 @@ axN1 = fig.add_subplot(gsL[2]); axN2 = fig.add_subplot(gsL[3])
 LIM4 = max(panel_lim(ST['Naive']['allm'], [0]), panel_lim(ST['Expert']['allm'], [0]))
 for ax, s in [(axNai, 'Naive'), (axExp, 'Expert')]:
     draw_panel(ax, ST[s], 0, LIM4, baseline=True)
-    ax.set_title(f'{s}: DPA autonomous flow', fontsize=10)
+    ax.set_title(f'{s}: DPA autonomous flow', fontsize=10, fontweight='bold')
     ax.set_xlabel('sample code', fontsize=9)
 axNai.set_ylabel('choice code', fontsize=9)
 slopegraph(axN1, pool_nai, pool_exp, '#444444',
@@ -448,9 +503,9 @@ slopegraph(axN2, sep_nai, sep_exp, '#888844', 'sample memory |B−A|',
 # panel letters + legend + caption
 for ax, L in [(axF[0], 'A'), (axNai, 'B'), (axExp, 'C'), (axN1, 'D'), (axN2, 'E')]:
     ax.text(-0.02, 1.06, L, transform=ax.transAxes, fontsize=15, fontweight='bold', va='bottom', ha='right')
-fp_leg = [Line2D([0], [0], ls='', marker='*', mfc='yellow', mec='k', ms=12, label='attractor'),
-          Line2D([0], [0], ls='', marker='s', mfc='w', mec='k', ms=8, label='saddle'),
-          Line2D([0], [0], ls='', marker='X', mfc='r', mec='k', ms=9, label='repeller'),
+fp_leg = [Line2D([0], [0], ls='', marker='o', mfc='white', mec='k', ms=8, mew=1.3, label='attractor'),
+          Line2D([0], [0], ls='', marker='o', mfc='white', mec='0.55', ms=7, mew=1.3, label='saddle'),
+          Line2D([0], [0], ls='', marker='o', mfc='white', mec='r', ms=7, mew=1.3, label='repeller'),
           Line2D([0], [0], color='c', ls='--', lw=1.1, label='lick baseline (choice=0)')]
 tr_leg = [Line2D([0], [0], color=COL[0], lw=2.3, label='sample A'),
           Line2D([0], [0], color=COL[1], lw=2.3, label='sample B'),
@@ -458,19 +513,7 @@ tr_leg = [Line2D([0], [0], color=COL[0], lw=2.3, label='sample A'),
           Line2D([0], [0], color=COL['DualNoGo'], lw=2.3, label='NoGo'),
           Line2D([0], [0], ls='', marker='o', mfc='w', mec='k', ms=6, label='traj. start'),
           Line2D([0], [0], ls='', marker='*', mfc='0.4', mec='k', ms=11, label='traj. end')]
-fig.legend(handles=fp_leg + tr_leg, loc='lower center', ncol=5, frameon=False, fontsize=9,
-           bbox_to_anchor=(0.5, -0.015))
-cvE, cvN = ST['Expert']['cv'], ST['Naive']['cv']
-fig.suptitle('OVERLAPS story — rank-2 gain-modulated flows on the sample×choice CCGD plane   '
-             f'[per-regime decoders, per-group ridge; Go/NoGo on response, Cue on cue; {"correct" if CORRECT else "all-laser-off"}]\n'
-             '§3 (row 1) computation, Expert: each input decoded on the axis that carries it (A/B on the delay '
-             'landscape, C/D test, Go/NoGo on the RESPONSE/lick axis, Cue on the cue decoder), read over its window; per-decoder '
-             'shared landscape + ridge ΔA_r + input c_r → autonomous bistable, Go↑, NoGo↓, C/D split the '
-             'diagonals.   §4 (row 2) learning: DPA delay well deepens Naive→Expert into the no-lick half.\n'
-             f'DESCRIPTIVE fit — per-group held-out CV vel-R² (mean) = {cvE:+.2f} (Expert) / {cvN:+.2f} (Naive); '
-             'fixed points root-found on the fitted field (★ attractor, □ saddle, ✕ repeller).',
-             fontsize=11, y=0.995)
-fig.tight_layout(rect=(0, 0.02, 1, 0.97))
+fig.tight_layout(rect=(0, 0.05, 1, 0.99))
 
 # ── flow-speed colorbars (qualitative slow→fast; each panel is per-panel normalised, like the dPCA fig) ──
 fig.canvas.draw()
@@ -486,9 +529,13 @@ _flow_cbar([_r + 0.007, _b, 0.007, _t - _b])                                 # �
 _pe = axExp.get_position()
 _flow_cbar([_pe.x1 + 0.008, _pe.y0, 0.007, _pe.height], label='')            # §4 (right of Expert flow)
 
+_r2b = min(a.get_position().y0 for a in [axNai, axExp, axN1, axN2])          # bottom of the push row
+fig.legend(handles=fp_leg + tr_leg, loc='upper center', ncol=5, frameon=False, fontsize=9,
+           bbox_to_anchor=(0.5, _r2b - 0.045))                              # legend hugs the last row
+
 OUT = 'figures/overlaps/story'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
-stem = f'fig_overlaps_story_main{TAG}' + ('' if args.panels == 8 else '_p4')
+stem = f'fig_overlaps_story_main_{MODE}_{args.input}{TAG}' + ('' if args.panels == 8 else '_p4')
 fig.savefig(f'{OUT}/png/{stem}.png', dpi=300, bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{stem}.svg', bbox_inches='tight')
 print(f'\n§4 push (choice, delay, {"correct" if CORRECT else "all"}):  '
