@@ -49,11 +49,14 @@ batch = between-group (every-trial silencing, different animals).
 
 Output: figures/overlaps/behavior/{png,svg}/behavior_opto_main[_poster].{png,svg}
 
---poster : simplified poster variant — replaces the D/E recorded LEARNING CURVES (perf vs
-session) with two perf laser-ON-vs-OFF SCATTERS (DPA & GNG, sample A/B × Naive/Expert, Jaws
-5 mice → 20 pts, unity line = spared). Honest stat = per-mouse mean Δ(on−off), paired t over
-the 5 mice (NOT the 20 pts — those are pseudoreplicated): DPA Δ=−0.015 p=0.43, GNG Δ=+0.023
-p=0.14, both n.s. → spared. Writes the _poster file; default (curves) untouched.
+--poster : simplified 3-row poster variant (10 panels: A B C / D E G / H I K L). Changes vs the
+full figure: (1) D/E become perf laser-ON-vs-OFF SCATTERS (DPA & GNG, sample A/B × Naive/Expert,
+Jaws 5 mice → 20 pts, unity = spared) instead of learning curves; honest stat = per-mouse mean
+Δ(on−off), paired t over the 5 mice (NOT the 20 pts — pseudoreplicated): DPA Δ=−0.015 p=0.43,
+GNG Δ=+0.023 p=0.14 → both spared. (2) F (per-mouse depth) & J (DPA–GNG balance) dropped; G
+(trade-off) moves up next to D,E. Row banners dropped; x-labels shortened for the narrow cells.
+Letters keep their full-figure identity → A,B,C,D,E,G,H,I,K,L (F,J gaps). Writes the _poster
+file; default (full 12-panel figure with curves) untouched.
 
 Run:  cd /home/leon/dual/overlaps
       /home/leon/mambaforge/envs/dual/bin/python fig_behavior_opto_main.py [--poster]
@@ -430,10 +433,24 @@ def regression_band(ax, xs, ys, color='0.25'):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(13, 14.8))
-# 4 equal-height rows. Top row = scheme A (left) + batch B (DPA) + E (LMM forest), square.
-gs = fig.add_gridspec(4, 12, height_ratios=[1, 1, 1, 1], hspace=0.52, wspace=0.6,
-                      left=0.055, right=0.985, top=0.975, bottom=0.05)
+if POSTER:
+    # poster = 3 rows, 10 panels (F depth & J balance dropped, G trade-off moved up):
+    #   A B C  /  D E G  /  H I K L
+    fig = plt.figure(figsize=(13, 10.6))
+    gs = fig.add_gridspec(3, 12, height_ratios=[1, 1, 1], hspace=0.5, wspace=0.6,
+                          left=0.055, right=0.985, top=0.965, bottom=0.06)
+    POS = {'A': gs[0, 0:6], 'B': gs[0, 6:9], 'C': gs[0, 9:12],
+           'D': gs[1, 0:4], 'E': gs[1, 4:8], 'G': gs[1, 8:12],
+           'H': gs[2, 0:3], 'I': gs[2, 3:6], 'K': gs[2, 6:9], 'L': gs[2, 9:12]}
+else:
+    fig = plt.figure(figsize=(13, 14.8))
+    # 4 equal-height rows. Top row = scheme A (left) + batch B (DPA) + E (LMM forest), square.
+    gs = fig.add_gridspec(4, 12, height_ratios=[1, 1, 1, 1], hspace=0.52, wspace=0.6,
+                          left=0.055, right=0.985, top=0.975, bottom=0.05)
+    POS = {'A': gs[0, 0:6], 'B': gs[0, 6:9], 'C': gs[0, 9:12],
+           'D': gs[1, 0:4], 'E': gs[1, 4:8], 'F': gs[1, 8:12],
+           'G': gs[2, 0:4], 'H': gs[2, 4:8], 'I': gs[2, 8:12],
+           'J': gs[3, 0:4], 'K': gs[3, 4:8], 'L': gs[3, 8:12]}
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
@@ -450,12 +467,12 @@ def show_scheme(ax, path, aspect='equal'):
 
 # ── A: opto scheme banner ─────────────────────────────────────────────────────
 SCHEME = '../opto.png'                        # recorded-cohort design (self-labelled a/b)
-axA = fig.add_subplot(gs[0, 0:6])            # scheme, first row left (with B & E)
+axA = fig.add_subplot(POS['A'])              # scheme (panel A)
 show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
 
 # ── D, E: recorded laser OFF vs ON — learning curves, OR (--poster) perf ON-vs-OFF scatters ──
-axB = fig.add_subplot(gs[1, 0:4])
-axC = fig.add_subplot(gs[1, 4:8])
+axB = fig.add_subplot(POS['D'])              # D = DPA perf / curve
+axC = fig.add_subplot(POS['E'])              # E = GNG perf / curve
 if POSTER:
     # poster simplification: perf laser-ON (y) vs laser-OFF (x), sample A/B × Naive/Expert,
     # Jaws (5 mice → 20 points). On the unity line = laser spared. Replaces D/E curves.
@@ -536,29 +553,30 @@ else:
 #   Absolute A&B-pooled DPA choice-code depth per mouse under laser OFF vs ON — shows
 #   the laser reliably moves each animal's code (the shift that is the scatters' x-axis).
 #   (Sits in the recorded within-mouse row; replaced the old LMM laser forest.)
-axK = fig.add_subplot(gs[1, 8:12])
-_offon = {m: (_pooled_depth((y.mouse == m).values, 0),
-              _pooled_depth((y.mouse == m).values, 1)) for m in JAWS}
-_offs = np.array([_offon[m][0] for m in JAWS]); _ons = np.array([_offon[m][1] for m in JAWS])
-for m in JAWS:
-    axK.plot([0, 1], _offon[m], '-o', color=MOUSE_COLOR[m], lw=1.3, ms=6,
-             mec='w', mew=0.6, label=m, zorder=3)
-for xx, vv in [(-0.22, _offs), (1.22, _ons)]:                # group mean ± SEM
-    mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(np.isfinite(vv).sum())
-    axK.errorbar(xx, mn, yerr=se, fmt='s', color='k', ms=7, capsize=4, lw=1.5, zorder=5)
-axK.axhline(0, ls=':', color='0.5', lw=1)
-axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
-axK.set_xlim(-0.5, 1.5)
-axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD_TEST)')
-axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', fontsize=TITLE_FS)
-axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
-           ncol=1, handletextpad=0.3)
+if not POSTER:
+    axK = fig.add_subplot(POS['F'])
+    _offon = {m: (_pooled_depth((y.mouse == m).values, 0),
+                  _pooled_depth((y.mouse == m).values, 1)) for m in JAWS}
+    _offs = np.array([_offon[m][0] for m in JAWS]); _ons = np.array([_offon[m][1] for m in JAWS])
+    for m in JAWS:
+        axK.plot([0, 1], _offon[m], '-o', color=MOUSE_COLOR[m], lw=1.3, ms=6,
+                 mec='w', mew=0.6, label=m, zorder=3)
+    for xx, vv in [(-0.22, _offs), (1.22, _ons)]:                # group mean ± SEM
+        mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(np.isfinite(vv).sum())
+        axK.errorbar(xx, mn, yerr=se, fmt='s', color='k', ms=7, capsize=4, lw=1.5, zorder=5)
+    axK.axhline(0, ls=':', color='0.5', lw=1)
+    axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
+    axK.set_xlim(-0.5, 1.5)
+    axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD_TEST)')
+    axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', fontsize=TITLE_FS)
+    axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
+               ncol=1, handletextpad=0.3)
 
 # ── H, I: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
 #   Jaws only, A&B taken as INDEPENDENT points (each mouse → odor-A solid + odor-B open,
 #   joined by a thin line); stats over all 10 points.
-axE = fig.add_subplot(gs[2, 4:8])
-axF = fig.add_subplot(gs[2, 8:12])
+axE = fig.add_subplot(POS['H'])              # H = Δdepth↔ΔDPA
+axF = fig.add_subplot(POS['I'])              # I = Δdepth↔ΔGNG
 ally = np.array([r[k] for k in ('d_dpa', 'd_gng') for r in rows_ab], float)
 ally = ally[~np.isnan(ally)]
 pad = (ally.max() - ally.min()) * 0.15 or 0.05
@@ -586,7 +604,8 @@ for ax, key, ylab, msg in [
             transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
             va='top', fontsize=20, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
-    ax.set_xlabel('Δ DPA choice-code depth (on−off, trainLD_TEST)'); ax.set_ylabel(ylab)
+    ax.set_xlabel('Δ choice-code depth (on−off)' if POSTER          # short: narrow poster cells
+                  else 'Δ DPA choice-code depth (on−off, trainLD_TEST)'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
     ax.set_box_aspect(1)                                  # square panels
 _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
@@ -596,7 +615,7 @@ _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=
 axE.legend(handles=_leg_h, frameon=False, fontsize=6.5, loc='upper left', handletextpad=0.3, ncol=2, columnspacing=0.8)
 
 # ── B: batch ACC-Prl control vs opto DPA learning curve — first row ───────────
-axG = fig.add_subplot(gs[0, 6:9])
+axG = fig.add_subplot(POS['B'])              # B = batch DPA curve
 for ax, (short, col, mask_fn), msg in [
         (axG, BATCH_METRICS[0], 'Chronic silencing impairs DPA')]:
     p1, p2 = batch_pmd(b_ctrl, col, mask_fn), batch_pmd(b_opto, col, mask_fn)
@@ -633,7 +652,7 @@ for ax, (short, col, mask_fn), msg in [
 axG.set_ylabel('performance')
 
 # ── C: batch LMM group-effect forest (opto−control β ○ + group×day slope □) ────
-axJ = fig.add_subplot(gs[0, 9:12])
+axJ = fig.add_subplot(POS['C'])              # C = batch LMM forest
 for i, (short, col, mask_fn) in enumerate(BATCH_METRICS):
     gb, glo, ghi, gp, ib, ilo, ihi, ip = batch_lmm(col, mask_fn)
     for dx, val, vlo, vhi, pv, mk, fill in [(-0.14, gb, glo, ghi, gp, 'o', True),
@@ -663,7 +682,7 @@ for _a in (axG, axJ):                            # square B & E panels
 #   Trade-off hypothesis (depth↑ → DPA↑ AND GNG↓) makes one joint prediction: depth
 #   positively predicts (ΔDPA − ΔGNG). On the pre-committed trainLD_TEST axis this pools
 #   both arms (J/K, same row) and is significant with no window search: r=+0.48 p=0.034.
-axL = fig.add_subplot(gs[2, 0:4])
+axL = fig.add_subplot(POS['G'])              # G = trade-off contrast
 _xdep = np.array([r['d_depth'] for r in rows_ab])
 _ytr = np.array([r['d_dpa'] - r['d_gng'] for r in rows_ab])          # trade-off contrast
 for mouse in JAWS:
@@ -682,14 +701,14 @@ axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={
          transform=axL.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',
          va='top', fontsize=20, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
-axL.set_xlabel('Δ choice-code depth (on−off, trainLD_TEST)')
+axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else 'Δ choice-code depth (on−off, trainLD_TEST)')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontweight='bold', fontsize=TITLE_FS)
 axL.set_box_aspect(1)
 
 # ── K, L: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
-axM = fig.add_subplot(gs[3, 4:8])
-axN = fig.add_subplot(gs[3, 8:12])
+axM = fig.add_subplot(POS['K'])              # K = d' sample
+axN = fig.add_subplot(POS['L'])              # L = d' GNG
 
 
 def _dprime_scatter(ax, dfw, lmm, title):
@@ -715,46 +734,50 @@ axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='
 # ── J: DPA vs GNG performance in laser-ON trials (Naive ○ + Expert ●, 10 pts) ──
 #   Balance plane of the non-opto main figure, restricted to laser-ON trials: per mouse ×
 #   stage, where does the ON-trial behaviour sit relative to the DPA=GNG diagonal / optimum?
-axBal = fig.add_subplot(gs[3, 0:4])
-_dON = y[(y.target == 'choice') & y.mouse.isin(JAWS) & (y.laser == 1)]
+if not POSTER:
+    axBal = fig.add_subplot(POS['J'])
+    _dON = y[(y.target == 'choice') & y.mouse.isin(JAWS) & (y.laser == 1)]
 
 
-def _pf_on(mo, st, is_dpa):
-    s = _dON[(_dON.mouse == mo) & (_dON.stage == st)]
-    v = s[s.tasks == 'DPA']['performance'] if is_dpa else s[s.tasks != 'DPA']['odr_perf']
-    v = v.dropna()
-    return v.mean() if len(v) else np.nan
+    def _pf_on(mo, st, is_dpa):
+        s = _dON[(_dON.mouse == mo) & (_dON.stage == st)]
+        v = s[s.tasks == 'DPA']['performance'] if is_dpa else s[s.tasks != 'DPA']['odr_perf']
+        v = v.dropna()
+        return v.mean() if len(v) else np.nan
 
 
-_bpts = [(m, st, _pf_on(m, st, True), _pf_on(m, st, False)) for st in ('Naive', 'Expert') for m in JAWS]
-_bx = np.array([p[2] for p in _bpts]); _by = np.array([p[3] for p in _bpts])
-_bok = np.isfinite(_bx) & np.isfinite(_by)
-_blim = (max(0.3, np.concatenate([_bx[_bok], _by[_bok]]).min() - 0.05), 1.0)
-axBal.plot(_blim, _blim, ls='--', color='0.7', lw=0.9, zorder=1)
-axBal.scatter(0.99, 0.99, marker='*', s=200, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
-axBal.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=8, color='#7a5600', transform=axBal.transAxes)
-for m in JAWS:                                            # join each mouse's Naive→Expert
-    xs = [p[2] for p in _bpts if p[0] == m]; ys = [p[3] for p in _bpts if p[0] == m]
-    axBal.plot(xs, ys, '-', color=MOUSE_COLOR[m], lw=0.6, alpha=0.35, zorder=3)
-for m, st, xd, yd in _bpts:
-    fc = MOUSE_COLOR[m] if st == 'Expert' else 'w'       # Expert filled / Naive open
-    axBal.scatter(xd, yd, marker='o', s=90, facecolors=fc, edgecolors=MOUSE_COLOR[m], lw=1.2, zorder=5)
-_brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
-axBal.text(0.5, 0.02, f'ON, n={_bok.sum()}: r={_brp:+.2f} p={_bpp:.3f}  ρ={_brs:+.2f} p={_bps:.3f}',
-           transform=axBal.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
-axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
-axBal.set_xlabel('DPA performance (laser ON)'); axBal.set_ylabel('GNG performance (laser ON)')
-axBal.set_title('DPA–GNG balance, laser ON', loc='left', fontweight='bold', fontsize=TITLE_FS)
-axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
-                      mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
-             frameon=False, fontsize=7, loc='lower left', handletextpad=0.3)
+    _bpts = [(m, st, _pf_on(m, st, True), _pf_on(m, st, False)) for st in ('Naive', 'Expert') for m in JAWS]
+    _bx = np.array([p[2] for p in _bpts]); _by = np.array([p[3] for p in _bpts])
+    _bok = np.isfinite(_bx) & np.isfinite(_by)
+    _blim = (max(0.3, np.concatenate([_bx[_bok], _by[_bok]]).min() - 0.05), 1.0)
+    axBal.plot(_blim, _blim, ls='--', color='0.7', lw=0.9, zorder=1)
+    axBal.scatter(0.99, 0.99, marker='*', s=200, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
+    axBal.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=8, color='#7a5600', transform=axBal.transAxes)
+    for m in JAWS:                                            # join each mouse's Naive→Expert
+        xs = [p[2] for p in _bpts if p[0] == m]; ys = [p[3] for p in _bpts if p[0] == m]
+        axBal.plot(xs, ys, '-', color=MOUSE_COLOR[m], lw=0.6, alpha=0.35, zorder=3)
+    for m, st, xd, yd in _bpts:
+        fc = MOUSE_COLOR[m] if st == 'Expert' else 'w'       # Expert filled / Naive open
+        axBal.scatter(xd, yd, marker='o', s=90, facecolors=fc, edgecolors=MOUSE_COLOR[m], lw=1.2, zorder=5)
+    _brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
+    axBal.text(0.5, 0.02, f'ON, n={_bok.sum()}: r={_brp:+.2f} p={_bpp:.3f}  ρ={_brs:+.2f} p={_bps:.3f}',
+               transform=axBal.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
+    axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
+    axBal.set_xlabel('DPA performance (laser ON)'); axBal.set_ylabel('GNG performance (laser ON)')
+    axBal.set_title('DPA–GNG balance, laser ON', loc='left', fontweight='bold', fontsize=TITLE_FS)
+    axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
+                          mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
+                 frameon=False, fontsize=7, loc='lower left', handletextpad=0.3)
 
 
 # ── panel letters + row banners ───────────────────────────────────────────────
-# reading order: A scheme · B,C batch · D,E,F recorded(+depth) · G,H,I overlaps · J,K,L last row
-for _ax, _L in [(axA, 'A'), (axG, 'B'), (axJ, 'C'),
-                (axB, 'D'), (axC, 'E'), (axK, 'F'), (axL, 'G'), (axE, 'H'), (axF, 'I'),
-                (axBal, 'J'), (axM, 'K'), (axN, 'L')]:
+# reading order: A scheme · B,C batch · D,E(,F) recorded · G,H,I overlaps · (J,)K,L
+# poster drops F (depth) & J (balance) → letters A,B,C,D,E,G,H,I,K,L
+_letters = [(axA, 'A'), (axG, 'B'), (axJ, 'C'), (axB, 'D'), (axC, 'E'),
+            (axL, 'G'), (axE, 'H'), (axF, 'I'), (axM, 'K'), (axN, 'L')]
+if not POSTER:
+    _letters += [(axK, 'F'), (axBal, 'J')]
+for _ax, _L in _letters:
     panel_letter(_ax, _L)
 
 
@@ -764,9 +787,10 @@ def row_banner(ax_left, text, dy=0.014):
              va='bottom', ha='left', color='0.35')
 
 
-row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
-row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-off (G) with its two arms — ΔDPA (H) & ΔGNG (I); 5 Jaws · Naive▲+Expert● × A&B')
-row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
+if not POSTER:                                     # banners describe the full-figure rows; poster is rearranged
+    row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
+    row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-off (G) with its two arms — ΔDPA (H) & ΔGNG (I); 5 Jaws · Naive▲+Expert● × A&B')
+    row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main{"_poster" if POSTER else ""}.{ext}'
