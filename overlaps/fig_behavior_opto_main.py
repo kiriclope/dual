@@ -22,20 +22,15 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
      ρ=−0.56 p=.011 — a between-animal coupling; per-mouse-mean r=−0.80, robust across slicings)
   Depth read on the trainLD_TEST axis (bins 45-59, main-overlaps-fig convention); readout window
   27-53 (delay, pre-response); J/K square, all trials.
-  ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
-  L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
-     the code→behaviour READOUT survives silencing (DPA OR≈1.4 both; GNG ns).
+  L  TRADE-OFF contrast (headline): Δdepth vs (ΔDPA − ΔGNG) — depth↑ predicts DPA↑ AND GNG↓
+     jointly. 20 pts, Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75 p=0.013) — significant on the
+     pre-committed trainLD_TEST axis, no window search. J/K are its two arms (K `*`, J n.s. trend).
+  ── Mechanism (recorded, Expert, 5 Jaws) — code discriminability is spared by the laser ──
   M  d′ laser ON vs OFF scatter, DPA memory code: sample-axis d′(A vs B) at late delay
      (bins_LD 45-53). 5 Jaws × {Naive○, Expert●} = 10 pts; on unity = spared.
      LMM d′~laser+stage+(1|mouse): laser p=0.34 (ns).
   N  d′ ON vs OFF scatter, GNG code: choice-axis d′(Go vs NoGo) at mid-delay
      (bins_MD 33-38, the Go/NoGo cue). 10 pts; LMM laser p=0.74 (ns) — spared.
-  ── Trade-off (the headline coupling framing) ──
-  O  Δdepth vs the trade-off contrast (ΔDPA − ΔGNG): depth↑ predicts DPA↑ AND GNG↓ jointly.
-     20 pts, Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75 p=0.013) — significant on the
-     pre-committed trainLD_TEST axis, no window search. J/K are its two arms (K `*`, J n.s. trend).
-  P  DPA vs GNG performance in the same plane as the non-opto main-fig balance panel, Jaws Expert,
-     showing each mouse's laser OFF (○) → ON (●) shift — the trade-off, behaviourally.
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
 (B–E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
@@ -481,10 +476,10 @@ for _tk in ('DPA', 'GNG'):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(13, 22.6))
-outer = fig.add_gridspec(2, 1, height_ratios=[2.1, 5.75], hspace=0.05,
-                         left=0.055, right=0.985, top=0.99, bottom=0.03)
-gs_body = outer[1].subgridspec(5, 12, height_ratios=[1.0, 1.0, 1.22, 1.0, 1.15], hspace=0.42, wspace=0.62)
+fig = plt.figure(figsize=(13, 19.0))
+outer = fig.add_gridspec(2, 1, height_ratios=[2.1, 4.6], hspace=0.05,
+                         left=0.055, right=0.985, top=0.99, bottom=0.035)
+gs_body = outer[1].subgridspec(4, 12, height_ratios=[1.0, 1.0, 1.22, 1.0], hspace=0.42, wspace=0.62)
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
@@ -697,33 +692,33 @@ axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=7.5, loc='best')
 
-# ── L: trial-level GEE — choice-code depth → accuracy, OFF vs ON — ROW 4 ───────
+# ── L: depth → DPA/GNG TRADE-OFF contrast (headline coupling stat) — ROW 4 ─────
+#   Trade-off hypothesis (depth↑ → DPA↑ AND GNG↓) makes one joint prediction: depth
+#   positively predicts (ΔDPA − ΔGNG). On the pre-committed trainLD_TEST axis this pools
+#   both arms (J/K) and is significant with no window search: r=+0.48 p=0.034.
 axL = fig.add_subplot(gs_body[3, 0:4])
-_LG = {'DPA': (0.0, 1.0), 'GNG': (2.3, 3.3)}
-_lhi, _llo = [], []
-for tk, (x0, x1) in _LG.items():
-    for xx, las, col in [(x0, 0, OFF_C), (x1, 1, ON_C)]:
-        orr, lo, hi, pv, n = MM[tk][las]
-        if not np.isfinite(orr):
-            continue
-        sig = np.isfinite(pv) and pv < 0.05
-        axL.errorbar(xx, orr, yerr=[[orr - lo], [hi - orr]], fmt='o', color=col,
-                     mfc=col if sig else 'white', ms=10, capsize=4, lw=1.8, mec='k', mew=0.6, zorder=4)
-        axL.text(xx, hi, star(pv) if star(pv) else 'n.s.', ha='center', va='bottom',
-                 fontsize=9, fontweight='bold', color='k' if sig else '0.55')
-        _lhi.append(hi); _llo.append(lo)
-axL.axhline(1, ls='--', color='0.4', lw=1)
-axL.set_xticks([0, 1, 2.3, 3.3]); axL.set_xticklabels(['OFF', 'ON', 'OFF', 'ON'])
-axL.set_xlim(-0.5, 3.8)
-axL.set_ylim(min(_llo + [0.9]) - 0.08, max(_lhi + [1.1]) * 1.14)
-for xc, tk in [(0.5, 'DPA'), (2.8, 'GNG')]:
-    axL.text(xc, -0.15, tk, transform=axL.get_xaxis_transform(), ha='center', va='top',
-             fontsize=8.5, fontweight='bold', color='0.3')
-axL.set_ylabel('depth → accuracy\n(OR per SD, GEE)')
-axL.set_title('Code→behaviour readout vs silencing', loc='left', fontweight='bold', fontsize=TITLE_FS)
-axL.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', ms=8, mec='k', label='laser OFF'),
-                    mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
-           frameon=False, fontsize=7, loc='best')
+_xdep = np.array([r['d_depth'] for r in rows_ab])
+_ytr = np.array([r['d_dpa'] - r['d_gng'] for r in rows_ab])          # trade-off contrast
+for mouse in JAWS:
+    for stg in ('Naive', 'Expert'):
+        idx = [i for i, r in enumerate(rows_ab) if r['mouse'] == mouse and r['stage'] == stg]
+        axL.plot(_xdep[idx], _ytr[idx], '-', color=MOUSE_COLOR[mouse], lw=0.6, alpha=0.35, zorder=3)
+for i, r in enumerate(rows_ab):
+    face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'         # A solid / B open
+    axL.scatter(_xdep[i], _ytr[i], facecolors=face, edgecolors=MOUSE_COLOR[r['mouse']],
+                marker=_STMK[r['stage']], s=70, linewidths=1.0, zorder=5)
+regression_band(axL, _xdep, _ytr, color='0.25')
+axL.axhline(0, ls=':', color='k', lw=0.8); axL.axvline(0, ls=':', color='k', lw=0.8)
+_ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
+_rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
+axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
+         transform=axL.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
+axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',
+         va='top', fontsize=20, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
+axL.set_xlabel('Δ choice-code depth (on−off, trainLD_TEST)')
+axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
+axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axL.set_box_aspect(1)
 
 # ── M, N: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
 axM = fig.add_subplot(gs_body[3, 4:8])
@@ -750,80 +745,12 @@ axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='
                     mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
            frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
-# ── O: depth → DPA/GNG TRADE-OFF contrast (the headline coupling stat) ─────────
-#   The trade-off hypothesis (depth↑ → DPA↑ AND GNG↓) makes a single joint prediction:
-#   depth positively predicts (ΔDPA − ΔGNG). Tested directly on the pre-committed axis,
-#   this pools both consistent arms and is significant without any window search.
-axO = fig.add_subplot(gs_body[4, 0:6])
-_xdep = np.array([r['d_depth'] for r in rows_ab])
-_ytr = np.array([r['d_dpa'] - r['d_gng'] for r in rows_ab])          # trade-off contrast
-for mouse in JAWS:
-    for stg in ('Naive', 'Expert'):
-        idx = [i for i, r in enumerate(rows_ab) if r['mouse'] == mouse and r['stage'] == stg]
-        axO.plot(_xdep[idx], _ytr[idx], '-', color=MOUSE_COLOR[mouse], lw=0.6, alpha=0.35, zorder=3)
-for i, r in enumerate(rows_ab):
-    face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'         # A solid / B open
-    axO.scatter(_xdep[i], _ytr[i], facecolors=face, edgecolors=MOUSE_COLOR[r['mouse']],
-                marker=_STMK[r['stage']], s=80, linewidths=1.1, zorder=5)
-regression_band(axO, _xdep, _ytr, color='0.25')
-axO.axhline(0, ls=':', color='k', lw=0.8); axO.axvline(0, ls=':', color='k', lw=0.8)
-_ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
-_rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
-axO.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
-         transform=axO.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
-axO.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axO.transAxes, ha='center',
-         va='top', fontsize=20, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
-axO.set_xlabel('Δ DPA choice-code depth (on−off, trainLD_TEST)')
-axO.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
-axO.set_title('Depth drives a DPA↑ / GNG↓ trade-off', loc='left', fontweight='bold', fontsize=TITLE_FS)
-axO.set_box_aspect(1)
-
-# ── P: DPA vs GNG performance under laser (○ OFF → ● ON), Jaws Expert ──────────
-#   Same plane as the non-opto main figure's balance panel, but showing the laser shift:
-#   each mouse's OFF→ON move in the DPA–GNG plane visualises the trade-off behaviourally.
-axP = fig.add_subplot(gs_body[4, 6:12])
-_dP = y[(y.target == 'choice') & (y.stage == 'Expert') & y.mouse.isin(JAWS)]
-
-
-def _pf(mo, is_dpa, la):
-    if is_dpa:
-        v = _dP[(_dP.mouse == mo) & (_dP.tasks == 'DPA') & (_dP.laser == la)]['performance']
-    else:
-        v = _dP[(_dP.mouse == mo) & (_dP.tasks != 'DPA') & (_dP.laser == la)]['odr_perf']
-    v = v.dropna()
-    return v.mean() if len(v) else np.nan
-
-
-_allv = np.array([_pf(m, d, la) for m in JAWS for d in (True, False) for la in (0, 1)])
-_allv = _allv[np.isfinite(_allv)]
-_lim = (max(0.4, _allv.min() - 0.05), 1.0)
-axP.plot(_lim, _lim, ls='--', color='0.7', lw=0.9, zorder=1)
-axP.scatter(0.99, 0.99, marker='*', s=220, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
-axP.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=8, color='#7a5600', transform=axP.transAxes)
-for m in JAWS:
-    xoff, yoff = _pf(m, True, 0), _pf(m, False, 0)
-    xon, yon = _pf(m, True, 1), _pf(m, False, 1)
-    axP.annotate('', xy=(xon, yon), xytext=(xoff, yoff),
-                 arrowprops=dict(arrowstyle='->', color=MOUSE_COLOR[m], lw=1.2, alpha=0.65), zorder=4)
-    axP.scatter(xoff, yoff, marker='o', s=60, facecolors='w', edgecolors=MOUSE_COLOR[m], lw=1.3, zorder=5)
-    axP.scatter(xon, yon, marker='o', s=95, color=MOUSE_COLOR[m], edgecolors='w', lw=0.6, zorder=5)
-_xon = np.array([_pf(m, True, 1) for m in JAWS]); _yon = np.array([_pf(m, False, 1) for m in JAWS])
-_okP = np.isfinite(_xon) & np.isfinite(_yon)
-_rpP, _ppP = pearsonr(_xon[_okP], _yon[_okP])
-axP.text(0.96, 0.04, f'laser ON: r={_rpP:+.2f} p={_ppP:.2f} (n={_okP.sum()})',
-         transform=axP.transAxes, ha='right', va='bottom', fontsize=7.5, color='0.3')
-axP.set_xlim(_lim); axP.set_ylim(_lim); axP.set_aspect('equal')
-axP.set_xlabel('DPA performance'); axP.set_ylabel('GNG performance')
-axP.set_title('DPA–GNG balance under silencing (○ OFF → ● ON)', loc='left', fontweight='bold', fontsize=TITLE_FS)
-axP.legend(handles=[mlines.Line2D([0], [0], marker='o', color='0.4', mfc='w', ls='none', ms=7, label='laser OFF'),
-                    mlines.Line2D([0], [0], marker='o', color='0.4', mfc='0.4', ls='none', ms=7, label='laser ON')],
-           frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
 # ── panel letters + row banners ───────────────────────────────────────────────
 # reading order: A scheme · B–E batch · F–H recorded · I–K overlaps · L–N mechanism
 for _ax, _L in [(axA, 'A'), (axG, 'B'), (axH, 'C'), (axI, 'D'), (axJ, 'E'),
                 (axB, 'F'), (axC, 'G'), (axD, 'H'), (axK, 'I'), (axE, 'J'), (axF, 'K'),
-                (axL, 'L'), (axM, 'M'), (axN, 'N'), (axO, 'O'), (axP, 'P')]:
+                (axL, 'L'), (axM, 'M'), (axN, 'N')]:
     panel_letter(_ax, _L)
 
 
@@ -836,7 +763,7 @@ def row_banner(ax_left, text, dy=0.014):
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
 row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (5 Jaws · Naive▲+Expert● × A&B independent, 20 pts)')
-row_banner(axL, 'Mechanism · Expert, 5 Jaws: neural→behaviour readout survives silencing (L); code discriminability d′ ON≈OFF (on unity) — DPA memory (M) & GNG (N)')
+row_banner(axL, 'Trade-off & mechanism · Expert, 5 Jaws: depth drives a DPA↑/GNG↓ trade-off (L); code discriminability d′ ON≈OFF (on unity) — DPA memory (M) & GNG (N)')
 
 fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '
@@ -845,15 +772,12 @@ fig.text(0.5, 0.004,
          'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
          'J–K overlaps Δ(on−off), depth = DPA choice-code on trainLD_TEST (45-59), readout 27-53; 5 Jaws × '
          '{Naive ▲, Expert ●} × A&B = 20 pts; star = Pearson (Spearman agrees). Between-animal coupling.  '
-         'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
-         '(OR per within-mouse SD of depth; readout preserved under silencing). '
+         'L depth vs the trade-off contrast ΔDPA−ΔGNG (joint test of the DPA↑/GNG↓ trade-off, 20 pts, '
+         'Pearson r=+0.48 p=0.034 on the pre-committed trainLD_TEST axis — no window search); J/K are its two arms.  '
          'M,N code discriminability d′ laser ON vs OFF, 5 Jaws × {Naive ○, Expert ●} = 10 pts (points on unity = spared): '
          'M = sample axis odor A vs B at late delay (bins_LD 45-53, DPA memoranda; --targets sample tensor); '
          'N = choice axis Go vs NoGo at mid-delay (bins_MD 33-38, GNG cue). Dashed = unity; stat = LMM '
          'd′ ~ laser + stage + (1|mouse) [trial-level signal×laser interaction is pseudoreplication, ns under random slope].  '
-         'O = depth vs the trade-off contrast ΔDPA−ΔGNG (joint test of the DPA↑/GNG↓ trade-off, 20 pts, '
-         'Pearson r=+0.48 p=0.034 on the pre-committed trainLD_TEST axis — no window search); J/K are its two arms.  '
-         'P = per-mouse DPA vs GNG performance (Jaws Expert), laser OFF ○ → ON ● in the balance plane of the non-opto main figure.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 

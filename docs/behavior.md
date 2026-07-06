@@ -326,14 +326,17 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
   ΔDPA stays n.s. on every axis (specificity holds). Readout on 27-53 keeps depth in the delay
   (pre-response), so it is not circular despite the axis being trained through TEST.
 
-Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
-- **L** — trial-level **GEE logistic** `accuracy ~ depth_z`, cluster-robust by mouse
-  (exchangeable), OR per within-mouse SD of depth, **fit SEPARATELY for laser OFF vs ON**
-  (side-by-side). The opto-specific test: is the code→behaviour readout changed by silencing?
-  **No — DPA readout is preserved: OFF OR=1.41 p=0.007 `**`, ON OR=1.46 p=0.014 `*`** (nearly
-  identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
-  DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
-  (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
+Row 4 — **trade-off + mechanism** (recorded, Jaws n=5, Expert):
+- **L** — **TRADE-OFF contrast (headline coupling stat): Δdepth vs `ΔDPA − ΔGNG`** (Jaws, 20 pts,
+  Naive▲/Expert● × A&B, trainLD_TEST). The trade-off hypothesis (depth↑ → DPA↑ *and* GNG↓) makes one
+  joint prediction — depth positively predicts (ΔDPA−ΔGNG) — pooling both arms into a single test.
+  **Significant on the pre-committed axis, no window search: Pearson r=+0.48 p=0.034 (Expert-10
+  r=+0.75 p=0.013).** J and K are its two arms (K ΔGNG robust `*`; J ΔDPA the same-signed positive
+  *trend*, n.s. on its own). Chosen over two individually-starred J+K panels because forcing J's `*`
+  needs the argmax 51–56 window + Spearman specifically (n.s. by Pearson / on the principled axis) =
+  window×stat selection a reviewer would flag. **This panel REPLACED the old trial-level GEE
+  readout-vs-silencing forest** (that analysis — DPA readout preserved OFF OR=1.41 / ON OR=1.46 — is
+  still computed and printed to stdout, just not plotted).
 - **M** — **d′ laser ON vs OFF scatter** of the **DPA memory code**: sample-axis discriminability
   **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON, dashed **unity
   line** = spared, square. **10 points = 5 Jaws × {Naive ○, Expert ●}.**
@@ -348,22 +351,6 @@ discriminability spared.** IMPORTANT — a trial-level `signal×laser` mixed mod
 (p<.001) but that is **pseudoreplication**: with a random *slope* for the effect it collapses
 (sample p=0.34 non-conv, GNG p=0.10). The per-mouse effect is heterogeneous in sign, so the
 mouse-level LMM (n.s.) is the honest read — do NOT headline the trial-level interaction.
-
-Row 5 — **trade-off (the headline coupling framing)**:
-- **O** — **Δdepth vs the trade-off contrast `ΔDPA − ΔGNG`** (Jaws, 20 pts, Naive▲/Expert● × A&B,
-  trainLD_TEST). The trade-off hypothesis (depth↑ → DPA↑ *and* GNG↓) makes one joint prediction —
-  depth positively predicts (ΔDPA−ΔGNG) — so this pools both arms into a single test. **Significant
-  on the pre-committed axis with no window search: Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75
-  p=0.013).** This is the honest way to report the coupling: **J and K are its two arms** (K ΔGNG
-  robust `*`; J ΔDPA the same-signed positive *trend*, n.s. on its own), and O is the joint stat.
-  Chosen over two individually-starred panels because forcing J's marginal `*` needs the argmax
-  51–56 window + Spearman specifically (n.s. by Pearson / on the principled axis) = window×stat
-  selection a reviewer would flag.
-- **P** — per-mouse **DPA vs GNG performance** (Jaws Expert), plotted in the **same balance plane as
-  the non-opto main figure** (`fig_behavior_main.py` panel H), showing each animal's **laser OFF ○ →
-  ON ●** shift (arrows) — the trade-off, behaviourally. ON-trial across-animal r=+0.43 p=0.47 (n=5,
-  descriptive); optimal corner starred. Uses `performance` (DPA) / `odr_perf` (GNG) on target==choice
-  rows, laser 0 vs 1.
 
 Windows: A/B read at late delay (memoranda held to the comparison), Go/NoGo at mid-delay (cue
 onset) — both inside the laser/delay window. The **sample axis is decoded separately**
