@@ -335,8 +335,8 @@ Row 4 — **trade-off + mechanism** (recorded, Jaws n=5, Expert):
   *trend*, n.s. on its own). Chosen over two individually-starred J+K panels because forcing J's `*`
   needs the argmax 51–56 window + Spearman specifically (n.s. by Pearson / on the principled axis) =
   window×stat selection a reviewer would flag. **This panel REPLACED the old trial-level GEE
-  readout-vs-silencing forest** (that analysis — DPA readout preserved OFF OR=1.41 / ON OR=1.46 — is
-  still computed and printed to stdout, just not plotted).
+  readout-vs-silencing forest**, which has now been removed from the script entirely (it lives in git
+  history: DPA readout was preserved under silencing, OFF OR=1.41 / ON OR=1.46).
 - **M** — **d′ laser ON vs OFF scatter** of the **DPA memory code**: sample-axis discriminability
   **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON, dashed **unity
   line** = spared, square. **10 points = 5 Jaws × {Naive ○, Expert ●}.**

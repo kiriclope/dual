@@ -67,7 +67,6 @@ import matplotlib.image as mpimg
 import matplotlib.lines as mlines
 import seaborn as sns
 import scipy.io as sio
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy.stats import ttest_1samp, ttest_ind, pearsonr, spearmanr, linregress, t as t_dist, norm
 
@@ -427,50 +426,10 @@ def regression_band(ax, xs, ys, color='0.25'):
     ax.fill_between(xl, yl - tc * seb, yl + tc * seb, color=color, alpha=0.15, zorder=2)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Recorded within-mouse laser MECHANISM (Jaws, Expert) — for row-4 panels L,M,N
-# ══════════════════════════════════════════════════════════════════════════════
-_dfl = pd.DataFrame({
-    'mouse': y.mouse.values, 'laser': y.laser.values, 'tasks': y.tasks.values,
-    'pair': y.pair.values, 'perf': y.performance.values, 'odr': y.odr_perf.values,
-    'depth': depth_all, 'is_choice': (y.target == 'choice').values, 'stage': y.stage.values,
-})
-_dfl = _dfl[_dfl.is_choice & _dfl.mouse.isin(JAWS) & (_dfl.stage == 'Expert')].copy()
-_dfl['depth_z'] = _dfl.groupby('mouse')['depth'].transform(          # per-mouse z-score
-    lambda v: (v - v.mean()) / v.std(ddof=0) if v.std(ddof=0) > 0 else v * 0.0)
-
-
-def _gee_depth(sub, ycol):
-    """Trial-level cluster-robust logistic: ycol ~ depth_z, GEE grouped by mouse.
-    Returns depth OR (per SD), 95% CI, p, n-trials. Handles pseudoreplication.
-    Fit within a single laser condition (OFF vs ON compared side-by-side)."""
-    d = sub.dropna(subset=[ycol, 'depth_z'])
-    try:
-        g = smf.gee(f'{ycol} ~ depth_z', groups=d['mouse'], data=d,
-                    family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
-        ci = g.conf_int()
-        return (float(np.exp(g.params['depth_z'])), float(np.exp(ci.loc['depth_z', 0])),
-                float(np.exp(ci.loc['depth_z', 1])), float(g.pvalues['depth_z']), len(d))
-    except Exception as e:
-        print('  GEE failed:', e)
-        return (np.nan, np.nan, np.nan, np.nan, 0)
-
-
-# depth→accuracy readout fit SEPARATELY for laser OFF vs ON (does silencing change it?)
-MM = {}
-for _tk, _yc, _s0 in [('DPA', 'perf', _dfl[_dfl.tasks == 'DPA']),
-                      ('GNG', 'odr', _dfl[_dfl.tasks != 'DPA'])]:
-    MM[_tk] = {las: _gee_depth(_s0[_s0.laser == las], _yc) for las in (0, 1)}
-print('\nTrial-level GEE  depth→accuracy (OR/SD, p, n)  by laser:')
-for _tk in ('DPA', 'GNG'):
-    for las, tag in [(0, 'OFF'), (1, 'ON ')]:
-        v = MM[_tk][las]
-        print(f'  {_tk} {tag}: OR={v[0]:.3f}  p={v[3]:.4f}  (n={v[4]})')
-
-
-# (Behavioural d′/criterion SDT decomposition was computed here as a control — the
-#  transient laser spared both, all n.s. — but is superseded by the NEURAL sensitivity
-#  panels M/N below; see docs/behavior.md §6 and the memory note.)
+# Row-4 mechanism data is computed above: panel L uses `rows_ab` (the trade-off contrast),
+# panels M/N use `DPR`/`LMM_DPR` (per mouse×stage d′). The former trial-level GEE
+# readout-vs-silencing analysis (and an earlier behavioural d′/criterion SDT control) were
+# removed when panel L became the trade-off contrast — see docs/behavior.md §6.
 
 
 # ══════════════════════════════════════════════════════════════════════════════
