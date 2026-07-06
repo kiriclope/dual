@@ -8,19 +8,20 @@ is DRAWN from the data as real matplotlib subplots, in the style of
 `fig_behavior_opto_main.py` (message-titled panels, panel_letter() helper, row
 banners, PNG @300 dpi + editable SVG).
 
-Arc — all five panels on the LOCKED trainLD_TEST read-out axis (bins 45–59), late-delay
-readout window BINS_LATE = arange(27,54):
+Arc — three panels on the LOCKED trainLD_TEST read-out axis (bins 45–59), late-delay
+readout window BINS_LATE = arange(27,54). Layout: A spans the top two rows; B and C share
+one row below it (B left half, C right half). Styled like fig_behavior_opto_main.py.
 
   A  sample / choice / test / task 1-D codes over the trial, Naive (top) vs Expert
      (bottom).                                    (logic ← fig_overlaps_codes_1d.py)
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane, with the
      choice-code distribution strips.             (logic ← plot_traj2d.py --all --dpa-only)
-  C  well deepening: per-mouse late-delay choice-code depth Naive→Expert, Sample A /
-     Sample B / A&B pooled, maximal-LMM stars.    (logic ← exp_nolick_push_stats.py ld_test all)
-  D  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig) & ΔGNG (null).
-                                                  (logic ← plot_scatter_perf.py --dpa-panel, AB twin)
-  E  laser ON−OFF causal analog of D, Expert, A&B-independent, 7 laser mice
-     (● Jaws inhibit / ▲ ChR excite).             (logic ← plot_scatter_laser.py expert ld_test, AB twin)
+  C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null,
+     DPA-specific).                               (logic ← plot_scatter_perf.py --dpa-panel, AB twin)
+
+The old panel C (well deepening, exp_nolick_push_stats.py) and panel E (laser ON−OFF
+causal analog, plot_scatter_laser.py) were removed at the user's request; the surviving
+learning scatter was relabelled C. The laser causal analog lives in fig_behavior_opto_main.py.
 
 All helper computation is copied inline (per repo convention); the source scripts are
 untouched. Reusable plotting primitives (plot_mean_sem, sem_band, plot_gradient_line,
@@ -42,14 +43,11 @@ sys.path.insert(0, '/home/leon/dual/')
 warnings.filterwarnings('ignore')
 
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-from scipy.stats import (gaussian_kde, wilcoxon, ttest_1samp, ttest_rel,
-                         pearsonr, spearmanr, linregress, t as t_dist)
-import statsmodels.formula.api as smf
+from scipy.stats import gaussian_kde, pearsonr, spearmanr, linregress, t as t_dist
 import seaborn as sns
 
 from src.common.options import set_options
@@ -59,27 +57,22 @@ from src.common.plot_utils import add_vlines
 
 # ── Style ─────────────────────────────────────────────────────────────────────
 sns.set_style('ticks')
-plt.rcParams.update({
+plt.rcParams.update({          # same convention as fig_behavior_opto_main.py
     'figure.dpi': 150, 'savefig.dpi': 300,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 10, 'axes.titlesize': 10, 'xtick.labelsize': 8, 'ytick.labelsize': 8,
+    'axes.labelsize': 11, 'axes.titlesize': 11, 'xtick.labelsize': 9, 'ytick.labelsize': 9,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
-    'axes.linewidth': 0.9, 'lines.linewidth': 1.6,
+    'axes.linewidth': 0.9, 'lines.linewidth': 1.8,
 })
 _pal_muted = sns.color_palette('muted')
 TITLE_FS = 10.5
 
 # ── Config shared by every panel ───────────────────────────────────────────────
 DUM      = 'log_generalizing_overlaps_none_l1_ratio_0.0'
-DUM_L    = 'log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_choice'
 DATA_IN  = '../data/overlaps'
 ALL_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18',
             'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 STAGES     = ['Naive', 'Expert']
-CONDITIONS = ['DPA', 'DualGo', 'DualNoGo']
-JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']
-CHR  = ['ChRM04', 'ChRM23']
-LASER_MICE = JAWS + CHR
 GROUP   = {**{m: 'Jaws' for m in ALL_MICE[:5]}, **{m: 'ChR' for m in ALL_MICE[5:7]},
            **{m: 'ACC' for m in ALL_MICE[7:]}}
 GMARKER = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
@@ -103,14 +96,6 @@ TRAJ_END     = options['bins_TEST'][-1] + 1
 TEST_ONSET   = options['bins_TEST'][0]
 xtime        = np.linspace(0, 14, 84)
 BL_A         = slice(0, 12)                                             # codes_1d baseline slice
-SAMPLE_CLASSES = [('A', [0, 1]), ('B', [2, 3])]
-
-N_BOOT = 10_000
-RNG    = np.random.default_rng(0)
-
-
-def star(p):
-    return '***' if p < 0.001 else '**' if p < 0.01 else '*' if p < 0.05 else 'n.s.'
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -143,75 +128,6 @@ for mo in ALL_MICE:
 idx_laser   = (y.laser == 0)
 idx_choice  = (y.target == 'choice')
 idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_perf == 1))
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# PANEL C — deepening stats (exp_nolick_push_stats.py: ld_test axis, ALL laser-off)
-# ══════════════════════════════════════════════════════════════════════════════
-fig_mask_C = idx_laser                                                 # 'all' trial set
-
-
-def _depths_C(trial_mask):
-    """{(mouse, stage, cls): late-delay DPA choice-code depth}."""
-    out = {}
-    for mouse in ALL_MICE:
-        for stage in STAGES:
-            for cls, pairs in SAMPLE_CLASSES:
-                m = ((y.mouse == mouse) & (y.tasks == 'DPA') & (y.stage == stage) &
-                     (y.target == 'choice') & trial_mask & y.odor_pair.isin(pairs)).values
-                out[(mouse, stage, cls)] = (X_bl[m][:, BINS_LATE].mean() if m.sum() else np.nan)
-    return out
-
-
-dep_C = _depths_C(fig_mask_C)
-
-
-def _per_mouse(dep, stage, cls):
-    return np.array([dep[(m, stage, cls)] for m in ALL_MICE], float)
-
-
-def _boot_ci(vals, alpha=0.05):
-    v = np.asarray(vals, float); v = v[~np.isnan(v)]
-    if len(v) < 2:
-        return np.nan, np.nan
-    idx = RNG.integers(0, len(v), size=(N_BOOT, len(v)))
-    stat = v[idx].mean(1)
-    return np.percentile(stat, 100 * alpha / 2), np.percentile(stat, 100 * (1 - alpha / 2))
-
-
-def _cohen_dz(d):
-    d = np.asarray(d, float); d = d[~np.isnan(d)]
-    return d.mean() / d.std(ddof=1) if d.std(ddof=1) > 0 else np.nan
-
-
-def _panel_arrays_C(key):
-    if key in ('A', 'B'):
-        return _per_mouse(dep_C, 'Naive', key), _per_mouse(dep_C, 'Expert', key)
-    nai = np.nanmean([_per_mouse(dep_C, 'Naive', 'A'), _per_mouse(dep_C, 'Naive', 'B')], axis=0)
-    exp = np.nanmean([_per_mouse(dep_C, 'Expert', 'A'), _per_mouse(dep_C, 'Expert', 'B')], axis=0)
-    return nai, exp
-
-
-def _panel_lmm_p_C(key):
-    """Maximal-LMM p for the Naive→Expert deepening (trial-level)."""
-    base = ((y.tasks == 'DPA') & (y.target == 'choice') & fig_mask_C)
-    if key in ('A', 'B'):
-        base = base & y.odor_pair.isin([0, 1] if key == 'A' else [2, 3])
-    base = base.values
-    d = pd.DataFrame({
-        'depth':  X_bl[base][:, BINS_LATE].mean(1),
-        'mouse':  y.mouse.values[base],
-        'expert': (y.stage.values[base] == 'Expert').astype(float),
-        'sample': np.where(pd.Series(y.odor_pair.values[base]).isin([2, 3]), 'B', 'A'),
-    })
-    formula, re = ('depth ~ expert', '~expert')
-    if key == 'pooled':
-        formula, re = ('depth ~ expert + C(sample)', '~expert + C(sample)')
-    try:
-        res = smf.mixedlm(formula, d, groups=d['mouse'], re_formula=re).fit(reml=True, method='lbfgs')
-        return res.pvalues['expert'], bool(res.converged)
-    except Exception:
-        return np.nan, False
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -375,56 +291,6 @@ def _draw_codes_row(axes_row, base, stage_label, show_titles, show_xlabel):
         ax.legend(fontsize=6, frameon=False, loc='upper left')
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# PANEL E — load laser tensor, per-mouse Δ(on−off) A&B-independent (plot_scatter_laser)
-# ══════════════════════════════════════════════════════════════════════════════
-print('loading laser tensor …')
-Xl = pkl_load(f'X_{DUM_L}',      path=DATA_IN)
-yl = pkl_load(f'labels_{DUM_L}', path=DATA_IN)
-print(f'  Xl {Xl.shape}  yl {len(yl)}')
-
-Xl_ep = Xl[..., TRAIN_LDTEST, :].mean(-2)[:, 1].astype(float)
-del Xl
-for m in LASER_MICE:
-    mm = (yl.mouse == m).values
-    sd = Xl_ep[mm][:, BINS_BL].std()
-    if sd > 0:
-        Xl_ep[mm] /= sd
-depth_l = Xl_ep[:, BINS_LATE].mean(1)                                  # per-trial late-delay depth
-
-lis_choice = (yl.target == 'choice').values
-lEXP       = (yl.stage == 'Expert').values
-
-
-def _depth_sample_E(mmask, laser_val, pairs):
-    m = (mmask & lis_choice & (yl.tasks == 'DPA').values & lEXP &
-         (yl.laser == laser_val).values & yl.odor_pair.isin(pairs).values)
-    return float(depth_l[m].mean()) if m.sum() else np.nan
-
-
-def _perf_mean_sample_E(col, task_mask, laser_val, pairs):
-    m = ((yl.target == 'choice') & task_mask & (yl.stage == 'Expert') &
-         (yl.laser == laser_val) & yl.odor_pair.isin(pairs))
-    v = yl.loc[m.values, col].dropna()
-    return v.mean() if len(v) else np.nan
-
-
-E_SAMPLE_CLASSES = [(0, [0, 1]), (1, [2, 3])]
-rows_E = []
-for mouse in LASER_MICE:
-    mmask = (yl.mouse == mouse).values
-    tm = (yl.mouse == mouse)
-    for cls, pairs in E_SAMPLE_CLASSES:
-        rows_E.append(dict(
-            mouse=mouse, group=GROUP[mouse], cls=cls,
-            d_depth=_depth_sample_E(mmask, 1, pairs) - _depth_sample_E(mmask, 0, pairs),
-            d_dpa=(_perf_mean_sample_E('performance', tm & (yl.tasks == 'DPA'), 1, pairs)
-                   - _perf_mean_sample_E('performance', tm & (yl.tasks == 'DPA'), 0, pairs)),
-            d_gng=(_perf_mean_sample_E('odr_perf', tm & (yl.tasks != 'DPA'), 1, pairs)
-                   - _perf_mean_sample_E('odr_perf', tm & (yl.tasks != 'DPA'), 0, pairs)),
-        ))
-
-
 # ── shared scatter helper ──────────────────────────────────────────────────────
 def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
     ok = ~(np.isnan(xs) | np.isnan(ys))
@@ -444,10 +310,10 @@ def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(13, 18.5))
-gs = fig.add_gridspec(6, 12, height_ratios=[1.0, 1.0, 2.0, 1.35, 1.7, 1.7],
-                      hspace=0.62, wspace=0.85,
-                      left=0.055, right=0.985, top=0.935, bottom=0.035)
+fig = plt.figure(figsize=(14, 8.4))
+gs = fig.add_gridspec(3, 12, height_ratios=[1.0, 1.0, 2.05],
+                      hspace=0.5, wspace=0.85,
+                      left=0.05, right=0.985, top=0.9, bottom=0.065)
 
 
 def panel_letter(ax, L, x=0.012, dy=0.020):
@@ -455,12 +321,6 @@ def panel_letter(ax, L, x=0.012, dy=0.020):
     # unreliable); y tracks the panel top.
     p = ax.get_position()
     fig.text(x, p.y1 + dy, L, fontsize=15, fontweight='bold', va='top', ha='left')
-
-
-def row_banner(ax_left, text, dy=0.010):
-    p = ax_left.get_position()
-    fig.text(0.055, p.y1 + dy, text, fontsize=9.0, fontweight='bold',
-             va='bottom', ha='left', color='0.35')
 
 
 # ── A: 2×4 code grid (Naive top, Expert bottom) ────────────────────────────────
@@ -472,8 +332,8 @@ for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
 
-# ── B: no-lick push planes (Naive | Expert) + choice-dist strips ───────────────
-gsB = gs[2, :].subgridspec(1, 4, width_ratios=[5, 1.1, 5, 1.1], wspace=0.06)
+# ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
+gsB = gs[2, 0:6].subgridspec(1, 4, width_ratios=[5, 1.1, 5, 1.1], wspace=0.06)
 xlimB, ylimB = (-4, 4), (-2, 6)
 axB_traj, axB_hist = [], []
 ax0 = None
@@ -495,49 +355,9 @@ pair_handles = [Line2D([0], [0], color=PAIR_COLOR[p], lw=2.0, label=PAIR_LABELS[
 axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
                     handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=8)
 
-# ── C: well deepening, per-mouse Naive→Expert (Sample A / B / A&B pooled) ───────
-PANELS_C = [('A', '#332288', 'Sample A'), ('B', '#44AA99', 'Sample B'),
-            ('pooled', '#444444', 'A & B pooled')]
-axC = [fig.add_subplot(gs[3, 4 * i:4 * i + 4]) for i in range(3)]
-for i in range(1, 3):
-    axC[i].sharey(axC[0])
-for ax, (key, color, title) in zip(axC, PANELS_C):
-    nai, exp = _panel_arrays_C(key)
-    for n_, e_ in zip(nai, exp):
-        if not (np.isnan(n_) or np.isnan(e_)):
-            ax.plot([0, 1], [n_, e_], '-', color=color, lw=1, alpha=0.4)
-            ax.scatter([0, 1], [n_, e_], color=color, s=26, zorder=5, edgecolors='w', linewidths=0.5)
-    for xx, vals in [(0, nai), (1, exp)]:
-        v = vals[~np.isnan(vals)]
-        lo, hi = _boot_ci(v)
-        ax.errorbar(xx + 0.06, v.mean(), yerr=[[v.mean() - lo], [hi - v.mean()]],
-                    fmt='o', color='k', ms=6, capsize=4, lw=1.5, zorder=6)
-    keep = ~(np.isnan(nai) | np.isnan(exp))
-    dd = exp[keep] - nai[keep]
-    dz = _cohen_dz(dd); n_deep = int((dd < 0).sum())
-    p_lmm, conv = _panel_lmm_p_C(key)
-    try:
-        p_mm = wilcoxon(dd).pvalue
-    except ValueError:
-        p_mm = np.nan
-    if conv and np.isfinite(p_lmm):
-        star_txt, star_col, nc = star(p_lmm), color, ''
-    else:
-        star_txt, star_col, nc = 'n/c', '0.6', ' NC'
-    ax.text(0.5, 0.98, star_txt, transform=ax.transAxes, ha='center', va='top',
-            fontsize=17, fontweight='bold', color=star_col)
-    ax.text(0.5, 0.87, f'LMM p={p_lmm:.3f}{nc}\ndz={dz:+.2f}   {n_deep}/{keep.sum()} deeper\n'
-            f'(mouse-mean p={p_mm:.3f})', transform=ax.transAxes, ha='center', va='top',
-            fontsize=7, color='0.3')
-    ax.axhline(0, ls='--', color='k', lw=0.8)
-    ax.set_xlim(-0.3, 1.3); ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'])
-    ax.set_title(title, fontsize=TITLE_FS)
-    if ax is axC[0]:
-        ax.set_ylabel('choice-code depth\n(late delay, DPA all trials)', fontsize=9)
-    print(f'C[{key:6s}] dz={dz:+.2f} {n_deep}/{keep.sum()} deeper  LMM p={p_lmm:.3f} conv={conv}  mm p={p_mm:.3f}')
-
-# ── D: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) ─────────────
-axD = [fig.add_subplot(gs[4, 0:6]), fig.add_subplot(gs[4, 6:12])]
+# ── D: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) — right half ─
+gsD = gs[2, 6:12].subgridspec(1, 2, wspace=0.5)
+axD = [fig.add_subplot(gsD[0, 0]), fig.add_subplot(gsD[0, 1])]
 D_specs = [(delta_dpa_perf_sample, 'Δ DPA accuracy (Exp−Naive)', 'Depth vs ΔDPA (learning)'),
            (delta_gng_perf_sample, 'Δ GNG accuracy (Exp−Naive)', 'DPA-specific (ΔGNG null)')]
 _allyD = np.array([d[(m, c)] for d, _, _ in D_specs for m in ALL_MICE for c in (0, 1)], float)
@@ -575,58 +395,13 @@ _D_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=
           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B (open)')]
 axD[0].legend(handles=_D_leg, frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
-# ── E: laser ON−OFF causal analog, A&B independent, 7 laser mice (ΔDPA | ΔGNG) ──
-axE = [fig.add_subplot(gs[5, 0:6]), fig.add_subplot(gs[5, 6:12])]
-E_specs = [('d_dpa', 'Δ DPA accuracy (on−off)', 'Laser: ΔDPA null'),
-           ('d_gng', 'Δ GNG accuracy (on−off)', 'Laser drives ΔGNG (causal)')]
-xdepth_E = np.array([r['d_depth'] for r in rows_E])
-_allyE = np.array([r[k] for k, _, _ in E_specs for r in rows_E], float)
-_allyE = _allyE[~np.isnan(_allyE)]
-_padE = (_allyE.max() - _allyE.min()) * 0.15 or 0.05
-ylimE = (_allyE.min() - _padE, _allyE.max() + _padE)
-for ax, (key, ylabel, msg) in zip(axE, E_specs):
-    yv = np.array([r[key] for r in rows_E])
-    for mouse in LASER_MICE:
-        idx = [i for i, r in enumerate(rows_E) if r['mouse'] == mouse]
-        ax.plot(xdepth_E[idx], yv[idx], '-', color=MOUSE_COLOR[mouse], lw=0.8, alpha=0.5, zorder=3)
-    for i, r in enumerate(rows_E):
-        face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'
-        ax.scatter(xdepth_E[i], yv[i], facecolors=face, edgecolors=MOUSE_COLOR[r['mouse']],
-                   marker=GMARKER[r['group']], s=80, linewidths=1.1, zorder=5)
-    regression_band(ax, xdepth_E, yv)
-    ax.axhline(0, ls=':', color='k', lw=0.8); ax.axvline(0, ls=':', color='k', lw=0.8)
-    ax.set_ylim(ylimE)
-    ok = ~(np.isnan(xdepth_E) | np.isnan(yv))
-    r_p, p_p = pearsonr(xdepth_E[ok], yv[ok]); r_s, p_s = spearmanr(xdepth_E[ok], yv[ok])
-    ax.text(0.5, 0.02, f'A&B indep (n={ok.sum()}): r={r_p:+.2f} p={p_p:.3f}  ρ={r_s:+.2f} p={p_s:.3f}',
-            transform=ax.transAxes, ha='center', va='bottom', fontsize=7.5, color='0.3')
-    ax.text(0.9, 0.93, '*' if p_s < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
-            va='top', fontsize=18, fontweight='bold', color='k' if p_s < 0.05 else '0.55')
-    ax.set_xlabel('Δ DPA choice-code depth (on−off)'); ax.set_ylabel(ylabel)
-    ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
-    ax.set_box_aspect(1)
-    print(f'E[{ylabel[:6]}] n={ok.sum()} r={r_p:+.2f} p={p_p:.3f}  rho={r_s:+.2f} p={p_s:.3f}')
-_E_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A (solid)'),
-          mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B (open)'),
-          mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='Jaws inhibit'),
-          mlines.Line2D([0], [0], marker='^', color='k', ls='none', ms=7, label='ChR excite')]
-axE[0].legend(handles=_E_leg, frameon=False, fontsize=6.5, loc='upper left', handletextpad=0.3, ncol=1)
-
 # ── panel letters + row banners ────────────────────────────────────────────────
 panel_letter(axA[0, 0], 'A')
 panel_letter(axB_traj[0], 'B')
-panel_letter(axC[0], 'C')
-panel_letter(axD[0], 'D')
-panel_letter(axE[0], 'E')
+panel_letter(axD[0], 'C', x=0.505)
 
-row_banner(axA[0, 0], 'Three simultaneous codes over the trial — Naive (top) vs Expert (bottom); choice/lick code non-flat already in the delay')
-row_banner(axB_traj[0], 'The no-lick push — DPA state Naive→Expert in the sample × choice plane (all laser-off trials)')
-row_banner(axC[0], 'Well deepening — late-delay choice-code depth deepens Naive→Expert (maximal-LMM * ; trainLD_TEST, DPA all trials)')
-row_banner(axD[0], 'Δ depth ↔ Δ accuracy (learning, Expert−Naive) — A&B independent: DPA-specific (n=18)')
-row_banner(axE[0], 'Δ depth ↔ Δ accuracy (laser ON−OFF, causal) — A&B independent, 7 laser mice (n=14): GNG-specific mirror of D')
-
-fig.suptitle('Overlaps main figure (A&B-independent) — dual code · no-lick push · learning & causal depth↔accuracy link '
-             '(all trainLD_TEST, bins 45–59)', y=0.992, fontsize=12.5, fontweight='bold')
+fig.suptitle('Overlaps main figure (A&B-independent) — dual code · no-lick push · learning depth↔accuracy link '
+             '(all trainLD_TEST, bins 45–59)', y=0.985, fontsize=12.5, fontweight='bold')
 
 OUT = 'figures/overlaps/main'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
