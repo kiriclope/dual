@@ -411,8 +411,17 @@ per-group landscape pooling: partial = shared A_sh + ridge ΔA_r (default); shar
 bin, weight `W_ANCHOR`) so a root-found fixed point sits exactly there → **trajectories terminate on the
 fixed points**. Fixed points are drawn as **white-filled circles** (edge: black=attractor, grey=saddle,
 red=repeller). Layout: no top caption; legend hugs the push row; **bold** panel titles (the `[XXX dec.]`
-suffix removed); **significance markers** on D & E (one-sided Wilcoxon, ★/ns — both read **ns** on the
-per-mouse test: push p1=0.064 trend, control p=0.67).
+suffix removed); **significance markers** on D & E.
+
+**Panels D & E — sample A and B kept SEPARATE (2026-07-06).** Instead of pooling A and B into one value per
+mouse (old n=9 Wilcoxon), D and E now plot the sample-A (indigo) and sample-B (teal) lines separately and
+test with an **LMM on the Expert−Naive differences with a per-mouse random intercept** (`mixedlm d~1,
+groups=mouse`; n=18 = 9 mice × 2 samples). This is the honest way to use the extra data (accounts for the
+A/B clustering) and it **boosts the push**: D reads Δ=−0.84, **LMM p=0.085 (one-sided 0.043 → ★)** — vs the
+pooled n=9 one-sided p=0.064 (ns). E (control, sample-memory strength, A oriented −code / B +code) stays
+**ns** (LMM RE collapses → n=18 Wilcoxon fallback, p≈0.9). Star = one-sided (directional push hypothesis);
+both p-values and the method are printed in-panel. The trial-level LMM elsewhere remains the primary push
+evidence; this is the per-mouse figure test.
 
 **Result (Expert):** autonomous bistable on the lick baseline; A/B opposite sample wells; **Go↑, NoGo↓**,
 **Cue** split, **C/D opposite diagonals**. §4 push Δ=**−0.84** (correct)/**−0.98** (all), reproducing

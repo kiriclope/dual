@@ -37,7 +37,9 @@ import sys, os, argparse, warnings
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
+import pandas as pd
 from scipy.stats import wilcoxon
+import statsmodels.formula.api as smf
 from sklearn.model_selection import RepeatedKFold
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -377,34 +379,44 @@ def cohen_dz(d):
     return d.mean() / d.std(ddof=1) if d.std(ddof=1) > 0 else np.nan
 
 
-def slopegraph(ax, nai, exp, color, ylabel, title, side='less'):
-    keep = ~(np.isnan(nai) | np.isnan(exp)); a, b = nai[keep], exp[keep]; d = b - a
-    for n, e in zip(a, b):
-        ax.plot([0, 1], [n, e], '-', color=color, lw=1, alpha=0.4)
-        ax.scatter([0, 1], [n, e], color=color, s=26, zorder=5, edgecolors='w', linewidths=0.5)
-    for x, v in [(0, a), (1, b)]:
-        lo, hi = boot_ci(v)
-        ax.errorbar(x + 0.07, v.mean(), yerr=[[v.mean() - lo], [hi - v.mean()]],
-                    fmt='o', color='k', ms=7, capsize=4, lw=1.6, zorder=6)
+def lmm_paired(nai_A, exp_A, nai_B, exp_B, side):
+    """Push test with sample A & B kept SEPARATE (2 obs/mouse) — LMM on the Expert−Naive differences with a
+    per-mouse random intercept (honest about the A/B clustering; n=18 rather than the pooled n=9)."""
+    dA, dB = exp_A - nai_A, exp_B - nai_B
+    df = pd.DataFrame({'d': np.concatenate([dA, dB]), 'mouse': list(MICE) * 2}).dropna()
     try:
-        p2 = wilcoxon(d).pvalue; p1 = wilcoxon(d, alternative=side).pvalue
-    except ValueError:
-        p2 = p1 = np.nan
-    n_dir = int((d < 0).sum()) if side == 'less' else int((d > 0).sum())
-    lo, hi = boot_ci(d)
+        r = smf.mixedlm('d ~ 1', df, groups=df['mouse']).fit(reml=False, method='lbfgs')
+        beta, p2 = float(r.params['Intercept']), float(r.pvalues['Intercept']); how = 'LMM'
+    except Exception:                                    # RE variance → 0 etc.: fall back to n=18 Wilcoxon
+        p2 = wilcoxon(df['d']).pvalue; beta = float(df['d'].mean()); how = 'Wilc18'
+    p1 = p2 / 2 if ((side == 'less' and beta < 0) or (side == 'greater' and beta > 0)) else 1 - p2 / 2
+    return beta, p2, p1, len(df), how
+
+
+def slopegraph_ab(ax, nai_A, exp_A, nai_B, exp_B, ylabel, title, side='less'):
+    for nai, exp, c in [(nai_A, exp_A, COL[0]), (nai_B, exp_B, COL[1])]:      # sample A indigo, B teal
+        keep = ~(np.isnan(nai) | np.isnan(exp))
+        for n, e in zip(nai[keep], exp[keep]):
+            ax.plot([0, 1], [n, e], '-', color=c, lw=1, alpha=0.45, zorder=4)
+            ax.scatter([0, 1], [n, e], color=c, s=22, zorder=5, edgecolors='w', linewidths=0.5)
+    allN = np.concatenate([nai_A, nai_B]); allE = np.concatenate([exp_A, exp_B])
+    for x, v in [(0, allN), (1, allE)]:
+        lo, hi = boot_ci(v); mu = np.nanmean(v)
+        ax.errorbar(x + 0.10, mu, yerr=[[mu - lo], [hi - mu]], fmt='o', color='k', ms=7, capsize=4,
+                    lw=1.6, zorder=6)
+    beta, p2, p1, n, how = lmm_paired(nai_A, exp_A, nai_B, exp_B, side)
     ax.axhline(0, ls='--', color='k', lw=0.8)
     ax.set_xlim(-0.3, 1.3); ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=8)
-    ax.set_title(f'{title}\nΔ={d.mean():+.2f} [{lo:+.2f},{hi:+.2f}]\n'
-                 f'p={p2:.3f} (1s {p1:.3f})  dz={cohen_dz(d):+.2f}  {n_dir}/{len(d)}', fontsize=7.5)
+    ax.set_title(f'{title}\nΔ={beta:+.2f}  {how} p={p2:.3f} (1s {p1:.3f})\n'
+                 f'A,B separate  n={n} (9×2, 1|mouse)', fontsize=7.5)
     ax.set_ylabel(ylabel, fontsize=8); ax.tick_params(labelsize=7)
-    mark = '***' if p1 < 1e-3 else '**' if p1 < 1e-2 else '*' if p1 < 5e-2 else 'ns'   # one-sided Wilcoxon
-    yt = np.concatenate([a, b]); ytop, ybot = float(np.nanmax(yt)), float(np.nanmin(yt))
+    mark = '***' if p1 < 1e-3 else '**' if p1 < 1e-2 else '*' if p1 < 5e-2 else 'ns'
+    yt = np.concatenate([allN, allE]); yt = yt[~np.isnan(yt)]; ytop, ybot = float(yt.max()), float(yt.min())
     pad = 0.07 * (ytop - ybot + 1e-9); ybar = ytop + 1.4 * pad
     ax.plot([0, 0, 1, 1], [ybar - 0.5 * pad, ybar, ybar, ybar - 0.5 * pad], color='k', lw=1.0, clip_on=False)
-    ax.text(0.5, ybar, mark, ha='center', va='bottom', fontweight='bold',
-            fontsize=13 if mark != 'ns' else 9.5)
+    ax.text(0.5, ybar, mark, ha='center', va='bottom', fontweight='bold', fontsize=13 if mark != 'ns' else 9.5)
     ax.set_ylim(ybot - pad, ybar + 3.4 * pad)
-    return d
+    return beta
 
 
 # ── build ──────────────────────────────────────────────────────────────────────
@@ -458,12 +470,13 @@ if args.stability:
 # push arrays (delay axis, correct/all, DPA)
 mask = (y.laser == 0) if not CORRECT else (
     (y.laser == 0) & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_perf == 1)))
-dep_ch = depths(TRAIN_PUSH, mask, target='choice')
-pool_nai = np.nanmean([per_mouse(dep_ch, 'Naive', 'A'), per_mouse(dep_ch, 'Naive', 'B')], axis=0)
-pool_exp = np.nanmean([per_mouse(dep_ch, 'Expert', 'A'), per_mouse(dep_ch, 'Expert', 'B')], axis=0)
-dep_sa = depths(TRAIN_PUSH, mask, target='sample')     # specificity control: sample-memory separation
-sep_nai = per_mouse(dep_sa, 'Naive', 'B') - per_mouse(dep_sa, 'Naive', 'A')
-sep_exp = per_mouse(dep_sa, 'Expert', 'B') - per_mouse(dep_sa, 'Expert', 'A')
+dep_ch = depths(TRAIN_PUSH, mask, target='choice')     # choice-code push, A & B kept SEPARATE
+chA_nai, chA_exp = per_mouse(dep_ch, 'Naive', 'A'), per_mouse(dep_ch, 'Expert', 'A')
+chB_nai, chB_exp = per_mouse(dep_ch, 'Naive', 'B'), per_mouse(dep_ch, 'Expert', 'B')
+pool_nai = np.nanmean([chA_nai, chB_nai], axis=0); pool_exp = np.nanmean([chA_exp, chB_exp], axis=0)  # for print
+dep_sa = depths(TRAIN_PUSH, mask, target='sample')     # specificity control: sample-memory strength
+saA_nai, saA_exp = -per_mouse(dep_sa, 'Naive', 'A'), -per_mouse(dep_sa, 'Expert', 'A')   # A codes − → flip +
+saB_nai, saB_exp = per_mouse(dep_sa, 'Naive', 'B'), per_mouse(dep_sa, 'Expert', 'B')     # B codes +
 
 # ── figure ──────────────────────────────────────────────────────────────────────
 FH = 15.0 if args.panels == 8 else 9.0
@@ -494,11 +507,11 @@ for ax, s in [(axNai, 'Naive'), (axExp, 'Expert')]:
     ax.set_title(f'{s}: DPA autonomous flow', fontsize=10, fontweight='bold')
     ax.set_xlabel('sample code', fontsize=9)
 axNai.set_ylabel('choice code', fontsize=9)
-slopegraph(axN1, pool_nai, pool_exp, '#444444',
-           f'choice-code depth\n(late delay, {"correct" if CORRECT else "all"})',
-           'push: choice code', side='less')
-slopegraph(axN2, sep_nai, sep_exp, '#888844', 'sample memory |B−A|',
-           'control: sample sep.', side='greater')
+slopegraph_ab(axN1, chA_nai, chA_exp, chB_nai, chB_exp,
+              f'choice-code depth\n(late delay, {"correct" if CORRECT else "all"})',
+              'push: choice code', side='less')
+slopegraph_ab(axN2, saA_nai, saA_exp, saB_nai, saB_exp, 'sample-memory strength\n(A,B oriented +)',
+              'control: sample sep.', side='greater')
 
 # panel letters + legend + caption
 for ax, L in [(axF[0], 'A'), (axNai, 'B'), (axExp, 'C'), (axN1, 'D'), (axN2, 'E')]:
