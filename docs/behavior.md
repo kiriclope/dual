@@ -284,11 +284,12 @@ dual-DPA `#ff7f0e` orange (compare figure only).
 
 Companion to the main figure; one unified story about the **ACC→mPFC(Prl)** projection across
 manipulation regimes. `figures/overlaps/behavior/{png,svg}/behavior_opto_main.*`. Layout =
-a single **5 equal-height row** gridspec: **scheme A spans the top two rows (left, cols 0:6);
-batch B/C fill row 0 and D/E fill row 1 (right, cols 6:9 & 9:12) — a 2×2 next to A, each panel
-`set_box_aspect(1)` so B–E come out square**; then F–H (row 2), I–K (row 3), L–N (row 4). No bottom
+a single **4 equal-height row** gridspec: **first row = scheme A (left, cols 0:6) + batch B (DPA
+curve, cols 6:9) + E (LMM forest, cols 9:12), B & E `set_box_aspect(1)` → square**; then F–H (row 2),
+I–K (row 3), L–N (row 4). **The batch GNG-spared curve (C) and DPA-unpaired curve (D) were removed**
+(E's forest still carries all three metrics), so panel letters run A, B, E, F…N (no C/D). No bottom
 caption strip (removed); message-titled panels; row banners over the recorded / overlaps / last rows
-(the batch band has none — panels are self-titled). Helpers copied inline from
+(the batch first row has none — panels are self-titled). Helpers copied inline from
 `fig_behavior_learning_offon.py`, `fig_behavior_learning_batch.py --ctrlopto`, and
 `plot_scatter_laser.py`, so those stay untouched. Panels:
 - **A** — scheme from `~/dual/opto.png` (recorded-cohort design: hSyn-GCaMP6s imaging in mPFC +
