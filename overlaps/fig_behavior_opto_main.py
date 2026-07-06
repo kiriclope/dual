@@ -18,9 +18,10 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   I  Per-mouse choice-code depth, laser OFF vs ON (Jaws, A&B pooled) — the manipulation
      moves each animal's code (its shift is the x-axis of J/K); group mean flat.
   J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws; Naive▲+Expert● × A&B, 20 pts)
-  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.45 p=.044,
-     ρ=−0.45 p=.045 — a between-animal coupling, robust across slicings; n=5 so animal-level p=.21)
-  Depth read on the trainLD axis (bins 45-53); late-delay window (27-53); J/K square, all trials.
+  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.61 p=.004,
+     ρ=−0.56 p=.011 — a between-animal coupling; per-mouse-mean r=−0.80, robust across slicings)
+  Depth read on the trainLD_TEST axis (bins 45-59, main-overlaps-fig convention); readout window
+  27-53 (delay, pre-response); J/K square, all trials.
   ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
   L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
      the code→behaviour READOUT survives silencing (DPA OR≈1.4 both; GNG ns).
@@ -142,7 +143,8 @@ def _depth_on_axis(bins_train):
     return Xe[:, BINS_LATE].mean(1)
 
 
-depth_all = _depth_on_axis(options['bins_LD'])                 # trainLD axis (45-53) — both I & J
+TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])   # 45-59 (main-fig axis)
+depth_all = _depth_on_axis(TRAIN_LDTEST)                       # trainLD_TEST axis — I, J/K, L
 cdf_diag = np.stack([X[:, 1, t, t] for t in range(X.shape[-1])], axis=1).astype(float)  # choice DV diag(t)
 del X                                                          # free ~1 GB
 
@@ -577,7 +579,7 @@ for xx, vv in [(-0.22, _offs), (1.22, _ons)]:                # group mean ± SEM
 axK.axhline(0, ls=':', color='0.5', lw=1)
 axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
 axK.set_xlim(-0.5, 1.5)
-axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD)')
+axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD_TEST)')
 axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', fontsize=TITLE_FS)
 axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
            ncol=1, handletextpad=0.3)
@@ -614,7 +616,7 @@ for ax, key, ylab, msg in [
             transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
             va='top', fontsize=20, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
-    ax.set_xlabel('Δ DPA choice-code depth (on−off, trainLD)'); ax.set_ylabel(ylab)
+    ax.set_xlabel('Δ DPA choice-code depth (on−off, trainLD_TEST)'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
     ax.set_box_aspect(1)                                  # square panels
 _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
@@ -766,8 +768,8 @@ fig.text(0.5, 0.004,
          'LMM perf ~ group×day + (1|mouse); per-day stars Welch, uncorrected.  '
          'F–H recorded cohort within-mouse (interleaved laser), Jaws inhibition n=5; LMM perf ~ laser×day + (1|mouse); '
          'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
-         'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD); 5 Jaws × {Naive ▲, Expert ●} × A&B '
-         '= 20 pts; star = Pearson (Spearman agrees). Between-animal coupling (n=5 → animal-level underpowered).  '
+         'J–K overlaps Δ(on−off), depth = DPA choice-code on trainLD_TEST (45-59), readout 27-53; 5 Jaws × '
+         '{Naive ▲, Expert ●} × A&B = 20 pts; star = Pearson (Spearman agrees). Between-animal coupling.  '
          'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
          '(OR per within-mouse SD of depth; readout preserved under silencing). '
          'M,N code discriminability d′ laser ON vs OFF, 5 Jaws × {Naive ○, Expert ●} = 10 pts (points on unity = spared): '

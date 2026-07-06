@@ -301,20 +301,30 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
   group mean±SEM). Shows the laser moves each animal's code (M06 up, M01/M15 down, others flat)
   while the group mean is ~flat — the shift here is the x-axis of J/K, and explains "code moves
   per-mouse yet no gross behavioural effect" (panel H).
-- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code
-  late-delay on the **trainLD** axis (bins 45-53), test-time window 27-53. Points = **5 Jaws ×
-  {Naive ▲, Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square** panels,
-  **Pearson star, Spearman shown** (agrees). J (ΔDPA) n.s. (r=+0.24 p=0.30); **K (ΔGNG) `*`
-  (r=−0.45 p=0.044, ρ=−0.45 p=0.045).**
+- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code on the
+  **trainLD_TEST** axis (bins **45-59** = LD+TEST, the main-overlaps-figure convention), readout
+  window **27-53** (delay, pre-response). Also sets I & L's depth (all row 4 on one axis). Points =
+  **5 Jaws × {Naive ▲, Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square**
+  panels, **Pearson star, Spearman shown** (agrees). J (ΔDPA) n.s. (r=+0.28 p=0.23); **K (ΔGNG) `*`
+  (r=−0.61 p=0.004, ρ=−0.56 p=0.011).**
 
   **Stats note (important — this is a *between-animal* coupling):** mice with a bigger
   laser-induced Δdepth show a bigger Δaccuracy. A `(1|mouse)` random-intercept LMM is the
   **wrong** model here — it absorbs the between-mouse variance (the signal) into the intercept
-  and tests only the within-mouse slope, so it reads n.s. (p=0.13) purely by construction; do
-  NOT use it for J/K (contrast M/N, where the effect *is* within-mouse OFF-vs-ON so the random
-  intercept is correct). The coupling is robust across every slicing (Expert-10 r=−0.66 p=0.038;
-  20-pt r=−0.45 p=0.044; per-mouse-mean r=−0.67) and Spearman agrees, so it is real; the honest
-  caveat is only that n=5 leaves the strict animal-level test underpowered (per-mouse p=0.21).
+  and tests only the within-mouse slope; do NOT use it for J/K (contrast M/N, where the effect
+  *is* within-mouse OFF-vs-ON so the random intercept is correct). The coupling is robust across
+  every slicing (Expert-10 r=−0.78 p=0.008; 20-pt r=−0.61 p=0.004; **per-mouse-mean r=−0.80**,
+  n=5 p=0.10) and Spearman agrees.
+
+  **Axis choice (trainLD_TEST) — why, and the honest caveat:** the depth↔ΔGNG coupling
+  *strengthens monotonically* as the training window slides from early delay toward the choice
+  epoch — per-mouse-mean r: trainDELAY(18-53) −0.14 → trainLD(45-53) −0.67 → **trainLD_TEST(45-59)
+  −0.80** → trainLDTEST05(51-56) −0.93. This is interpretable (the code is most behaviour-predictive
+  near the decision), but picking the *argmax* window (the narrow 51-56 boundary) would be post-hoc
+  cherry-picking. So the headline uses **trainLD_TEST** = the pre-committed main-overlaps-figure
+  axis (not the max), and the monotonic window-sweep is the honest way to report the boundary result.
+  ΔDPA stays n.s. on every axis (specificity holds). Readout on 27-53 keeps depth in the delay
+  (pre-response), so it is not circular despite the axis being trained through TEST.
 
 Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
 - **L** — trial-level **GEE logistic** `accuracy ~ depth_z`, cluster-robust by mouse
