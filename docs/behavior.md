@@ -314,18 +314,25 @@ Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
   identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
   DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
   (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
-- **M, N** — **behavioural control**: signal-detection **d′** (sensitivity) and **criterion**
-  (bias) per mouse, loglinear-corrected, laser OFF vs ON, paired-t on ΔON−OFF. **All n.s.**
-  (d′: DPA p=0.19, GNG p=0.37; c: DPA p=0.66, GNG p=0.99). The transient laser spares BOTH
-  sensitivity and bias — the "shifts bias not sensitivity" hypothesis is **not** supported;
-  reinforces panel H. Labelled "(control)" — these are *behavioural* SDT, not a neural-geometry
-  result. A neural-axis version (neurometric d′/criterion on the `depth` DV) was tried and
-  **rejected**: `depth` at late-delay 27–53 does not linearly separate stimulus *or* choice
-  (d′≈0; only the DPA-axis↔Go/NoGo lick-coupling shows, noisy/n.s.). `depth` behaves as a code
-  *engagement/quality* signal (predicts correctness, panel L) rather than a discrimination axis,
-  so it has no honest SDT decomposition. A genuine neural-discriminability panel would need
-  tensor-level cross-validated decoding (choice target is saved; a stimulus/sensitivity axis
-  would need a `run_overlaps.py --with-laser` re-run for that target).
+- **M** — **neural SENSITIVITY**: sample-axis (DPA memoranda) code discriminability
+  **d′ (odor A vs B)** at late-delay, per mouse, laser OFF vs ON, paired-t on ΔON−OFF.
+  **Spared: OFF 1.18 → ON 1.15, p=0.93** (all-tasks pooled 1.06→1.02, p=0.80). The transient
+  laser does not blunt the memory code's separability.
+- **N** — the same sample-code **d′ across the trial** (per-mouse mean±SEM, OFF vs ON), shaded
+  = late-delay/laser window. OFF≈ON throughout — sensitivity intact at every delay moment.
+  Sample d′ peaks ≈1.8 at encoding (bin ~22), holds ≈0.8–1.4 through the delay.
+
+The **sample axis is decoded separately** (`run_overlaps.py --scaler none --no-raw --with-laser
+--targets sample` → `X_..._laser_targets_sample.pkl`, ~10 min, gitignored). It genuinely
+separates odor A/B (validated d′≈1.2 late-delay), which is why it supports an honest neural-d′,
+**unlike the `depth`/choice DV** — a neurometric decomposition of `depth` was tried and rejected
+(`depth` at 27–53 separates neither stimulus nor choice, d′≈0; it is a code *engagement/quality*
+signal that predicts correctness (L), not a discrimination axis). The earlier *behavioural*
+d′/criterion SDT (both spared, all n.s.) is superseded by M/N and is no longer drawn (kept in git
+history / this note as a control).
+
+Row-4 geometry story: the transient laser moves the code's **position** (I, push) while sparing
+its **readout** (L) and its **discriminability** (M,N) — three distinct geometric properties.
 
 Design notes (settled after iteration — see [[project_behavior_opto_figure]]): F–J are
 Jaws-only by request; the batch (B–E) is a different chronic cohort, so the figure deliberately

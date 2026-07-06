@@ -20,10 +20,22 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws, Expert; A&B indep., 10 pts)
   K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (specificity / the coupled one)
   Depth read on the trainLD axis (bins 45-53); late-delay window (27-53); J/K square, all trials.
+  ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
+  L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
+     the code→behaviour READOUT survives silencing (DPA OR≈1.4 both; GNG ns).
+  M  Neural SENSITIVITY: sample-axis (DPA memoranda) code discriminability d′ (A vs B,
+     late-delay), OFF vs ON per mouse — spared (OFF 1.18 ≈ ON 1.15, ns).
+  N  Same sample-code d′ across the trial (per-mouse mean±SEM) — OFF≈ON throughout the
+     delay (shaded = late-delay/laser window).
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
 (B–E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
-demonstrably moves the choice code, and Δdepth predicts Δaccuracy across animals (I,J).
+demonstrably moves the choice code's POSITION (I), while sparing its READOUT (L) and its
+DISCRIMINABILITY (M,N) — and Δdepth predicts Δaccuracy across animals (I–K).
+
+Data dependency: needs BOTH laser tensors in ../data/overlaps (gitignored — regenerate):
+  run_overlaps.py --scaler none --no-raw --with-laser --targets choice   (depth, I–L)
+  run_overlaps.py --scaler none --no-raw --with-laser --targets sample   (sensitivity, M,N)
 
 Helpers copied inline (per repo convention) from fig_behavior_learning_offon.py,
 fig_behavior_learning_batch.py (--ctrlopto) and plot_scatter_laser.py, so those stay
@@ -130,6 +142,48 @@ def _depth_on_axis(bins_train):
 
 depth_all = _depth_on_axis(options['bins_LD'])                 # trainLD axis (45-53) — both I & J
 del X                                                          # free ~1 GB
+
+# ── neural SENSITIVITY: sample (DPA memorandum) code discriminability ───────────
+#   Separate tensor decoded with run_overlaps.py --with-laser --targets sample.
+#   The sample axis genuinely separates odor A vs B (validated d'≈1.2 late-delay),
+#   unlike the choice DV — so its discriminability IS a real neural-sensitivity analog.
+print('loading sample-axis laser tensor …')
+DUM_S = 'log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_sample'
+Xs = pkl_load(f'X_{DUM_S}', path=DATA_IN)
+ys = pkl_load(f'labels_{DUM_S}', path=DATA_IN)
+sdf_all = Xs[..., options['bins_LD'], :].mean(-2)[:, 1][:, BINS_LATE].mean(1).astype(float)   # late-delay
+sdf_diag = np.stack([Xs[:, 1, t, t] for t in range(Xs.shape[-1])], axis=1).astype(float)      # diagonal(t)
+N_T = Xs.shape[-1]
+del Xs                                                         # free ~1 GB
+_samp = ys['sample'].values.astype(float)
+_baseS = (ys.stage == 'Expert').values & (ys.tasks == 'DPA').values   # DPA memoranda, Expert
+_lasS, _moS = ys.laser.values, ys.mouse.values
+
+
+def _dprime_split(v, mask):
+    """Neural d' = (μ_A − μ_B)/σ_pooled of the sample decision function under `mask`."""
+    a = v[mask & (_samp == 1)]; b = v[mask & (_samp == 0)]
+    a = a[np.isfinite(a)]; b = b[np.isfinite(b)]
+    if len(a) < 5 or len(b) < 5:
+        return np.nan
+    ps = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)
+    return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
+
+
+# per-mouse late-delay sample-code d', OFF vs ON (Jaws)
+SAMPD = {las: np.array([_dprime_split(sdf_all, _baseS & (_moS == m) & (_lasS == las)) for m in JAWS])
+         for las in (0, 1)}
+# per-mouse sample-code d' timecourse (diagonal), OFF vs ON
+SAMPTC = {}
+for las in (0, 1):
+    arr = np.full((len(JAWS), N_T), np.nan)
+    for j, m in enumerate(JAWS):
+        base = _baseS & (_moS == m) & (_lasS == las)
+        arr[j] = [_dprime_split(sdf_diag[:, t], base) for t in range(N_T)]
+    SAMPTC[las] = arr
+_dd = (SAMPD[1] - SAMPD[0])[np.isfinite(SAMPD[1] - SAMPD[0])]
+print('sample-code d′ (late-delay, Jaws DPA): OFF %.2f → ON %.2f  (p=%.3f)'
+      % (np.nanmean(SAMPD[0]), np.nanmean(SAMPD[1]), float(ttest_1samp(_dd, 0).pvalue)))
 
 is_choice = (y.target == 'choice').values
 is_dpa = (y.tasks == 'DPA').values
@@ -389,32 +443,9 @@ for _tk in ('DPA', 'GNG'):
         print(f'  {_tk} {tag}: OR={v[0]:.3f}  p={v[3]:.4f}  (n={v[4]})')
 
 
-def _dc(hit, ns, fa, nn):
-    """d' and criterion with loglinear (Hautus) correction."""
-    HR = (hit + 0.5) / (ns + 1); FA = (fa + 0.5) / (nn + 1)
-    return norm.ppf(HR) - norm.ppf(FA), -0.5 * (norm.ppf(HR) + norm.ppf(FA))
-
-
-# per-(mouse, laser) d' & criterion — DPA (signal=paired) and GNG (signal=Go)
-SDT = {tk: {'d': {0: [], 1: []}, 'c': {0: [], 1: []}} for tk in ('DPA', 'GNG')}
-for _mo in JAWS:
-    for _las in (0, 1):
-        _sub = _dfl[(_dfl.mouse == _mo) & (_dfl.laser == _las)]
-        _sp, _su = _sub[(_sub.tasks == 'DPA') & (_sub.pair == 1)], _sub[(_sub.tasks == 'DPA') & (_sub.pair == 0)]
-        _dp, _cr = (_dc(_sp.perf.sum(), len(_sp), len(_su) - _su.perf.sum(), len(_su))
-                    if len(_sp) and len(_su) else (np.nan, np.nan))
-        SDT['DPA']['d'][_las].append(_dp); SDT['DPA']['c'][_las].append(_cr)
-        _sg, _sn = _sub[_sub.tasks == 'DualGo'], _sub[_sub.tasks == 'DualNoGo']
-        _dp, _cr = (_dc(_sg.odr.sum(), len(_sg), len(_sn) - _sn.odr.sum(), len(_sn))
-                    if len(_sg) and len(_sn) else (np.nan, np.nan))
-        SDT['GNG']['d'][_las].append(_dp); SDT['GNG']['c'][_las].append(_cr)
-print('SDT (mean OFF→ON, paired-t p):')
-for tk in ('DPA', 'GNG'):
-    for met in ('d', 'c'):
-        _o, _n = np.array(SDT[tk][met][0], float), np.array(SDT[tk][met][1], float)
-        _dd = (_n - _o)[np.isfinite(_n - _o)]
-        _pp = float(ttest_1samp(_dd, 0).pvalue) if len(_dd) > 1 else np.nan
-        print(f"  {tk} {met}': {np.nanmean(_o):+.2f} → {np.nanmean(_n):+.2f}  (p={_pp:.3f})")
+# (Behavioural d′/criterion SDT decomposition was computed here as a control — the
+#  transient laser spared both, all n.s. — but is superseded by the NEURAL sensitivity
+#  panels M/N below; see docs/behavior.md §6 and the memory note.)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -660,39 +691,37 @@ axL.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', 
                     mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
            frameon=False, fontsize=7, loc='best')
 
-# ── M, N: signal-detection — d′ (sensitivity) and criterion (bias), OFF vs ON ──
+# ── M: neural SENSITIVITY — sample (DPA memoranda) code discriminability OFF/ON ─
 axM = fig.add_subplot(gs_body[3, 4:8])
+_o, _n = SAMPD[0], SAMPD[1]
+for j, m in enumerate(JAWS):
+    if np.isfinite(_o[j]) and np.isfinite(_n[j]):
+        axM.plot([0, 1], [_o[j], _n[j]], '-', color=MOUSE_COLOR[m], lw=1.0, alpha=0.55, zorder=2)
+for xx, vv, col in [(0, _o, OFF_C), (1, _n, ON_C)]:
+    mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(np.isfinite(vv).sum())
+    axM.errorbar(xx, mn, yerr=se, fmt='o', color=col, ms=12, capsize=4, lw=2, mec='k', mew=0.6, zorder=5)
+_ddm = (_n - _o)[np.isfinite(_n - _o)]; _pvm = float(ttest_1samp(_ddm, 0).pvalue)
+axM.text(0.5, np.nanmax(np.concatenate([_o, _n])), star(_pvm) if star(_pvm) else 'n.s.',
+         ha='center', va='bottom', fontsize=12, fontweight='bold',
+         color='k' if _pvm < 0.05 else '0.5')
+axM.axhline(0, ls=':', color='0.6', lw=0.9)
+axM.set_xticks([0, 1]); axM.set_xticklabels(['laser\nOFF', 'laser\nON']); axM.set_xlim(-0.4, 1.4)
+axM.set_ylabel('sample-code d′\n(late delay, A vs B)')
+axM.set_title('Memory-code sensitivity spared', loc='left', fontweight='bold', fontsize=TITLE_FS)
+
+# ── N: sample-code discriminability across the trial, OFF vs ON (laser = delay) ─
 axN = fig.add_subplot(gs_body[3, 8:12])
-_XG = {'DPA': (0.0, 1.0), 'GNG': (2.3, 3.3)}
-for ax, met, ylab, ttl in [(axM, 'd', "sensitivity  d′", 'Behavioural d′ unchanged (control)'),
-                           (axN, 'c', 'criterion  c', 'Behavioural bias unchanged (control)')]:
-    for tk, (x0, x1) in _XG.items():
-        off = np.array(SDT[tk][met][0], float); on = np.array(SDT[tk][met][1], float)
-        for j, m in enumerate(JAWS):
-            if np.isfinite(off[j]) and np.isfinite(on[j]):
-                ax.plot([x0, x1], [off[j], on[j]], '-', color=MOUSE_COLOR[m], lw=0.9, alpha=0.5, zorder=2)
-        for xx, vv, col in [(x0, off, OFF_C), (x1, on, ON_C)]:
-            ok = np.isfinite(vv)
-            mn = np.nanmean(vv); se = np.nanstd(vv, ddof=1) / np.sqrt(ok.sum())
-            ax.errorbar(xx, mn, yerr=se, fmt='o', color=col, ms=11, capsize=4, lw=2,
-                        mec='k', mew=0.6, zorder=5)
-        dd = on - off; dd = dd[np.isfinite(dd)]
-        pv = float(ttest_1samp(dd, 0).pvalue) if len(dd) > 1 else np.nan
-        lab = star(pv) if star(pv) else 'n.s.'
-        ytop = np.nanmax(np.concatenate([off, on]))
-        ax.text((x0 + x1) / 2, ytop, lab, ha='center', va='bottom', fontsize=11,
-                fontweight='bold', color='k' if (np.isfinite(pv) and pv < 0.05) else '0.5')
-    ax.axhline(0, ls=':', color='0.6', lw=0.9)
-    ax.set_xticks([0, 1, 2.3, 3.3]); ax.set_xticklabels(['OFF', 'ON', 'OFF', 'ON'])
-    ax.set_xlim(-0.5, 3.8)
-    for xc, tk in [(0.5, 'DPA'), (2.8, 'GNG')]:
-        ax.text(xc, -0.15, tk, transform=ax.get_xaxis_transform(), ha='center', va='top',
-                fontsize=8.5, fontweight='bold', color='0.3')
-    ax.set_ylabel(ylab)
-    ax.set_title(ttl, loc='left', fontweight='bold', fontsize=TITLE_FS)
-axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', ms=8, mec='k', label='laser OFF'),
-                    mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
-           frameon=False, fontsize=7.5, loc='best')
+_tt = np.arange(N_T)
+for las, col, lab in [(0, OFF_C, 'laser OFF'), (1, ON_C, 'laser ON')]:
+    mn = np.nanmean(SAMPTC[las], 0)
+    se = np.nanstd(SAMPTC[las], 0, ddof=1) / np.sqrt(np.isfinite(SAMPTC[las]).sum(0))
+    axN.plot(_tt, mn, '-', color=col, lw=2, label=lab, zorder=3)
+    axN.fill_between(_tt, mn - se, mn + se, color=col, alpha=0.16, lw=0, zorder=1)
+axN.axvspan(BINS_LATE[0], BINS_LATE[-1], color='0.85', alpha=0.5, zorder=0)   # late-delay (laser) window
+axN.axhline(0, ls=':', color='0.6', lw=0.9)
+axN.set_xlabel('time bin (→ trial)'); axN.set_ylabel('sample-code d′')
+axN.set_title('…intact across the delay', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axN.legend(frameon=False, fontsize=7.5, loc='upper right')
 
 # ── panel letters + row banners ───────────────────────────────────────────────
 # reading order: A scheme · B–E batch · F–H recorded · I–K overlaps · L–N mechanism
@@ -711,7 +740,7 @@ def row_banner(ax_left, text, dy=0.014):
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
 row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (Expert, 5 Jaws · A&B independent, 10 pts)')
-row_banner(axL, 'Mechanism (L, neural→behaviour readout) + behavioural control (M,N) · Expert, 5 Jaws: code predicts DPA choice; transient laser spares behavioural d′ & bias')
+row_banner(axL, 'Mechanism · Expert, 5 Jaws: neural→behaviour readout survives silencing (L); DPA memory-code discriminability spared, throughout the delay (M,N)')
 
 fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '
@@ -722,7 +751,9 @@ fig.text(0.5, 0.004,
          '(5 Jaws → 10 pts); star = Pearson.  '
          'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
          '(OR per within-mouse SD of depth; readout preserved under silencing). '
-         'M/N signal-detection d′ & criterion per mouse (loglinear-corrected), OFF vs ON, star = paired t on ΔON−OFF.  '
+         'M neural sensitivity = sample-axis (DPA memoranda) code discriminability d′ (A vs B, late-delay), per mouse '
+         'OFF vs ON, star = paired t on ΔON−OFF; N same d′ across the trial (per-mouse mean±SEM, shaded = late-delay/laser). '
+         'Sample axis decoded with run_overlaps.py --with-laser --targets sample.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 
