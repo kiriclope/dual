@@ -263,7 +263,7 @@ def _setup_A(ax, ylab):
     add_vlines(ax, if_dpa=0)
     ax.axhline(0, ls='--', color='k', lw=0.6, zorder=1)
     ax.set_xlim([0, 14]); ax.set_xticks([0, 2, 4.5, 6.5, 9, 11, 14])
-    ax.set_ylabel(ylab, fontsize=9); ax.tick_params(labelsize=7)
+    ax.set_ylabel(ylab, fontsize=9); ax.tick_params(labelsize=9)   # match B/C (rcParams)
 
 
 def _draw_codes_row(axes_row, base, stage_label, show_titles, show_xlabel):
