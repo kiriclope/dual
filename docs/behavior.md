@@ -301,10 +301,20 @@ banners naming the design (within-mouse vs between-group). Helpers copied inline
   group mean±SEM). Shows the laser moves each animal's code (M06 up, M01/M15 down, others flat)
   while the group mean is ~flat — the shift here is the x-axis of J/K, and explains "code moves
   per-mouse yet no gross behavioural effect" (panel H).
-- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only, A&B taken as independent
-  points** (5 mice → 10 pts, all trials), depth = DPA choice-code late-delay on the **trainLD**
-  axis (bins 45-53), late-delay test-time window 27-53. **Square** panels (`set_box_aspect(1)`),
-  Pearson-based star. J (ΔDPA) n.s. (r≈+0.39); K (ΔGNG) `*` (r≈−0.66 p≈0.037).
+- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code
+  late-delay on the **trainLD** axis (bins 45-53), test-time window 27-53. Points = **5 Jaws ×
+  {Naive ▲, Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square** panels,
+  **Pearson star, Spearman shown** (agrees). J (ΔDPA) n.s. (r=+0.24 p=0.30); **K (ΔGNG) `*`
+  (r=−0.45 p=0.044, ρ=−0.45 p=0.045).**
+
+  **Stats note (important — this is a *between-animal* coupling):** mice with a bigger
+  laser-induced Δdepth show a bigger Δaccuracy. A `(1|mouse)` random-intercept LMM is the
+  **wrong** model here — it absorbs the between-mouse variance (the signal) into the intercept
+  and tests only the within-mouse slope, so it reads n.s. (p=0.13) purely by construction; do
+  NOT use it for J/K (contrast M/N, where the effect *is* within-mouse OFF-vs-ON so the random
+  intercept is correct). The coupling is robust across every slicing (Expert-10 r=−0.66 p=0.038;
+  20-pt r=−0.45 p=0.044; per-mouse-mean r=−0.67) and Spearman agrees, so it is real; the honest
+  caveat is only that n=5 leaves the strict animal-level test underpowered (per-mouse p=0.21).
 
 Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
 - **L** — trial-level **GEE logistic** `accuracy ~ depth_z`, cluster-robust by mouse

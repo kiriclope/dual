@@ -17,8 +17,9 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   ── Same projection · overlaps causal coupling (laser ON−OFF) ──
   I  Per-mouse choice-code depth, laser OFF vs ON (Jaws, A&B pooled) — the manipulation
      moves each animal's code (its shift is the x-axis of J/K); group mean flat.
-  J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws, Expert; A&B indep., 10 pts)
-  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (specificity / the coupled one)
+  J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws; Naive▲+Expert● × A&B, 20 pts)
+  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.45 p=.044,
+     ρ=−0.45 p=.045 — a between-animal coupling, robust across slicings; n=5 so animal-level p=.21)
   Depth read on the trainLD axis (bins 45-53); late-delay window (27-53); J/K square, all trials.
   ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
   L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
@@ -374,36 +375,38 @@ for r in rows:
 SAMPLE_CLASSES = [(0, [0, 1]), (1, [2, 3])]
 
 
-def _depth_sample(depth, mmask, laser_val, pairs):
-    m = (mmask & is_choice & is_dpa & EXP & (y.laser == laser_val).values
+def _depth_sample(depth, mmask, laser_val, pairs, st):
+    m = (mmask & is_choice & is_dpa & st.values & (y.laser == laser_val).values
          & y.odor_pair.isin(pairs).values)
     return float(depth[m].mean()) if m.sum() else np.nan
 
 
-def _perf_mean_sample(col, task_mask, laser_val, pairs):
-    m = ((y.target == 'choice') & task_mask & EXP & (y.laser == laser_val)
+def _perf_mean_sample(col, task_mask, laser_val, pairs, st):
+    m = ((y.target == 'choice') & task_mask & st & (y.laser == laser_val)
          & y.odor_pair.isin(pairs))
     v = y.loc[m.values, col].dropna()
     return v.mean() if len(v) else np.nan
 
 
 rows_ab = []
-for mouse in JAWS:                                      # Jaws inhibition only (n=5)
-    mmask = (y.mouse == mouse).values
-    tm = (y.mouse == mouse)
-    for cls, pairs in SAMPLE_CLASSES:
-        rows_ab.append(dict(
-            mouse=mouse, cls=cls,
-            d_depth=_depth_sample(depth_all, mmask, 1, pairs) - _depth_sample(depth_all, mmask, 0, pairs),
-            d_dpa=(_perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 1, pairs)
-                   - _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 0, pairs)),
-            d_gng=(_perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 1, pairs)
-                   - _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 0, pairs)),
-        ))
+for st_name in ['Naive', 'Expert']:                     # Naive + Expert as independent points
+    st = (y.stage == st_name)
+    for mouse in JAWS:                                  # Jaws inhibition only (n=5)
+        mmask = (y.mouse == mouse).values
+        tm = (y.mouse == mouse)
+        for cls, pairs in SAMPLE_CLASSES:               # odor A [0,1] / B [2,3]
+            rows_ab.append(dict(
+                mouse=mouse, cls=cls, stage=st_name,
+                d_depth=_depth_sample(depth_all, mmask, 1, pairs, st) - _depth_sample(depth_all, mmask, 0, pairs, st),
+                d_dpa=(_perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 1, pairs, st)
+                       - _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 0, pairs, st)),
+                d_gng=(_perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 1, pairs, st)
+                       - _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 0, pairs, st)),
+            ))
 print(f'\nOverlaps A&B-independent Δ(on−off) [Jaws, {len(rows_ab)} pts]:')
 for r in rows_ab:
-    print(f'  {r["mouse"]:9s} {"A" if r["cls"] == 0 else "B"} Δdepth={r["d_depth"]:+.3f} '
-          f'ΔDPA={r["d_dpa"]:+.3f} ΔGNG={r["d_gng"]:+.3f}')
+    print(f'  {r["mouse"]:9s} {r["stage"][:3]} {"A" if r["cls"] == 0 else "B"} '
+          f'Δdepth={r["d_depth"]:+.3f} ΔDPA={r["d_dpa"]:+.3f} ΔGNG={r["d_gng"]:+.3f}')
 
 
 def regression_band(ax, xs, ys, color='0.25'):
@@ -588,33 +591,37 @@ ally = np.array([r[k] for k in ('d_dpa', 'd_gng') for r in rows_ab], float)
 ally = ally[~np.isnan(ally)]
 pad = (ally.max() - ally.min()) * 0.15 or 0.05
 ylim = (ally.min() - pad, ally.max() + pad)
+_STMK = {'Expert': 'o', 'Naive': '^'}                       # Expert circle / Naive triangle
 for ax, key, ylab, msg in [
         (axE, 'd_dpa', 'Δ DPA accuracy (on−off)', 'Depth change tracks ΔDPA'),
         (axF, 'd_gng', 'Δ GNG accuracy (on−off)', 'Depth change predicts ΔGNG')]:
     xdep = np.array([r['d_depth'] for r in rows_ab])
     yv = np.array([r[key] for r in rows_ab])
-    for mouse in JAWS:                                   # join each mouse's A & B dots
-        idx = [i for i, r in enumerate(rows_ab) if r['mouse'] == mouse]
-        ax.plot(xdep[idx], yv[idx], '-', color=MOUSE_COLOR[mouse], lw=0.8, alpha=0.5, zorder=3)
+    for mouse in JAWS:                                   # join A&B within each mouse×stage
+        for stg in ('Naive', 'Expert'):
+            idx = [i for i, r in enumerate(rows_ab) if r['mouse'] == mouse and r['stage'] == stg]
+            ax.plot(xdep[idx], yv[idx], '-', color=MOUSE_COLOR[mouse], lw=0.6, alpha=0.35, zorder=3)
     for i, r in enumerate(rows_ab):
         face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'    # A solid / B open
         ax.scatter(xdep[i], yv[i], facecolors=face, edgecolors=MOUSE_COLOR[r['mouse']],
-                   marker='o', s=95, linewidths=1.2, zorder=5)
+                   marker=_STMK[r['stage']], s=80, linewidths=1.1, zorder=5)
     regression_band(ax, xdep, yv, color='0.25')
     ax.axhline(0, ls=':', color='k', lw=0.8); ax.axvline(0, ls=':', color='k', lw=0.8)
     ax.set_ylim(ylim)
     ok = ~(np.isnan(xdep) | np.isnan(yv))
     r_p, p_p = pearsonr(xdep[ok], yv[ok]); rho, ps = spearmanr(xdep[ok], yv[ok])
     ax.text(0.5, 0.02, f'n={ok.sum()}: r={r_p:+.2f} p={p_p:.3f}  ρ={rho:+.2f} p={ps:.3f}',
-            transform=ax.transAxes, ha='center', va='bottom', fontsize=7, color='0.3')
+            transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
             va='top', fontsize=20, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
     ax.set_xlabel('Δ DPA choice-code depth (on−off, trainLD)'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
     ax.set_box_aspect(1)                                  # square panels
-_sample_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
-             mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B')]
-axE.legend(handles=_sample_h, frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
+_leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
+          mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B'),
+          mlines.Line2D([0], [0], marker='o', color='k', mfc='0.5', ls='none', ms=7, label='Expert'),
+          mlines.Line2D([0], [0], marker='^', color='k', mfc='0.5', ls='none', ms=7, label='Naive')]
+axE.legend(handles=_leg_h, frameon=False, fontsize=6.5, loc='upper left', handletextpad=0.3, ncol=2, columnspacing=0.8)
 
 # ── G, H, I: batch ACC-Prl control vs opto learning curves — ROW 1 ────────────
 axG = fig.add_subplot(gs_body[0, 0:3])
@@ -751,7 +758,7 @@ def row_banner(ax_left, text, dy=0.014):
 
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
-row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (Expert, 5 Jaws · A&B independent, 10 pts)')
+row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (5 Jaws · Naive▲+Expert● × A&B independent, 20 pts)')
 row_banner(axL, 'Mechanism · Expert, 5 Jaws: neural→behaviour readout survives silencing (L); code discriminability d′ ON≈OFF (on unity) — DPA memory (M) & GNG (N)')
 
 fig.text(0.5, 0.004,
@@ -759,8 +766,8 @@ fig.text(0.5, 0.004,
          'LMM perf ~ group×day + (1|mouse); per-day stars Welch, uncorrected.  '
          'F–H recorded cohort within-mouse (interleaved laser), Jaws inhibition n=5; LMM perf ~ laser×day + (1|mouse); '
          'F/G per-day stars = one-sample ΔON−OFF.  I per-mouse OFF-vs-ON choice-code depth (Jaws, A&B pooled). '
-         'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD), odor A&B as independent points '
-         '(5 Jaws → 10 pts); star = Pearson.  '
+         'J–K overlaps Δ(on−off), depth = DPA choice-code late-delay (trainLD); 5 Jaws × {Naive ▲, Expert ●} × A&B '
+         '= 20 pts; star = Pearson (Spearman agrees). Between-animal coupling (n=5 → animal-level underpowered).  '
          'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
          '(OR per within-mouse SD of depth; readout preserved under silencing). '
          'M,N code discriminability d′ laser ON vs OFF, 5 Jaws × {Naive ○, Expert ●} = 10 pts (points on unity = spared): '
