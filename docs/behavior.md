@@ -314,14 +314,14 @@ Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
   identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
   DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
   (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
-- **M** — **per-mouse Δd′ (ON−OFF)** of the **DPA memory code**: sample-axis discriminability
-  **d′ (odor A vs B)** at **late delay** (bins_LD 45–53), Δ = d′_ON − d′_OFF per Jaws mouse,
-  stems to 0 + group mean±SEM, one-sample t. **Spared: meanΔ=−0.13, p=0.71** (per-mouse
-  heterogeneous — M15 −1.32, small-baseline mice rise).
-- **N** — **per-mouse Δd′ (ON−OFF)** of the **GNG code**: **choice-axis** discriminability
-  **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, when the Go/NoGo cue is processed).
-  **Spared: meanΔ=−0.21, p=0.47** (M12 −1.11, M18 +0.57). The choice axis separates Go/NoGo
-  (d′ peaks ≈0.56 at mid-delay), so no separate distractor decode is needed.
+- **M** — **d′ laser ON vs OFF scatter** (per mouse) of the **DPA memory code**: sample-axis
+  discriminability **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON,
+  dashed **unity line** = spared, square (`set_box_aspect(1)`), meanΔ + paired-t inset.
+  **Spared: OFF 1.02 → ON 0.89, Δ p=0.71** (points scatter around unity; M15 the low outlier).
+- **N** — **d′ ON vs OFF scatter** of the **GNG code**: **choice-axis** discriminability
+  **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, the Go/NoGo cue). **Spared: OFF 0.65 →
+  ON 0.44, Δ p=0.47** (M12 below unity, M18 above). The choice axis separates Go/NoGo (d′ peaks
+  ≈0.56 at mid-delay), so no separate distractor decode is needed.
 
 Windows: A/B read at late delay (memoranda held to the comparison), Go/NoGo at mid-delay (cue
 onset) — both inside the laser/delay window. The **sample axis is decoded separately**

@@ -23,10 +23,10 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   ── Mechanism (recorded, Expert, 5 Jaws) — what the transient laser does to the code ──
   L  Trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit OFF vs ON:
      the code→behaviour READOUT survives silencing (DPA OR≈1.4 both; GNG ns).
-  M  Per-mouse Δd′ (ON−OFF), DPA memory code: sample-axis d′(A vs B) at late delay
-     (bins_LD 45-53) — discriminability spared (meanΔ=−0.13, ns).
-  N  Per-mouse Δd′ (ON−OFF), GNG code: choice-axis d′(Go vs NoGo) at mid-delay
-     (bins_MD 33-38, the Go/NoGo cue) — spared (meanΔ=−0.21, ns).
+  M  d′ laser ON vs OFF scatter (per mouse), DPA memory code: sample-axis d′(A vs B) at
+     late delay (bins_LD 45-53) — on unity = spared (OFF 1.02 → ON 0.89, ns).
+  N  d′ ON vs OFF scatter, GNG code: choice-axis d′(Go vs NoGo) at mid-delay
+     (bins_MD 33-38, the Go/NoGo cue) — on unity = spared (OFF 0.65 → ON 0.44, ns).
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
 (B–E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
@@ -176,16 +176,18 @@ _gGo, _gNo = (y.tasks == 'DualGo').values, (y.tasks == 'DualNoGo').values
 _baseG = (y.stage == 'Expert').values
 cMD = cdf_diag[:, options['bins_MD']].mean(1)
 
-DDPR = {'sample': np.full(len(JAWS), np.nan), 'gng': np.full(len(JAWS), np.nan)}
-for j, m in enumerate(JAWS):
-    sm = _baseS & (ys.mouse.values == m); gm = _baseG & (y.mouse.values == m)
-    DDPR['sample'][j] = (_dprime(sLD, sm & (ys.laser.values == 1), _sA, _sB)
-                         - _dprime(sLD, sm & (ys.laser.values == 0), _sA, _sB))
-    DDPR['gng'][j] = (_dprime(cMD, gm & (y.laser.values == 1), _gGo, _gNo)
-                      - _dprime(cMD, gm & (y.laser.values == 0), _gGo, _gNo))
+# per-mouse d′ under laser OFF and ON, for each measure (→ ON-vs-OFF scatters)
+DPR = {k: {0: np.full(len(JAWS), np.nan), 1: np.full(len(JAWS), np.nan)} for k in ('sample', 'gng')}
+for j, mo in enumerate(JAWS):
+    msk_s = _baseS & (ys.mouse.values == mo)
+    msk_g = _baseG & (y.mouse.values == mo)
+    for las in (0, 1):
+        DPR['sample'][las][j] = _dprime(sLD, msk_s & (ys.laser.values == las), _sA, _sB)
+        DPR['gng'][las][j] = _dprime(cMD, msk_g & (y.laser.values == las), _gGo, _gNo)
 for k, ttl in [('sample', 'A/B late-delay'), ('gng', 'Go/NoGo mid-delay')]:
-    dd = DDPR[k][np.isfinite(DDPR[k])]
-    print(f'Δd′ {ttl}: mean={np.nanmean(DDPR[k]):+.2f}  p={float(ttest_1samp(dd, 0).pvalue):.3f}')
+    dd = (DPR[k][1] - DPR[k][0]); dd = dd[np.isfinite(dd)]
+    print(f'd′ {ttl}: OFF {np.nanmean(DPR[k][0]):+.2f} → ON {np.nanmean(DPR[k][1]):+.2f}'
+          f'  (Δ p={float(ttest_1samp(dd, 0).pvalue):.3f})')
 
 is_choice = (y.target == 'choice').values
 is_dpa = (y.tasks == 'DPA').values
@@ -693,34 +695,27 @@ axL.legend(handles=[mlines.Line2D([0], [0], marker='o', color=OFF_C, ls='none', 
                     mlines.Line2D([0], [0], marker='o', color=ON_C, ls='none', ms=8, mec='k', label='laser ON')],
            frameon=False, fontsize=7, loc='best')
 
-# ── M, N: per-mouse Δd′ (ON−OFF) of the code — sensitivity change under silencing ─
+# ── M, N: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
 axM = fig.add_subplot(gs_body[3, 4:8])
 axN = fig.add_subplot(gs_body[3, 8:12])
 
 
-def _dprime_delta_panel(ax, dvals, title):
+def _dprime_scatter(ax, off, on, title):
+    vals = np.concatenate([off, on]); vals = vals[np.isfinite(vals)]
+    lo = min(0.0, vals.min()) - 0.1; hi = vals.max() + 0.15
+    ax.plot([lo, hi], [lo, hi], '--', color='0.5', lw=1, zorder=1)          # unity = spared
     for j, m in enumerate(JAWS):
-        if np.isfinite(dvals[j]):
-            ax.plot([j, j], [0, dvals[j]], '-', color=MOUSE_COLOR[m], lw=1.4, alpha=0.6, zorder=2)
-            ax.scatter(j, dvals[j], color=MOUSE_COLOR[m], s=95, ec='k', lw=0.5, zorder=4)
-    ok = np.isfinite(dvals); mn = np.nanmean(dvals); se = np.nanstd(dvals, ddof=1) / np.sqrt(ok.sum())
-    xm = len(JAWS)
-    ax.errorbar(xm, mn, yerr=se, fmt='s', color='k', ms=10, capsize=4, lw=1.6, zorder=5)
-    pv = float(ttest_1samp(dvals[ok], 0).pvalue)
-    ax.text(xm, mn, '  ' + (star(pv) if star(pv) else 'n.s.'), va='center', ha='left',
-            fontsize=10, fontweight='bold', color='k' if pv < 0.05 else '0.5')
-    lim = np.nanmax(np.abs(dvals)) * 1.25
-    ax.set_ylim(-lim, lim)
-    ax.axhline(0, ls=':', color='0.5', lw=1)
-    ax.set_xticks(list(range(len(JAWS))) + [xm])
-    ax.set_xticklabels([m.replace('Jaws', '') for m in JAWS] + ['mean'], rotation=30, ha='right', fontsize=7)
-    ax.set_xlim(-0.6, xm + 0.6)
-    ax.set_ylabel('Δ d′  (on − off)')
+        ax.scatter(off[j], on[j], color=MOUSE_COLOR[m], s=110, ec='k', lw=0.5, zorder=4)
+    d = (on - off)[np.isfinite(on - off)]; pv = float(ttest_1samp(d, 0).pvalue)
+    ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
+    ax.set_xlabel("d′  laser OFF"); ax.set_ylabel("d′  laser ON")
     ax.set_title(title, loc='left', fontweight='bold', fontsize=TITLE_FS)
+    ax.text(0.5, 0.02, f'meanΔ={np.nanmean(on - off):+.2f}  p={pv:.2f}', transform=ax.transAxes,
+            ha='center', va='bottom', fontsize=7.5, color='0.3')
 
 
-_dprime_delta_panel(axM, DDPR['sample'], 'DPA memory code (A vs B, late delay)')
-_dprime_delta_panel(axN, DDPR['gng'], 'GNG code (Go vs NoGo, mid-delay)')
+_dprime_scatter(axM, DPR['sample'][0], DPR['sample'][1], 'DPA memory code (A vs B, late delay)')
+_dprime_scatter(axN, DPR['gng'][0], DPR['gng'][1], 'GNG code (Go vs NoGo, mid-delay)')
 
 # ── panel letters + row banners ───────────────────────────────────────────────
 # reading order: A scheme · B–E batch · F–H recorded · I–K overlaps · L–N mechanism
@@ -739,7 +734,7 @@ def row_banner(ax_left, text, dy=0.014):
 row_banner(axG, 'Training batch · chronic every-trial silencing · BETWEEN-group opto vs control (ACC-Prl, 9 v 9)')
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
 row_banner(axE, 'Same projection · overlaps: laser ON−OFF moves the choice code (Expert, 5 Jaws · A&B independent, 10 pts)')
-row_banner(axL, 'Mechanism · Expert, 5 Jaws: neural→behaviour readout survives silencing (L); per-mouse Δd′ shows code discriminability spared — DPA memory (M) & GNG (N)')
+row_banner(axL, 'Mechanism · Expert, 5 Jaws: neural→behaviour readout survives silencing (L); code discriminability d′ ON≈OFF (on unity) — DPA memory (M) & GNG (N)')
 
 fig.text(0.5, 0.004,
          'ACC→Prl(mPFC) projection.  B–E training batch, between-group (every-trial silencing), mean ± SEM; '
@@ -750,9 +745,9 @@ fig.text(0.5, 0.004,
          '(5 Jaws → 10 pts); star = Pearson.  '
          'L trial-level GEE logistic accuracy ~ depth_z, cluster-robust by mouse, fit separately for laser OFF vs ON '
          '(OR per within-mouse SD of depth; readout preserved under silencing). '
-         'M,N per-mouse Δd′ (ON−OFF) of code discriminability: M = sample axis odor A vs B at late delay (bins_LD 45-53, '
-         'DPA memoranda; --targets sample tensor); N = choice axis Go vs NoGo at mid-delay (bins_MD 33-38, GNG cue). '
-         'Black square = mean±SEM, star = one-sample t on Δd′.  '
+         'M,N per-mouse code discriminability d′ laser ON vs OFF (points on unity = spared): M = sample axis odor A vs B '
+         'at late delay (bins_LD 45-53, DPA memoranda; --targets sample tensor); N = choice axis Go vs NoGo at mid-delay '
+         '(bins_MD 33-38, GNG cue). Dashed = unity; meanΔ + paired-t on ΔON−OFF inset.  '
          '* p<0.05  ** p<0.01  *** p<0.001',
          ha='center', va='bottom', fontsize=7.3, color='0.45')
 
