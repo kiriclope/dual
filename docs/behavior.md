@@ -349,6 +349,22 @@ discriminability spared.** IMPORTANT — a trial-level `signal×laser` mixed mod
 (sample p=0.34 non-conv, GNG p=0.10). The per-mouse effect is heterogeneous in sign, so the
 mouse-level LMM (n.s.) is the honest read — do NOT headline the trial-level interaction.
 
+Row 5 — **trade-off (the headline coupling framing)**:
+- **O** — **Δdepth vs the trade-off contrast `ΔDPA − ΔGNG`** (Jaws, 20 pts, Naive▲/Expert● × A&B,
+  trainLD_TEST). The trade-off hypothesis (depth↑ → DPA↑ *and* GNG↓) makes one joint prediction —
+  depth positively predicts (ΔDPA−ΔGNG) — so this pools both arms into a single test. **Significant
+  on the pre-committed axis with no window search: Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75
+  p=0.013).** This is the honest way to report the coupling: **J and K are its two arms** (K ΔGNG
+  robust `*`; J ΔDPA the same-signed positive *trend*, n.s. on its own), and O is the joint stat.
+  Chosen over two individually-starred panels because forcing J's marginal `*` needs the argmax
+  51–56 window + Spearman specifically (n.s. by Pearson / on the principled axis) = window×stat
+  selection a reviewer would flag.
+- **P** — per-mouse **DPA vs GNG performance** (Jaws Expert), plotted in the **same balance plane as
+  the non-opto main figure** (`fig_behavior_main.py` panel H), showing each animal's **laser OFF ○ →
+  ON ●** shift (arrows) — the trade-off, behaviourally. ON-trial across-animal r=+0.43 p=0.47 (n=5,
+  descriptive); optimal corner starred. Uses `performance` (DPA) / `odr_perf` (GNG) on target==choice
+  rows, laser 0 vs 1.
+
 Windows: A/B read at late delay (memoranda held to the comparison), Go/NoGo at mid-delay (cue
 onset) — both inside the laser/delay window. The **sample axis is decoded separately**
 (`run_overlaps.py --scaler none --no-raw --with-laser --targets sample` →
