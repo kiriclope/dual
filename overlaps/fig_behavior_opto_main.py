@@ -416,11 +416,11 @@ def regression_band(ax, xs, ys, color='0.25'):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(13, 15.5))
-# 4 equal-height rows. Top row = scheme A (left) + batch B–E as a 2×2 block (right).
-gs = fig.add_gridspec(4, 12, height_ratios=[1, 1, 1, 1], hspace=0.52, wspace=0.62,
-                      left=0.055, right=0.985, top=0.975, bottom=0.05)
-gs_be = gs[0, 5:12].subgridspec(2, 2, hspace=0.62, wspace=0.42)
+fig = plt.figure(figsize=(13, 18.2))
+# 5 equal-height rows. Scheme A spans the top two rows (left); batch B/C and D/E each
+# get a full row on the right (a 2×2 next to A) so the panels come out square.
+gs = fig.add_gridspec(5, 12, height_ratios=[1, 1, 1, 1, 1], hspace=0.55, wspace=0.6,
+                      left=0.055, right=0.985, top=0.98, bottom=0.045)
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
@@ -437,12 +437,12 @@ def show_scheme(ax, path, aspect='equal'):
 
 # ── A: opto scheme banner ─────────────────────────────────────────────────────
 SCHEME = '../opto.png'                        # recorded-cohort design (self-labelled a/b)
-axA = fig.add_subplot(gs[0, 0:5])
+axA = fig.add_subplot(gs[0:2, 0:6])          # scheme spans the top two rows (left)
 show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
 
 # ── B, C: recorded OFF vs ON learning curves (Jaws inhibition) — ROW 2 ─────────
-axB = fig.add_subplot(gs[1, 0:4])
-axC = fig.add_subplot(gs[1, 4:8])
+axB = fig.add_subplot(gs[2, 0:4])
+axC = fig.add_subplot(gs[2, 4:8])
 for ax, (short, col, mask), msg in [
         (axB, REC_METRICS[0], 'Delay silencing spares DPA'),
         (axC, REC_METRICS[1], '…and spares GNG')]:
@@ -487,7 +487,7 @@ axB.set_ylabel('performance')
 #   Absolute A&B-pooled DPA choice-code depth per mouse under laser OFF vs ON — shows
 #   the laser reliably moves each animal's code (the shift that is the scatters' x-axis).
 #   (Sits in the recorded within-mouse row; replaced the old LMM laser forest.)
-axK = fig.add_subplot(gs[1, 8:12])
+axK = fig.add_subplot(gs[2, 8:12])
 _offon = {m: (_pooled_depth((y.mouse == m).values, 0),
               _pooled_depth((y.mouse == m).values, 1)) for m in JAWS}
 _offs = np.array([_offon[m][0] for m in JAWS]); _ons = np.array([_offon[m][1] for m in JAWS])
@@ -508,8 +508,8 @@ axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='c
 # ── J, K: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
 #   Jaws only, A&B taken as INDEPENDENT points (each mouse → odor-A solid + odor-B open,
 #   joined by a thin line); stats over all 10 points.
-axE = fig.add_subplot(gs[2, 4:8])
-axF = fig.add_subplot(gs[2, 8:12])
+axE = fig.add_subplot(gs[3, 4:8])
+axF = fig.add_subplot(gs[3, 8:12])
 ally = np.array([r[k] for k in ('d_dpa', 'd_gng') for r in rows_ab], float)
 ally = ally[~np.isnan(ally)]
 pad = (ally.max() - ally.min()) * 0.15 or 0.05
@@ -547,9 +547,9 @@ _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=
 axE.legend(handles=_leg_h, frameon=False, fontsize=6.5, loc='upper left', handletextpad=0.3, ncol=2, columnspacing=0.8)
 
 # ── G, H, I: batch ACC-Prl control vs opto learning curves — ROW 1 ────────────
-axG = fig.add_subplot(gs_be[0, 0])
-axH = fig.add_subplot(gs_be[0, 1])
-axI = fig.add_subplot(gs_be[1, 0])
+axG = fig.add_subplot(gs[0, 6:9])
+axH = fig.add_subplot(gs[0, 9:12])
+axI = fig.add_subplot(gs[1, 6:9])
 for ax, (short, col, mask_fn), msg in [
         (axG, BATCH_METRICS[0], 'Chronic silencing impairs DPA'),
         (axH, BATCH_METRICS[1], 'GNG is spared'),
@@ -588,7 +588,7 @@ for ax, (short, col, mask_fn), msg in [
 axG.set_ylabel('performance')
 
 # ── J: batch LMM group-effect forest (opto−control β ○ + group×day slope □) ────
-axJ = fig.add_subplot(gs_be[1, 1])
+axJ = fig.add_subplot(gs[1, 9:12])
 for i, (short, col, mask_fn) in enumerate(BATCH_METRICS):
     gb, glo, ghi, gp, ib, ilo, ihi, ip = batch_lmm(col, mask_fn)
     for dx, val, vlo, vhi, pv, mk, fill in [(-0.14, gb, glo, ghi, gp, 'o', True),
@@ -611,12 +611,14 @@ axJ.set_title('Silencing effect (LMM)', loc='left', fontweight='bold', fontsize=
 axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='group (at mean day)'),
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=7.5, loc='best')
+for _a in (axG, axH, axI, axJ):                  # square B–E panels
+    _a.set_box_aspect(1)
 
 # ── I: depth → DPA/GNG TRADE-OFF contrast (headline coupling stat) — with J,K ──
 #   Trade-off hypothesis (depth↑ → DPA↑ AND GNG↓) makes one joint prediction: depth
 #   positively predicts (ΔDPA − ΔGNG). On the pre-committed trainLD_TEST axis this pools
 #   both arms (J/K, same row) and is significant with no window search: r=+0.48 p=0.034.
-axL = fig.add_subplot(gs[2, 0:4])
+axL = fig.add_subplot(gs[3, 0:4])
 _xdep = np.array([r['d_depth'] for r in rows_ab])
 _ytr = np.array([r['d_dpa'] - r['d_gng'] for r in rows_ab])          # trade-off contrast
 for mouse in JAWS:
@@ -641,8 +643,8 @@ axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontweight='
 axL.set_box_aspect(1)
 
 # ── M, N: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
-axM = fig.add_subplot(gs[3, 4:8])
-axN = fig.add_subplot(gs[3, 8:12])
+axM = fig.add_subplot(gs[4, 4:8])
+axN = fig.add_subplot(gs[4, 8:12])
 
 
 def _dprime_scatter(ax, dfw, lmm, title):
@@ -668,7 +670,7 @@ axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='
 # ── L: DPA vs GNG performance in laser-ON trials (Naive ○ + Expert ●, 10 pts) ──
 #   Balance plane of the non-opto main figure, restricted to laser-ON trials: per mouse ×
 #   stage, where does the ON-trial behaviour sit relative to the DPA=GNG diagonal / optimum?
-axBal = fig.add_subplot(gs[3, 0:4])
+axBal = fig.add_subplot(gs[4, 0:4])
 _dON = y[(y.target == 'choice') & y.mouse.isin(JAWS) & (y.laser == 1)]
 
 
