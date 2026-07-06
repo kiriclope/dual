@@ -284,8 +284,10 @@ dual-DPA `#ff7f0e` orange (compare figure only).
 
 Companion to the main figure; one unified story about the **ACC→mPFC(Prl)** projection across
 manipulation regimes. `figures/overlaps/behavior/{png,svg}/behavior_opto_main.*`. Layout =
-nested gridspec (full-width scheme banner over a 4-row body), message-titled panels, row
-banners naming the design (within-mouse vs between-group). Helpers copied inline from
+a single **4 equal-height row** gridspec: **top row = scheme A (left, cols 0:5) + batch B–E as a
+2×2 block (right, cols 5:12)**; then F–H, I–K, L–N. No bottom caption strip (removed); message-titled
+panels; row banners over the recorded / overlaps / last rows (the batch top row has none — no room
+against the figure edge, panels are self-titled). Helpers copied inline from
 `fig_behavior_learning_offon.py`, `fig_behavior_learning_batch.py --ctrlopto`, and
 `plot_scatter_laser.py`, so those stay untouched. Panels:
 - **A** — scheme from `~/dual/opto.png` (recorded-cohort design: hSyn-GCaMP6s imaging in mPFC +
