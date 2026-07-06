@@ -56,6 +56,10 @@ from src.plot.traj import plot_mean_sem, plot_gradient_line, add_arrows, sem_ban
 from src.common.plot_utils import add_vlines
 
 # ── Style ─────────────────────────────────────────────────────────────────────
+# NB: importing src.common.plot_utils runs `sns.set_context("poster")` at module
+# level, which inflates tick-mark size/width. Reset to 'notebook' (what the opto
+# figure effectively uses) so ticks match — set_style/rcParams alone do NOT undo it.
+sns.set_context('notebook')
 sns.set_style('ticks')
 plt.rcParams.update({          # same convention as fig_behavior_opto_main.py
     'figure.dpi': 150, 'savefig.dpi': 300,
