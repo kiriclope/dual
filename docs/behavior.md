@@ -295,36 +295,39 @@ caption strip (removed); message-titled panels; row banners over the recorded / 
 - **A** — scheme from `~/dual/opto.png` (recorded-cohort design: hSyn-GCaMP6s imaging in mPFC +
   CaMKII-Jaws-tdTomato in ACC, 635 nm laser-on 50 % pseudo-random delay trials). Placed
   full-width (`aspect='auto'` scheme axis; its own baked-in `a`/`b`).
-- **B–E** — training batch **ACC-Prl**, chronic every-trial silencing, between-group opto vs
-  control (9 v 9): DPA impaired / GNG spared / DPA-unpaired deficit / LMM group-effect forest
-  (`perf ~ group×day + (1|mouse)`; DPA β≈−0.06 `**`, unpaired β≈−0.12 `*`, group×day `***`).
-- **F–G** — recorded cohort, transient delay-only laser, **within-mouse ON vs OFF, Jaws inhibition
+- **B** — training batch **ACC-Prl** DPA performance, chronic every-trial silencing, between-group
+  opto vs control (9 v 9) vs day → **DPA impaired**.
+- **C** — training batch **LMM group-effect forest** (opto−control per metric DPA / GNG / DPA-unp;
+  `perf ~ group×day + (1|mouse)`; DPA β≈−0.06 `**`, unpaired β≈−0.12 `*`, group×day `***`). The
+  GNG-spared curve and DPA-unpaired curve were **removed**; C's forest still summarises all three
+  metrics. First row = **A, B, C** (panel letters run A,B,C,D…L — no gaps).
+- **D, E** — recorded cohort, transient delay-only laser, **within-mouse ON vs OFF, Jaws inhibition
   only (n=5)**: DPA & GNG OFF/ON curves; per-day stars = one-sample ΔON−OFF. (The old within-mouse
-  LMM laser forest — all CIs cross 0, no gross behavioural effect — was **dropped** when H became the
-  depth panel; the LMM is still in `fig_behavior_learning_offon.py`.)
-- **H** — per-mouse choice-code depth, laser **OFF vs ON** (Jaws, A&B-pooled paired lines + group
-  mean±SEM), sitting in the recorded within-mouse row. The laser moves each animal's code (M06 up,
-  M01/M15 down, others flat) while the group mean is ~flat — this shift is the **x-axis of I–K**.
-- **I** — **TRADE-OFF contrast (headline coupling stat), in the same row as J/K:** Δdepth vs
+  LMM laser forest — all CIs cross 0, no gross behavioural effect — was **dropped**; still in
+  `fig_behavior_learning_offon.py`.)
+- **F** — per-mouse choice-code depth, laser **OFF vs ON** (Jaws, A&B-pooled paired lines + group
+  mean±SEM), in the recorded within-mouse row. The laser moves each animal's code (M06 up, M01/M15
+  down, others flat) while the group mean is ~flat — this shift is the **x-axis of G–I**.
+- **G** — **TRADE-OFF contrast (headline coupling stat), in the same row as H/I:** Δdepth vs
   `ΔDPA − ΔGNG`. The trade-off hypothesis (depth↑ → DPA↑ *and* GNG↓) makes one joint prediction —
   depth positively predicts (ΔDPA−ΔGNG) — pooling both arms into a single test. **Significant on the
   pre-committed trainLD_TEST axis, no window search: Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75
-  p=0.013).** J and K are its two arms (K ΔGNG robust `*`; J ΔDPA the same-signed positive *trend*,
-  n.s. on its own). Chosen over two individually-starred J+K panels because forcing J's `*` needs the
+  p=0.013).** H and I are its two arms (I ΔGNG robust `*`; H ΔDPA the same-signed positive *trend*,
+  n.s. on its own). Chosen over two individually-starred H+I panels because forcing H's `*` needs the
   argmax 51–56 window + Spearman specifically = window×stat selection a reviewer would flag. **This
   panel REPLACED the old trial-level GEE readout-vs-silencing forest** (removed from the script; git
   history: DPA readout preserved OFF OR=1.41 / ON OR=1.46).
-- **J, K** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code on the
+- **H, I** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code on the
   **trainLD_TEST** axis (bins **45-59** = LD+TEST, the main-overlaps-figure convention), readout
-  window **27-53** (delay, pre-response). Also sets H's & I's depth (H–K all on one axis). Points =
+  window **27-53** (delay, pre-response). Also sets F's & G's depth (F–J all on one axis). Points =
   **5 Jaws × {Naive ▲, Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square**
-  panels, **Pearson star, Spearman shown** (agrees). J (ΔDPA) n.s. (r=+0.28 p=0.23); **K (ΔGNG) `*`
+  panels, **Pearson star, Spearman shown** (agrees). H (ΔDPA) n.s. (r=+0.28 p=0.23); **I (ΔGNG) `*`
   (r=−0.61 p=0.004, ρ=−0.56 p=0.011).**
 
   **Stats note (important — this is a *between-animal* coupling):** mice with a bigger
   laser-induced Δdepth show a bigger Δaccuracy. A `(1|mouse)` random-intercept LMM is the
   **wrong** model here — it absorbs the between-mouse variance (the signal) into the intercept
-  and tests only the within-mouse slope; do NOT use it for J/K (contrast M/N, where the effect
+  and tests only the within-mouse slope; do NOT use it for H/I (contrast K/L, where the effect
   *is* within-mouse OFF-vs-ON so the random intercept is correct). The coupling is robust across
   every slicing (Expert-10 r=−0.78 p=0.008; 20-pt r=−0.61 p=0.004; **per-mouse-mean r=−0.80**,
   n=5 p=0.10) and Spearman agrees.
@@ -340,20 +343,20 @@ caption strip (removed); message-titled panels; row banners over the recorded / 
   (pre-response), so it is not circular despite the axis being trained through TEST.
 
 Row 4 (last row) — **behavioural balance under silencing + code discriminability** (recorded, Jaws n=5):
-- **L** — **DPA vs GNG performance in laser-ON trials** (the balance plane of the non-opto main
-  figure, panel H), **10 pts = 5 Jaws × {Naive ○, Expert ●}**, Naive→Expert joined per mouse; optimal
-  corner starred, unity dashed. Descriptive (ON across-point r=+0.44 p=0.20). Uses `performance` (DPA)
-  / `odr_perf` (GNG) on target==choice rows, laser==1. (Replaced the trade-off panel here, which moved
-  up to **I** alongside J/K.)
-- **M** — **d′ laser ON vs OFF scatter** of the **DPA memory code**: sample-axis discriminability
+- **J** — **DPA vs GNG performance in laser-ON trials** (the balance plane of the non-opto main
+  figure, its panel H), **10 pts = 5 Jaws × {Naive ○, Expert ●}**, Naive→Expert joined per mouse;
+  optimal corner starred, unity dashed. Descriptive (ON across-point r=+0.44 p=0.20). Uses
+  `performance` (DPA) / `odr_perf` (GNG) on target==choice rows, laser==1. (Replaced the trade-off
+  panel here, which moved up to **G** alongside H/I.)
+- **K** — **d′ laser ON vs OFF scatter** of the **DPA memory code**: sample-axis discriminability
   **d′ (odor A vs B)** at **late delay** (bins_LD 45–53). x = d′ OFF, y = d′ ON, dashed **unity
   line** = spared, square. **10 points = 5 Jaws × {Naive ○, Expert ●}.**
-- **N** — **d′ ON vs OFF scatter** of the **GNG code**: **choice-axis** discriminability
+- **L** — **d′ ON vs OFF scatter** of the **GNG code**: **choice-axis** discriminability
   **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, the Go/NoGo cue). The choice axis separates
   Go/NoGo (d′ peaks ≈0.56 at mid-delay) so no separate distractor decode is needed. Same 10-point
   Naive/Expert design.
 
-**Stat (M,N)** = LMM **`d′ ~ laser + stage + (1|mouse)`** (mouse random effect handles the
+**Stat (K,L)** = LMM **`d′ ~ laser + stage + (1|mouse)`** (mouse random effect handles the
 repeated Naive/Expert + OFF/ON measures; converges). **Laser n.s.: sample p=0.34, GNG p=0.74 →
 discriminability spared.** IMPORTANT — a trial-level `signal×laser` mixed model looks significant
 (p<.001) but that is **pseudoreplication**: with a random *slope* for the effect it collapses

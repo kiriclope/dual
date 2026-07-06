@@ -6,40 +6,41 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
      CaMKII-Jaws-tdTomato in ACC, 635 nm laser-on 50% pseudo-random delay trials.
   ── Training batch · chronic every-trial silencing · BETWEEN-group opto vs control ──
   B  DPA performance   control vs opto   (ACC-Prl batch, 9v9)   vs day  → DPA impaired
-  E  LMM group effect (opto−control) per metric (DPA / GNG / DPA-unp): group β (○) + group×day (□).
-     [the GNG-spared curve (old C) and DPA-unpaired curve (old D) were removed; E's forest still
-      summarises all three metrics — first row is A, B, E.]
+  C  LMM group effect (opto−control) per metric (DPA / GNG / DPA-unp): group β (○) + group×day (□).
+     [the GNG-spared curve and DPA-unpaired curve were removed; C's forest still summarises all
+      three metrics — first row is A, B, C.]
   ── Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF ──
-  F  DPA performance   OFF vs ON  (Jaws inhibition, n=5)   vs session
-  G  GNG performance   OFF vs ON  (Jaws, n=5)              vs session
-  H  Per-mouse choice-code depth, laser OFF vs ON (Jaws, A&B pooled) — the manipulation
-     moves each animal's code (its shift is the x-axis of I–K); group mean flat.
+  D  DPA performance   OFF vs ON  (Jaws inhibition, n=5)   vs session
+  E  GNG performance   OFF vs ON  (Jaws, n=5)              vs session
+  F  Per-mouse choice-code depth, laser OFF vs ON (Jaws, A&B pooled) — the manipulation
+     moves each animal's code (its shift is the x-axis of G–I); group mean flat.
   ── Same projection · overlaps causal coupling (laser ON−OFF) ──
-  I  TRADE-OFF contrast (headline): Δdepth vs (ΔDPA − ΔGNG) — depth↑ predicts DPA↑ AND GNG↓
+  G  TRADE-OFF contrast (headline): Δdepth vs (ΔDPA − ΔGNG) — depth↑ predicts DPA↑ AND GNG↓
      jointly. 20 pts, Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75 p=0.013) — significant on the
-     pre-committed trainLD_TEST axis, no window search. J/K are its two arms (K `*`, J n.s. trend).
-  J  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws; Naive▲+Expert● × A&B, 20 pts)
-  K  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.61 p=.004,
+     pre-committed trainLD_TEST axis, no window search. H/I are its two arms (I `*`, H n.s. trend).
+  H  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws; Naive▲+Expert● × A&B, 20 pts)
+  I  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.61 p=.004,
      ρ=−0.56 p=.011 — a between-animal coupling; per-mouse-mean r=−0.80, robust across slicings)
   Depth read on the trainLD_TEST axis (bins 45-59, main-overlaps-fig convention); readout window
-  27-53 (delay, pre-response); I–K square, all trials.
+  27-53 (delay, pre-response); G–I square, all trials.
   ── Last row: behavioural balance under silencing + code discriminability (recorded, 5 Jaws) ──
-  L  DPA vs GNG performance in laser-ON trials (balance plane of the non-opto main figure),
+  J  DPA vs GNG performance in laser-ON trials (balance plane of the non-opto main figure),
      5 Jaws × {Naive○, Expert●} = 10 pts; optimal corner starred (r=+0.44 p=0.20, descriptive).
-  M  d′ laser ON vs OFF scatter, DPA memory code: sample-axis d′(A vs B) at late delay
+  K  d′ laser ON vs OFF scatter, DPA memory code: sample-axis d′(A vs B) at late delay
      (bins_LD 45-53). 5 Jaws × {Naive○, Expert●} = 10 pts; on unity = spared.
      LMM d′~laser+stage+(1|mouse): laser p=0.34 (ns).
-  N  d′ ON vs OFF scatter, GNG code: choice-axis d′(Go vs NoGo) at mid-delay
+  L  d′ ON vs OFF scatter, GNG code: choice-axis d′(Go vs NoGo) at mid-delay
      (bins_MD 33-38, the Go/NoGo cue). 10 pts; LMM laser p=0.74 (ns) — spared.
 
 Message: chronic every-trial ACC→Prl silencing degrades DPA, carried by unpaired trials
-(B, E); transient delay-only ACC→Prl perturbation spares GROSS behaviour (F,G,H) but
-demonstrably moves the choice code's POSITION (I), while sparing its READOUT (L) and its
-DISCRIMINABILITY (M,N) — and Δdepth predicts Δaccuracy across animals (I–K).
+(B, C); transient delay-only ACC→Prl perturbation spares GROSS behaviour (D, E) but demonstrably
+moves the choice code's POSITION per mouse (F) — and Δdepth predicts a DPA↑/GNG↓ accuracy trade-off
+across animals (G–I), while code DISCRIMINABILITY is spared (K, L) and laser-ON balance stays near
+optimal (J).
 
 Data dependency: needs BOTH laser tensors in ../data/overlaps (gitignored — regenerate):
-  run_overlaps.py --scaler none --no-raw --with-laser --targets choice   (depth, I–L)
-  run_overlaps.py --scaler none --no-raw --with-laser --targets sample   (sensitivity, M,N)
+  run_overlaps.py --scaler none --no-raw --with-laser --targets choice   (depth, F–J)
+  run_overlaps.py --scaler none --no-raw --with-laser --targets sample   (sensitivity, K,L)
 
 Helpers copied inline (per repo convention) from fig_behavior_learning_offon.py,
 fig_behavior_learning_batch.py (--ctrlopto) and plot_scatter_laser.py, so those stay
@@ -144,14 +145,14 @@ def _depth_on_axis(bins_train):
 
 
 TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])   # 45-59 (main-fig axis)
-depth_all = _depth_on_axis(TRAIN_LDTEST)                       # trainLD_TEST axis — I, J/K, L
+depth_all = _depth_on_axis(TRAIN_LDTEST)                       # trainLD_TEST axis — F, G–I, J
 cdf_diag = np.stack([X[:, 1, t, t] for t in range(X.shape[-1])], axis=1).astype(float)  # choice DV diag(t)
 del X                                                          # free ~1 GB
 
 # ── neural DISCRIMINABILITY: per-mouse Δd′ (ON−OFF) of the code ────────────────
-#   M: sample axis, odor A vs B, at LATE delay (bins_LD) — DPA memoranda sensitivity.
+#   K: sample axis, odor A vs B, at LATE delay (bins_LD) — DPA memoranda sensitivity.
 #      (separate tensor, run_overlaps.py --with-laser --targets sample; validated d'≈1.2).
-#   N: choice axis, Go vs NoGo, at MID delay (bins_MD, the Go/NoGo cue) — GNG sensitivity.
+#   L: choice axis, Go vs NoGo, at MID delay (bins_MD, the Go/NoGo cue) — GNG sensitivity.
 #      (the choice DV separates Go/NoGo, peaking ≈0.56 at mid-delay).
 print('loading sample-axis laser tensor …')
 DUM_S = 'log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_sample'
@@ -439,7 +440,7 @@ SCHEME = '../opto.png'                        # recorded-cohort design (self-lab
 axA = fig.add_subplot(gs[0, 0:6])            # scheme, first row left (with B & E)
 show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
 
-# ── B, C: recorded OFF vs ON learning curves (Jaws inhibition) — ROW 2 ─────────
+# ── D, E: recorded OFF vs ON learning curves (Jaws inhibition) — row 2 ─────────
 axB = fig.add_subplot(gs[1, 0:4])
 axC = fig.add_subplot(gs[1, 4:8])
 for ax, (short, col, mask), msg in [
@@ -482,7 +483,7 @@ for ax, (short, col, mask), msg in [
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
 axB.set_ylabel('performance')
 
-# ── H: per-mouse laser effect on the choice code (OFF vs ON depth, Jaws) ──────
+# ── F: per-mouse laser effect on the choice code (OFF vs ON depth, Jaws) ──────
 #   Absolute A&B-pooled DPA choice-code depth per mouse under laser OFF vs ON — shows
 #   the laser reliably moves each animal's code (the shift that is the scatters' x-axis).
 #   (Sits in the recorded within-mouse row; replaced the old LMM laser forest.)
@@ -504,7 +505,7 @@ axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', f
 axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
            ncol=1, handletextpad=0.3)
 
-# ── J, K: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
+# ── H, I: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
 #   Jaws only, A&B taken as INDEPENDENT points (each mouse → odor-A solid + odor-B open,
 #   joined by a thin line); stats over all 10 points.
 axE = fig.add_subplot(gs[2, 4:8])
@@ -582,7 +583,7 @@ for ax, (short, col, mask_fn), msg in [
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
 axG.set_ylabel('performance')
 
-# ── J: batch LMM group-effect forest (opto−control β ○ + group×day slope □) ────
+# ── C: batch LMM group-effect forest (opto−control β ○ + group×day slope □) ────
 axJ = fig.add_subplot(gs[0, 9:12])
 for i, (short, col, mask_fn) in enumerate(BATCH_METRICS):
     gb, glo, ghi, gp, ib, ilo, ihi, ip = batch_lmm(col, mask_fn)
@@ -609,7 +610,7 @@ axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
 for _a in (axG, axJ):                            # square B & E panels
     _a.set_box_aspect(1)
 
-# ── I: depth → DPA/GNG TRADE-OFF contrast (headline coupling stat) — with J,K ──
+# ── G: depth → DPA/GNG TRADE-OFF contrast (headline coupling stat) — with H,I ──
 #   Trade-off hypothesis (depth↑ → DPA↑ AND GNG↓) makes one joint prediction: depth
 #   positively predicts (ΔDPA − ΔGNG). On the pre-committed trainLD_TEST axis this pools
 #   both arms (J/K, same row) and is significant with no window search: r=+0.48 p=0.034.
@@ -637,7 +638,7 @@ axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontweight='bold', fontsize=TITLE_FS)
 axL.set_box_aspect(1)
 
-# ── M, N: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
+# ── K, L: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
 axM = fig.add_subplot(gs[3, 4:8])
 axN = fig.add_subplot(gs[3, 8:12])
 
@@ -662,7 +663,7 @@ axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='
                     mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
            frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
-# ── L: DPA vs GNG performance in laser-ON trials (Naive ○ + Expert ●, 10 pts) ──
+# ── J: DPA vs GNG performance in laser-ON trials (Naive ○ + Expert ●, 10 pts) ──
 #   Balance plane of the non-opto main figure, restricted to laser-ON trials: per mouse ×
 #   stage, where does the ON-trial behaviour sit relative to the DPA=GNG diagonal / optimum?
 axBal = fig.add_subplot(gs[3, 0:4])
@@ -701,10 +702,10 @@ axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls
 
 
 # ── panel letters + row banners ───────────────────────────────────────────────
-# reading order: A scheme · B–E batch · F–H recorded(+depth) · I–K overlaps · L–N last row
-for _ax, _L in [(axA, 'A'), (axG, 'B'), (axJ, 'E'),
-                (axB, 'F'), (axC, 'G'), (axK, 'H'), (axL, 'I'), (axE, 'J'), (axF, 'K'),
-                (axBal, 'L'), (axM, 'M'), (axN, 'N')]:
+# reading order: A scheme · B,C batch · D,E,F recorded(+depth) · G,H,I overlaps · J,K,L last row
+for _ax, _L in [(axA, 'A'), (axG, 'B'), (axJ, 'C'),
+                (axB, 'D'), (axC, 'E'), (axK, 'F'), (axL, 'G'), (axE, 'H'), (axF, 'I'),
+                (axBal, 'J'), (axM, 'K'), (axN, 'L')]:
     panel_letter(_ax, _L)
 
 
@@ -715,8 +716,8 @@ def row_banner(ax_left, text, dy=0.014):
 
 
 row_banner(axB, 'Recorded cohort · transient delay-only laser · WITHIN-mouse ON vs OFF (n=5 Jaws inhibition)')
-row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-off (I) with its two arms — ΔDPA (J) & ΔGNG (K); 5 Jaws · Naive▲+Expert● × A&B')
-row_banner(axBal, 'Laser-ON DPA–GNG balance (L) · code discriminability d′ ON≈OFF (on unity) — DPA memory (M) & GNG (N)')
+row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-off (G) with its two arms — ΔDPA (H) & ΔGNG (I); 5 Jaws · Naive▲+Expert● × A&B')
+row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main.{ext}'
