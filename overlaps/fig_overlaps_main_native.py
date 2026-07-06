@@ -9,7 +9,7 @@ is DRAWN from the data as real matplotlib subplots, in the style of
 banners, PNG @300 dpi + editable SVG).
 
 Arc — three panels on the LOCKED trainLD_TEST read-out axis (bins 45–59), late-delay
-readout window BINS_LATE = arange(27,54). Layout: A spans the top two rows; B and C share
+readout window BINS_LATE = bins_LD (LD epoch, bins 45–53). Layout: A spans the top two rows; B and C share
 one row below it (B left half, C right half). Styled like fig_behavior_opto_main.py.
 
   A  sample / choice / test / task 1-D codes over the trial, Naive (top) vs Expert
@@ -32,9 +32,8 @@ Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab[_ldtest05].{png,svg
 
 Decoder training axis (--ldtest05): default trains on the full trainLD_TEST (bins 45–59);
 --ldtest05 trains on the narrow LD/TEST boundary (last 0.5 s LD + first 0.5 s TEST = bins
-51–56) and writes the _ldtest05 file. Readout stays at BINS_LATE 27–53 either way. On the
-narrow window the learning depth↔ΔDPA coupling weakens to n.s. (r=-0.43 p=0.073) vs the
-locked axis (r=-0.54 p=0.022 *).
+51–56) and writes the _ldtest05 file. Depth readout stays at the LD epoch (bins_LD, 45–53)
+either way — during the delay, pre-test.
 
 Run:  cd /home/leon/dual/overlaps
       /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main_native.py [--ldtest05]
@@ -99,7 +98,7 @@ options = set_options(
     days=['first', 'last'],
 )
 BINS_BL      = options['bins_BL']
-BINS_LATE    = np.arange(27, 54)                                        # late-delay readout window
+BINS_LATE    = options['bins_LD']                                       # depth readout = LD epoch (bins 45–53)
 # Decoder training axis. Default = full trainLD_TEST (bins 45–59, locked main figure).
 # --ldtest05 = narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51–56,
 # 8.5–9.33 s), the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
