@@ -314,22 +314,23 @@ Row 4 — **mechanism / robustness** (recorded, Jaws n=5, Expert):
   identical). GNG null both (OFF 0.98, ON 1.01 n.s.; GNG arm regresses GNG accuracy on the
   DPA-choice-axis projection measured on GNG trials). Distinct from the OFF-only depth↔DPA scatter
   (`plot_scatter_perf.py`) — here the point is that silencing leaves the mapping intact.
-- **M** — **neural SENSITIVITY**: sample-axis (DPA memoranda) code discriminability
-  **d′ (odor A vs B)** at late-delay, per mouse, laser OFF vs ON, paired-t on ΔON−OFF.
-  **Spared: OFF 1.18 → ON 1.15, p=0.93** (all-tasks pooled 1.06→1.02, p=0.80). The transient
-  laser does not blunt the memory code's separability.
-- **N** — the same sample-code **d′ across the trial** (per-mouse mean±SEM, OFF vs ON), shaded
-  = late-delay/laser window. OFF≈ON throughout — sensitivity intact at every delay moment.
-  Sample d′ peaks ≈1.8 at encoding (bin ~22), holds ≈0.8–1.4 through the delay.
+- **M** — **per-mouse Δd′ (ON−OFF)** of the **DPA memory code**: sample-axis discriminability
+  **d′ (odor A vs B)** at **late delay** (bins_LD 45–53), Δ = d′_ON − d′_OFF per Jaws mouse,
+  stems to 0 + group mean±SEM, one-sample t. **Spared: meanΔ=−0.13, p=0.71** (per-mouse
+  heterogeneous — M15 −1.32, small-baseline mice rise).
+- **N** — **per-mouse Δd′ (ON−OFF)** of the **GNG code**: **choice-axis** discriminability
+  **d′ (Go vs NoGo)** at **mid-delay** (bins_MD 33–38, when the Go/NoGo cue is processed).
+  **Spared: meanΔ=−0.21, p=0.47** (M12 −1.11, M18 +0.57). The choice axis separates Go/NoGo
+  (d′ peaks ≈0.56 at mid-delay), so no separate distractor decode is needed.
 
-The **sample axis is decoded separately** (`run_overlaps.py --scaler none --no-raw --with-laser
---targets sample` → `X_..._laser_targets_sample.pkl`, ~10 min, gitignored). It genuinely
-separates odor A/B (validated d′≈1.2 late-delay), which is why it supports an honest neural-d′,
+Windows: A/B read at late delay (memoranda held to the comparison), Go/NoGo at mid-delay (cue
+onset) — both inside the laser/delay window. The **sample axis is decoded separately**
+(`run_overlaps.py --scaler none --no-raw --with-laser --targets sample` →
+`X_..._laser_targets_sample.pkl`, ~10 min, gitignored); it validly separates A/B (d′≈1.2),
 **unlike the `depth`/choice DV** — a neurometric decomposition of `depth` was tried and rejected
 (`depth` at 27–53 separates neither stimulus nor choice, d′≈0; it is a code *engagement/quality*
 signal that predicts correctness (L), not a discrimination axis). The earlier *behavioural*
-d′/criterion SDT (both spared, all n.s.) is superseded by M/N and is no longer drawn (kept in git
-history / this note as a control).
+d′/criterion SDT (both spared, all n.s.) is superseded by M/N (kept in git history as a control).
 
 Row-4 geometry story: the transient laser moves the code's **position** (I, push) while sparing
 its **readout** (L) and its **discriminability** (M,N) — three distinct geometric properties.
