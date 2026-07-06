@@ -47,10 +47,16 @@ fig_behavior_learning_batch.py (--ctrlopto) and plot_scatter_laser.py, so those 
 untouched. Two statistical designs: recorded = within-mouse (interleaved laser);
 batch = between-group (every-trial silencing, different animals).
 
-Output: figures/overlaps/behavior/{png,svg}/behavior_opto_main.{png,svg}
+Output: figures/overlaps/behavior/{png,svg}/behavior_opto_main[_poster].{png,svg}
+
+--poster : simplified poster variant — replaces the D/E recorded LEARNING CURVES (perf vs
+session) with two perf laser-ON-vs-OFF SCATTERS (DPA & GNG, sample A/B × Naive/Expert, Jaws
+5 mice → 20 pts, unity line = spared). Honest stat = per-mouse mean Δ(on−off), paired t over
+the 5 mice (NOT the 20 pts — those are pseudoreplicated): DPA Δ=−0.015 p=0.43, GNG Δ=+0.023
+p=0.14, both n.s. → spared. Writes the _poster file; default (curves) untouched.
 
 Run:  cd /home/leon/dual/overlaps
-      /home/leon/mambaforge/envs/dual/bin/python fig_behavior_opto_main.py
+      /home/leon/mambaforge/envs/dual/bin/python fig_behavior_opto_main.py [--poster]
 """
 
 import matplotlib
@@ -87,6 +93,11 @@ RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'
 OFF_C, ON_C = '#888888', '#332288'          # OFF/control grey · ON/opto indigo
 N_MIN = 3
 TITLE_FS = 10.5
+_STMK = {'Expert': 'o', 'Naive': '^'}        # Expert circle / Naive triangle (shared by scatters)
+
+# --poster : simplified poster variant — swap the D/E recorded LEARNING CURVES for two
+# perf ON-vs-OFF scatters (DPA & GNG, sample A/B × Naive/Expert, Jaws); writes _poster file.
+POSTER = '--poster' in sys.argv[1:]
 
 JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']   # ACC→Prl INHIBITION
 CHR  = ['ChRM04', 'ChRM23']                                      # ACC→Prl EXCITATION
@@ -379,13 +390,15 @@ for st_name in ['Naive', 'Expert']:                     # Naive + Expert as inde
         mmask = (y.mouse == mouse).values
         tm = (y.mouse == mouse)
         for cls, pairs in SAMPLE_CLASSES:               # odor A [0,1] / B [2,3]
+            dpa_off = _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 0, pairs, st)
+            dpa_on = _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 1, pairs, st)
+            gng_off = _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 0, pairs, st)
+            gng_on = _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 1, pairs, st)
             rows_ab.append(dict(
                 mouse=mouse, cls=cls, stage=st_name,
                 d_depth=_depth_sample(depth_all, mmask, 1, pairs, st) - _depth_sample(depth_all, mmask, 0, pairs, st),
-                d_dpa=(_perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 1, pairs, st)
-                       - _perf_mean_sample('performance', tm & (y.tasks == 'DPA'), 0, pairs, st)),
-                d_gng=(_perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 1, pairs, st)
-                       - _perf_mean_sample('odr_perf', tm & (y.tasks != 'DPA'), 0, pairs, st)),
+                d_dpa=dpa_on - dpa_off, d_gng=gng_on - gng_off,
+                dpa_off=dpa_off, dpa_on=dpa_on, gng_off=gng_off, gng_on=gng_on,
             ))
 print(f'\nOverlaps A&B-independent Δ(on−off) [Jaws, {len(rows_ab)} pts]:')
 for r in rows_ab:
@@ -440,10 +453,46 @@ SCHEME = '../opto.png'                        # recorded-cohort design (self-lab
 axA = fig.add_subplot(gs[0, 0:6])            # scheme, first row left (with B & E)
 show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
 
-# ── D, E: recorded OFF vs ON learning curves (Jaws inhibition) — row 2 ─────────
+# ── D, E: recorded laser OFF vs ON — learning curves, OR (--poster) perf ON-vs-OFF scatters ──
 axB = fig.add_subplot(gs[1, 0:4])
 axC = fig.add_subplot(gs[1, 4:8])
-for ax, (short, col, mask), msg in [
+if POSTER:
+    # poster simplification: perf laser-ON (y) vs laser-OFF (x), sample A/B × Naive/Expert,
+    # Jaws (5 mice → 20 points). On the unity line = laser spared. Replaces D/E curves.
+    for ax, offk, onk, msg, ylab in [
+            (axB, 'dpa_off', 'dpa_on', 'DPA performance spared', 'DPA perf (laser ON)'),
+            (axC, 'gng_off', 'gng_on', 'GNG performance spared', 'GNG perf (laser ON)')]:
+        xo = np.array([r[offk] for r in rows_ab]); yo = np.array([r[onk] for r in rows_ab])
+        for i, r in enumerate(rows_ab):
+            face = MOUSE_COLOR[r['mouse']] if r['cls'] == 0 else 'w'      # A solid / B open
+            ax.scatter(xo[i], yo[i], facecolors=face, edgecolors=MOUSE_COLOR[r['mouse']],
+                       marker=_STMK[r['stage']], s=70, linewidths=1.1, zorder=5)
+        ok = ~(np.isnan(xo) | np.isnan(yo))
+        lo = min(xo[ok].min(), yo[ok].min()); hi = max(xo[ok].max(), yo[ok].max())
+        pad = (hi - lo) * 0.08 or 0.02; lims = (lo - pad, hi + pad)
+        ax.plot(lims, lims, ls='--', color='0.5', lw=1, zorder=1)         # unity = spared
+        ax.set_xlim(lims); ax.set_ylim(lims)
+        # honest between-animal test (the 20 pts = 5 mice × A/B × stage are NOT independent →
+        # a 20-pt p is pseudoreplicated): per-mouse mean Δ(on−off), paired t over the 5 Jaws.
+        pm = {}
+        for r in rows_ab:
+            if not (np.isnan(r[offk]) or np.isnan(r[onk])):
+                pm.setdefault(r['mouse'], []).append(r[onk] - r[offk])
+        md = np.array([np.mean(v) for v in pm.values()])
+        dd = float(md.mean()); pv = float(ttest_1samp(md, 0.0).pvalue)
+        ax.text(0.5, 0.02, f'Δ(on−off)={dd:+.3f}  p={pv:.2f}  ({len(md)} mice)',
+                transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
+        ax.set_xlabel('performance (laser OFF)'); ax.set_ylabel(ylab)
+        ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
+        ax.set_box_aspect(1)
+    _leg_p = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
+              mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B'),
+              mlines.Line2D([0], [0], marker='o', color='k', mfc='0.5', ls='none', ms=7, label='Expert'),
+              mlines.Line2D([0], [0], marker='^', color='k', mfc='0.5', ls='none', ms=7, label='Naive')]
+    axB.legend(handles=_leg_p, frameon=False, fontsize=6.5, loc='upper left',
+               handletextpad=0.3, ncol=2, columnspacing=0.8)
+else:
+  for ax, (short, col, mask), msg in [
         (axB, REC_METRICS[0], 'Delay silencing spares DPA'),
         (axC, REC_METRICS[1], '…and spares GNG')]:
     g = per_mouse_day_laser(col, mask)
@@ -481,7 +530,7 @@ for ax, (short, col, mask), msg in [
     ax.set_xticks(DAYS_REC); ax.set_xlabel('session')
     ax.legend(frameon=False, fontsize=8, loc='lower right')
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
-axB.set_ylabel('performance')
+  axB.set_ylabel('performance')
 
 # ── F: per-mouse laser effect on the choice code (OFF vs ON depth, Jaws) ──────
 #   Absolute A&B-pooled DPA choice-code depth per mouse under laser OFF vs ON — shows
@@ -720,6 +769,6 @@ row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-
 row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
 
 for ext in ('png', 'svg'):
-    p = f'{OUT}/{ext}/behavior_opto_main.{ext}'
+    p = f'{OUT}/{ext}/behavior_opto_main{"_poster" if POSTER else ""}.{ext}'
     fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
 plt.close(fig)
