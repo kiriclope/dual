@@ -27,11 +27,17 @@ All helper computation is copied inline (per repo convention); the source script
 untouched. Reusable plotting primitives (plot_mean_sem, sem_band, plot_gradient_line,
 add_arrows, add_vlines) are imported from src — not modified.
 
-Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.{png,svg}  (overwrites the
-        deliverable named by the old assembler).
+Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab[_ldtest05].{png,svg}
+        (default overwrites the deliverable named by the old assembler).
+
+Decoder training axis (--ldtest05): default trains on the full trainLD_TEST (bins 45–59);
+--ldtest05 trains on the narrow LD/TEST boundary (last 0.5 s LD + first 0.5 s TEST = bins
+51–56) and writes the _ldtest05 file. Readout stays at BINS_LATE 27–53 either way. On the
+narrow window the learning depth↔ΔDPA coupling weakens to n.s. (r=-0.43 p=0.073) vs the
+locked axis (r=-0.54 p=0.022 *).
 
 Run:  cd /home/leon/dual/overlaps
-      /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main_native.py
+      /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main_native.py [--ldtest05]
 """
 
 import matplotlib
@@ -94,7 +100,16 @@ options = set_options(
 )
 BINS_BL      = options['bins_BL']
 BINS_LATE    = np.arange(27, 54)                                        # late-delay readout window
-TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])  # 45–59 (locked axis)
+# Decoder training axis. Default = full trainLD_TEST (bins 45–59, locked main figure).
+# --ldtest05 = narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51–56,
+# 8.5–9.33 s), the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
+LDTEST05 = '--ldtest05' in sys.argv[1:]
+if LDTEST05:
+    TRAIN_LDTEST = np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])   # 51–59→51–56
+    AXIS_LABEL, FILE_SUF = 'trainLDTEST05, bins 51–56', '_ldtest05'
+else:
+    TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
+    AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', ''
 BINS_DELAY   = options['bins_DELAY']
 TRAJ_END     = options['bins_TEST'][-1] + 1
 TEST_ONSET   = options['bins_TEST'][0]
@@ -405,12 +420,12 @@ panel_letter(axB_traj[0], 'B')
 panel_letter(axD[0], 'C', x=0.505)
 
 fig.suptitle('Overlaps main figure (A&B-independent) — dual code · no-lick push · learning depth↔accuracy link '
-             '(all trainLD_TEST, bins 45–59)', y=0.985, fontsize=12.5, fontweight='bold')
+             f'(all {AXIS_LABEL})', y=0.985, fontsize=12.5, fontweight='bold')
 
 OUT = 'figures/overlaps/main'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 for ext in ('png', 'svg'):
-    p = f'{OUT}/{ext}/fig_overlaps_main_ab.{ext}'
+    p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}.{ext}'
     fig.savefig(p, bbox_inches='tight')
     print('saved', os.path.abspath(p))
 plt.close(fig)
