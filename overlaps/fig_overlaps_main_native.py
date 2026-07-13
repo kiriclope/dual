@@ -7,7 +7,10 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      y shared within each code column so learning shrinkage is visible. A 3rd row adds a per-mouse
      neural d′ scatter (Naive x vs Expert y, unity = unchanged) for each code, computed on the same
      trainLD_TEST readout over the code's window (sample/choice=bins_LD, test=bins_TEST, task=Go/NoGo
-     at bins_MD), like the opto figure's d′ panels.                       (← fig_overlaps_codes_1d.py)
+     at bins_MD), like the opto figure's d′ panels. A 5th cell in that row shows CODE ALIGNMENT
+     (dPCA-style): pairwise |cos| between the code axes (decoder weights, late-delay BINS_LATE),
+     Naive→Expert — codes are near-orthogonal and the CHOICE code demixes from both stimulus codes
+     with learning (sample–choice *, choice–test ***; sample–test stays at chance). (← fig_overlaps_codes_1d.py / fig_overlaps_cosine.py)
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane (its OWN full row),
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
@@ -188,6 +191,33 @@ for _title, _tgt, _col, _pos, _neg, _v, _dpaonly in DPRIME_SPECS:
         if np.isfinite(n) and np.isfinite(e):
             dN.append(n); dE.append(e); mice.append(mo)
     dpr[_title] = dict(naive=np.array(dN), expert=np.array(dE), mice=mice)
+
+
+# ── PANEL A cosine mixing: pairwise |cos| between the CODE AXES (decoder weight vectors),
+#    per mouse, Naive vs Expert — "how similar are the codes", like the dPCA figure's axis-mixing.
+#    Weights (run_overlaps.py --save-weights): {(mouse,stage,'all',target): (84 bins, n_neurons)};
+#    axis = unit(mean weight over the late-delay window BINS_LATE = the SAME window as the depth
+#    readout in C/D), cosine within a mouse (shared neuron basis), |cos| averaged across mice.
+#    Chance |cos| ≈ 1/√n̄_neurons. (Demixing is window-sensitive like the depth↔behaviour coupling:
+#    significant on the broad late-delay 27–53 & full delay, weaker on the tight bins_LD 45–53.)
+_WBLOB   = pkl_load(f'weights_{DUM}_raw', path=DATA_IN)['weights']
+COS_PAIRS = [('sample', 'choice'), ('sample', 'test'), ('choice', 'test')]
+
+
+def _code_axis(mouse, stage, target, win):
+    ws = np.asarray(_WBLOB[(mouse, stage, 'all', target)], float)
+    v = ws[win].mean(0); nrm = np.linalg.norm(v)
+    return v / nrm if nrm > 0 else v
+
+
+cosmix = {}                                                            # pair -> per-mouse Naive/Expert |cos|
+for _a, _b in COS_PAIRS:
+    cN, cE = [], []
+    for mo in ALL_MICE:
+        cN.append(abs(_code_axis(mo, 'Naive', _a, BINS_LATE) @ _code_axis(mo, 'Naive', _b, BINS_LATE)))
+        cE.append(abs(_code_axis(mo, 'Expert', _a, BINS_LATE) @ _code_axis(mo, 'Expert', _b, BINS_LATE)))
+    cosmix[(_a, _b)] = dict(naive=np.array(cN), expert=np.array(cE))
+COS_CHANCE = 1.0 / np.sqrt(np.mean([np.asarray(_WBLOB[(m, 'Naive', 'all', 'sample')]).shape[1] for m in ALL_MICE]))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -461,10 +491,11 @@ for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
 
-# ── A d′ row: per-mouse d′ (Naive x vs Expert y) for each code — unity = unchanged ──
+# ── A d′ row: per-mouse d′ (Naive x vs Expert y) per code + code-alignment (cosine) panel ──
+gsAdp = gs[2, 0:12].subgridspec(1, 5, width_ratios=[1, 1, 1, 1, 1.05], wspace=0.5)
 axA_dp = []
 for c, (_title, *_) in enumerate(DPRIME_SPECS):
-    axd = fig.add_subplot(gs[2, 3 * c:3 * c + 3])
+    axd = fig.add_subplot(gsAdp[0, c])
     axA_dp.append(axd)
     P = dpr[_title]
     _av = np.concatenate([P['naive'], P['expert']]) if len(P['naive']) else np.array([0.0, 1.0])
@@ -489,6 +520,31 @@ for c, (_title, *_) in enumerate(DPRIME_SPECS):
     axd.text(0.5, 0.02, f'Δ={_dm:+.2f}\np={_tp:.3f}', transform=axd.transAxes, ha='center', va='bottom',
              fontsize=6, color='0.3')
     print(f"A d′[{_title.strip()}] Naive→Expert Δ={_dm:+.3f} paired-t p={_tp:.3f} n={_n}")
+
+# ── A code-alignment: pairwise |cos| between code axes, Naive→Expert (dPCA-style mixing) ──
+axCos = fig.add_subplot(gsAdp[0, 4])
+axCos.axhline(COS_CHANCE, ls=':', color='0.6', lw=0.8, zorder=1)                   # chance |cos| floor
+axCos.text(-0.25, COS_CHANCE, 'chance', ha='left', va='bottom', fontsize=5.5, color='0.6')
+_LSH = {'sample': 'S', 'choice': 'C', 'test': 'T'}
+_sig_i = 0                                                                          # stagger sig-pair labels
+for _pr in COS_PAIRS:
+    _cN = cosmix[_pr]['naive'].mean(); _cE = cosmix[_pr]['expert'].mean()
+    _tp = float(ttest_rel(cosmix[_pr]['expert'], cosmix[_pr]['naive']).pvalue)
+    _sig = _tp < 0.05                                                               # data-driven highlight
+    _col = '#cc3311' if _sig else '0.75'
+    axCos.plot([0, 1], [_cN, _cE], '-o', color=_col, lw=2.4 if _sig else 1.0,
+               ms=6 if _sig else 3, zorder=5 if _sig else 2)
+    if _sig:
+        _star = '***' if _tp < 0.001 else ('**' if _tp < 0.01 else '*')
+        axCos.annotate(f'{_LSH[_pr[0]]}–{_LSH[_pr[1]]} {_star}', (1, _cE), xytext=(5, 6 - 12 * _sig_i),
+                       textcoords='offset points', va='center', ha='left', color=_col,
+                       fontsize=6.5, fontweight='bold')
+        _sig_i += 1
+    print(f'A cos[{_pr[0]}-{_pr[1]}] |cos| N={_cN:.3f}→E={_cE:.3f} paired-t p={_tp:.3f}')
+axCos.set_xticks([0, 1]); axCos.set_xticklabels(['Naive', 'Expert'], fontsize=7)
+axCos.set_xlim(-0.3, 1.75); axCos.set_ylim(bottom=0.0)
+axCos.set_title('code alignment', fontsize=8)
+axCos.set_ylabel('|cos| between codes', fontsize=7.5)
 
 # ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
 gsB = gs[3, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter

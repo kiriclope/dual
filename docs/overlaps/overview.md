@@ -145,7 +145,10 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     column, **plus a d′ scatter row**: per-mouse neural d′ Naive(x)-vs-Expert(y) for each code (unity =
     unchanged), same `trainLD_TEST` readout, per-code window (sample/choice=bins_LD, test=bins_TEST,
     task=Go/NoGo at bins_MD). Only **task d′ (Go/NoGo) rises with learning (Δ=+0.51 p=0.019 `*`)**;
-    sample/choice/test n.s.
+    sample/choice/test n.s. A 5th cell shows **code alignment** (dPCA-style |cos| between code axes,
+    decoder weights, late-delay BINS_LATE, Naive→Expert): codes near-orthogonal, and the **choice code
+    demixes from both stimulus codes** with learning (sample–choice `*` p=0.017, choice–test `***`
+    p<0.001; sample–test at chance). Window-sensitive (weaker on the tight bins_LD 45–53).
   - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
     KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
     Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
