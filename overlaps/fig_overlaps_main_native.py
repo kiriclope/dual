@@ -10,10 +10,11 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
      delay portrait matching C/D. A 5th sub-panel scatters per-mouse late-delay choice-code
      depth (Expert vs Naive, sample A solid / B open, per-mouse colour): points below unity =
-     the code deepens toward no-lick with learning; the Expert~Naive fit + 95% CI is drawn as in C.
-     Stat = random-intercept mixed model depth ~ stage + sample + (1|mouse) over 36 obs (β=−0.68,
-     p=0.023) — same estimator family as C (less conservative than the per-mouse delta test, which
-     is a directional n.s. trend at n=9).                               (← plot_traj2d.py --all --dpa-only)
+     the code deepens toward no-lick with learning. The dark line is the FITTED stage effect (parallel
+     to unity, offset by β, ±95% CI) — i.e. the mean Expert−Naive shift the reported β measures, not an
+     OLS Expert~Naive slope. Stat = random-intercept mixed model depth ~ stage + sample + (1|mouse)
+     over 36 obs (β=−0.68, p=0.023) — same estimator family as C (less conservative than the per-mouse
+     delta test, a directional n.s. trend at n=9).                      (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
      Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
      NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
@@ -444,8 +445,6 @@ _allD = np.concatenate([pushB[s][k] for s in ('A', 'B') for k in ('naive', 'expe
 _padB = (_allD.max() - _allD.min()) * 0.10 or 0.1
 limsB = (_allD.min() - _padB, _allD.max() + _padB)
 axB_sc.plot(limsB, limsB, ls='--', color='0.6', lw=0.8, zorder=1)                  # unity: below = deeper when Expert
-regression_band(axB_sc, np.concatenate([pushB[s]['naive'] for s in ('A', 'B')]),
-                np.concatenate([pushB[s]['expert'] for s in ('A', 'B')]))          # Expert~Naive fit + 95% CI (as in C)
 _ptsB = {m: {} for m in ALL_MICE}
 for _cls, _slab in ((0, 'A'), (1, 'B')):
     P = pushB[_slab]
@@ -469,6 +468,14 @@ _bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
 _nmB, _noB = _dfp['mouse'].nunique(), len(_dfp)
 _sigB = _ppush < 0.05
 print(f'B depth [mixed model, {_noB} obs] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
+# draw the FITTED stage effect: a line parallel to unity offset by β (±1.96·SE band). This is what
+# the reported β means (mean Expert−Naive shift, i.e. the deepening below unity) — NOT an OLS
+# Expert~Naive fit, whose near-flat slope would be a different (test-retest) quantity.
+_seB = float(_pfit.bse['st'])
+_xxB = np.array(limsB)
+axB_sc.fill_between(_xxB, _xxB + _bpush - 1.96 * _seB, _xxB + _bpush + 1.96 * _seB,
+                    color='0.25', alpha=0.15, zorder=2)
+axB_sc.plot(_xxB, _xxB + _bpush, color='0.25', lw=1.5, zorder=4)                   # Expert = Naive + β
 axB_sc.set_xlim(limsB); axB_sc.set_ylim(limsB); axB_sc.set_box_aspect(1)
 axB_sc.set_xlabel('Naive depth'); axB_sc.set_ylabel('Expert depth')
 axB_sc.set_title('Choice-code depth (Exp vs Naive)', loc='left', fontsize=TITLE_FS)
