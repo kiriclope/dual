@@ -4,7 +4,10 @@ variant), COMPOSED NATIVELY as one matplotlib gridspec, Nature-Neuroscience-styl
 
 Layout (4-row gridspec, print-scale typography ~7 pt):
   A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / choice / test / task;
-     y shared within each code column so learning shrinkage is visible.   (← fig_overlaps_codes_1d.py)
+     y shared within each code column so learning shrinkage is visible. A 3rd row adds a per-mouse
+     neural d′ scatter (Naive x vs Expert y, unity = unchanged) for each code, computed on the same
+     trainLD_TEST readout over the code's window (sample/choice=bins_LD, test=bins_TEST, task=Go/NoGo
+     at bins_MD), like the opto figure's d′ panels.                       (← fig_overlaps_codes_1d.py)
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane (its OWN full row),
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
@@ -141,6 +144,50 @@ df_A = X_bl
 idx_laser   = (y.laser == 0)
 idx_choice  = (y.target == 'choice')
 idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_perf == 1))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PANEL A d′ row — per-mouse neural d′ (Naive vs Expert) for each code, on the SAME
+#   trainLD_TEST readout as the code traces (d′ is scale-invariant → BL-norm irrelevant).
+#   d′ = (μ_pos − μ_neg)/σ_pooled of the decision function over the code's window, on
+#   correct trials (matching the A traces). Windows: sample/choice = late delay (bins_LD),
+#   test = test epoch (bins_TEST), task = Go vs NoGo at mid-delay (bins_MD, the cue).
+# ══════════════════════════════════════════════════════════════════════════════
+BINS_MD = options['bins_MD']
+_vLD   = X_bl[:, options['bins_LD']].mean(1)
+_vTEST = X_bl[:, options['bins_TEST']].mean(1)
+_vMD   = X_bl[:, BINS_MD].mean(1)
+#            (title,        target,  split col,     pos,       neg,        v,     dpa_only)
+DPRIME_SPECS = [
+    ('sample d′', 'sample', 'sample_odor', 1,        0,          _vLD,   True),
+    ('choice d′', 'choice', 'choice',      1,        0,          _vLD,   True),
+    ('test d′',   'test',   'test_odor',   1,        0,          _vTEST, True),
+    ('task d′',   'choice', 'tasks',       'DualGo', 'DualNoGo', _vMD,   False),
+]
+
+
+def _code_dprime(v, target, col, pos, neg, mouse, stage, dpa_only):
+    base = ((y.target == target) & (y.mouse == mouse) & (y.stage == stage) &
+            (y.laser == 0) & (y.performance == 1)).values
+    if dpa_only:
+        base = base & (y.tasks == 'DPA').values
+    a = v[base & (y[col].values == pos)]; b = v[base & (y[col].values == neg)]
+    a = a[np.isfinite(a)]; b = b[np.isfinite(b)]
+    if len(a) < 5 or len(b) < 5:
+        return np.nan
+    ps = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)
+    return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
+
+
+dpr = {}                                                               # title -> per-mouse Naive/Expert d′
+for _title, _tgt, _col, _pos, _neg, _v, _dpaonly in DPRIME_SPECS:
+    dN, dE, mice = [], [], []
+    for mo in ALL_MICE:
+        n = _code_dprime(_v, _tgt, _col, _pos, _neg, mo, 'Naive', _dpaonly)
+        e = _code_dprime(_v, _tgt, _col, _pos, _neg, mo, 'Expert', _dpaonly)
+        if np.isfinite(n) and np.isfinite(e):
+            dN.append(n); dE.append(e); mice.append(mo)
+    dpr[_title] = dict(naive=np.array(dN), expert=np.array(dE), mice=mice)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -392,10 +439,10 @@ def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(10.0, 9.2))
-gs = fig.add_gridspec(4, 12, height_ratios=[0.9, 0.9, 1.75, 1.6],
-                      hspace=0.55, wspace=0.9,
-                      left=0.06, right=0.985, top=0.95, bottom=0.055)
+fig = plt.figure(figsize=(10.0, 11.4))
+gs = fig.add_gridspec(5, 12, height_ratios=[0.85, 0.85, 1.25, 1.7, 1.55],
+                      hspace=0.6, wspace=0.9,
+                      left=0.06, right=0.985, top=0.965, bottom=0.04)
 
 
 def panel_letter(ax, L, x=0.008, dy=0.014):
@@ -414,8 +461,37 @@ for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
 
+# ── A d′ row: per-mouse d′ (Naive x vs Expert y) for each code — unity = unchanged ──
+axA_dp = []
+for c, (_title, *_) in enumerate(DPRIME_SPECS):
+    axd = fig.add_subplot(gs[2, 3 * c:3 * c + 3])
+    axA_dp.append(axd)
+    P = dpr[_title]
+    _av = np.concatenate([P['naive'], P['expert']]) if len(P['naive']) else np.array([0.0, 1.0])
+    _lo, _hi = float(np.nanmin(_av)), float(np.nanmax(_av)); _pd = (_hi - _lo) * 0.12 or 0.2
+    _lim = (min(_lo - _pd, -0.1), _hi + _pd)
+    axd.plot(_lim, _lim, ls='--', color='0.6', lw=0.8, zorder=1)                   # unity = unchanged
+    axd.axhline(0, ls=':', color='0.8', lw=0.6, zorder=0); axd.axvline(0, ls=':', color='0.8', lw=0.6, zorder=0)
+    for mo, xn, ye in zip(P['mice'], P['naive'], P['expert']):
+        axd.scatter(xn, ye, s=26, facecolors=MOUSE_COLOR[mo], edgecolors=MOUSE_COLOR[mo],
+                    linewidths=0.6, zorder=4)
+    _n = len(P['naive'])
+    _tp = float(ttest_rel(P['expert'], P['naive']).pvalue) if _n >= 3 else np.nan
+    _dm = float((P['expert'] - P['naive']).mean()) if _n else np.nan
+    _sg = (_tp == _tp and _tp < 0.05)
+    axd.set_xlim(_lim); axd.set_ylim(_lim); axd.set_box_aspect(1)
+    axd.set_title(_title, fontsize=8)
+    axd.set_xlabel('Naive d′', fontsize=7.5)
+    if c == 0:
+        axd.set_ylabel('Expert d′', fontsize=7.5)
+    axd.text(0.06, 0.94, '*' if _sg else 'n.s.', transform=axd.transAxes, ha='left', va='top',
+             fontsize=11 if _sg else 7, fontweight='bold', color='k' if _sg else '0.55')
+    axd.text(0.5, 0.02, f'Δ={_dm:+.2f}\np={_tp:.3f}', transform=axd.transAxes, ha='center', va='bottom',
+             fontsize=6, color='0.3')
+    print(f"A d′[{_title.strip()}] Naive→Expert Δ={_dm:+.3f} paired-t p={_tp:.3f} n={_n}")
+
 # ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
-gsB = gs[2, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter
+gsB = gs[3, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter
 xlimB, ylimB = (-4, 4), (-2, 6)
 axB_traj, axB_hist = [], []
 ax0 = None
@@ -479,7 +555,7 @@ axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', l
               borderaxespad=0.2, labelspacing=0.3)
 
 # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) — right half ─
-gsC = gs[3, 0:8].subgridspec(1, 2, wspace=0.55)                        # C + D share the last row
+gsC = gs[4, 0:8].subgridspec(1, 2, wspace=0.55)                        # C + D share the last row
 axC = [fig.add_subplot(gsC[0, 0]), fig.add_subplot(gsC[0, 1])]
 C_specs = [(delta_dpa_perf_sample, 'Δ DPA accuracy (Exp−Naive)', 'Δ depth vs Δ DPA accuracy',
             _panelC_lmm(delta_dpa_perf_sample)),
@@ -521,7 +597,7 @@ axC[0].legend(handles=_C_leg, frameon=False, loc='upper center', bbox_to_anchor=
               ncol=2, columnspacing=0.8, handletextpad=0.3, borderaxespad=0.2)
 
 # ── D: Naive nonpaired corr-rej vs false-alarm depth, sample A | sample B ────────
-axD = fig.add_subplot(gs[3, 8:12])
+axD = fig.add_subplot(gs[4, 8:12])
 GX_FACR = {'AD': (0.0, 0.8), 'BC': (1.9, 2.7)}
 for lab, samp, odor_pair, col in FA_CR_SPEC:
     xc, xe = GX_FACR[lab]; r = facr[lab]

@@ -141,7 +141,11 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   `--ldtest05` for the narrow-train variant). One decoder tensor, one training axis
   (`trainLD_TEST` bins 45–59), one per-mouse BL normalization; choice-code depth read over the
   broad late-delay `BINS_LATE` 27–53 (pre-test) in every quantitative panel.
-  - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code column.
+  - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code
+    column, **plus a d′ scatter row**: per-mouse neural d′ Naive(x)-vs-Expert(y) for each code (unity =
+    unchanged), same `trainLD_TEST` readout, per-code window (sample/choice=bins_LD, test=bins_TEST,
+    task=Go/NoGo at bins_MD). Only **task d′ (Go/NoGo) rises with learning (Δ=+0.51 p=0.019 `*`)**;
+    sample/choice/test n.s.
   - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
     KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
     Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
