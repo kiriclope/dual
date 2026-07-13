@@ -107,19 +107,19 @@ BINS_LATE    = np.arange(27, 54)                                        # depth 
 # NB temporal defense: the readout ends at bin 53, BEFORE test onset (bin 54) and thus before any
 # lick — the push is a pre-motor decision/memory signal by timing. Decision and lick share one axis
 # in this population (cos 0.2–0.7), so they cannot be linearly separated; timing is the clean isolation.
-# Decoder training axis for the CHOICE code (trace + depth story B/C/D). Default = LD/TEST boundary
-# (bins 51–56 = last 0.5 s LD + first 0.5 s TEST, 8.5–9.4 s) — the crispest decision window and the
-# cleanest B trajectories; the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
-# --ld = pure pre-test late delay (bins 45–53, strictly pre-test); --ldtest = full LD_TEST (45–59).
+# Decoder training axis for the CHOICE code (trace + depth story B/C/D). Default = full LD_TEST
+# (bins 45–59): the test bins carry the lick/no-lick contrast, so the choice axis shows clear
+# discrimination on its trace, clean B trajectories, and the ΔDPA coupling star. Flags:
+# --ld = pure pre-test late delay (bins 45–53); --ld05 = LD/TEST boundary (bins 51–56).
 if '--ld' in sys.argv[1:]:
     TRAIN_LDTEST = options['bins_LD']                                                    # 45–53 pure pre-test
     AXIS_LABEL, FILE_SUF = 'trainLD, bins 45–53', '_ld'
-elif '--ldtest' in sys.argv[1:]:
-    TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
-    AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', '_ldtest'
-else:
+elif '--ld05' in sys.argv[1:]:
     TRAIN_LDTEST = np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])   # 51–56
-    AXIS_LABEL, FILE_SUF = 'trainLDTEST0.5, bins 51–56', ''
+    AXIS_LABEL, FILE_SUF = 'trainLDTEST0.5, bins 51–56', '_ld05'
+else:
+    TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
+    AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', ''
 BINS_DELAY   = options['bins_DELAY']
 TEST_ONSET   = options['bins_TEST'][0]
 TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
@@ -151,7 +151,7 @@ _dp_test   = _diag(np.arange(58, 84))                                  # test:  
 _dp_task   = _diag(np.arange(33, 57))                                  # task:   best axis, mid-delay (choice axis)
 # Panel A code TRACES on the SAME best axes (decoder trained at the code's best window, read across
 # ALL time) so each time-course matches its d′ scatter. Choice keeps the decision axis (default
-# trainLDTEST0.5 = bins 51–56, LD/TEST boundary) — its trace is the decision view tied to panels B–D.
+# trainLD_TEST = bins 45–59) — the test bins give it clear lick/no-lick discrimination; tied to B–D.
 _tr_sample = X[:, 1, np.arange(16, 48), :].mean(1).astype(float)       # (n,84) read across time
 _tr_test   = X[:, 1, np.arange(58, 84), :].mean(1).astype(float)
 _tr_task   = X[:, 1, np.arange(33, 57), :].mean(1).astype(float)

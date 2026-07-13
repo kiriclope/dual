@@ -138,11 +138,13 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
 - **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 2026-07-13).** The
   publication figure (NN typography, `figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.png`).
-  **CHOICE training axis (drives the choice trace + depth B/C/D): default = LD/TEST boundary
-  `trainLDTEST0.5` bins 51–56** (crispest decision window → cleanest B trajectories); flags `--ld`
-  (pure pre-test LD 45–53) and `--ldtest` (full LD_TEST 45–59). Sample/test/task use their OWN
+  **CHOICE training axis (drives the choice trace + depth B/C/D): default = full `trainLD_TEST`
+  bins 45–59** — the test bins carry the lick/no-lick contrast, so the choice trace shows clear
+  discrimination (Expert lick↑/no-lick↓), plus clean B trajectories and the ΔDPA coupling star; flags
+  `--ld` (pure pre-test 45–53) and `--ld05` (LD/TEST boundary 51–56). Sample/test/task use their OWN
   generalization best-axes (independent of the choice axis). Choice-code depth read over the broad
-  late-delay `BINS_LATE` 27–53 (pre-test) in every quantitative panel.
+  late-delay `BINS_LATE` 27–53 (pre-test) in every quantitative panel — the push's decision-not-response
+  defense rests on this readout window, not the training axis.
   - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code
     column, **plus a d′ scatter row for sample/test/task** (choice DROPPED). Each code is decoded on
     its **generalization best axis** — trained AND read at its diagonal plateau (sample 2.7–7.9 s
@@ -158,14 +160,13 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
     KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
     Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
-    mean±SEM bars). Stat = deepening mixed model `depth ~ stage + sample + (1|mouse)` **β=−0.71 p=0.010
-    `*`** (on the default 51–56 axis). (The per-mouse paired-t / delta test is only a directional n.s.
+    mean±SEM bars). Stat = deepening mixed model `depth ~ stage + sample + (1|mouse)` **β=−0.68 p=0.023
+    `*`** (default LD_TEST axis). (The per-mouse paired-t / delta test is only a directional n.s.
     trend — the random-intercept model is the less-conservative estimator chosen for uniformity with C.)
-  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + (1|mouse)`. **Training-axis-sensitive:**
-    on the default 51–56 axis ΔDPA β=−0.027 **p=0.065 (marginal trend)**, on `--ld` (45–53) p=0.015 `*`;
-    ΔGNG always null (p≈0.3). Kept 51–56 default (headline = trajectories + push); C reported as a
-    consistent-direction trend. Do NOT report the pseudoreplicated n=18 correlation.
-  - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.019 / BC n.s.).
+  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + (1|mouse)` (ΔDPA β=−0.031 **p=0.016 `*`**,
+    ΔGNG p=0.31 n.s.). Training-axis-sensitive (loses the star on the 51–56 `--ld05` axis, p=0.065). Do
+    NOT report the pseudoreplicated n=18 correlation.
+  - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.006 / BC n.s.).
   - **Shared conventions:** B/C/D use ONE per-mouse palette (`MOUSE_COLOR`, same mouse = same colour);
     B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
     a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file
