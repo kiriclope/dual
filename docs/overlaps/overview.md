@@ -110,7 +110,11 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   predicts Δ**DPA** accuracy, NOT Δ**GNG** accuracy (ρ≈0, null on every axis) — a genuine DPA-specific
   link. It IS panel D of the **locked main figure** (`trainLD_TEST`), captioned as a population-level,
   DPA-specific, n=9-borderline link (still sign-contested vs the dPCA side). Do not over-claim a
-  within-animal effect.
+  within-animal effect. **In the native figure `fig_overlaps_main_native.py` this is panel C, and its
+  headline stat is now the mouse-respecting MIXED MODEL** `Δperf ~ Δdepth + (1|mouse)` (ΔDPA
+  β=−0.031 **p=0.016** `*`, ΔGNG null p=0.31) — NOT the pseudoreplicated n=18 (9 mice × sample A/B)
+  correlation, which inflates to p=0.011. Per-mouse (n=9) it is ρ=−0.67 p=0.050; the LMM keeps all the
+  data while respecting the mouse grouping, so report β/p, not the n=18 star.
 - **Trial-level behavioural relevance — the no-lick well predicts false alarms (Naive, sample A).**
   Complement to the population-level Δdepth↔Δperf link above, at the single-trial level. Split DPA
   trials by signal-detection outcome (`y.response` ∈ {correct_hit, incorrect_miss, correct_rej,
