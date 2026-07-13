@@ -10,9 +10,10 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
      delay portrait matching C/D. A 5th sub-panel scatters per-mouse late-delay choice-code
      depth (Expert vs Naive, sample A solid / B open, per-mouse colour): points below unity =
-     the code deepens toward no-lick with learning. Same conventions & stat as panel C — mixed
-     model Δdepth ~ 1 + (1|mouse) over the 18 mouse×sample obs (β=−0.68, p=0.11, n.s.): a real
-     directional trend but not significant at the mouse level (n=9). (← plot_traj2d.py --all --dpa-only)
+     the code deepens toward no-lick with learning; the Expert~Naive fit + 95% CI is drawn as in C.
+     Stat = random-intercept mixed model depth ~ stage + sample + (1|mouse) over 36 obs (β=−0.68,
+     p=0.023) — same estimator family as C (less conservative than the per-mouse delta test, which
+     is a directional n.s. trend at n=9).                               (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
      Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
      NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
@@ -443,6 +444,8 @@ _allD = np.concatenate([pushB[s][k] for s in ('A', 'B') for k in ('naive', 'expe
 _padB = (_allD.max() - _allD.min()) * 0.10 or 0.1
 limsB = (_allD.min() - _padB, _allD.max() + _padB)
 axB_sc.plot(limsB, limsB, ls='--', color='0.6', lw=0.8, zorder=1)                  # unity: below = deeper when Expert
+regression_band(axB_sc, np.concatenate([pushB[s]['naive'] for s in ('A', 'B')]),
+                np.concatenate([pushB[s]['expert'] for s in ('A', 'B')]))          # Expert~Naive fit + 95% CI (as in C)
 _ptsB = {m: {} for m in ALL_MICE}
 for _cls, _slab in ((0, 'A'), (1, 'B')):
     P = pushB[_slab]
@@ -455,12 +458,14 @@ for mo, pts in _ptsB.items():                                                   
         axB_sc.plot([pts[0][0], pts[1][0]], [pts[0][1], pts[1][1]], '-',
                     color=MOUSE_COLOR[mo], lw=0.7, alpha=0.5, zorder=3)
 axB_sc.axhline(0, ls=':', color='k', lw=0.7); axB_sc.axvline(0, ls=':', color='k', lw=0.7)
-# stat: mixed model on the per-mouse×sample depth change, mouse random intercept (mirrors panel C)
-_dfp = pd.DataFrame([dict(mouse=mo, dd=(e - n))
-                     for _s in ('A', 'B')
-                     for mo, n, e in zip(pushB[_s]['mice'], pushB[_s]['naive'], pushB[_s]['expert'])])
-_pfit = smf.mixedlm('dd ~ 1', _dfp, groups=_dfp['mouse']).fit()
-_bpush, _ppush = float(_pfit.params['Intercept']), float(_pfit.pvalues['Intercept'])
+# stat: random-intercept mixed model over the 36 mouse×sample×stage obs — SAME estimator family as
+# panel C (mouse random intercept), less conservative than the per-mouse delta test:
+# depth ~ stage + sample + (1|mouse).
+_dfp = pd.DataFrame([dict(mouse=mo, sample=_s, st=_st, depth=_v)
+                     for _s in ('A', 'B') for _st, _k in ((0, 'naive'), (1, 'expert'))
+                     for mo, _v in zip(pushB[_s]['mice'], pushB[_s][_k])])
+_pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
+_bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
 _nmB, _noB = _dfp['mouse'].nunique(), len(_dfp)
 _sigB = _ppush < 0.05
 print(f'B depth [mixed model, {_noB} obs] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
