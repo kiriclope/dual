@@ -507,10 +507,13 @@ def panel_letter(ax, L, x=0.008, dy=0.014):
 
 
 # ── A: 2×4 code grid (Naive top, Expert bottom) ────────────────────────────────
+# y shared ACROSS each row (all 4 codes in a stage share one y-scale), rows independent;
+# x shared down each column.
 axA = np.empty((2, 4), dtype=object)
 for c in range(4):
-    axA[0, c] = fig.add_subplot(gs[0, 3 * c:3 * c + 3])
-    axA[1, c] = fig.add_subplot(gs[1, 3 * c:3 * c + 3], sharex=axA[0, c], sharey=axA[0, c])
+    axA[0, c] = fig.add_subplot(gs[0, 3 * c:3 * c + 3], sharey=(axA[0, 0] if c else None))
+    axA[1, c] = fig.add_subplot(gs[1, 3 * c:3 * c + 3], sharex=axA[0, c],
+                                sharey=(axA[1, 0] if c else None))
 for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
