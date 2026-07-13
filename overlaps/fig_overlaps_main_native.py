@@ -104,6 +104,9 @@ options = set_options(
 )
 BINS_BL      = options['bins_BL']
 BINS_LATE    = np.arange(27, 54)                                        # depth readout = broad late-delay (bins 27–53, source-script convention; ΔDPA sig)
+# NB temporal defense: the readout ends at bin 53, BEFORE test onset (bin 54) and thus before any
+# lick — the push is a pre-motor decision/memory signal by timing. Decision and lick share one axis
+# in this population (cos 0.2–0.7), so they cannot be linearly separated; timing is the clean isolation.
 # Decoder training axis. Default = full trainLD_TEST (bins 45–59, locked main figure).
 # --ldtest05 = narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51–56,
 # 8.5–9.33 s), the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
