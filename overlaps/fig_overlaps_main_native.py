@@ -7,7 +7,8 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      y shared within each code column so learning shrinkage is visible.   (← fig_overlaps_codes_1d.py)
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane (its OWN full row),
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
-                                                                          (← plot_traj2d.py --all --dpa-only)
+     Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
+     delay portrait matching C/D.                                        (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
      Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
      NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
@@ -104,8 +105,8 @@ else:
     TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
     AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', ''
 BINS_DELAY   = options['bins_DELAY']
-TRAJ_END     = options['bins_TEST'][-1] + 1
 TEST_ONSET   = options['bins_TEST'][0]
+TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
 xtime        = np.linspace(0, 14, 84)
 BL_A         = slice(0, 12)                                             # codes_1d baseline slice
 
