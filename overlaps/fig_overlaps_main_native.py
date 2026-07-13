@@ -9,9 +9,10 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
      delay portrait matching C/D. A 5th sub-panel scatters per-mouse late-delay choice-code
-     depth (Expert vs Naive, sample A|B): points fall below unity = the push down. Headline
-     stat = mixed model depth ~ stage + sample + (1|mouse) (β=−0.68 p=0.023) — the same model
-     form as C; per-sample paired-t (A/B) is directional-only at n=9.    (← plot_traj2d.py --all --dpa-only)
+     depth (Expert vs Naive, sample A solid / B open, per-mouse colour): points below unity =
+     the code deepens toward no-lick with learning. Same conventions & stat as panel C — mixed
+     model Δdepth ~ 1 + (1|mouse) over the 18 mouse×sample obs (β=−0.68, p=0.11, n.s.): a real
+     directional trend but not significant at the mouse level (n=9). (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
      Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
      NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
@@ -433,42 +434,46 @@ pair_handles = [Line2D([0], [0], color=PAIR_COLOR[p], lw=2.0, label=PAIR_LABELS[
 axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
                     handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=8)
 
-# ── B push scatter: per-mouse late-delay choice-code depth, Expert vs Naive (sample A|B) ──
+# ── B depth scatter: per-mouse late-delay choice-code depth, Expert vs Naive (sample A|B) ──
+#    SAME conventions & stat as panel C: per-mouse colour, sample A solid / B open, the mouse's
+#    two sample points joined, and a mixed model over the 18 mouse×sample observations with a
+#    mouse random intercept (Δdepth ~ 1 + (1|mouse)) — the C-matched, pseudoreplication-safe test.
 axB_sc = fig.add_subplot(gsB[0, 4])
 _allD = np.concatenate([pushB[s][k] for s in ('A', 'B') for k in ('naive', 'expert')])
 _padB = (_allD.max() - _allD.min()) * 0.10 or 0.1
 limsB = (_allD.min() - _padB, _allD.max() + _padB)
-axB_sc.plot(limsB, limsB, ls='--', color='0.6', lw=0.8, zorder=1)                  # unity: below = pushed down
-axB_sc.axhline(0, ls=':', color='0.8', lw=0.6, zorder=0); axB_sc.axvline(0, ls=':', color='0.8', lw=0.6, zorder=0)
-_pushtxt = []
-for _slab, _col, _filled in [('A', '#332288', True), ('B', '#44AA99', False)]:
+axB_sc.plot(limsB, limsB, ls='--', color='0.6', lw=0.8, zorder=1)                  # unity: below = deeper when Expert
+_ptsB = {m: {} for m in ALL_MICE}
+for _cls, _slab in ((0, 'A'), (1, 'B')):
     P = pushB[_slab]
-    axB_sc.scatter(P['naive'], P['expert'], s=34, zorder=3,
-                   facecolors=_col if _filled else 'w', edgecolors=_col, linewidths=1.1,
-                   label=f'sample {_slab}')
-    dmean = float((P['expert'] - P['naive']).mean())
-    tp = float(ttest_rel(P['expert'], P['naive']).pvalue)
-    _pushtxt.append(f"{_slab} Δ={dmean:+.2f}")
-    print(f'B push [sample {_slab}] Δ(Exp−Naive)={dmean:+.3f} paired-t p={tp:.3f} n={len(P["naive"])}')
-# mouse-respecting headline (same model form as panel C): depth ~ stage + sample + (1|mouse).
-# Both samples pooled with a mouse random intercept → the push is significant where the
-# per-sample paired-t (n=9) is only directional.
-_dfp = pd.DataFrame([dict(mouse=mo, sample=_s, st=_st, depth=_v)
-                     for _s in ('A', 'B') for _st, _k in ((0, 'naive'), (1, 'expert'))
-                     for mo, _v in zip(pushB[_s]['mice'], pushB[_s][_k])])
-_pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
-_bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
-print(f'B push [mixed model stage] β={_bpush:+.3f} p={_ppush:.3f} (n_obs={len(_dfp)}, {_dfp.mouse.nunique()} mice)')
+    for mo, xn, ye in zip(P['mice'], P['naive'], P['expert']):
+        _ptsB[mo][_cls] = (xn, ye)
+        axB_sc.scatter(xn, ye, facecolors=MOUSE_COLOR[mo] if _cls == 0 else 'w',
+                       edgecolors=MOUSE_COLOR[mo], marker='o', s=42, linewidths=1.0, zorder=5)
+for mo, pts in _ptsB.items():                                                     # join each mouse's A & B points
+    if 0 in pts and 1 in pts:
+        axB_sc.plot([pts[0][0], pts[1][0]], [pts[0][1], pts[1][1]], '-',
+                    color=MOUSE_COLOR[mo], lw=0.7, alpha=0.5, zorder=3)
+axB_sc.axhline(0, ls=':', color='k', lw=0.7); axB_sc.axvline(0, ls=':', color='k', lw=0.7)
+# stat: mixed model on the per-mouse×sample depth change, mouse random intercept (mirrors panel C)
+_dfp = pd.DataFrame([dict(mouse=mo, dd=(e - n))
+                     for _s in ('A', 'B')
+                     for mo, n, e in zip(pushB[_s]['mice'], pushB[_s]['naive'], pushB[_s]['expert'])])
+_pfit = smf.mixedlm('dd ~ 1', _dfp, groups=_dfp['mouse']).fit()
+_bpush, _ppush = float(_pfit.params['Intercept']), float(_pfit.pvalues['Intercept'])
+_nmB, _noB = _dfp['mouse'].nunique(), len(_dfp)
+_sigB = _ppush < 0.05
+print(f'B depth [mixed model, {_noB} obs] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
 axB_sc.set_xlim(limsB); axB_sc.set_ylim(limsB); axB_sc.set_box_aspect(1)
 axB_sc.set_xlabel('Naive depth'); axB_sc.set_ylabel('Expert depth')
-axB_sc.set_title('push (Exp vs Naive)', loc='left', fontsize=TITLE_FS)
-axB_sc.text(0.04, 0.04, f'mixed model\nβ={_bpush:+.2f}, p={_ppush:.3f}\n' + '  '.join(_pushtxt),
-            transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6, color='0.3', zorder=6,
-            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', pad=1))
-axB_sc.text(0.93, 0.93, '*' if _ppush < 0.05 else 'n.s.', transform=axB_sc.transAxes,
-            ha='center', va='top', fontsize=12 if _ppush < 0.05 else 8, fontweight='bold',
-            color='k' if _ppush < 0.05 else '0.55')
-axB_sc.legend(frameon=False, loc='upper left', fontsize=6.5, handletextpad=0.3,
+axB_sc.set_title('Choice-code depth (Exp vs Naive)', loc='left', fontsize=TITLE_FS)
+axB_sc.text(0.03, 0.03, f'mixed model ({_nmB} mice, {_noB} obs)\nβ={_bpush:+.3f}, p={_ppush:.3f}',
+            transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
+axB_sc.text(0.92, 0.94, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='center', va='top',
+            fontsize=12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
+axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
+                       mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')],
+              frameon=False, loc='upper left', fontsize=6.5, handletextpad=0.3,
               borderaxespad=0.2, labelspacing=0.3)
 
 # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) — right half ─
