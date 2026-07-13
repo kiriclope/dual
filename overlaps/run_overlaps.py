@@ -182,6 +182,8 @@ misc.add_argument('--save-weights', action='store_true', dest='save_weights',
                        'cosine-similarity / axis-alignment analyses.')
 misc.add_argument('--tag', default='',
                   help='Extra string appended to the run-id (dum)')
+misc.add_argument('--out-prefix', default='', dest='out_prefix',
+                  help='Prefix prepended to output filenames, e.g. l1 -> l1_X_<dum>.pkl')
 misc.add_argument('--random-state', type=int, default=0, dest='random_state',
                   help='Global random seed')
 
@@ -450,11 +452,12 @@ X_single = np.vstack(X_mice)
 y_single = pd.concat(y_mice, ignore_index=True)
 print(f'X_single {X_single.shape}  y_single {y_single.shape}')
 
-pkl_save(X_single, f'X_{dum}',      path=args.data_out)
-pkl_save(y_single, f'labels_{dum}', path=args.data_out)
-print('Results saved to', args.data_out)
+_pfx = f'{args.out_prefix}_' if args.out_prefix else ''
+pkl_save(X_single, f'{_pfx}X_{dum}',      path=args.data_out)
+pkl_save(y_single, f'{_pfx}labels_{dum}', path=args.data_out)
+print(f'Results saved to {args.data_out} ({_pfx}X_{dum}.pkl)')
 
 if args.save_weights:
     pkl_save({'weights': weights_out, 'valid': valid_masks},
-             f'weights_{dum}', path=args.data_out)
-    print(f'Saved {len(weights_out)} weight axes to weights_{dum}.pkl')
+             f'{_pfx}weights_{dum}', path=args.data_out)
+    print(f'Saved {len(weights_out)} weight axes to {_pfx}weights_{dum}.pkl')

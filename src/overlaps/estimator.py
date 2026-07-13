@@ -24,17 +24,25 @@ def get_estimator(
     Cs=np.logspace(-4, 4, 10),
     n_jobs=-1,
 ):
-    """Build a (Generalizing|Sliding)Estimator wrapping a logistic pipeline."""
-    solver = "liblinear" if l1_ratio in (0, 1) else "saga"
+    """Build a (Generalizing|Sliding)Estimator wrapping a logistic pipeline.
+
+    Uses the liblinear solver. l1_ratio selects the penalty: 0 -> ridge (L2),
+    1 -> lasso (L1). Per current sklearn, l1_ratios is the intended control, so we
+    pass it; we ALSO set penalty explicitly for safety (liblinear reads `penalty`).
+    (The old code left penalty at its 'l2' default and passed l1_ratios with
+    liblinear, so --l1-ratio 1 silently ran L2 rather than L1.)
+    """
+    solver = "liblinear"
+    penalty = "l1" if l1_ratio >= 1 else "l2"
 
     if clf == "logcv":
         clf_obj = LogisticRegressionCV(
-            cv=5, solver=solver, class_weight="balanced",
+            cv=5, solver=solver, penalty=penalty, class_weight="balanced",
             n_jobs=None, l1_ratios=(l1_ratio,), Cs=Cs,
         )
     else:
         clf_obj = LogisticRegression(
-            solver=solver, class_weight="balanced",
+            solver=solver, penalty=penalty, class_weight="balanced",
             n_jobs=None, l1_ratio=l1_ratio, C=C,
         )
 

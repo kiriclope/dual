@@ -120,6 +120,21 @@ elif '--ld05' in sys.argv[1:]:
 else:
     TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
     AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', ''
+# --l1: use the L1 (lasso, l1_ratio=1) decoder tensors instead of the ridge (l1_ratio=0) ones.
+# L1 codes are sparse (frac-zero ~0.21/0.27/0.34 sample/choice/gng). The L1 set is split across
+# two files (combined sample/choice/gng, plus a separate test run), merged below.
+L1 = '--l1' in sys.argv[1:]
+if L1:
+    DUM       = 'log_generalizing_overlaps_none_l1_ratio_1.0'
+    PFX       = 'l1_'
+    FILE_SUF += '_l1'
+    AXIS_LABEL += ', L1'
+else:
+    PFX = ''
+# Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),
+# mirroring the run_overlaps `--targets sample choice test gng` layout. (Ridge: assembled by
+# concatenating the legacy main + gng files, which many other scripts still load separately.)
+_BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 BINS_DELAY   = options['bins_DELAY']
 TEST_ONSET   = options['bins_TEST'][0]
 TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
@@ -131,8 +146,11 @@ BL_A         = slice(0, 12)                                             # codes_
 # LOAD main (laser-off) tensor once; slice on the locked axis; free the 1.9 GB tensor
 # ══════════════════════════════════════════════════════════════════════════════
 print('loading main tensor …')
-X = pkl_load(f'X_{DUM}',      path=DATA_IN)
-y = pkl_load(f'labels_{DUM}', path=DATA_IN)
+Xb = pkl_load(f'{PFX}X_{_BDUM}',      path=DATA_IN)
+yb = pkl_load(f'{PFX}labels_{_BDUM}', path=DATA_IN)
+_sct = (yb.target != 'gng').to_numpy()                                # main tensor = sample/choice/test rows
+X = Xb[_sct]
+y = yb[_sct].reset_index(drop=True)
 print(f'  X {X.shape}  y {y.shape}')
 
 raw = X[..., TRAIN_LDTEST, :].mean(-2)[:, 1].astype(float)             # (n,84) decision fn
@@ -176,10 +194,10 @@ TRACE_SRC = [_tr_sample, X_bl, _tr_test, _tr_task]
 # The "task code" reads Go/NoGo off the CHOICE axis (d′≈0.1); a real GNG decoder separates them
 # strongly (d′≈2) on an axis orthogonal to choice/sample/test (see fig_overlaps_gng_compare.py).
 # Added as panel A's 5th code, on its own y-scale (much larger amplitude than the other codes).
-GNG_DUM  = f'{DUM}_raw_targets_gng'
 _GNG_WIN = np.arange(34, 59)                                            # gng generalization best axis (5.7–9.8 s)
-Xg = pkl_load(f'X_{GNG_DUM}',      path=DATA_IN)
-yg = pkl_load(f'labels_{GNG_DUM}', path=DATA_IN)
+_gm = (yb.target == 'gng').to_numpy()                                   # gng rows of the bundled tensor
+Xg = Xb[_gm]; yg = yb[_gm].reset_index(drop=True)
+del Xb
 _gng_tr = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float)                   # (n,84) Go/NoGo decision fn across time
 _gng_dp = Xg[:, 1, _GNG_WIN, :][:, :, _GNG_WIN].mean((1, 2)).astype(float)   # diagonal d′ readout
 del Xg
@@ -254,7 +272,7 @@ dpr['GNG d′'] = dict(naive=np.array(_gN), expert=np.array(_gE), mice=_gmice)
 #    readout in C/D), cosine within a mouse (shared neuron basis), |cos| averaged across mice.
 #    Chance |cos| ≈ 1/√n̄_neurons. (Demixing is window-sensitive like the depth↔behaviour coupling:
 #    significant on the broad late-delay 27–53 & full delay, weaker on the tight bins_LD 45–53.)
-_WBLOB   = pkl_load(f'weights_{DUM}_raw', path=DATA_IN)['weights']
+_WBLOB = pkl_load(f'{PFX}weights_{_BDUM}', path=DATA_IN)['weights']     # bundled weights (sample/choice/test/gng)
 COS_PAIRS = [('sample', 'choice'), ('sample', 'test'), ('choice', 'test')]
 
 
