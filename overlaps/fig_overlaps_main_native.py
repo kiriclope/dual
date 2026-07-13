@@ -31,10 +31,10 @@ C and D share the last row (so D is one C-panel wide). All helper computation is
 
 Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab[_ldtest05].{png,svg}
 
-Decoder training axis (--ldtest05): default trains on the full trainLD_TEST (bins 45–59);
---ldtest05 trains on the narrow LD/TEST boundary (last 0.5 s LD + first 0.5 s TEST = bins
-51–56) and writes the _ldtest05 file. Depth readout stays at the broad late-delay (bins 27–53)
-either way — during the delay, pre-test.
+Choice-code training axis: default = LD/TEST boundary (bins 51–56 = last 0.5 s LD + first 0.5 s
+TEST) — crispest decision window, cleanest B trajectories. --ld trains on pure pre-test late
+delay (bins 45–53); --ldtest on the full LD_TEST (45–59). Depth readout stays at the broad
+late-delay (bins 27–53) in all cases — during the delay, pre-test.
 
 Run:  cd /home/leon/dual/overlaps
       /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main_native.py [--ldtest05]
@@ -107,16 +107,19 @@ BINS_LATE    = np.arange(27, 54)                                        # depth 
 # NB temporal defense: the readout ends at bin 53, BEFORE test onset (bin 54) and thus before any
 # lick — the push is a pre-motor decision/memory signal by timing. Decision and lick share one axis
 # in this population (cos 0.2–0.7), so they cannot be linearly separated; timing is the clean isolation.
-# Decoder training axis. Default = full trainLD_TEST (bins 45–59, locked main figure).
-# --ldtest05 = narrow LD/TEST boundary: last 0.5 s of LD + first 0.5 s of TEST (bins 51–56,
-# 8.5–9.33 s), the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
-LDTEST05 = '--ldtest05' in sys.argv[1:]
-if LDTEST05:
-    TRAIN_LDTEST = np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])   # 51–59→51–56
-    AXIS_LABEL, FILE_SUF = 'trainLDTEST05, bins 51–56', '_ldtest05'
-else:
+# Decoder training axis for the CHOICE code (trace + depth story B/C/D). Default = LD/TEST boundary
+# (bins 51–56 = last 0.5 s LD + first 0.5 s TEST, 8.5–9.4 s) — the crispest decision window and the
+# cleanest B trajectories; the convention in plot_scatter_perf/laser/traj2d/exp_nolick_push_stats.
+# --ld = pure pre-test late delay (bins 45–53, strictly pre-test); --ldtest = full LD_TEST (45–59).
+if '--ld' in sys.argv[1:]:
+    TRAIN_LDTEST = options['bins_LD']                                                    # 45–53 pure pre-test
+    AXIS_LABEL, FILE_SUF = 'trainLD, bins 45–53', '_ld'
+elif '--ldtest' in sys.argv[1:]:
     TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])            # 45–59
-    AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', ''
+    AXIS_LABEL, FILE_SUF = 'trainLD_TEST, bins 45–59', '_ldtest'
+else:
+    TRAIN_LDTEST = np.concatenate([options['bins_LD'][-3:], options['bins_TEST'][:3]])   # 51–56
+    AXIS_LABEL, FILE_SUF = 'trainLDTEST0.5, bins 51–56', ''
 BINS_DELAY   = options['bins_DELAY']
 TEST_ONSET   = options['bins_TEST'][0]
 TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
@@ -133,6 +136,25 @@ y = pkl_load(f'labels_{DUM}', path=DATA_IN)
 print(f'  X {X.shape}  y {y.shape}')
 
 raw = X[..., TRAIN_LDTEST, :].mean(-2)[:, 1].astype(float)             # (n,84) decision fn
+# Panel A d′: each code is decoded on its GENERALISATION BEST AXIS — trained AND read at the window
+# where its cross-temporal decoder generalises best (the diagonal plateau) — so the scatter shows
+# whether the code is decodable at all and whether that changes with learning. Windows (bins):
+# sample 16–47 (early-mid delay), test 58–83 (test/response), task 33–56 (mid-delay, on the choice
+# axis). CHOICE is deliberately NOT shown as a d′ scatter: pre-test it is at chance (the DPA decision
+# cannot be formed until the test odour arrives), and its only decodable window is response/lick — so
+# choice's learning story is carried by the code-alignment (cosine) panel and by panels B–D instead.
+# d′ is scale-invariant, so the absence of BL-norm on these diagonal readouts is irrelevant.
+def _diag(win):                                                        # decision fn (toward-lick pole) trained AND read on win
+    return X[:, 1, win, :][:, :, win].mean((1, 2)).astype(float)
+_dp_sample = _diag(np.arange(16, 48))                                  # sample: best axis, early-mid delay
+_dp_test   = _diag(np.arange(58, 84))                                  # test:   best axis, test/response
+_dp_task   = _diag(np.arange(33, 57))                                  # task:   best axis, mid-delay (choice axis)
+# Panel A code TRACES on the SAME best axes (decoder trained at the code's best window, read across
+# ALL time) so each time-course matches its d′ scatter. Choice keeps the decision axis (default
+# trainLDTEST0.5 = bins 51–56, LD/TEST boundary) — its trace is the decision view tied to panels B–D.
+_tr_sample = X[:, 1, np.arange(16, 48), :].mean(1).astype(float)       # (n,84) read across time
+_tr_test   = X[:, 1, np.arange(58, 84), :].mean(1).astype(float)
+_tr_task   = X[:, 1, np.arange(33, 57), :].mean(1).astype(float)
 del X                                                                  # free ~1.9 GB
 
 # normalisation variant used by B/C/D (per-mouse BINS_BL std)
@@ -146,6 +168,9 @@ for mo in ALL_MICE:
 # Panel A uses the same per-mouse BL normalisation (bins_BL == BL_A == 0:11), then adds a
 # per-code z-score at plot time — so it starts from X_bl directly (no separate copy).
 df_A = X_bl
+# Per-column trace source for panel A: sample/test/task on their best axes, choice on the decision
+# axis (X_bl = trainLD_TEST). Order matches VARS_A (sample, choice, test, task).
+TRACE_SRC = [_tr_sample, X_bl, _tr_test, _tr_task]
 
 idx_laser   = (y.laser == 0)
 idx_choice  = (y.target == 'choice')
@@ -153,22 +178,17 @@ idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_pe
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PANEL A d′ row — per-mouse neural d′ (Naive vs Expert) for each code, on the SAME
-#   trainLD_TEST readout as the code traces (d′ is scale-invariant → BL-norm irrelevant).
-#   d′ = (μ_pos − μ_neg)/σ_pooled of the decision function over the code's window, on
-#   correct trials (matching the A traces). Windows: sample/choice = late delay (bins_LD),
-#   test = test epoch (bins_TEST), task = Go vs NoGo at mid-delay (bins_MD, the cue).
+# PANEL A d′ row — per-mouse neural d′ (Naive vs Expert) for sample/test/task, each on its
+#   generalisation best axis (computed above as _dp_*). d′ = (μ_pos − μ_neg)/σ_pooled of the
+#   decision function over the code's window, on correct trials. Shows the sensory/context codes
+#   are decodable AND stable with learning; choice is omitted (see note above) — its plasticity
+#   lives in the code-alignment panel and panels B–D.
 # ══════════════════════════════════════════════════════════════════════════════
-BINS_MD = options['bins_MD']
-_vLD   = X_bl[:, options['bins_LD']].mean(1)
-_vTEST = X_bl[:, options['bins_TEST']].mean(1)
-_vMD   = X_bl[:, BINS_MD].mean(1)
-#            (title,        target,  split col,     pos,       neg,        v,     dpa_only)
+#            (title,        target,  split col,     pos,       neg,        v,          dpa_only)
 DPRIME_SPECS = [
-    ('sample d′', 'sample', 'sample_odor', 1,        0,          _vLD,   True),
-    ('choice d′', 'choice', 'choice',      1,        0,          _vLD,   True),
-    ('test d′',   'test',   'test_odor',   1,        0,          _vTEST, True),
-    ('task d′',   'choice', 'tasks',       'DualGo', 'DualNoGo', _vMD,   False),
+    ('sample d′', 'sample', 'sample_odor', 1,        0,          _dp_sample, True),
+    ('test d′',   'test',   'test_odor',   1,        0,          _dp_test,   True),
+    ('task d′',   'choice', 'tasks',       'DualGo', 'DualNoGo', _dp_task,   False),
 ]
 
 
@@ -427,15 +447,16 @@ def _setup_A(ax, ylab):
 def _draw_codes_row(axes_row, base, stage_label, show_titles, show_xlabel):
     for c, (ttl, code, col, levels, labs, cols, dpa_only) in enumerate(VARS_A):
         ax = axes_row[c]
+        src = TRACE_SRC[c]                                             # best-axis trace source (choice=decision axis)
         ylab = (f'{stage_label}\ncode (z)' if stage_label else 'code (z)') if c == 0 else ''
         _setup_A(ax, ylab)
         ax.set_xlabel('Time (s)' if show_xlabel else '', fontsize=9)
         pbase = base & (y.tasks == 'DPA').to_numpy() if dpa_only else base
-        Zc = np.full_like(df_A, np.nan)
+        Zc = np.full_like(src, np.nan)
         for mo in ALL_MICE:                                            # per-mouse BL z of the code
             mm = (y.mouse == mo).to_numpy() & (y.target == code).to_numpy()
-            z = df_A[mm]; z = z - z[:, BL_A].mean()
-            Zc[mm] = z / (df_A[mm][:, BL_A].std() + 1e-9)
+            z = src[mm]; z = z - z[:, BL_A].mean()
+            Zc[mm] = z / (src[mm][:, BL_A].std() + 1e-9)
         for lv, lab, color in zip(levels, labs, cols):
             per_mouse = []
             for mo in ALL_MICE:
@@ -495,7 +516,7 @@ for ri, STG in enumerate(STAGES):
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
 
 # ── A d′ row: per-mouse d′ (Naive x vs Expert y) per code + code-alignment (cosine) panel ──
-gsAdp = gs[2, 0:12].subgridspec(1, 5, width_ratios=[1, 1, 1, 1, 1.05], wspace=0.5)
+gsAdp = gs[2, 0:12].subgridspec(1, 4, width_ratios=[1, 1, 1, 1.05], wspace=0.5)
 axA_dp = []
 for c, (_title, *_) in enumerate(DPRIME_SPECS):
     axd = fig.add_subplot(gsAdp[0, c])
@@ -525,7 +546,7 @@ for c, (_title, *_) in enumerate(DPRIME_SPECS):
     print(f"A d′[{_title.strip()}] Naive→Expert Δ={_dm:+.3f} paired-t p={_tp:.3f} n={_n}")
 
 # ── A code-alignment: pairwise |cos| between code axes, Naive→Expert (dPCA-style mixing) ──
-axCos = fig.add_subplot(gsAdp[0, 4])
+axCos = fig.add_subplot(gsAdp[0, 3])
 axCos.axhline(COS_CHANCE, ls=':', color='0.6', lw=0.8, zorder=1)                   # chance |cos| floor
 axCos.text(-0.25, COS_CHANCE, 'chance', ha='left', va='bottom', fontsize=5.5, color='0.6')
 _LSH = {'sample': 'S', 'choice': 'C', 'test': 'T'}
