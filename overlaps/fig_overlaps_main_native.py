@@ -8,7 +8,10 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane (its OWN full row),
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
-     delay portrait matching C/D.                                        (← plot_traj2d.py --all --dpa-only)
+     delay portrait matching C/D. A 5th sub-panel scatters per-mouse late-delay choice-code
+     depth (Expert vs Naive, sample A|B): points fall below unity = the push down. Headline
+     stat = mixed model depth ~ stage + sample + (1|mouse) (β=−0.68 p=0.023) — the same model
+     form as C; per-sample paired-t (A/B) is directional-only at n=9.    (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
      Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
      NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
@@ -255,6 +258,25 @@ for stage in STAGES:
         trajB[stage][pair_id] = (xs, ys)
 
 
+# per-mouse late-delay choice-code depth (SAME BINS_LATE window as C/D → the same "depth"
+# quantity), per stage & sample — quantifies the Naive→Expert push the KDE strips show.
+def _mouse_depth_B(stage, odor_pairs):
+    out = {}
+    for mouse in ALL_MICE:
+        base = ((y.mouse == mouse) & (y.tasks == 'DPA') & (y.stage == stage) &
+                (y.target == 'choice') & y.odor_pair.isin(odor_pairs)).values & idx_trials_B
+        out[mouse] = X_bl[base][:, BINS_LATE].mean() if base.sum() else np.nan
+    return out
+
+
+pushB = {}                                                             # sample -> per-mouse Naive/Expert depth
+for _slab, _pairs in [('A', [0, 1]), ('B', [2, 3])]:
+    dN, dE = _mouse_depth_B('Naive', _pairs), _mouse_depth_B('Expert', _pairs)
+    _mice = [m for m in ALL_MICE if not (np.isnan(dN[m]) or np.isnan(dE[m]))]
+    pushB[_slab] = dict(naive=np.array([dN[m] for m in _mice]),
+                        expert=np.array([dE[m] for m in _mice]), mice=_mice)
+
+
 def _draw_traj_B(ax, stage, xlim, ylim):
     for pair_id in PAIR_LABELS:
         xs, ys = trajB[stage][pair_id]
@@ -392,7 +414,7 @@ for ri, STG in enumerate(STAGES):
     _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
 
 # ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
-gsB = gs[2, 0:11].subgridspec(1, 4, width_ratios=[5, 1.2, 5, 1.2], wspace=0.25)   # B on its own full row
+gsB = gs[2, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter
 xlimB, ylimB = (-4, 4), (-2, 6)
 axB_traj, axB_hist = [], []
 ax0 = None
@@ -410,6 +432,44 @@ for ci, stage in enumerate(STAGES):
 pair_handles = [Line2D([0], [0], color=PAIR_COLOR[p], lw=2.0, label=PAIR_LABELS[p]) for p in PAIR_LABELS]
 axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
                     handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=8)
+
+# ── B push scatter: per-mouse late-delay choice-code depth, Expert vs Naive (sample A|B) ──
+axB_sc = fig.add_subplot(gsB[0, 4])
+_allD = np.concatenate([pushB[s][k] for s in ('A', 'B') for k in ('naive', 'expert')])
+_padB = (_allD.max() - _allD.min()) * 0.10 or 0.1
+limsB = (_allD.min() - _padB, _allD.max() + _padB)
+axB_sc.plot(limsB, limsB, ls='--', color='0.6', lw=0.8, zorder=1)                  # unity: below = pushed down
+axB_sc.axhline(0, ls=':', color='0.8', lw=0.6, zorder=0); axB_sc.axvline(0, ls=':', color='0.8', lw=0.6, zorder=0)
+_pushtxt = []
+for _slab, _col, _filled in [('A', '#332288', True), ('B', '#44AA99', False)]:
+    P = pushB[_slab]
+    axB_sc.scatter(P['naive'], P['expert'], s=34, zorder=3,
+                   facecolors=_col if _filled else 'w', edgecolors=_col, linewidths=1.1,
+                   label=f'sample {_slab}')
+    dmean = float((P['expert'] - P['naive']).mean())
+    tp = float(ttest_rel(P['expert'], P['naive']).pvalue)
+    _pushtxt.append(f"{_slab} Δ={dmean:+.2f}")
+    print(f'B push [sample {_slab}] Δ(Exp−Naive)={dmean:+.3f} paired-t p={tp:.3f} n={len(P["naive"])}')
+# mouse-respecting headline (same model form as panel C): depth ~ stage + sample + (1|mouse).
+# Both samples pooled with a mouse random intercept → the push is significant where the
+# per-sample paired-t (n=9) is only directional.
+_dfp = pd.DataFrame([dict(mouse=mo, sample=_s, st=_st, depth=_v)
+                     for _s in ('A', 'B') for _st, _k in ((0, 'naive'), (1, 'expert'))
+                     for mo, _v in zip(pushB[_s]['mice'], pushB[_s][_k])])
+_pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
+_bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
+print(f'B push [mixed model stage] β={_bpush:+.3f} p={_ppush:.3f} (n_obs={len(_dfp)}, {_dfp.mouse.nunique()} mice)')
+axB_sc.set_xlim(limsB); axB_sc.set_ylim(limsB); axB_sc.set_box_aspect(1)
+axB_sc.set_xlabel('Naive depth'); axB_sc.set_ylabel('Expert depth')
+axB_sc.set_title('push (Exp vs Naive)', loc='left', fontsize=TITLE_FS)
+axB_sc.text(0.04, 0.04, f'mixed model\nβ={_bpush:+.2f}, p={_ppush:.3f}\n' + '  '.join(_pushtxt),
+            transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6, color='0.3', zorder=6,
+            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', pad=1))
+axB_sc.text(0.93, 0.93, '*' if _ppush < 0.05 else 'n.s.', transform=axB_sc.transAxes,
+            ha='center', va='top', fontsize=12 if _ppush < 0.05 else 8, fontweight='bold',
+            color='k' if _ppush < 0.05 else '0.55')
+axB_sc.legend(frameon=False, loc='upper left', fontsize=6.5, handletextpad=0.3,
+              borderaxespad=0.2, labelspacing=0.3)
 
 # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) — right half ─
 gsC = gs[3, 0:8].subgridspec(1, 2, wspace=0.55)                        # C + D share the last row
