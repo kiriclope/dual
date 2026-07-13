@@ -439,6 +439,24 @@ tames the old Cue blow-up, −20→−0.1). Output `figures/overlaps/story_traj/
 talk cartoon (recurrent double-well landscape → gain-modulated velocity arrows → field+attractors) with the
 ż=−z+S(z)(A z+b) equation; `fig_flow_methods_explainer.py` — the abstract low-rank-RNN derivation slide.
 
+**How to run / reproduce (from `overlaps/`, env `/home/leon/mambaforge/envs/dual/bin/python`):**
+```bash
+cd /home/leon/dual/overlaps
+# headline velocity-fit figure (preferred config = independent + inside):
+python fig_overlaps_story_main.py --mode independent --input inside
+#   flags: --mode {partial,shared,independent}  --input {inside,outside}  --panels {8,4}  --all-trials
+#          --stability 200   (robustness subsampling, prints only)
+# trajectory-fit twin (same flags; slower — nonlinear least_squares):
+python fig_overlaps_story_traj.py --mode independent --input inside
+# methods figures (self-contained, no flags):
+python fig_flow_methods_schematic.py        # clean talk cartoon
+python fig_flow_methods_explainer.py        # equation-derivation slide
+```
+Outputs (PNG dpi=300 + SVG): `figures/overlaps/story/…_{mode}_{input}[_all].*`,
+`figures/overlaps/story_traj/…`, `figures/overlaps/methods/…`. The two story scripts are TWINS — keep any
+change to decoders/windows/markers/layout/D-E in sync across both. Committed at `99b54e8` (D/E A/B-separated
+LMM) / `6ea9617` (windows, anchoring, flags, methods). Figures are regenerable → not committed.
+
 **Robustness (`--stability B`, mouse subsampling).** Draw 7/9 mice B× (200), refit the §3 flows at the
 full-data hyperparameters, record which qualitative features survive. Expert/correct: **A/B split 100%,
 NoGo↓ 100%, C-diagonal 100%, D-diagonal 100%, Go↑ 90%** — the input-driven structure is highly robust to
