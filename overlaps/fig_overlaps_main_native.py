@@ -18,6 +18,10 @@ one row below it (B left half, C right half). Styled like fig_behavior_opto_main
      choice-code distribution strips.             (logic ← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null,
      DPA-specific).                               (logic ← plot_scatter_perf.py --dpa-panel, AB twin)
+  D  DPA choice-code depth on NONPAIRED trials, correct-rejection vs false-alarm, Naive, split by
+     sample (AD=A, BC=B). Clean test of the well↔behaviour link: false alarms sit in shallower
+     no-lick wells than correct rejections — significant & sample-A-specific (AD Δ≈−1.3 p≈.006,
+     all 9 mice; BC null). Naive only (experts too rarely err). (logic ← fig_overlaps_depth_fa_cr.py)
 
 The old panel C (well deepening, exp_nolick_push_stats.py) and panel E (laser ON−OFF
 causal analog, plot_scatter_laser.py) were removed at the user's request; the surviving
@@ -52,7 +56,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-from scipy.stats import gaussian_kde, pearsonr, spearmanr, linregress, t as t_dist
+from scipy.stats import gaussian_kde, pearsonr, spearmanr, linregress, ttest_rel, t as t_dist
 import seaborn as sns
 
 from src.common.options import set_options
@@ -181,6 +185,44 @@ def _perf_delta_by_sample(perf_col, task_mask):
 
 delta_dpa_perf_sample = _perf_delta_by_sample('performance', y.tasks == 'DPA')
 delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PANEL D — DPA choice-code depth on NONPAIRED trials: correct-rejection vs
+#   false-alarm, Naive, sample-discriminated (AD = sample A, BC = sample B).
+#   The clean test of the no-lick well ↔ behaviour link: on nonmatch (nonpaired)
+#   trials the animal should WITHHOLD; a deep well → correct rejection, a shallow well
+#   → the animal licks → false alarm. Depth read is identical to panel C (same
+#   TRAIN_LDTEST axis, BINS_LATE window); trials split by the y.response signal-
+#   detection label instead of collapsed to correct-only.
+#   NAIVE ONLY: false alarms are plentiful when naive (all 9 mice clear the ≥MIN_TR
+#   bar) whereas experts rarely err (4/9, uninterpretable). Sample split removes the
+#   sample→depth bias (the reason the main figure keeps A/B apart). Unit = mouse
+#   (paired-t). Effect is sample-A-specific and robust across training axes (AD p≈.006,
+#   false alarms in shallower wells); sample B is null (documented A/B asymmetry).
+# ══════════════════════════════════════════════════════════════════════════════
+MIN_TR      = 3
+depth_trial = X_bl[:, BINS_LATE].mean(1)                               # (n,) per-trial depth
+base_dpa_ch = ((y.laser == 0) & (y.tasks == 'DPA') & (y.target == 'choice')).values
+op_arr      = y.odor_pair.values
+resp_arr    = y.response.values
+FA_CR_SPEC  = [('AD', 'A', 1, '#332288'), ('BC', 'B', 3, '#44AA99')]  # (pair, sample, odor_pair, colour)
+
+
+def _facr_cell(mouse, odor_pair, r):
+    m = (base_dpa_ch & (y.mouse == mouse).values & (y.stage == 'Naive').values &
+         (op_arr == odor_pair) & (resp_arr == r))
+    return depth_trial[m]
+
+
+facr = {}                                                             # pair -> per-mouse cr/fa arrays
+for lab, samp, odor_pair, col in FA_CR_SPEC:
+    va, vb, used = [], [], []
+    for mouse in ALL_MICE:
+        a, b = _facr_cell(mouse, odor_pair, 'correct_rej'), _facr_cell(mouse, odor_pair, 'incorrect_fa')
+        if len(a) >= MIN_TR and len(b) >= MIN_TR:
+            va.append(a.mean()); vb.append(b.mean()); used.append(mouse)
+    facr[lab] = dict(cr=np.array(va), fa=np.array(vb), used=used)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -328,10 +370,10 @@ def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(14, 8.4))
-gs = fig.add_gridspec(3, 12, height_ratios=[1.0, 1.0, 2.05],
-                      hspace=0.5, wspace=0.85,
-                      left=0.05, right=0.985, top=0.9, bottom=0.065)
+fig = plt.figure(figsize=(14, 10.7))
+gs = fig.add_gridspec(4, 12, height_ratios=[1.0, 1.0, 2.05, 1.35],
+                      hspace=0.55, wspace=0.85,
+                      left=0.05, right=0.985, top=0.925, bottom=0.05)
 
 
 def panel_letter(ax, L, x=0.012, dy=0.020):
@@ -413,13 +455,47 @@ _D_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=
           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B (open)')]
 axD[0].legend(handles=_D_leg, frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
 
+# ── D: Naive nonpaired corr-rej vs false-alarm depth, sample A | sample B ────────
+axE = fig.add_subplot(gs[3, 3:9])
+GX_FACR = {'AD': (0.0, 0.9), 'BC': (2.1, 3.0)}
+for lab, samp, odor_pair, col in FA_CR_SPEC:
+    xc, xe = GX_FACR[lab]; r = facr[lab]
+    for ya, yb, mouse in zip(r['cr'], r['fa'], r['used']):
+        axE.plot([xc, xe], [ya, yb], '-', color=col, lw=0.9, alpha=0.5, zorder=2)
+        axE.scatter(xc, ya, s=46, facecolors=col, edgecolors='k', linewidths=0.5, zorder=3)
+        axE.scatter(xe, yb, s=46, facecolors='w', edgecolors=col, linewidths=1.3, zorder=3)
+    for xx, vals in ((xc, r['cr']), (xe, r['fa'])):
+        if len(vals):
+            mu = vals.mean(); se = vals.std(ddof=1) / np.sqrt(len(vals)) if len(vals) > 1 else 0
+            axE.plot([xx - 0.2, xx + 0.2], [mu, mu], color='k', lw=2.2, zorder=4)
+            axE.errorbar(xx, mu, yerr=se, color='k', capsize=4, lw=1.5, zorder=4)
+    n = len(r['cr']); d_mean = float((r['cr'] - r['fa']).mean()) if n else np.nan
+    tp = float(ttest_rel(r['cr'], r['fa']).pvalue) if n >= 3 else np.nan
+    star = ' *' if (tp == tp and tp < 0.05) else ''
+    axE.text((xc + xe) / 2, 0.965, f'{lab} (sample {samp})', transform=axE.get_xaxis_transform(),
+             ha='center', va='top', fontsize=8.5, fontweight='bold', color=col)
+    axE.text((xc + xe) / 2, 0.02, f'Δ={d_mean:+.2f}  p={tp:.3f}{star}\n(n={n})',
+             transform=axE.get_xaxis_transform(), ha='center', va='bottom', fontsize=7, color='0.3')
+    print(f'D(FA/CR)[Naive {lab} sample {samp}] Δ(cr−fa)={d_mean:+.3f} paired-t p={tp:.3f} n={n}')
+axE.axhline(0, ls=':', color='0.6', lw=0.8)
+axE.set_xticks([0.0, 0.9, 2.1, 3.0]); axE.set_xticklabels(['corr-rej', 'FA', 'corr-rej', 'FA'], fontsize=8)
+axE.set_xlim(-0.5, 3.5)
+axE.set_ylabel('DPA choice-code depth\n(late-delay, bins 27–53)')
+axE.set_title('Naive: false alarms in shallower no-lick wells (sample A)',
+              loc='left', fontweight='bold', fontsize=TITLE_FS)
+_facr_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='correct rejection'),
+             mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='false alarm')]
+axE.legend(handles=_facr_leg, frameon=False, fontsize=7, loc='center', bbox_to_anchor=(0.5, 0.86),
+           handletextpad=0.3)
+
 # ── panel letters + row banners ────────────────────────────────────────────────
 panel_letter(axA[0, 0], 'A')
 panel_letter(axB_traj[0], 'B')
 panel_letter(axD[0], 'C', x=0.505)
+panel_letter(axE, 'D', x=0.27)
 
 fig.suptitle('Overlaps main figure (A&B-independent) — dual code · no-lick push · learning depth↔accuracy link '
-             f'(all {AXIS_LABEL})', y=0.985, fontsize=12.5, fontweight='bold')
+             f'· false-alarm depth (Naive)  (all {AXIS_LABEL})', y=0.99, fontsize=12.5, fontweight='bold')
 
 OUT = 'figures/overlaps/main'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

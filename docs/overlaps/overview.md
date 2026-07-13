@@ -111,6 +111,27 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   link. It IS panel D of the **locked main figure** (`trainLD_TEST`), captioned as a population-level,
   DPA-specific, n=9-borderline link (still sign-contested vs the dPCA side). Do not over-claim a
   within-animal effect.
+- **Trial-level behavioural relevance — the no-lick well predicts false alarms (Naive, sample A).**
+  Complement to the population-level Δdepth↔Δperf link above, at the single-trial level. Split DPA
+  trials by signal-detection outcome (`y.response` ∈ {correct_hit, incorrect_miss, correct_rej,
+  incorrect_fa}; pairing = AC/BD paired-match→lick, AD/BC nonpaired-nonmatch→withhold). On NONPAIRED
+  trials the choice-code well is SHALLOWER on false alarms than correct rejections — the animal licks
+  when the no-lick well is weak, exactly the hypothesis. Real & robust but **Naive- and
+  sample-A-specific**: AD (sample A) Δ(cr−fa)=−1.25, per-mouse paired-t **p=0.006** (all 9 mice),
+  robust across training axes (`trainLD_TEST`/`trainLD`/`trainDELAY` all p≈.006); BC (sample B) null
+  (the documented A/B asymmetry); the paired hit-vs-miss contrast shows the complementary effect
+  (misses in deeper wells, sample A p<0.01). **Experts are too error-sparse to test** (≥3-false-alarm
+  bar keeps only 4/9). CAVEATS that killed the naive framings: the plain correct-vs-error split is
+  confounded because (i) errors ≈ false alarms (not misses: FA 313 vs miss 112), (ii) depth carries a
+  sample→depth bias, (iii) the stage-baseline shift makes pooling Naive+Expert Simpson's-paradox-prone
+  → **never pool stages, always sample-discriminate, prefer FA-vs-CR (drops the scarce miss cell →
+  keeps all 9 Naive mice).** This is now **panel D of the native main figure**
+  (`fig_overlaps_main_native.py`), on the same `trainLD_TEST`/`BINS_LATE` depth as A–C. Diagnostics
+  (all take `--train {ld,ldtest,delay,test}`, write `figures/overlaps/depth_error/`):
+  `fig_overlaps_depth_correct_error.py` (plain correct-vs-error), `fig_overlaps_depth_sdt.py` (four SDT
+  cells, stage-resolved), `fig_overlaps_depth_sdt_sample.py` (within-pair, sample-split),
+  `fig_overlaps_depth_fa_cr.py` (FA-vs-CR, the panel-D source; adds an all-mouse trial-level LMM —
+  ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
 - **Main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth
