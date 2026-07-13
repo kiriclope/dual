@@ -440,7 +440,7 @@ axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
 #    depth ~ stage + sample + (1|mouse) (same estimator family as C).
 axB_sc = fig.add_subplot(gsB[0, 4])
 GX_B = (0.0, 1.0)                                                                  # Naive, Expert x-positions
-for _cls, _slab, _fill in ((0, 'A', True), (1, 'B', False)):
+for _slab, _fill in (('A', True), ('B', False)):
     P = pushB[_slab]
     for mo, xn, ye in zip(P['mice'], P['naive'], P['expert']):
         _mc = MOUSE_COLOR[mo]
@@ -469,9 +469,10 @@ axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Na
 axB_sc.set_box_aspect(1)
 axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=7.5)
 axB_sc.set_title('Choice-code depth', loc='left', fontsize=TITLE_FS)
-axB_sc.text(0.03, 0.03, f'mixed model ({_nmB} mice, {_noB} obs)\nβ={_bpush:+.3f}, p={_ppush:.3f}'
-            + (' *' if _sigB else ' n.s.'),
+axB_sc.text(0.03, 0.03, f'mixed model ({_nmB} mice, {_noB} obs)\nβ={_bpush:+.3f}, p={_ppush:.3f}',
             transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
+axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
+            fontsize=12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')   # C-style marker
 axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
                        mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')],
               frameon=False, loc='upper right', fontsize=6.5, handletextpad=0.3,
@@ -536,10 +537,12 @@ for lab, samp, odor_pair, col in FA_CR_SPEC:
             axD.errorbar(xx, mu, yerr=se, color='k', capsize=2.5, lw=1.2, zorder=4)
     n = len(r['cr']); d_mean = float((r['cr'] - r['fa']).mean()) if n else np.nan
     tp = float(ttest_rel(r['cr'], r['fa']).pvalue) if n >= 3 else np.nan
-    star = ' *' if (tp == tp and tp < 0.05) else ''
+    sig = (tp == tp and tp < 0.05)
     axD.text((xc + xe) / 2, 0.99, f'{lab} (sample {samp})', transform=axD.get_xaxis_transform(),
              ha='center', va='top', fontsize=7, fontweight='bold', color=col)
-    axD.text((xc + xe) / 2, 0.02, f'p={tp:.3f}{star}', transform=axD.get_xaxis_transform(),
+    axD.text((xc + xe) / 2, 0.88, '*' if sig else 'n.s.', transform=axD.get_xaxis_transform(),   # C-style marker
+             ha='center', va='top', fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
+    axD.text((xc + xe) / 2, 0.02, f'p={tp:.3f}', transform=axD.get_xaxis_transform(),
              ha='center', va='bottom', fontsize=6.5, color='0.3')
     print(f'D(FA/CR)[Naive {lab} sample {samp}] Δ(cr−fa)={d_mean:+.3f} paired-t p={tp:.3f} n={n}')
 axD.axhline(0, ls=':', color='0.6', lw=0.7)
