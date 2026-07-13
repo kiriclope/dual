@@ -35,7 +35,7 @@ def dataloader(
     idx_context = True
     idx_cross_context = pd.Series(False, index=y_df.index)  # empty by default
 
-    if target in ("distractor", "odr_choice", "licks"):
+    if target in ("distractor", "odr_choice", "licks", "gng"):
         context = "Dual"
         idx_context = (y_df.tasks != "DPA")
         idx_cross_context = (y_df.tasks == "DPA")

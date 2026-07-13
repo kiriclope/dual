@@ -295,6 +295,7 @@ y_all['sample']     = y_all.sample_odor
 y_all['distractor'] = y_all.dist_odor
 y_all['test']       = y_all.test_odor
 y_all['licks']      = (y_all.odr_choice + y_all.choice) > 0
+y_all['gng']        = (y_all.tasks == 'DualGo').astype(int)   # Go(1) vs NoGo(0), Dual trials only
 print(f'X_all {X_all.shape}  y_all {y_all.shape}')
 
 # ── phase 2: CCGD ────────────────────────────────────────────────────────────

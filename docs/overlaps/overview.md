@@ -157,6 +157,12 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     BINS_LATE, Naive→Expert): codes near-orthogonal, and the **choice code demixes from both stimulus
     codes** with learning (sample–choice `*` p=0.017, choice–test `***` p<0.001; sample–test at chance).
     (Earlier "task d′ p=0.019 `*`" was an OFF-diagonal artifact — on the honest diagonal task is p=0.077.)
+    A **5th code = GNG (Go/NoGo)** was added: a DEDICATED Go-vs-NoGo decoder (`run_overlaps.py --targets
+    gng`; trained on Dual trials, generalizing) — unlike the "task code" which reads Go/NoGo off the choice
+    axis. It separates Go/NoGo strongly (d′≈1.9/2.7 Naive/Expert vs choice-on-GNG 0.06/0.59), on an axis
+    **orthogonal to choice/sample/test** (|cos|≤chance), diverging at distractor onset (~5 s). **GNG d′
+    Δ=+0.72 p=0.017 `*` is the only significant d′ learning effect** (task/distractor code sharpens with
+    learning). Standalone comparison: `fig_overlaps_gng_compare.py` → figures/overlaps/gng/.
   - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
     KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
     Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,

@@ -172,6 +172,18 @@ df_A = X_bl
 # axis (X_bl = trainLD_TEST). Order matches VARS_A (sample, choice, test, task).
 TRACE_SRC = [_tr_sample, X_bl, _tr_test, _tr_task]
 
+# ── dedicated Go/NoGo (GNG) decoder — SEPARATE tensor (run_overlaps.py --targets gng) ──
+# The "task code" reads Go/NoGo off the CHOICE axis (d′≈0.1); a real GNG decoder separates them
+# strongly (d′≈2) on an axis orthogonal to choice/sample/test (see fig_overlaps_gng_compare.py).
+# Added as panel A's 5th code, on its own y-scale (much larger amplitude than the other codes).
+GNG_DUM  = f'{DUM}_raw_targets_gng'
+_GNG_WIN = np.arange(34, 59)                                            # gng generalization best axis (5.7–9.8 s)
+Xg = pkl_load(f'X_{GNG_DUM}',      path=DATA_IN)
+yg = pkl_load(f'labels_{GNG_DUM}', path=DATA_IN)
+_gng_tr = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float)                   # (n,84) Go/NoGo decision fn across time
+_gng_dp = Xg[:, 1, _GNG_WIN, :][:, :, _GNG_WIN].mean((1, 2)).astype(float)   # diagonal d′ readout
+del Xg
+
 idx_laser   = (y.laser == 0)
 idx_choice  = (y.target == 'choice')
 idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_perf == 1))
@@ -214,6 +226,25 @@ for _title, _tgt, _col, _pos, _neg, _v, _dpaonly in DPRIME_SPECS:
         if np.isfinite(n) and np.isfinite(e):
             dN.append(n); dE.append(e); mice.append(mo)
     dpr[_title] = dict(naive=np.array(dN), expert=np.array(dE), mice=mice)
+
+
+def _gng_dprime(mouse, stage):                                         # dedicated GNG decoder d′(Go,NoGo)
+    base = ((yg.target == 'gng') & (yg.mouse == mouse) & (yg.stage == stage)
+            & (yg.laser == 0) & (yg.tasks != 'DPA')).to_numpy()
+    a = _gng_dp[base & (yg.gng.to_numpy() == 1)]; b = _gng_dp[base & (yg.gng.to_numpy() == 0)]
+    a = a[np.isfinite(a)]; b = b[np.isfinite(b)]
+    if len(a) < 5 or len(b) < 5:
+        return np.nan
+    ps = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)
+    return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
+
+
+_gN, _gE, _gmice = [], [], []
+for mo in ALL_MICE:
+    n = _gng_dprime(mo, 'Naive'); e = _gng_dprime(mo, 'Expert')
+    if np.isfinite(n) and np.isfinite(e):
+        _gN.append(n); _gE.append(e); _gmice.append(mo)
+dpr['GNG d′'] = dict(naive=np.array(_gN), expert=np.array(_gE), mice=_gmice)
 
 
 # ── PANEL A cosine mixing: pairwise |cos| between the CODE AXES (decoder weight vectors),
@@ -474,6 +505,32 @@ def _draw_codes_row(axes_row, base, stage_label, show_titles, show_xlabel):
             ax.legend(fontsize=6, frameon=False, loc='upper left', handlelength=1.2)
 
 
+def _draw_gng(ax, stage, show_title, show_xlabel):
+    """Panel A 5th column: dedicated Go/NoGo decoder trace (own tensor yg/_gng_tr, own y-scale)."""
+    _setup_A(ax, 'GNG code (z)')
+    ax.set_xlabel('Time (s)' if show_xlabel else '', fontsize=9)
+    Zc = np.full_like(_gng_tr, np.nan)
+    for mo in ALL_MICE:                                                # per-mouse BL z
+        mm = (yg.mouse == mo).to_numpy() & (yg.target == 'gng').to_numpy()
+        z = _gng_tr[mm]; z = z - z[:, BL_A].mean()
+        Zc[mm] = z / (_gng_tr[mm][:, BL_A].std() + 1e-9)
+    base = ((yg.laser == 0) & (yg.learning == stage) & (yg.tasks != 'DPA')
+            & (yg.target == 'gng')).to_numpy()
+    for lv, lab, color in [(0, 'NoGo', '#2ca02c'), (1, 'Go', '#1f77b4')]:
+        per_mouse = []
+        for mo in ALL_MICE:
+            s = base & (yg.mouse == mo).to_numpy() & (yg.gng.to_numpy() == lv)
+            if s.sum() >= 3:
+                per_mouse.append(np.nanmean(Zc[s], 0))
+        if len(per_mouse) >= 2:
+            M = np.stack(per_mouse, 0); n = M.shape[0]
+            plot_mean_sem(ax, xtime, M.mean(0), M.std(0, ddof=1) / np.sqrt(n),
+                          color, lw=1.6, label=f'{lab} (n={n})', zorder=2)
+    if show_title:
+        ax.set_title('GNG code', fontsize=8)
+        ax.legend(fontsize=6, frameon=False, loc='upper left', handlelength=1.2)
+
+
 # ── shared scatter helper ──────────────────────────────────────────────────────
 def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
     ok = ~(np.isnan(xs) | np.isnan(ys))
@@ -506,22 +563,26 @@ def panel_letter(ax, L, x=0.008, dy=0.014):
     fig.text(x, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
 
 
-# ── A: 2×4 code grid (Naive top, Expert bottom) ────────────────────────────────
-# y shared ACROSS each row (all 4 codes in a stage share one y-scale), rows independent;
-# x shared down each column.
-axA = np.empty((2, 4), dtype=object)
-for c in range(4):
-    axA[0, c] = fig.add_subplot(gs[0, 3 * c:3 * c + 3], sharey=(axA[0, 0] if c else None))
-    axA[1, c] = fig.add_subplot(gs[1, 3 * c:3 * c + 3], sharex=axA[0, c],
-                                sharey=(axA[1, 0] if c else None))
+# ── A: 2×5 code grid (Naive top, Expert bottom) ────────────────────────────────
+# codes 0–3 (sample/choice/test/task) share y ACROSS each row; the GNG code (col 4) has its OWN
+# y-scale (much larger amplitude). x shared down each column.
+axA = np.empty((2, 5), dtype=object)
+_rowsub = [gs[0, :].subgridspec(1, 5, wspace=0.55), gs[1, :].subgridspec(1, 5, wspace=0.55)]
+for c in range(5):
+    _shy0 = axA[0, 0] if (0 < c < 4) else None                         # GNG (c==4) not row-shared
+    axA[0, c] = fig.add_subplot(_rowsub[0][0, c], sharey=_shy0)
+    _shy1 = axA[1, 0] if (0 < c < 4) else None
+    axA[1, c] = fig.add_subplot(_rowsub[1][0, c], sharex=axA[0, c], sharey=_shy1)
 for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
-    _draw_codes_row(axA[ri], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
+    _draw_codes_row(axA[ri, :4], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
+    _draw_gng(axA[ri, 4], STG, show_title=(ri == 0), show_xlabel=(ri == 1))
 
 # ── A d′ row: per-mouse d′ (Naive x vs Expert y) per code + code-alignment (cosine) panel ──
-gsAdp = gs[2, 0:12].subgridspec(1, 4, width_ratios=[1, 1, 1, 1.05], wspace=0.5)
+gsAdp = gs[2, 0:12].subgridspec(1, 5, width_ratios=[1, 1, 1, 1, 1.05], wspace=0.55)
+DPRIME_TITLES = [s[0] for s in DPRIME_SPECS] + ['GNG d′']              # sample, test, task, GNG
 axA_dp = []
-for c, (_title, *_) in enumerate(DPRIME_SPECS):
+for c, _title in enumerate(DPRIME_TITLES):
     axd = fig.add_subplot(gsAdp[0, c])
     axA_dp.append(axd)
     P = dpr[_title]
@@ -549,7 +610,7 @@ for c, (_title, *_) in enumerate(DPRIME_SPECS):
     print(f"A d′[{_title.strip()}] Naive→Expert Δ={_dm:+.3f} paired-t p={_tp:.3f} n={_n}")
 
 # ── A code-alignment: pairwise |cos| between code axes, Naive→Expert (dPCA-style mixing) ──
-axCos = fig.add_subplot(gsAdp[0, 3])
+axCos = fig.add_subplot(gsAdp[0, 4])
 axCos.axhline(COS_CHANCE, ls=':', color='0.6', lw=0.8, zorder=1)                   # chance |cos| floor
 axCos.text(-0.25, COS_CHANCE, 'chance', ha='left', va='bottom', fontsize=5.5, color='0.6')
 _LSH = {'sample': 'S', 'choice': 'C', 'test': 'T'}
