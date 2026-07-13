@@ -1,5 +1,12 @@
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
+> **NOTE (2026-07-13):** this guide documents the *legacy* glued 5-panel figure
+> (`fig_overlaps_main.py`, panels A→E assembled from pre-rendered strips). The **current
+> publication figure is `fig_overlaps_main_native.py`** — natively composed, 4 panels A/B/C/D,
+> per-mouse paired plots, mixed-model stats. See `overview.md` → "Native main figure — CURRENT
+> layout" and the memory `project_overlaps_main_native.md`. The hypothesis / scientific arc below
+> still applies; only the composition and per-panel stats changed.
+
 The overlaps-only main paper figure: a 5-panel arc (A→E) showing the **dual code**, its
 **learning-driven no-lick push**, and the **acute-optogenetic test** of the same link, all read on
 one axis. Assembled by `overlaps/fig_overlaps_main.py` from five per-analysis panel scripts

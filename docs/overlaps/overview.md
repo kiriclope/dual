@@ -136,7 +136,26 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   cells, stage-resolved), `fig_overlaps_depth_sdt_sample.py` (within-pair, sample-split),
   `fig_overlaps_depth_fa_cr.py` (FA-vs-CR, the panel-D source; adds an all-mouse trial-level LMM —
   ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
-- **Main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
+- **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 2026-07-13).** The
+  publication figure (NN typography, `figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.png`;
+  `--ldtest05` for the narrow-train variant). One decoder tensor, one training axis
+  (`trainLD_TEST` bins 45–59), one per-mouse BL normalization; choice-code depth read over the
+  broad late-delay `BINS_LATE` 27–53 (pre-test) in every quantitative panel.
+  - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code column.
+  - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
+    KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
+    Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
+    mean±SEM bars). Stat = deepening mixed model `depth ~ stage + sample + (1|mouse)` **β=−0.68 p=0.023
+    `*`**. (The per-mouse paired-t / delta test is only a directional n.s. trend, β=−0.68 p=0.11 — the
+    random-intercept model is the less-conservative estimator chosen for uniformity with C.)
+  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + (1|mouse)` (ΔDPA β=−0.031 p=0.016 `*`,
+    ΔGNG p=0.31 n.s.); do NOT report the pseudoreplicated n=18 correlation.
+  - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.006 / BC n.s.).
+  - **Shared conventions:** B/C/D use ONE per-mouse palette (`MOUSE_COLOR`, same mouse = same colour);
+    B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
+    a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file
+    `project_overlaps_main_native.md`.
+- **Legacy glued main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth
   DEEPENING (C) is significant only on `trainDELAY` (maximal-LMM p=0.024); the behaviour SCATTER (D)
