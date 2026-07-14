@@ -197,6 +197,17 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     supplements reported with this honest split. Panel-A traces look identical across decoders
     (z-scored; decision-fn time-courses 0.93–0.99 correlated in shape, differ only in amplitude) —
     expected, not a bug.
+  - **Cosine-matrix supplement (`fig_overlaps_cosine_matrices.py`).** Discriminant-axis cosine over
+    the four decoder codes (sample/choice/test/GNG), from the bundled weights (ridge default;
+    `--l1`/`--lda`). Three twinned families per stage → `figures/overlaps/cosine/`:
+    `overlaps_cosine_matrices_*` (time×time 84×84: diagonal = within-code stability, upper triangle =
+    cross-code alignment), `overlaps_cosine_epochs_*` (coarse epoch grid with values printed), and
+    `overlaps_cosine_clustered_*` (within-code matrices with data-driven block boundaries — complete-
+    linkage contiguous segmentation, block = all-pairs cos>0.5). Findings: cross-code near-zero at all
+    time-pairs (codes mutually orthogonal; only choice×GNG faint ~0.25); within-code each axis DRIFTS
+    (adjacent epochs ~0.7–0.85 decaying with distance) rather than switching discretely — sample most
+    drift-like, choice/test rotate into a response-period code around the lick, and GNG is the one code
+    with a sharp split (distractor transient → a sustained code generalizing to trial end).
 - **Legacy glued main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth
