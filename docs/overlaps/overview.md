@@ -208,6 +208,15 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     (adjacent epochs ~0.7–0.85 decaying with distance) rather than switching discretely — sample most
     drift-like, choice/test rotate into a response-period code around the lick, and GNG is the one code
     with a sharp split (distractor transient → a sustained code generalizing to trial end).
+  - **Per-cluster code generalization (`fig_overlaps_test_cluster_traj.py` per-code, `fig_overlaps_code_clusters_combined.py`
+    combined).** For each code's block, the decoder TRAINED in that block is read at every test-time bin
+    (class decision function, per-mouse BL-z, correct trials) — showing what each sub-code represents
+    over the trial. Combined fig = one band per code (clustered matrix + each block's trajectory);
+    flags `--l1`/`--lda`, `--naive`, `--rawclust`, with sample/distractor/test event bands. Clustering
+    modes: EPOCH (10 epochs: stim/eDelay/distr/mDelay/cue/gng rwd/lDelay/test/resp/dpa rwd; complete-
+    linkage all-pairs cos>0.5) or `--rawclust` (average-linkage on the raw 84×84 matrix, baseline as one
+    block). Finding: sample & GNG each carry one dominant stable code; choice/test drift through a
+    fragmented, flat delay and only lock a task-relevant code (lick / C-D) at the response.
 - **Legacy glued main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth

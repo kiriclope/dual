@@ -48,9 +48,12 @@ CONTEXT = 'all'
 xtime  = np.linspace(0, 14, 84)
 ONSETS = [(xtime[12], 'sample'), (xtime[27], 'dist'), (xtime[54], 'test')]   # stimulus onsets (s)
 # coarse trial epochs for the companion (annotated) panel: (label, bin_start, bin_stop)
-EPOCHS = [('stim', 12, 18), ('eDelay', 18, 27), ('distr', 27, 33), ('mDelay', 33, 45),
-          ('lDelay', 45, 54), ('test', 54, 60), ('resp', 60, 72), ('lResp', 72, 84)]
+EPOCHS = [('stim', 12, 18), ('eDelay', 18, 27), ('distr', 27, 33), ('mDelay', 33, 39),
+          ('cue', 39, 42), ('gng rwd', 42, 45), ('lDelay', 45, 54), ('test', 54, 60),
+          ('resp', 60, 72), ('dpa rwd', 72, 84)]
 ENAMES = [e[0] for e in EPOCHS]
+CLUSTER_RAW = '--rawclust' in sys.argv[1:]                  # cluster the raw 84×84 matrix instead of 8-epoch
+edges = np.linspace(0, 14, 85)
 
 OUT = 'figures/overlaps/cosine'
 for sub in ('png', 'svg'):
@@ -206,35 +209,76 @@ def cluster_blocks(M, thr_cos):
     return blocks
 
 
+def blocks_raw(M, thr=0.5, start=12, min_len=8):
+    """Contiguous segmentation of the RAW 84×84 matrix: pre-stimulus baseline is one block; then
+    split when a bin's mean cosine to the growing block drops below thr (average-linkage); finally
+    fold blocks shorter than min_len bins into their more-similar neighbour (kills onset singletons)."""
+    n = len(M); bl = [(0, start - 1)]; s = start
+    for i in range(start + 1, n):
+        if np.mean([M[k, i] for k in range(s, i)]) < thr:
+            bl.append((s, i - 1)); s = i
+    bl.append((s, n - 1))
+    changed = True
+    while changed and len(bl) > 2:
+        changed = False
+        for idx, (s, e) in enumerate(bl):
+            if e - s + 1 >= min_len or idx == 0:
+                continue
+            simp = np.mean(M[bl[idx - 1][0]:bl[idx - 1][1] + 1, s:e + 1])
+            simn = np.mean(M[bl[idx + 1][0]:bl[idx + 1][1] + 1, s:e + 1]) if idx < len(bl) - 1 else -9
+            if idx < len(bl) - 1 and simn >= simp:
+                bl[idx + 1] = (s, bl[idx + 1][1])
+            else:
+                bl[idx - 1] = (bl[idx - 1][0], e)
+            bl.pop(idx); changed = True; break
+    return bl
+
+
 def _bname(s, e):
     return ENAMES[s] if s == e else f'{ENAMES[s]}–{ENAMES[e]}'
 
 
 def draw_stage_clustered(stage, thr_cos=0.5):
-    """Data-driven blocks (all-pairs cos>thr_cos): within-code matrix with block boundaries drawn."""
+    """Data-driven blocks: within-code matrix with block boundaries drawn. Epoch mode = complete-
+    linkage all-pairs cos>thr_cos on the coarse matrix; --rawclust = average-linkage on the raw 84×84."""
     nc, ne = len(CODES), len(EPOCHS)
     fig = plt.figure(figsize=(15.5, 5.0))
     gs = GridSpec(1, nc, figure=fig, wspace=0.42, left=0.05, right=0.93, top=0.72, bottom=0.30)
     im = None
-    print(f'  [{stage}] clustered blocks (all-pairs cos>{thr_cos:.1f}):')
+    print(f'  [{stage}] clustered blocks ({"raw 84x84" if CLUSTER_RAW else "epoch"}):')
     for k, a in enumerate(CODES):
         ax = fig.add_subplot(gs[0, k])
-        M, n = mean_epoch_cos(stage, a, a)
-        im = ax.imshow(M, vmin=-1, vmax=1, cmap='RdBu_r', aspect='equal')
-        blocks = cluster_blocks(M, thr_cos)
-        for (s, e) in blocks:
-            ax.add_patch(Rectangle((s - 0.5, s - 0.5), e - s + 1, e - s + 1,
-                                   fill=False, ec='k', lw=2.4))
-        names = [_bname(s, e) for (s, e) in blocks]
+        if CLUSTER_RAW:
+            M, n = mean_cos_matrix(stage, a, a)                          # 84×84 raw
+            blocks = blocks_raw(M)
+            im = ax.imshow(M, vmin=-1, vmax=1, cmap='RdBu_r', origin='upper',
+                           extent=[0, 14, 14, 0], aspect='equal', interpolation='nearest')
+            for (s, e) in blocks:
+                ax.add_patch(Rectangle((edges[s], edges[s]), edges[e + 1] - edges[s],
+                                       edges[e + 1] - edges[s], fill=False, ec='k', lw=1.6))
+            names = [f'{edges[s]:.1f}–{edges[e + 1]:.1f}s' for (s, e) in blocks]
+            ax.set_xticks([0, 7, 14]); ax.set_yticks([0, 7, 14]); ax.tick_params(labelsize=7)
+            ax.set_xlabel('time (s)', fontsize=7.5)
+            subt = f'{len(blocks)} blocks'
+        else:
+            M, n = mean_epoch_cos(stage, a, a)
+            blocks = cluster_blocks(M, thr_cos)
+            im = ax.imshow(M, vmin=-1, vmax=1, cmap='RdBu_r', aspect='equal')
+            for (s, e) in blocks:
+                ax.add_patch(Rectangle((s - 0.5, s - 0.5), e - s + 1, e - s + 1,
+                                       fill=False, ec='k', lw=2.4))
+            names = [_bname(s, e) for (s, e) in blocks]
+            ax.set_xticks(range(ne)); ax.set_xticklabels(ENAMES, rotation=60, ha='right', fontsize=6)
+            ax.set_yticks(range(ne)); ax.set_yticklabels(ENAMES, fontsize=6)
+            subt = '  |  '.join(names)
         print(f'      {a:>7}: ' + '  |  '.join(names))
-        ax.set_xticks(range(ne)); ax.set_xticklabels(ENAMES, rotation=60, ha='right', fontsize=6.5)
-        ax.set_yticks(range(ne)); ax.set_yticklabels(ENAMES, fontsize=6.5)
-        ax.set_title(f'{CLABEL[a]}  (n={n})\n' + '  |  '.join(names), fontsize=8.5, fontweight='bold')
+        ax.set_title(f'{CLABEL[a]}  (n={n})\n{subt}', fontsize=8, fontweight='bold')
     cax = fig.add_axes([0.945, 0.32, 0.012, 0.38])
     fig.colorbar(im, cax=cax, label='cosine')
-    fig.suptitle(f'Data-driven code blocks — {stage}   ·   {DLAB}   ·   complete-linkage contiguous '
-                 f'segmentation (block = all-pairs cos>{thr_cos:.1f})', fontsize=12, y=0.95)
-    stem = f'overlaps_cosine_clustered_{stage.lower()}{SUF}'
+    _md = 'raw 84×84 avg-linkage' if CLUSTER_RAW else f'epoch complete-linkage (all-pairs cos>{thr_cos:.1f})'
+    fig.suptitle(f'Data-driven code blocks — {stage}   ·   {DLAB}   ·   {_md}', fontsize=12, y=0.95)
+    RAWSUF = '_rawclust' if CLUSTER_RAW else ''
+    stem = f'overlaps_cosine_clustered_{stage.lower()}{RAWSUF}{SUF}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
     fig.savefig(p, dpi=300, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
