@@ -145,6 +145,9 @@ dec.add_argument('--scaler',  default='standard',
                  help='Per-fold feature scaler (none = no scaling)')
 dec.add_argument('--l1-ratio', type=float, default=0.0, dest='l1_ratio',
                  help='ElasticNet L1 ratio (0=ridge, 1=lasso)')
+dec.add_argument('--lda', action='store_true', dest='lda',
+                 help='Use shrinkage-LDA (lsqr, Ledoit-Wolf auto) instead of logistic; '
+                      'tags the run-id with _lda in place of _l1_ratio_*')
 dec.add_argument('--n-splits',  type=int, default=5,  dest='n_splits',
                  help='Number of CV folds')
 dec.add_argument('--n-repeats', type=int, default=1,  dest='n_repeats',
@@ -310,12 +313,13 @@ folds = RepeatedStratifiedKFold(
 )
 bins_epoch = options['bins_CHOICE']   # used only when --fit-param-epoch
 
+_clf = 'lda' if args.lda else 'logcv'
 estimator = get_estimator(
-    clf='logcv', scoring='accuracy', mode=args.mode,
+    clf=_clf, scoring='accuracy', mode=args.mode,
     scaler=dec_scaler, l1_ratio=args.l1_ratio, n_jobs=args.n_jobs,
 )
 selector = get_estimator(
-    clf='logcv', scoring='accuracy', mode=None,
+    clf=_clf, scoring='accuracy', mode=None,
     scaler=dec_scaler, l1_ratio=args.l1_ratio, n_jobs=args.n_jobs,
 )
 
@@ -333,7 +337,7 @@ if args.days != ['first', 'last']:
     dum += '_days_' + '-'.join(args.days)
 if args.correct:
     dum += '_correct'
-dum += f'_l1_ratio_{args.l1_ratio}'
+dum += '_lda' if args.lda else f'_l1_ratio_{args.l1_ratio}'
 if args.raw:
     dum += '_raw'
 if args.fit_param_epoch:

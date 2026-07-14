@@ -123,12 +123,18 @@ else:
 # --l1: use the L1 (lasso, l1_ratio=1) decoder tensors instead of the ridge (l1_ratio=0) ones.
 # L1 codes are sparse (frac-zero ~0.21/0.27/0.34 sample/choice/gng). The L1 set is split across
 # two files (combined sample/choice/gng, plus a separate test run), merged below.
-L1 = '--l1' in sys.argv[1:]
+L1  = '--l1'  in sys.argv[1:]
+LDA = '--lda' in sys.argv[1:]
 if L1:
     DUM       = 'log_generalizing_overlaps_none_l1_ratio_1.0'
     PFX       = 'l1_'
     FILE_SUF += '_l1'
     AXIS_LABEL += ', L1'
+elif LDA:                                                              # shrinkage-LDA variant (covariance-aware axes)
+    DUM       = 'log_generalizing_overlaps_none_lda'
+    PFX       = 'lda_'
+    FILE_SUF += '_lda'
+    AXIS_LABEL += ', LDA'
 else:
     PFX = ''
 # Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),

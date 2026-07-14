@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from mne.decoding import GeneralizingEstimator, SlidingEstimator
@@ -35,7 +36,13 @@ def get_estimator(
     solver = "liblinear"
     penalty = "l1" if l1_ratio >= 1 else "l2"
 
-    if clf == "logcv":
+    if clf == "lda":
+        # Shrinkage-LDA: covariance-aware discriminant Σ⁻¹Δμ with Ledoit-Wolf
+        # ('auto') regularisation of Σ — the principled axis estimator in the p≫n
+        # regime, used as a geometry-robustness variant of the logistic decoder.
+        # solver='lsqr' supports shrinkage and exposes coef_ for raw-weight export.
+        clf_obj = LinearDiscriminantAnalysis(solver="lsqr", shrinkage="auto")
+    elif clf == "logcv":
         clf_obj = LogisticRegressionCV(
             cv=5, solver=solver, penalty=penalty, class_weight="balanced",
             n_jobs=None, l1_ratios=(l1_ratio,), Cs=Cs,

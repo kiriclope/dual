@@ -177,19 +177,26 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
     a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file
     `project_overlaps_main_native.md`.
-  - **`--l1` lasso variant + bundled tensor.** `--l1` renders the L1 (l1_ratio=1, sparse) decoder
-    version → `fig_overlaps_main_ab_l1.{png,svg}` (default = ridge). Both modes load ONE **bundled
-    tensor** `X_{DUM}_raw_targets_choice-gng-sample-test.pkl` carrying all four codes
-    (sample/choice/test/gng in one file), mirroring `run_overlaps.py --targets sample choice test gng`;
-    the figure slices non-gng rows for the main tensor and gng rows for the GNG panel. (Ridge bundle is
-    additive — ~50 other scripts still load the legacy split main/gng files.) **Estimator fix:** the
-    `l1_ratio` flag was silently running L2; `src/overlaps/estimator.py` now uses liblinear with an
-    explicit `penalty` (`l1_ratio≥1 → l1`), and `run_overlaps.py --out-prefix` prefixes outputs.
-    **L1 result:** headline geometry is robust (GNG d′ Δ=+0.72 p=0.011 `*`, B push β=−0.31 p=0.004 `*`,
-    choice–test demixing p=0.019 `*`) but the C depth↔ΔDPA coupling collapses (p=0.85) and D/sample–choice
-    cosine soften → keep ridge as headline, L1 as a robustness supplement. Panel-A traces look identical
-    (z-scored; L1/ridge decision-fn time-courses are 0.93–0.99 correlated in shape, differ only in
-    amplitude) — expected, not a bug.
+  - **Decoder variants `--l1` (lasso) & `--lda` (shrinkage-LDA) + bundled tensor.** `--l1` renders the
+    L1 (l1_ratio=1, sparse) version → `fig_overlaps_main_ab_l1`; `--lda` the shrinkage-LDA
+    (covariance-aware `Σ⁻¹Δμ`, Ledoit-Wolf) version → `fig_overlaps_main_ab_lda`; default = ridge
+    (logistic L2). Each mode loads ONE **bundled tensor** `[l1_|lda_]X_{DUM}_raw_targets_choice-gng-sample-test.pkl`
+    carrying all four codes (sample/choice/test/gng in one file), mirroring `run_overlaps.py --targets
+    sample choice test gng` (`--l1-ratio 1 --out-prefix l1` / `--lda --out-prefix lda`); the figure
+    slices non-gng rows for the main tensor and gng rows for the GNG panel. (Ridge bundle is additive —
+    ~50 other scripts still load the legacy split main/gng files.) **Estimator fix:** the `l1_ratio`
+    flag was silently running L2; `src/overlaps/estimator.py` now uses liblinear with an explicit
+    `penalty` (`l1_ratio≥1 → l1`), plus a `clf='lda'` path; `run_overlaps.py --out-prefix`/`--lda`.
+  - **Decoder-robustness tiering (ridge vs L1 vs LDA) — supplement result.** Three tiers: **(1) fully
+    decoder-robust** — GNG d′ learning (p=.017/.011/.010 `*`), sensory/context codes decodable+stable
+    (d′ n.s. all decoders), code axes near-orthogonal; **(2) logistic-specific, vanish under LDA
+    whitening** — the no-lick push (B β=−0.68 p=.023 → −0.31 p=.004 → LDA −0.18 **p=.376**) and the
+    depth↔ΔDPA coupling (C −0.031 p=.016 → L1 p=.850 → LDA p=.759); **(3) softens** — choice–test
+    demixing ★★★→★→trend (p=.094, direction preserved). LDA whitens by `Σ⁻¹`, removing the shared
+    covariance the logistic push/coupling ride on. → keep RIDGE as headline; L1 & LDA are robustness
+    supplements reported with this honest split. Panel-A traces look identical across decoders
+    (z-scored; decision-fn time-courses 0.93–0.99 correlated in shape, differ only in amplitude) —
+    expected, not a bug.
 - **Legacy glued main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth
