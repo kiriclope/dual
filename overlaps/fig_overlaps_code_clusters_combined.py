@@ -2,8 +2,9 @@
 generalization across test-time, in one figure.
 
 One horizontal band per decoder code (sample / choice / test / GNG):
-  - LEFT  : within-code epoch×epoch axis cosine with data-driven block boundaries drawn
-            (complete-linkage contiguous, all-pairs cos>0.5) — where the sub-codes are.
+  - LEFT  : within-code epoch×epoch axis cosine with the read windows drawn — DATA-DRIVEN per code:
+            maximal diagonal squares whose every within-pair cosine is >= THR (complete-linkage),
+            computed on the Naive+Expert-pooled matrix so the same squares apply to both stages.
   - RIGHT : for each block, the decoder TRAINED in that block read at every test-time bin
             (class decision function, Expert, per-mouse BL-z, mean ± SEM over mice); the
             block's own train window is shaded.
@@ -28,12 +29,13 @@ sns.set_context('notebook'); sns.set_style('ticks')
 
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
+# Correct-only decoders (fit on performance==1 & (DPA | odr_perf==1) trials; run_overlaps --correct).
 if L1:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
 elif LDA:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_lda',         'lda_', '_lda', 'shrinkage-LDA'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_lda',         'lda_', '_lda', 'shrinkage-LDA'
 else:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
 BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 
 DATA_IN = '../data/overlaps'
@@ -57,6 +59,11 @@ EPOCHS = [('stim', 12, 18), ('eDelay', 18, 27), ('distr', 27, 33), ('mDelay', 33
           ('cue', 39, 42), ('gng rwd', 42, 45), ('lDelay', 45, 54), ('test', 54, 60),
           ('resp', 60, 72), ('dpa rwd', 72, 84)]
 ENAMES = [e[0] for e in EPOCHS]
+# Per-user read windows: 4 windows, same for every code & stage. The delay is split after the CUE,
+# at the go/nogo reward (epoch 5 ~7s); the last two share `test`:
+# stim-eDelay | distr-cue | gng rwd-test | test-dpaRwd.
+FIXED_EPOCH_BLOCKS = [(0, 1), (2, 4), (5, 7), (7, 9)]      # epoch-index windows (inclusive)
+FIXED_BIN_BLOCKS   = [(12, 26), (27, 41), (42, 59), (54, 83)]  # same windows, inclusive bin indices (raw path)
 CODES = [
     ('sample', 'sample', 'sample_odor', [(0, 'Odor A', '#332288'), (1, 'Odor B', '#44AA99')], 'dpa'),
     ('choice', 'choice', 'choice',      [(0, 'No lick', '#377eb8'), (1, 'Lick', '#4daf4a')],  'dpa'),
@@ -64,7 +71,8 @@ CODES = [
     ('GNG',    'gng',    'gng',         [(0, 'NoGo', '#2ca02c'), (1, 'Go', '#1f77b4')],       'gng'),
 ]
 
-OUT = 'figures/overlaps/cosine'
+VDIR = 'l1' if L1 else 'lda' if LDA else 'l2'   # decoder variant → own subfolder
+OUT = f'figures/overlaps/cosine/{VDIR}'
 for sub in ('png', 'svg'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
@@ -75,10 +83,10 @@ def unit_rows(ws):
     return ws / nrm
 
 
-def epoch_cos(target):
+def epoch_cos(target, stage=STAGE):
     stack = []
     for m in MICE:
-        k = (m, STAGE, 'all', target)
+        k = (m, stage, 'all', target)
         if k in W:
             E = unit_rows(np.stack([np.asarray(W[k], float)[a:b].mean(0) for _, a, b in EPOCHS]))
             stack.append(E @ E.T)
@@ -86,9 +94,10 @@ def epoch_cos(target):
 
 
 def cluster_blocks(M, thr_cos=0.5):
+    """Average-linkage contiguous segmentation (robust to smooth drift; see fig_overlaps_cosine_matrices)."""
     ne = M.shape[0]; blocks, s = [], 0
     for i in range(1, ne):
-        if min(M[k, i] for k in range(s, i)) < thr_cos:
+        if np.mean([M[k, i] for k in range(s, i)]) < thr_cos:
             blocks.append((s, i - 1)); s = i
     blocks.append((s, ne - 1))
     return blocks
@@ -98,9 +107,49 @@ CLUSTER_RAW = '--rawclust' in sys.argv[1:]                  # segment the RAW 84
 edges = np.linspace(0, 14, 85)                              # bin edges (s) for raw block extents
 
 
-def raw_cos(target):                                        # mean-over-mice 84×84 within-code axis cosine
-    S = [unit_rows(W[(m, STAGE, 'all', target)]) for m in MICE if (m, STAGE, 'all', target) in W]
+def raw_cos(target, stage=STAGE):                           # mean-over-mice 84×84 within-code axis cosine
+    S = [unit_rows(W[(m, stage, 'all', target)]) for m in MICE if (m, stage, 'all', target) in W]
     return np.nanmean([U @ U.T for U in S], 0)
+
+
+# blocks are computed on the Naive+Expert-averaged matrix so they are SHARED across stages
+def pooled_epoch_cos(target):
+    return np.nanmean([epoch_cos(target, st) for st in ('Naive', 'Expert')], 0)
+
+
+def pooled_raw_cos(target):
+    return np.nanmean([raw_cos(target, st) for st in ('Naive', 'Expert')], 0)
+
+
+THR = 0.5   # cosine threshold: keep diagonal squares whose every within-pair cosine is >= THR
+
+
+def squares_complete(M, thr=THR, start=0, min_len=2):
+    """Data-driven read windows PER CODE = diagonal squares whose every within-pair cosine is >= thr
+    (complete-linkage, cos 0.5 = 60°). OVERLAP ALLOWED: (1) greedy disjoint anchors, then (2) extend
+    each anchor L & R while [s..e] stays a complete >= thr square, so a boundary epoch aligned with both
+    neighbours is SHARED (e.g. gng distr-cue & cue-test overlap at the cue). Contained duplicates
+    dropped; blocks < min_len dropped. Run on the STAGE-POOLED matrix (same squares Naive & Expert)."""
+    n = len(M); anchors, s = [], start
+    for i in range(start + 1, n):
+        if min(M[k, i] for k in range(s, i)) < thr:
+            if i - s >= min_len:
+                anchors.append((s, i - 1))
+            s = i
+    if n - s >= min_len:
+        anchors.append((s, n - 1))
+
+    def complete(a, b):
+        return all(M[p, q] >= thr for p in range(a, b + 1) for q in range(p + 1, b + 1))
+    out = []
+    for s, e in anchors:
+        while s - 1 >= start and complete(s - 1, e):
+            s -= 1
+        while e + 1 < n and complete(s, e + 1):
+            e += 1
+        out.append((s, e))
+    out = sorted(set(out))
+    return [b for b in out if not any(b != c and c[0] <= b[0] and b[1] <= c[1] for c in out)]
 
 
 def blocks_raw(M, thr=0.5, start=12, min_len=8):
@@ -138,14 +187,14 @@ CD = []
 for spec in CODES:
     title, target, col, levels, context = spec
     if CLUSTER_RAW:
-        Mdisp = raw_cos(target)                              # 84×84 raw cosine
-        mblocks = blocks_raw(Mdisp)                          # bin blocks (incl. baseline)
-        traj = mblocks[1:]                                   # drop baseline for trajectories
+        Mdisp = raw_cos(target)                              # 84×84 raw cosine (this stage, display)
+        mblocks = squares_complete(pooled_raw_cos(target), THR, start=12, min_len=6)   # pooled squares
+        traj = mblocks
         windows = [(s, e + 1) for s, e in traj]
         tnames = [f'{edges[s]:.1f}–{edges[e + 1]:.1f}s' for s, e in traj]
     else:
-        Mdisp = epoch_cos(target)                            # 8×8 epoch cosine
-        mblocks = cluster_blocks(Mdisp)
+        Mdisp = epoch_cos(target)                            # 8×8 epoch cosine (this stage, display)
+        mblocks = squares_complete(pooled_epoch_cos(target), THR, start=0, min_len=2)   # pooled squares
         traj = mblocks
         windows = [(EPOCHS[i][1], EPOCHS[j][2]) for i, j in traj]
         tnames = [ENAMES[i] if i == j else f'{ENAMES[i]}–{ENAMES[j]}' for i, j in traj]
@@ -161,7 +210,7 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
     # ── LEFT: within-code matrix (raw 84×84 or epoch 8×8) with block boundaries ──
     axm = fig.add_subplot(outer[r, 0])
     if CLUSTER_RAW:
-        im_mat = axm.imshow(Mdisp, vmin=-1, vmax=1, cmap='RdBu_r', origin='upper',
+        im_mat = axm.imshow(Mdisp, vmin=0, vmax=1, cmap='RdBu_r', origin='upper',
                             extent=[0, 14, 14, 0], aspect='equal', interpolation='nearest')
         for (s, e) in mblocks:
             axm.add_patch(Rectangle((edges[s], edges[s]), edges[e + 1] - edges[s],
@@ -170,7 +219,7 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
         axm.set_xlabel('time (s)', fontsize=7.5)
         subtitle = f'{len(mblocks)} blocks'
     else:
-        im_mat = axm.imshow(Mdisp, vmin=-1, vmax=1, cmap='RdBu_r', aspect='equal')
+        im_mat = axm.imshow(Mdisp, vmin=0, vmax=1, cmap='RdBu_r', aspect='equal')
         for (s, e) in mblocks:
             axm.add_patch(Rectangle((s - 0.5, s - 0.5), e - s + 1, e - s + 1, fill=False, ec='k', lw=2.2))
         axm.set_xticks(range(ne)); axm.set_xticklabels(ENAMES, rotation=60, ha='right', fontsize=6)
@@ -183,8 +232,11 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
     Xt = Xb[tm][:, 1].astype(float)
     yt = yb[tm].reset_index(drop=True)
     mouse = yt.mouse.to_numpy(); sg = yt.learning.to_numpy(); lz = yt.laser.to_numpy() == 0
+    # correct-only, matching the correct-fit decoders: DPA needs performance==1; GNG (Dual) needs the
+    # go/nogo response correct too (odr_perf==1), i.e. the same rule dataloader(correct=True) applies.
     ok = (lz & (yt.performance.to_numpy() == 1) & (yt.tasks.to_numpy() == 'DPA')) if context == 'dpa' \
-        else (lz & (yt.tasks.to_numpy() != 'DPA'))
+        else (lz & (yt.tasks.to_numpy() != 'DPA') & (yt.performance.to_numpy() == 1)
+              & (yt.odr_perf.to_numpy() == 1))
     lab_v = yt[col].to_numpy()
 
     def blz(trace):
@@ -225,11 +277,11 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
 cax = fig.add_axes([0.005, 0.35, 0.008, 0.30])
 fig.colorbar(im_mat, cax=cax, label='cosine'); cax.yaxis.set_ticks_position('left')
 cax.yaxis.set_label_position('left')
-_mode = 'raw 84×84 matrix' if CLUSTER_RAW else '8-epoch matrix'
-fig.suptitle(f'Code blocks (left, clustered on the {_mode}) and each block read across test-time '
-             f'(right) — {STAGE}   ·   {DLAB}', fontsize=13, y=0.975)
-RAWSUF = '_rawclust' if CLUSTER_RAW else ''
-p = os.path.join(OUT, 'png', f'overlaps_code_clusters_combined_{STAGE.lower()}{RAWSUF}{SUF}.png')
+fig.suptitle(f'Code read windows (left, boxes on the cosine matrix; data-driven squares, all-pairs cos ≥ '
+             f'{THR}, complete-linkage, stage-pooled, per code) and each window read across test-time (right) — '
+             f'{STAGE}   ·   {DLAB}', fontsize=13, y=0.975)
+NAME = 'raw' if CLUSTER_RAW else 'epoch'      # epoch-averaged vs raw 84-bin left matrix, both windowed
+p = os.path.join(OUT, 'png', f'overlaps_code_{NAME}_combined_{STAGE.lower()}.png')
 fig.savefig(p, dpi=200, bbox_inches='tight')
 fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
 plt.close(fig); print('saved', p)

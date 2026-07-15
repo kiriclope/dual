@@ -197,26 +197,34 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     supplements reported with this honest split. Panel-A traces look identical across decoders
     (z-scored; decision-fn time-courses 0.93–0.99 correlated in shape, differ only in amplitude) —
     expected, not a bug.
-  - **Cosine-matrix supplement (`fig_overlaps_cosine_matrices.py`).** Discriminant-axis cosine over
-    the four decoder codes (sample/choice/test/GNG), from the bundled weights (ridge default;
-    `--l1`/`--lda`). Three twinned families per stage → `figures/overlaps/cosine/`:
-    `overlaps_cosine_matrices_*` (time×time 84×84: diagonal = within-code stability, upper triangle =
-    cross-code alignment), `overlaps_cosine_epochs_*` (coarse epoch grid with values printed), and
-    `overlaps_cosine_clustered_*` (within-code matrices with data-driven block boundaries — complete-
-    linkage contiguous segmentation, block = all-pairs cos>0.5). Findings: cross-code near-zero at all
-    time-pairs (codes mutually orthogonal; only choice×GNG faint ~0.25); within-code each axis DRIFTS
-    (adjacent epochs ~0.7–0.85 decaying with distance) rather than switching discretely — sample most
-    drift-like, choice/test rotate into a response-period code around the lick, and GNG is the one code
-    with a sharp split (distractor transient → a sustained code generalizing to trial end).
-  - **Per-cluster code generalization (`fig_overlaps_test_cluster_traj.py` per-code, `fig_overlaps_code_clusters_combined.py`
-    combined).** For each code's block, the decoder TRAINED in that block is read at every test-time bin
-    (class decision function, per-mouse BL-z, correct trials) — showing what each sub-code represents
-    over the trial. Combined fig = one band per code (clustered matrix + each block's trajectory);
-    flags `--l1`/`--lda`, `--naive`, `--rawclust`, with sample/distractor/test event bands. Clustering
-    modes: EPOCH (10 epochs: stim/eDelay/distr/mDelay/cue/gng rwd/lDelay/test/resp/dpa rwd; complete-
-    linkage all-pairs cos>0.5) or `--rawclust` (average-linkage on the raw 84×84 matrix, baseline as one
-    block). Finding: sample & GNG each carry one dominant stable code; choice/test drift through a
+  - **Cosine read-window figures (`fig_overlaps_cosine_matrices.py`).** Discriminant-axis cosine over
+    the four decoder codes (sample/choice/test/GNG), from the bundled weights. Decoders are **correct-only**
+    by default (`run_overlaps.py --correct`; fit on `performance==1 & (DPA | odr_perf==1)`), variants
+    `--l1`/`--lda`. Outputs are split by decoder variant into **subfolders `figures/overlaps/cosine/{l2,l1,lda}/`**
+    (filenames carry no `_l1`/`_lda` suffix — the folder encodes it). Families per stage: `overlaps_cosine_matrices_*`
+    (plain time×time 84×84: diagonal = within-code stability, upper triangle = cross-code alignment),
+    `overlaps_cosine_epochs_*` (plain coarse epoch grid, values printed), and the **read-window** figures
+    `overlaps_cosine_epoch_*` (epoch-averaged 10×10) / `overlaps_cosine_raw_*` (`--rawclust`, raw 84-bin) —
+    within-code matrices with **data-driven read windows** drawn on them. Read windows = diagonal SQUARES
+    whose every within-pair cosine is ≥0.5 (complete-linkage), computed on the **Naive+Expert-pooled** matrix
+    (same squares on both stages), **overlap allowed** (each square extended L&R while it stays a complete ≥0.5
+    block, so a boundary epoch aligned with both neighbours is shared — e.g. GNG's distr-cue & cue-test overlap
+    at the cue). `vmin=0` on the maps (white at 0.5). Findings: cross-code near-zero at all time-pairs (codes
+    mutually orthogonal; only choice×GNG faint ~0.25); within-code each axis DRIFTS (adjacent epochs ~0.7–0.85
+    decaying with distance) rather than switching discretely — sample keeps one long distr-test block,
+    choice/test rotate into a response-period code around the lick, and GNG splits at the cue on its own.
+  - **Per-window code generalization (`fig_overlaps_code_clusters_combined.py`).** For each code's read window,
+    the decoder TRAINED in that window is read at every test-time bin (class decision function, per-mouse BL-z,
+    **correct trials**; GNG trajectory filtered `performance==1 & odr_perf==1` to match the decoder) — showing
+    what each sub-code represents over the trial. Combined fig = one band per code (LEFT epoch/raw cosine matrix
+    with the squares + RIGHT one trajectory column per window, count varies per code) → `overlaps_code_epoch_combined_*`
+    / `overlaps_code_raw_combined_*`; flags `--l1`/`--lda`, `--naive`, `--rawclust`, with sample/distractor/test
+    event bands. Finding: sample & GNG each carry one dominant stable code; choice/test drift through a
     fragmented, flat delay and only lock a task-relevant code (lick / C-D) at the response.
+  - **Read-window method supplements** (same `cosine/{l2,l1,lda}/` subfolders): `fig_overlaps_genmap.py`
+    (cross-temporal DECODING-AUC vs chance 0.5 per code), `fig_overlaps_cosgen.py` (cross-temporal cosine vs the
+    CROSS-CODE null), `fig_overlaps_eigenmap.py` (per-code spectral segmentation of the raw cosine map) — three
+    independent methods that agree GNG reorganizes at the distractor/cue while sample stays one block.
 - **Legacy glued main figure = LOCKED on `trainLD_TEST` (2026-07-02).** 4 panels (A codes, B 2D push traj, C depth
   deepening, D Δdepth↔Δperf), all on the combined late-delay+test read-out (`fig_overlaps_main.py`
   default → `fig_overlaps_main.png`). **No single axis makes both C and D significant:** the depth

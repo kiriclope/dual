@@ -31,12 +31,13 @@ sns.set_context('notebook'); sns.set_style('ticks')
 # ── decoder variant (parallel to the main figure) ───────────────────────────────
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
+# Correct-only decoders (fit on performance==1 & (DPA | odr_perf==1) trials; run_overlaps --correct).
 if L1:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
 elif LDA:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_lda',         'lda_', '_lda', 'shrinkage-LDA'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_lda',         'lda_', '_lda', 'shrinkage-LDA'
 else:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
 BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 
 DATA_IN = '../data/overlaps'
@@ -52,10 +53,16 @@ EPOCHS = [('stim', 12, 18), ('eDelay', 18, 27), ('distr', 27, 33), ('mDelay', 33
           ('cue', 39, 42), ('gng rwd', 42, 45), ('lDelay', 45, 54), ('test', 54, 60),
           ('resp', 60, 72), ('dpa rwd', 72, 84)]
 ENAMES = [e[0] for e in EPOCHS]
+# Per-user read windows: 4 windows, same for every code & stage. The delay is split after the CUE,
+# at the go/nogo reward (epoch 5 ~7s); the last two share `test`:
+# stim-eDelay | distr-cue | gng rwd-test | test-dpaRwd.
+FIXED_EPOCH_BLOCKS = [(0, 1), (2, 4), (5, 7), (7, 9)]      # epoch-index windows (inclusive)
+FIXED_BIN_BLOCKS   = [(12, 26), (27, 41), (42, 59), (54, 83)]  # same windows, inclusive bin indices (raw path)
 CLUSTER_RAW = '--rawclust' in sys.argv[1:]                  # cluster the raw 84×84 matrix instead of 8-epoch
 edges = np.linspace(0, 14, 85)
 
-OUT = 'figures/overlaps/cosine'
+VDIR = 'l1' if L1 else 'lda' if LDA else 'l2'   # decoder variant → own subfolder
+OUT = f'figures/overlaps/cosine/{VDIR}'
 for sub in ('png', 'svg'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
@@ -128,7 +135,7 @@ def draw_stage(stage):
                  f'diagonal = within-code temporal stability   ·   upper triangle = cross-code '
                  f'alignment (≈0 ⇒ orthogonal, chance |cos|≈{CHANCE:.2f})',
                  fontsize=12, y=0.965)
-    stem = f'overlaps_cosine_matrices_{stage.lower()}{SUF}'
+    stem = f'overlaps_cosine_matrices_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
     fig.savefig(p, dpi=300, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
@@ -189,7 +196,7 @@ def draw_stage_epochs(stage):
                  f'diagonal = within-code (high adjacent + slow decay ⇒ drifting axis; block ⇒ discrete '
                  f'code)   ·   upper triangle = cross-code (≈0 ⇒ orthogonal, chance |cos|≈{CHANCE:.2f})',
                  fontsize=12, y=0.965)
-    stem = f'overlaps_cosine_epochs_{stage.lower()}{SUF}'
+    stem = f'overlaps_cosine_epochs_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
     fig.savefig(p, dpi=300, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
@@ -197,13 +204,15 @@ def draw_stage_epochs(stage):
 
 
 def cluster_blocks(M, thr_cos):
-    """Complete-linkage contiguous segmentation: greedily extend a temporal block as long as EVERY
-    pair of epochs already in it stays cos>thr_cos (all-mutually-stable). A drifting axis therefore
-    splits into several blocks; a genuinely stable one stays a single block. Deterministic."""
+    """Average-linkage contiguous segmentation: extend a temporal block while the candidate epoch's
+    MEAN cosine to the epochs already in it stays >thr_cos. Robust to smooth drift — a single
+    borderline pair no longer shatters the block (the old all-pairs/complete-linkage rule split on
+    the 3rd decimal of a cosine sitting right at threshold, which flipped between stages). A code
+    whose axis truly rotates still splits; a slowly-ramping/stable one stays one block. Deterministic."""
     ne = M.shape[0]
     blocks, s = [], 0
     for i in range(1, ne):
-        if min(M[k, i] for k in range(s, i)) < thr_cos:      # i cannot join current block [s..i-1]
+        if np.mean([M[k, i] for k in range(s, i)]) < thr_cos:   # i cannot join current block [s..i-1]
             blocks.append((s, i - 1)); s = i
     blocks.append((s, ne - 1))
     return blocks
@@ -234,24 +243,68 @@ def blocks_raw(M, thr=0.5, start=12, min_len=8):
     return bl
 
 
+def squares_complete(M, thr=0.5, start=0, min_len=2):
+    """Data-driven read windows = diagonal SQUARES whose every within-pair cosine is >= thr
+    (complete-linkage, cos 0.5 = 60°). Two-step, OVERLAP ALLOWED:
+      1. Anchors — greedy disjoint tiling: grow [s..i] while adding i keeps min(M[s:i, i]) >= thr; on
+         a drop, close the block and restart at i.
+      2. Extend each anchor left and right as far as the whole [s..e] stays a complete >= thr square.
+         Because a boundary epoch is often >= thr with BOTH neighbouring blocks, adjacent windows then
+         SHARE that epoch (e.g. gng's distr-cue & cue-test overlap at the cue) — the data-driven analogue
+         of the old hand-drawn windows that shared `test`. Fully-contained duplicates are dropped.
+    A boundary still marks where the axis has rotated past 60° from a block's core — a genuine
+    reorganization. Blocks shorter than min_len are dropped. Run on the STAGE-POOLED matrix so the same
+    squares draw on Naive and Expert."""
+    n = len(M); anchors, s = [], start
+    for i in range(start + 1, n):
+        if min(M[k, i] for k in range(s, i)) < thr:
+            if i - s >= min_len:
+                anchors.append((s, i - 1))
+            s = i
+    if n - s >= min_len:
+        anchors.append((s, n - 1))
+
+    def complete(a, b):
+        return all(M[p, q] >= thr for p in range(a, b + 1) for q in range(p + 1, b + 1))
+    out = []
+    for s, e in anchors:
+        while s - 1 >= start and complete(s - 1, e):
+            s -= 1
+        while e + 1 < n and complete(s, e + 1):
+            e += 1
+        out.append((s, e))
+    out = sorted(set(out))
+    return [b for b in out if not any(b != c and c[0] <= b[0] and b[1] <= c[1] for c in out)]
+
+
 def _bname(s, e):
     return ENAMES[s] if s == e else f'{ENAMES[s]}–{ENAMES[e]}'
 
 
+def pooled_epoch_cos(a):
+    """Epoch cosine averaged over BOTH stages → one matrix, so blocks are shared Naive+Expert."""
+    return np.nanmean([mean_epoch_cos(st, a, a)[0] for st in STAGES], 0)
+
+
+def pooled_raw_cos(a):
+    return np.nanmean([mean_cos_matrix(st, a, a)[0] for st in STAGES], 0)
+
+
 def draw_stage_clustered(stage, thr_cos=0.5):
-    """Data-driven blocks: within-code matrix with block boundaries drawn. Epoch mode = complete-
-    linkage all-pairs cos>thr_cos on the coarse matrix; --rawclust = average-linkage on the raw 84×84."""
+    """Data-driven read windows, PER CODE: maximal diagonal squares whose every within-pair cosine is
+    >= thr_cos (complete-linkage, see squares_complete). Blocks are computed on the STAGE-POOLED matrix
+    so the same squares are drawn on Naive and Expert. Boxes overlaid on the per-stage cosine matrix."""
     nc, ne = len(CODES), len(EPOCHS)
     fig = plt.figure(figsize=(15.5, 5.0))
     gs = GridSpec(1, nc, figure=fig, wspace=0.42, left=0.05, right=0.93, top=0.72, bottom=0.30)
     im = None
-    print(f'  [{stage}] clustered blocks ({"raw 84x84" if CLUSTER_RAW else "epoch"}):')
+    print(f'  [{stage}] read windows ({"raw 84x84" if CLUSTER_RAW else "epoch"}, squares cos>={thr_cos}):')
     for k, a in enumerate(CODES):
         ax = fig.add_subplot(gs[0, k])
         if CLUSTER_RAW:
-            M, n = mean_cos_matrix(stage, a, a)                          # 84×84 raw
-            blocks = blocks_raw(M)
-            im = ax.imshow(M, vmin=-1, vmax=1, cmap='RdBu_r', origin='upper',
+            M, n = mean_cos_matrix(stage, a, a)                          # 84×84 raw (this stage, display)
+            blocks = squares_complete(pooled_raw_cos(a), thr_cos, start=12, min_len=6)   # pooled squares
+            im = ax.imshow(M, vmin=0, vmax=1, cmap='RdBu_r', origin='upper',
                            extent=[0, 14, 14, 0], aspect='equal', interpolation='nearest')
             for (s, e) in blocks:
                 ax.add_patch(Rectangle((edges[s], edges[s]), edges[e + 1] - edges[s],
@@ -259,11 +312,11 @@ def draw_stage_clustered(stage, thr_cos=0.5):
             names = [f'{edges[s]:.1f}–{edges[e + 1]:.1f}s' for (s, e) in blocks]
             ax.set_xticks([0, 7, 14]); ax.set_yticks([0, 7, 14]); ax.tick_params(labelsize=7)
             ax.set_xlabel('time (s)', fontsize=7.5)
-            subt = f'{len(blocks)} blocks'
+            subt = f'{len(blocks)} squares'
         else:
-            M, n = mean_epoch_cos(stage, a, a)
-            blocks = cluster_blocks(M, thr_cos)
-            im = ax.imshow(M, vmin=-1, vmax=1, cmap='RdBu_r', aspect='equal')
+            M, n = mean_epoch_cos(stage, a, a)                          # this stage (display)
+            blocks = squares_complete(pooled_epoch_cos(a), thr_cos, start=0, min_len=2)   # pooled squares
+            im = ax.imshow(M, vmin=0, vmax=1, cmap='RdBu_r', aspect='equal')
             for (s, e) in blocks:
                 ax.add_patch(Rectangle((s - 0.5, s - 0.5), e - s + 1, e - s + 1,
                                        fill=False, ec='k', lw=2.4))
@@ -275,10 +328,10 @@ def draw_stage_clustered(stage, thr_cos=0.5):
         ax.set_title(f'{CLABEL[a]}  (n={n})\n{subt}', fontsize=8, fontweight='bold')
     cax = fig.add_axes([0.945, 0.32, 0.012, 0.38])
     fig.colorbar(im, cax=cax, label='cosine')
-    _md = 'raw 84×84 avg-linkage' if CLUSTER_RAW else f'epoch complete-linkage (all-pairs cos>{thr_cos:.1f})'
-    fig.suptitle(f'Data-driven code blocks — {stage}   ·   {DLAB}   ·   {_md}', fontsize=12, y=0.95)
-    RAWSUF = '_rawclust' if CLUSTER_RAW else ''
-    stem = f'overlaps_cosine_clustered_{stage.lower()}{RAWSUF}{SUF}'
+    fig.suptitle(f'Code read windows — {stage}   ·   {DLAB}   ·   data-driven squares (all-pairs cos ≥ '
+                 f'{thr_cos}, complete-linkage, stage-pooled), per code', fontsize=12, y=0.95)
+    NAME = 'raw' if CLUSTER_RAW else 'epoch'     # epoch-averaged 10×10 vs raw 84-bin, both with read-windows
+    stem = f'overlaps_cosine_{NAME}_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
     fig.savefig(p, dpi=300, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
