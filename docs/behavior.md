@@ -383,6 +383,51 @@ Jaws/ChR laser and the ACC-Prl batch target the **same ACC→mPFC(Prl) projectio
 `fig_overlaps_main_ab.svg` (all 7 mice, trainLD_TEST, Spearman star) by widening the mouse set +
 axis — the committed version is the Jaws/trainLD/Pearson variant.
 
+### Trial-history supplements — `fig_behavior_history.py` + `fig_behavior_history_batch.py`
+
+Does the CURRENT trial's performance depend on the PREVIOUS trial's task type (DPA / Go /
+NoGo)? Previous task is taken **within session** (first trial of each session dropped, no
+cross-session carry-over); one row per trial. Two outcomes: DPA memory (`performance`,
+hit/CR, defined every trial) and GNG distractor (`odr_perf`, dual trials only). Stat =
+trial-level logistic **GEE clustered by mouse** (Exchangeable), controlling for the previous
+trial's own DPA outcome (`prev_perf`); `prev_dual` = previous task was Go or NoGo.
+
+**Recorded cohort — `fig_behavior_history.py`** (9 mice, laser OFF, `target=='sample'` slice).
+The recorded design is genuinely **interleaved** (transition rate 0.70, P(prev|cur)≈⅓ each),
+so previous-task is a clean trial-lag contrast. 8 panels, two outcome rows (A–D DPA memory,
+E–H GNG): grid (current×previous), marginal, Go-current zoom, GEE forest. Results:
+- **DPA memory** — marginal history effect is **null** (by previous task 75.4/75.6/75.4%,
+  prev-dual OR=1.01 p=0.90). The one signal is **specific to Go-current trials**: DPA memory
+  drops after a dual trial (77.3→~72%), **prev-dual OR=0.81 p=0.047** (prev-outcome-controlled,
+  so not win-stay); between-mouse it is a **trend** (per-mouse paired Wilcoxon p=0.10, 6/9). No
+  effect on DPA-current or NoGo-current trials.
+- **GNG accuracy** — **history-independent** (Go- and NoGo-current both n.s.; ~80–81% regardless
+  of previous task).
+Output `figures/overlaps/behavior/{png,svg}/behavior_history.*`.
+
+**Training batches — `fig_behavior_history_batch.py`** (control mice pooled across the 3
+silencing batches, 30 mice, light-only). ⚠️ **The batches CANNOT be analysed the same way**:
+they use a **blocked design (~4 pure-DPA then ~8 dual, repeating)**, so previous-task is
+**confounded with pure↔dual block position** — a Go-current trial preceded by DPA is *always*
+the first dual trial after a pure block (P(prev=DPA | Go-current)=0.19 vs P(prev=DPA | DPA-
+current)=0.64). The naive `prev_dual` contrast is collinear with a task-switch and gives a
+spurious huge "Go OR=0.59\*\*\*" — **do not use it** (an earlier `_batch_pooled` version of the
+naive figure was deleted). Instead the batch is a **switch-cost figure** (4 panels):
+- **A** block structure (example session); **B** switch cost on DPA memory: switching **into
+  dual** costs memory (1st-dual-after-pure vs mid-block **OR=0.90 p<0.001**) while switching
+  **into pure** does not (OR=1.03 p=0.44) — asymmetric; **C** GNG accuracy **warms up**
+  monotonically across the dual block (93.7→95.8%, 1st-dual switch OR=0.88 p=0.013); **D** the
+  only unconfounded lag contrast, **prev-Go vs prev-NoGo on dual trials** (matched block
+  position; controls pos + current task + prev outcome) — **null on DPA memory** (OR=0.98
+  p=0.44), **weak on GNG** (OR=0.84 p=0.019, would not survive correction).
+Flags `--batch <name> --group <control|opto>` analyse a single batch/group. Output
+`figures/overlaps/behavior/{png,svg}/behavior_history_batch[_<tag>].*`.
+
+**Convergence:** the recorded Go-cost (OR=0.81) and the batch into-dual switch-cost (OR=0.90)
+point the **same way** — a preceding distractor-containing trial mildly taxes current DPA
+memory — but both are small and the batch's blocked design precludes a clean trial-lag test,
+so state the design limitations explicitly if this goes in the paper.
+
 ---
 
 ## 7. Key statistical stance (see also `docs/shared_feedback.md`)
