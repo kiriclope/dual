@@ -2,15 +2,15 @@
 fig_overlaps_main_native.py — the overlaps MAIN paper figure (A&B-independent "--ab"
 variant), COMPOSED NATIVELY as one matplotlib gridspec, Nature-Neuroscience-styled.
 
-Layout (4-row gridspec, print-scale typography ~7 pt):
-  A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / choice / test / task;
-     y shared within each code column so learning shrinkage is visible. A 3rd row adds a per-mouse
-     neural d′ scatter (Naive x vs Expert y, unity = unchanged) for each code, computed on the same
-     trainLD_TEST readout over the code's window (sample/choice=bins_LD, test=bins_TEST, task=Go/NoGo
-     at bins_MD), like the opto figure's d′ panels. A 5th cell in that row shows CODE ALIGNMENT
-     (dPCA-style): pairwise |cos| between the code axes (decoder weights, late-delay BINS_LATE),
-     Naive→Expert — codes are near-orthogonal and the CHOICE code demixes from both stimulus codes
-     with learning (sample–choice *, choice–test ***; sample–test stays at chance). (← fig_overlaps_codes_1d.py / fig_overlaps_cosine.py)
+Layout (5-row gridspec, print-scale typography ~7 pt):
+  A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / choice / test / GNG;
+     y shared within each stimulus code (GNG has its own scale). The GNG code is the MID-DELAY memory
+     axis (Go/NoGo decoder trained at bins_MD 33–38, read across time). A 3rd row is the SHARED-ACTION
+     TRAJECTORY: both tasks projected onto each lick axis over time (GNG lick axis | DPA choice axis,
+     each Naive|Expert). Each axis, trained on its own task's action window, also separates the OTHER
+     task's lick — each condition rising at its own task's action moment ⇒ ONE shared action code.
+     (The d′ scatters, code-alignment cosine, and weight-space shared-action heatmaps now live in the
+     supplement fig_overlaps_codes_supp.py.)                    (← fig_overlaps_codes_1d.py / fig_overlaps_action_traj.py)
   B  the no-lick push: DPA state Naive→Expert in the sample × choice plane (its OWN full row),
      with choice-code distribution strips; axes carry pole labels (odor A/B, no-lick/lick).
      Trajectories and KDE both stop before test onset (bins 0–53), so B is a pure pre-test
@@ -167,25 +167,20 @@ y = yb[_sct].reset_index(drop=True)
 print(f'  X {X.shape}  y {y.shape}')
 
 raw = X[..., TRAIN_LDTEST, :].mean(-2)[:, 1].astype(float)             # (n,84) decision fn
-# Panel A d′: each code is decoded on its GENERALISATION BEST AXIS — trained AND read at the window
-# where its cross-temporal decoder generalises best (the diagonal plateau) — so the scatter shows
-# whether the code is decodable at all and whether that changes with learning. Windows (bins):
-# sample 16–47 (early-mid delay), test 58–83 (test/response), task 33–56 (mid-delay, on the choice
-# axis). CHOICE is deliberately NOT shown as a d′ scatter: pre-test it is at chance (the DPA decision
-# cannot be formed until the test odour arrives), and its only decodable window is response/lick — so
-# choice's learning story is carried by the code-alignment (cosine) panel and by panels B–D instead.
-# d′ is scale-invariant, so the absence of BL-norm on these diagonal readouts is irrelevant.
-def _diag(win):                                                        # decision fn (toward-lick pole) trained AND read on win
-    return X[:, 1, win, :][:, :, win].mean((1, 2)).astype(float)
-_dp_sample = _diag(np.arange(16, 48))                                  # sample: best axis, early-mid delay
-_dp_test   = _diag(np.arange(58, 84))                                  # test:   best axis, test/response
-_dp_task   = _diag(np.arange(33, 57))                                  # task:   best axis, mid-delay (choice axis)
-# Panel A code TRACES on the SAME best axes (decoder trained at the code's best window, read across
-# ALL time) so each time-course matches its d′ scatter. Choice keeps the decision axis (default
-# trainLD_TEST = bins 45–59) — the test bins give it clear lick/no-lick discrimination; tied to B–D.
+# Panel A code TRACES on each code's GENERALISATION BEST AXIS (decoder trained at the code's best
+# window, read across ALL time). Windows (bins): sample 16–47 (early-mid delay), test 58–83
+# (test/response). Choice keeps the decision axis (default trainLD_TEST = bins 45–59) — the test bins
+# give it clear lick/no-lick discrimination; tied to B–D. (The d′ scatters that used the diagonal of
+# these axes now live in the supplement fig_overlaps_codes_supp.py.)
 _tr_sample = X[:, 1, np.arange(16, 48), :].mean(1).astype(float)       # (n,84) read across time
 _tr_test   = X[:, 1, np.arange(58, 84), :].mean(1).astype(float)
-_tr_task   = X[:, 1, np.arange(33, 57), :].mean(1).astype(float)
+# Shared-action TRAJECTORY, DPA choice axis: fix the train window at the DPA response window (bins
+# 60–72) and read the choice decision value across test-time — projects EVERY task onto the DPA lick
+# axis (the choice decoder is context='all', so all tasks are already in the tensor).
+_ACT_DPA   = np.arange(60, 72)
+_cho_rows  = (y.target == 'choice').to_numpy()
+_act_cho_D = X[_cho_rows][:, 1, _ACT_DPA, :].mean(1).astype(float)     # (n_choice_rows, 84)
+_y_cho     = y[_cho_rows].reset_index(drop=True)
 del X                                                                  # free ~1.9 GB
 
 # normalisation variant used by B/C/D (per-mouse BINS_BL std; --eqnorm → whole-trial signal std)
@@ -199,20 +194,24 @@ for mo in ALL_MICE:
 # Panel A uses the same per-mouse BL normalisation (bins_BL == BL_A == 0:11), then adds a
 # per-code z-score at plot time — so it starts from X_bl directly (no separate copy).
 df_A = X_bl
-# Per-column trace source for panel A: sample/test/task on their best axes, choice on the decision
-# axis (X_bl = trainLD_TEST). Order matches VARS_A (sample, choice, test, task).
-TRACE_SRC = [_tr_sample, X_bl, _tr_test, _tr_task]
+# Per-column trace source for panel A: sample/test on their best axes, choice on the decision axis
+# (X_bl = trainLD_TEST). Order matches VARS_A (sample, choice, test).
+TRACE_SRC = [_tr_sample, X_bl, _tr_test]
 
 # ── dedicated Go/NoGo (GNG) decoder — SEPARATE tensor (run_overlaps.py --targets gng) ──
-# The "task code" reads Go/NoGo off the CHOICE axis (d′≈0.1); a real GNG decoder separates them
-# strongly (d′≈2) on an axis orthogonal to choice/sample/test (see fig_overlaps_gng_compare.py).
-# Added as panel A's 5th code, on its own y-scale (much larger amplitude than the other codes).
-_GNG_WIN = np.arange(34, 59)                                            # gng generalization best axis (5.7–9.8 s)
+# Panel A's 4th code (own y-scale). The GNG code is now the MID-DELAY MEMORY axis: the Go/NoGo decoder
+# trained at the mid-delay window (bins_MD 33–38), read across all time — so the trace reads as a
+# Go/NoGo working-memory code (2026-07-15; previously the broad 34–59 generalisation axis, whose d′
+# scatter now lives in the supplement).
+_GNG_WIN = np.asarray(options['bins_MD'])                              # 33–38, GNG mid-delay memory axis
 _gm = (yb.target == 'gng').to_numpy()                                   # gng rows of the bundled tensor
 Xg = Xb[_gm]; yg = yb[_gm].reset_index(drop=True)
 del Xb
-_gng_tr = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float)                   # (n,84) Go/NoGo decision fn across time
-_gng_dp = Xg[:, 1, _GNG_WIN, :][:, :, _GNG_WIN].mean((1, 2)).astype(float)   # diagonal d′ readout
+_gng_tr = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float)                   # (n,84) GNG-memory decision fn across time
+# Shared-action TRAJECTORY, GNG lick axis: fix the train window at the GNG action/reward window
+# (bins 42–54) and read across test-time — projects EVERY task onto the GNG lick axis.
+_ACT_GNG   = np.arange(42, 54)
+_act_gng_D = Xg[:, 1, _ACT_GNG, :].mean(1).astype(float)               # (n_gng_rows, 84)
 del Xg
 
 idx_laser   = (y.laser == 0)
@@ -221,92 +220,65 @@ idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_pe
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PANEL A d′ row — per-mouse neural d′ (Naive vs Expert) for sample/test/task, each on its
-#   generalisation best axis (computed above as _dp_*). d′ = (μ_pos − μ_neg)/σ_pooled of the
-#   decision function over the code's window, on correct trials. Shows the sensory/context codes
-#   are decodable AND stable with learning; choice is omitted (see note above) — its plasticity
-#   lives in the code-alignment panel and panels B–D.
+# PANEL A shared-action TRAJECTORY row — the lick command is ONE shared action code. Project BOTH
+#   tasks onto EACH single lick axis over time (decision value read across test-time on the fixed
+#   action-window axis, per-mouse oriented + BL-centred + signal-scaled, mean±SEM over mice):
+#     GNG lick axis (trained Go vs NoGo @ GNG action window, _act_gng_D on the gng rows) — also
+#       separates DPA lick vs no-lick, each rising at its own task's action moment.
+#     DPA choice axis (trained lick vs no-lick @ DPA response window, _act_cho_D on the choice rows)
+#       — symmetric: also separates GNG Go vs NoGo. ⇒ one shared lick direction, engaged at whichever
+#       time each task calls for the action. (Weight-space cosine corroboration → supplement.)
 # ══════════════════════════════════════════════════════════════════════════════
-#            (title,        target,  split col,     pos,       neg,        v,          dpa_only)
-DPRIME_SPECS = [
-    ('sample d′', 'sample', 'sample_odor', 1,        0,          _dp_sample, True),
-    ('test d′',   'test',   'test_odor',   1,        0,          _dp_test,   True),
-    ('task d′',   'choice', 'tasks',       'DualGo', 'DualNoGo', _dp_task,   False),
+_BL_TRAJ = np.arange(0, 12)
+
+
+def _traj_groups_gng(yy):                                              # groups on the GNG-axis rows
+    dual = (yy.tasks != 'DPA').to_numpy(); dpa = (yy.tasks == 'DPA').to_numpy()
+    gg = yy.gng.to_numpy(); ch = yy.choice.to_numpy()
+    return {'GNG Go (lick)': (dual & (gg == 1), '#1f77b4', True),
+            'GNG NoGo':      (dual & (gg == 0), '#2ca02c', False),
+            'DPA lick':      (dpa & (ch == 1),  '#d62728', True),
+            'DPA no-lick':   (dpa & (ch == 0),  '#9467bd', False)}
+
+
+def _traj_groups_choice(yy):                                          # groups on the choice-axis rows
+    tsk = yy.tasks.to_numpy(); ch = yy.choice.to_numpy()
+    return {'GNG Go (lick)': (tsk == 'DualGo',   '#1f77b4', True),
+            'GNG NoGo':      (tsk == 'DualNoGo', '#2ca02c', False),
+            'DPA lick':      ((tsk == 'DPA') & (ch == 1), '#d62728', True),
+            'DPA no-lick':   ((tsk == 'DPA') & (ch == 0), '#9467bd', False)}
+
+
+# (row-label, D-matrix, labels-frame, train-window, group-fn, orient-pair pos/neg keys)
+TRAJ_SPECS = [
+    ('GNG lick axis', _act_gng_D, yg,     _ACT_GNG, _traj_groups_gng,    ('GNG Go (lick)', 'GNG NoGo')),
+    ('DPA choice axis', _act_cho_D, _y_cho, _ACT_DPA, _traj_groups_choice, ('DPA lick', 'DPA no-lick')),
 ]
 
 
-def _code_dprime(v, target, col, pos, neg, mouse, stage, dpa_only):
-    base = ((y.target == target) & (y.mouse == mouse) & (y.stage == stage) &
-            (y.laser == 0) & (y.performance == 1)).values
-    if dpa_only:
-        base = base & (y.tasks == 'DPA').values
-    a = v[base & (y[col].values == pos)]; b = v[base & (y[col].values == neg)]
-    a = a[np.isfinite(a)]; b = b[np.isfinite(b)]
-    if len(a) < 5 or len(b) < 5:
-        return np.nan
-    ps = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)
-    return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
-
-
-dpr = {}                                                               # title -> per-mouse Naive/Expert d′
-for _title, _tgt, _col, _pos, _neg, _v, _dpaonly in DPRIME_SPECS:
-    dN, dE, mice = [], [], []
-    for mo in ALL_MICE:
-        n = _code_dprime(_v, _tgt, _col, _pos, _neg, mo, 'Naive', _dpaonly)
-        e = _code_dprime(_v, _tgt, _col, _pos, _neg, mo, 'Expert', _dpaonly)
-        if np.isfinite(n) and np.isfinite(e):
-            dN.append(n); dE.append(e); mice.append(mo)
-    dpr[_title] = dict(naive=np.array(dN), expert=np.array(dE), mice=mice)
-
-
-def _gng_dprime(mouse, stage):                                         # dedicated GNG decoder d′(Go,NoGo)
-    base = ((yg.target == 'gng') & (yg.mouse == mouse) & (yg.stage == stage)
-            & (yg.laser == 0) & (yg.tasks != 'DPA')).to_numpy()
-    a = _gng_dp[base & (yg.gng.to_numpy() == 1)]; b = _gng_dp[base & (yg.gng.to_numpy() == 0)]
-    a = a[np.isfinite(a)]; b = b[np.isfinite(b)]
-    if len(a) < 5 or len(b) < 5:
-        return np.nan
-    ps = np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2)
-    return (a.mean() - b.mean()) / ps if ps > 0 else np.nan
-
-
-_gN, _gE, _gmice = [], [], []
-for mo in ALL_MICE:
-    n = _gng_dprime(mo, 'Naive'); e = _gng_dprime(mo, 'Expert')
-    if np.isfinite(n) and np.isfinite(e):
-        _gN.append(n); _gE.append(e); _gmice.append(mo)
-dpr['GNG d′'] = dict(naive=np.array(_gN), expert=np.array(_gE), mice=_gmice)
-
-
-# ── PANEL A cosine mixing: pairwise |cos| between the CODE AXES (decoder weight vectors),
-#    per mouse, Naive vs Expert — "how similar are the codes", like the dPCA figure's axis-mixing.
-#    Weights (run_overlaps.py --save-weights): {(mouse,stage,'all',target): (84 bins, n_neurons)};
-#    axis = unit(mean weight over the broad late-delay window BINS_COS 27–53), cosine within a mouse
-#    (shared neuron basis), |cos| averaged across mice. Chance |cos| ≈ 1/√n̄_neurons.
-#    NB the demixing is WINDOW-SENSITIVE — significant on the broad late-delay 27–53 & full delay,
-#    n.s. on the tight bins_LD 45–53 (sample–choice p=.017→.125, choice–test p<.001→.103). So the
-#    cosine keeps its OWN 27–53 window (BINS_COS) — DECOUPLED from the depth readout, which moved to
-#    the LD epoch 45–53 (BINS_LATE) 2026-07-15. These measure different things (axis alignment vs
-#    depth magnitude), so different windows is fine; each is read where its effect is defined.
-BINS_COS = np.arange(27, 54)                                           # panel-A cosine axis-averaging window (broad late-delay)
-_WBLOB = pkl_load(f'{PFX}weights_{_BDUM}', path=DATA_IN)['weights']     # bundled weights (sample/choice/test/gng)
-COS_PAIRS = [('sample', 'choice'), ('sample', 'test'), ('choice', 'test')]
-
-
-def _code_axis(mouse, stage, target, win):
-    ws = np.asarray(_WBLOB[(mouse, stage, 'all', target)], float)
-    v = ws[win].mean(0); nrm = np.linalg.norm(v)
-    return v / nrm if nrm > 0 else v
-
-
-cosmix = {}                                                            # pair -> per-mouse Naive/Expert |cos|
-for _a, _b in COS_PAIRS:
-    cN, cE = [], []
-    for mo in ALL_MICE:
-        cN.append(abs(_code_axis(mo, 'Naive', _a, BINS_COS) @ _code_axis(mo, 'Naive', _b, BINS_COS)))
-        cE.append(abs(_code_axis(mo, 'Expert', _a, BINS_COS) @ _code_axis(mo, 'Expert', _b, BINS_COS)))
-    cosmix[(_a, _b)] = dict(naive=np.array(cN), expert=np.array(cE))
-COS_CHANCE = 1.0 / np.sqrt(np.mean([np.asarray(_WBLOB[(m, 'Naive', 'all', 'sample')]).shape[1] for m in ALL_MICE]))
+def _traj_curves(D, yy, train, gfun, orient, stage):
+    """Per-mouse oriented, BL-centred, signal-scaled projection curves; mean±SEM over mice."""
+    mo = yy.mouse.to_numpy(); lz = (yy.laser == 0).to_numpy()
+    st = yy.learning.to_numpy(); perf = yy.performance.to_numpy()
+    base = lz & (st == stage) & (perf == 1)
+    G = gfun(yy); op, on = orient
+    curves = {}
+    for lab, (msk, col, lick) in G.items():
+        permouse = []
+        for m in ALL_MICE:
+            sel = base & msk & (mo == m)
+            if sel.sum() < 5:
+                continue
+            pos = D[base & G[op][0] & (mo == m)][:, train].mean()
+            neg = D[base & G[on][0] & (mo == m)][:, train].mean()
+            s = 1.0 if pos >= neg else -1.0
+            v = s * D[sel].mean(0)
+            v = (v - v[_BL_TRAJ].mean()) / (v.std() + 1e-9)
+            permouse.append(v)
+        if permouse:
+            A = np.stack(permouse)
+            curves[lab] = (A.mean(0), A.std(0, ddof=1) / np.sqrt(len(A)), col, lick)
+    return curves
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -504,8 +476,6 @@ VARS_A = [
     ('sample', 'sample', 'sample_odor', [0, 1], ['Odor A', 'Odor B'], ['#332288', '#44AA99'], True),
     ('choice', 'choice', 'choice',      [0, 1], ['No lick', 'Lick'],  ['#377eb8', '#4daf4a'], True),
     ('test',   'test',   'test_odor',   [0, 1], ['Odor C', 'Odor D'], ['#CC6677', '#999933'], True),
-    ('task',   'choice', 'tasks', ['DPA', 'DualGo', 'DualNoGo'], ['DPA', 'Go', 'NoGo'],
-     [_pal_muted[3], _pal_muted[0], _pal_muted[2]], False),
 ]
 
 
@@ -591,7 +561,7 @@ def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
 # ══════════════════════════════════════════════════════════════════════════════
 # FIGURE
 # ══════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(10.0, 11.4))
+fig = plt.figure(figsize=(10.0, 12.2))
 gs = fig.add_gridspec(5, 12, height_ratios=[0.85, 0.85, 1.25, 1.7, 1.55],
                       hspace=0.6, wspace=0.9,
                       left=0.06, right=0.985, top=0.965, bottom=0.04)
@@ -604,78 +574,54 @@ def panel_letter(ax, L, x=0.008, dy=0.014):
     fig.text(x, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
 
 
-# ── A: 2×5 code grid (Naive top, Expert bottom) ────────────────────────────────
-# codes 0–3 (sample/choice/test/task) share y ACROSS each row; the GNG code (col 4) has its OWN
-# y-scale (much larger amplitude). x shared down each column.
-axA = np.empty((2, 5), dtype=object)
-_rowsub = [gs[0, :].subgridspec(1, 5, wspace=0.55), gs[1, :].subgridspec(1, 5, wspace=0.55)]
-for c in range(5):
-    _shy0 = axA[0, 0] if (0 < c < 4) else None                         # GNG (c==4) not row-shared
+# ── A: 2×4 code grid (Naive top, Expert bottom) ────────────────────────────────
+# codes 0–2 (sample/choice/test) share y ACROSS each row; the GNG code (col 3) has its OWN y-scale
+# (much larger amplitude). x shared down each column.
+axA = np.empty((2, 4), dtype=object)
+_rowsub = [gs[0, :].subgridspec(1, 4, wspace=0.55), gs[1, :].subgridspec(1, 4, wspace=0.55)]
+for c in range(4):
+    _shy0 = axA[0, 0] if (0 < c < 3) else None                         # GNG (c==3) not row-shared
     axA[0, c] = fig.add_subplot(_rowsub[0][0, c], sharey=_shy0)
-    _shy1 = axA[1, 0] if (0 < c < 4) else None
+    _shy1 = axA[1, 0] if (0 < c < 3) else None
     axA[1, c] = fig.add_subplot(_rowsub[1][0, c], sharex=axA[0, c], sharey=_shy1)
 for ri, STG in enumerate(STAGES):
     b = ((y.laser == 0) & (y.learning == STG) & (y.performance == 1)).to_numpy()
-    _draw_codes_row(axA[ri, :4], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
-    _draw_gng(axA[ri, 4], STG, show_title=(ri == 0), show_xlabel=(ri == 1))
+    _draw_codes_row(axA[ri, :3], b, stage_label=STG, show_titles=(ri == 0), show_xlabel=(ri == 1))
+    _draw_gng(axA[ri, 3], STG, show_title=(ri == 0), show_xlabel=(ri == 1))
 
-# ── A d′ row: per-mouse d′ (Naive x vs Expert y) per code + code-alignment (cosine) panel ──
-gsAdp = gs[2, 0:12].subgridspec(1, 5, width_ratios=[1, 1, 1, 1, 1.05], wspace=0.55)
-DPRIME_TITLES = [s[0] for s in DPRIME_SPECS] + ['GNG d′']              # sample, test, task, GNG
-axA_dp = []
-for c, _title in enumerate(DPRIME_TITLES):
-    axd = fig.add_subplot(gsAdp[0, c])
-    axA_dp.append(axd)
-    P = dpr[_title]
-    _av = np.concatenate([P['naive'], P['expert']]) if len(P['naive']) else np.array([0.0, 1.0])
-    _lo, _hi = float(np.nanmin(_av)), float(np.nanmax(_av)); _pd = (_hi - _lo) * 0.12 or 0.2
-    _lim = (min(_lo - _pd, -0.1), _hi + _pd)
-    axd.plot(_lim, _lim, ls='--', color='0.6', lw=0.8, zorder=1)                   # unity = unchanged
-    axd.axhline(0, ls=':', color='0.8', lw=0.6, zorder=0); axd.axvline(0, ls=':', color='0.8', lw=0.6, zorder=0)
-    for mo, xn, ye in zip(P['mice'], P['naive'], P['expert']):
-        axd.scatter(xn, ye, s=26, facecolors=MOUSE_COLOR[mo], edgecolors=MOUSE_COLOR[mo],
-                    linewidths=0.6, zorder=4)
-    _n = len(P['naive'])
-    _tp = float(ttest_rel(P['expert'], P['naive']).pvalue) if _n >= 3 else np.nan
-    _dm = float((P['expert'] - P['naive']).mean()) if _n else np.nan
-    _sg = (_tp == _tp and _tp < 0.05)
-    axd.set_xlim(_lim); axd.set_ylim(_lim); axd.set_box_aspect(1)
-    axd.set_title(_title, fontsize=8)
-    axd.set_xlabel('Naive d′', fontsize=7.5)
-    if c == 0:
-        axd.set_ylabel('Expert d′', fontsize=7.5)
-    axd.text(0.06, 0.94, '*' if _sg else 'n.s.', transform=axd.transAxes, ha='left', va='top',
-             fontsize=11 if _sg else 7, fontweight='bold', color='k' if _sg else '0.55')
-    axd.text(0.5, 0.02, f'Δ={_dm:+.2f}\np={_tp:.3f}', transform=axd.transAxes, ha='center', va='bottom',
-             fontsize=6, color='0.3')
-    print(f"A d′[{_title.strip()}] Naive→Expert Δ={_dm:+.3f} paired-t p={_tp:.3f} n={_n}")
+# ── A shared-action TRAJECTORY row: BOTH tasks projected onto each lick axis, Naive | Expert ──
+#   left pair = GNG lick axis, right pair = DPA choice axis. Each condition rises at its own task's
+#   action moment ⇒ one shared action code. (GNG=stim category; on the choice axis GNG uses task class.)
+gsTraj = gs[2, 0:12].subgridspec(1, 4, wspace=0.42)
+_axTraj = np.empty((2, 2), dtype=object)                               # [axis_row, stage]
+for _ai, (_alab, _D, _yy, _train, _gfun, _orient) in enumerate(TRAJ_SPECS):
+    for _ci, _stg in enumerate(STAGES):
+        _col = _ai * 2 + _ci
+        _shy = _axTraj[0, 0] if _col > 0 else None
+        axt = fig.add_subplot(gsTraj[0, _col], sharey=_shy)
+        _axTraj[_ai, _ci] = axt
+        _cv = _traj_curves(_D, _yy, _train, _gfun, _orient, _stg)
+        for _lab, (_mu, _se, _c, _lick) in _cv.items():
+            axt.plot(xtime, _mu, color=_c, lw=1.8 if _lick else 1.4, ls='-' if _lick else '--',
+                     label=_lab, zorder=3)
+            axt.fill_between(xtime, _mu - _se, _mu + _se, color=_c, alpha=0.15, lw=0, zorder=1)
+        axt.axhline(0, color='0.8', lw=0.6, zorder=0)
+        axt.axvspan(xtime[42], xtime[45], color='0.85', alpha=0.4, lw=0, zorder=0)   # GNG reward
+        axt.axvspan(xtime[60], xtime[72], color='0.9', alpha=0.35, lw=0, zorder=0)   # DPA response
+        add_vlines(axt, if_dpa=0)
+        axt.set_xlim([0, 14]); axt.set_xticks([0, 2, 4.5, 6.5, 9, 11, 14]); axt.tick_params(labelsize=6.5)
+        axt.set_xlabel('Time (s)', fontsize=8)
+        if _ci == 0:
+            axt.set_ylabel(f'proj. on\n{_alab}', fontsize=7.5)
+        if _ai == 0 and _ci == 0:
+            axt.text(xtime[43], 0.98, 'GNG\naction', transform=axt.get_xaxis_transform(),
+                     fontsize=6, va='top', color='0.4')
+            axt.text(xtime[64], 0.98, 'DPA\naction', transform=axt.get_xaxis_transform(),
+                     fontsize=6, va='top', color='0.4')
+            axt.legend(frameon=False, fontsize=5.6, loc='lower left', handlelength=1.3,
+                       labelspacing=0.25, borderaxespad=0.15)
+        axt.set_title(f'{_alab.split()[0]} axis · {_stg}', fontsize=7)
 
-# ── A code-alignment: pairwise |cos| between code axes, Naive→Expert (dPCA-style mixing) ──
-axCos = fig.add_subplot(gsAdp[0, 4])
-axCos.axhline(COS_CHANCE, ls=':', color='0.6', lw=0.8, zorder=1)                   # chance |cos| floor
-axCos.text(-0.25, COS_CHANCE, 'chance', ha='left', va='bottom', fontsize=5.5, color='0.6')
-_LSH = {'sample': 'S', 'choice': 'C', 'test': 'T'}
-_sig_i = 0                                                                          # stagger sig-pair labels
-for _pr in COS_PAIRS:
-    _cN = cosmix[_pr]['naive'].mean(); _cE = cosmix[_pr]['expert'].mean()
-    _tp = float(ttest_rel(cosmix[_pr]['expert'], cosmix[_pr]['naive']).pvalue)
-    _sig = _tp < 0.05                                                               # data-driven highlight
-    _col = '#cc3311' if _sig else '0.75'
-    axCos.plot([0, 1], [_cN, _cE], '-o', color=_col, lw=2.4 if _sig else 1.0,
-               ms=6 if _sig else 3, zorder=5 if _sig else 2)
-    if _sig:
-        _star = '***' if _tp < 0.001 else ('**' if _tp < 0.01 else '*')
-        axCos.annotate(f'{_LSH[_pr[0]]}–{_LSH[_pr[1]]} {_star}', (1, _cE), xytext=(5, 6 - 12 * _sig_i),
-                       textcoords='offset points', va='center', ha='left', color=_col,
-                       fontsize=6.5, fontweight='bold')
-        _sig_i += 1
-    print(f'A cos[{_pr[0]}-{_pr[1]}] |cos| N={_cN:.3f}→E={_cE:.3f} paired-t p={_tp:.3f}')
-axCos.set_xticks([0, 1]); axCos.set_xticklabels(['Naive', 'Expert'], fontsize=7)
-axCos.set_xlim(-0.3, 1.75); axCos.set_ylim(bottom=0.0)
-axCos.set_title('code alignment', fontsize=8)
-axCos.set_ylabel('|cos| between codes', fontsize=7.5)
-
-# ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
 gsB = gs[3, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter
 # data-driven limits, DECOUPLED x (sample code) and y (choice code) so neither axis wastes space
 # (aspect stays equal → the box just goes rectangular). x fits the mean±SEM sample trajectory; y is

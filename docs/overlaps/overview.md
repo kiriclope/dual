@@ -136,35 +136,47 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   cells, stage-resolved), `fig_overlaps_depth_sdt_sample.py` (within-pair, sample-split),
   `fig_overlaps_depth_fa_cr.py` (FA-vs-CR, the panel-D source; adds an all-mouse trial-level LMM —
   ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
-- **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 2026-07-13).** The
+- **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 5-row, redesigned 2026-07-15).** The
   publication figure (NN typography, `figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.png`).
   **CHOICE training axis (drives the choice trace + depth B/C/D): default = full `trainLD_TEST`
   bins 45–59** — the test bins carry the lick/no-lick contrast, so the choice trace shows clear
   discrimination (Expert lick↑/no-lick↓), plus clean B trajectories and the ΔDPA coupling star; flags
-  `--ld` (pure pre-test 45–53) and `--ld05` (LD/TEST boundary 51–56). Sample/test/task use their OWN
+  `--ld` (pure pre-test 45–53) and `--ld05` (LD/TEST boundary 51–56). Sample/test use their OWN
   generalization best-axes (independent of the choice axis). Choice-code depth read over the LD epoch
   `BINS_LATE = bins_LD` 45–53 (pre-test) in every quantitative panel — unified with the opto figure
   (2026-07-15, narrowed from the broad 27–53; ΔDPA stays ★ p=.026 under the C(sample) mixed model, so
   the old Spearman-driven "27–53 only" pin is superseded). The push's decision-not-response defense
   rests on this readout window (ends bin 53, before test onset), not the training axis.
-  - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code
-    column, **plus a d′ scatter row for sample/test/task** (choice DROPPED). Each code is decoded on
-    its **generalization best axis** — trained AND read at its diagonal plateau (sample 2.7–7.9 s
-    d′=2.0, test 9.8–14 s d′=1.1, task 5.6–9.4 s on the choice axis d′=0.19), and the traces above use
-    the same best axes. All three are **decodable and STABLE with learning** (sample Δ=−0.17 p=0.19,
-    test Δ=+0.21 p=0.15, task Δ=+0.47 p=0.077 — all n.s.). **Choice is deliberately not a d′ scatter:**
-    pre-test it is at chance (the DPA decision cannot form until the test odour; its only decodable
-    window is response/lick), so its learning story is carried by the code-alignment panel + B–D. The
-    4th cell shows **code alignment** (dPCA-style |cos| between code axes, decoder weights, late-delay
-    BINS_LATE, Naive→Expert): codes near-orthogonal, and the **choice code demixes from both stimulus
-    codes** with learning (sample–choice `*` p=0.017, choice–test `***` p<0.001; sample–test at chance).
-    (Earlier "task d′ p=0.019 `*`" was an OFF-diagonal artifact — on the honest diagonal task is p=0.077.)
-    A **5th code = GNG (Go/NoGo)** was added: a DEDICATED Go-vs-NoGo decoder (`run_overlaps.py --targets
-    gng`; trained on Dual trials, generalizing) — unlike the "task code" which reads Go/NoGo off the choice
-    axis. It separates Go/NoGo strongly (d′≈1.9/2.7 Naive/Expert vs choice-on-GNG 0.06/0.59), on an axis
-    **orthogonal to choice/sample/test** (|cos|≤chance), diverging at distractor onset (~5 s). **GNG d′
-    Δ=+0.72 p=0.017 `*` is the only significant d′ learning effect** (task/distractor code sharpens with
-    learning). Standalone comparison: `fig_overlaps_gng_compare.py` → figures/overlaps/gng/.
+  - **A** — 2×4 code TRACE grid (sample/choice/test/**GNG** × Naive-top/Expert-bottom), y shared per
+    stimulus-code column (GNG own scale). The **task code was removed** (it read Go/NoGo off the choice
+    axis, d′≈0.1, redundant with the real GNG decoder). The **GNG code is now the mid-delay memory axis**
+    — the dedicated Go-vs-NoGo decoder (`run_overlaps.py --targets gng`, trained on Dual trials,
+    generalizing) trained at `bins_MD` (33–38) and read across time: Go↑/NoGo↓ diverge at mid-delay
+    (~6.5 s) and hold, sharper in Expert = a working-memory readout. Below the traces, a **3rd row shows
+    the SHARED-ACTION TRAJECTORIES** (4 cells): both tasks projected onto **each lick axis** over time —
+    GNG lick axis (Naive|Expert) and DPA choice axis (Naive|Expert). Each axis is defined by fixing the
+    generalizing-tensor train window at that task's action/reward window (GNG 42–54, DPA response 60–72)
+    and reading the decision value across test-time (no retraining — the cross-temporal tensor already
+    holds every task on every axis). **Symmetric result on both axes:** GNG Go rises at the GNG action
+    (~7 s), DPA lick rises at the DPA action (~10 s), both no-lick conditions go negative, sharper in
+    Expert ⇒ the lick command is ONE shared action code, engaged whenever each task calls for the action.
+    (GNG uses stim category `gng` on the GNG-axis rows; on the choice-axis rows `gng` is NaN so it uses
+    task class DualGo/DualNoGo. Prototype twin `fig_overlaps_action_traj.py` → figures/overlaps/action/.)
+    **The d′ scatters, code-alignment cosine, and weight-space shared-action heatmaps moved to a new
+    supplement** — see below. Standalone GNG comparison: `fig_overlaps_gng_compare.py` → figures/overlaps/gng/.
+  - **Supplement (`fig_overlaps_codes_supp.py` → `figures/overlaps/main/fig_overlaps_codes_supp.png`).**
+    Holds what was pulled out of panel A. **Row 1** = per-mouse neural **d′** (Naive x vs Expert y, unity
+    = unchanged) for sample / test / GNG on their generalization best-axes (all decodable + STABLE:
+    sample Δ=−0.17 p=0.19, test Δ=+0.21 p=0.15; **GNG d′ Δ=+0.72 p=0.017 `*`, the one significant d′
+    learning effect**) + **code alignment** (|cos| between code axes, decoder weights, broad late-delay
+    27–53, Naive→Expert): codes near-orthogonal, **choice code demixes from both stimulus codes** with
+    learning (sample–choice `*` p=0.017, choice–test `***` p<0.001; sample–test at chance). Choice is not
+    a d′ scatter (pre-test at chance — the DPA decision can't form until the test odour). **Row 2** =
+    weight-space **shared-action** corroboration: choice axis (DPA lick) × gng axis (Go/NoGo lick)
+    cross-cosine at every epoch pair, Naive|Expert — orthogonal during the delay (diagonal ≈ chance) but
+    ALIGNED off-diagonally at each task's action/reward moment (boxed DPA resp/rwd 60–84 × GNG rwd 42–60),
+    strengthening with learning (action-block cos Naive +0.15 → Expert +0.24, Δ paired-t p=0.005). This
+    is the weight-space version of panel A's shared-action trajectories.
   - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
     KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
     Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
