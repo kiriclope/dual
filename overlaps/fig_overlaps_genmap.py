@@ -32,12 +32,16 @@ sns.set_context('notebook'); sns.set_style('ticks')
 
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
+CORRECT = '--all' not in sys.argv[1:]     # default correct-only; --all uses all-trials decoders
+CTAG = '_correct' if CORRECT else ''
+TSET = 'correct' if CORRECT else 'all'
 if L1:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
 elif LDA:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_lda',         'lda_', '_lda', 'shrinkage-LDA'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_lda',         'lda_', '_lda', 'shrinkage-LDA'
 else:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+DLAB = f'{DLAB} · {TSET} trials'
 BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 
 DATA_IN = '../data/overlaps'
@@ -51,7 +55,7 @@ CODES = [('sample', 'sample', 'sample_odor', 'dpa'), ('choice', 'choice', 'choic
          ('test',   'test',   'test_odor',   'dpa'), ('gng',    'gng',    'gng',    'gng')]
 
 VDIR = 'l1' if L1 else 'lda' if LDA else 'l2'   # decoder variant → own subfolder
-OUT = f'figures/overlaps/cosine/{VDIR}'
+OUT = f'figures/overlaps/cosine/{TSET}/{VDIR}'  # trial set (correct|all) → variant
 for sub in ('png', 'svg'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
@@ -86,8 +90,11 @@ for j, (name, tgt, col, ctx) in enumerate(CODES):
     tm = (yb.target == tgt).to_numpy()
     Xt = Xb[tm][:, 1].astype(float); yt = yb[tm].reset_index(drop=True)
     mouse = yt.mouse.to_numpy(); lz = yt.laser.to_numpy() == 0; sg = yt.learning.to_numpy() == STAGE
-    ok = (lz & sg & (yt.performance.to_numpy() == 1) & (yt.tasks.to_numpy() == 'DPA')) if ctx == 'dpa' \
-        else (lz & sg & (yt.tasks.to_numpy() != 'DPA'))
+    # trials match the decoder set: correct → DPA perf==1, GNG perf==1 & odr_perf==1; all → no perf filter
+    perf = (yt.performance.to_numpy() == 1) if CORRECT else np.ones(len(yt), bool)
+    odr  = (yt.odr_perf.to_numpy() == 1)    if CORRECT else np.ones(len(yt), bool)
+    ok = (lz & sg & perf & (yt.tasks.to_numpy() == 'DPA')) if ctx == 'dpa' \
+        else (lz & sg & (yt.tasks.to_numpy() != 'DPA') & perf & odr)
     yv = yt[col].to_numpy()
     per = []
     for m in MICE:

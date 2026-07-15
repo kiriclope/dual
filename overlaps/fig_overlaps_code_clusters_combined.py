@@ -29,13 +29,24 @@ sns.set_context('notebook'); sns.set_style('ticks')
 
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
-# Correct-only decoders (fit on performance==1 & (DPA | odr_perf==1) trials; run_overlaps --correct).
+# --eqnorm: normalize each mouse's trajectory by its SIGNAL scale (whole-trial std) instead of the
+# baseline std, so every mouse contributes ~equally to the average (democratic, not SNR-weighted).
+# Baseline-std normalization lets 2-3 high-SNR mice dominate the mean amplitude (7× spread); the shape
+# is robust either way, but --eqnorm makes the amplitude an honest per-mouse mean. Routed to a separate
+# eqnorm/ subdir for side-by-side comparison.
+EQNORM = '--eqnorm' in sys.argv[1:]
+# Trial set: default correct-only (run_overlaps --correct); --all uses all-trials decoders.
+# Routed to figures/overlaps/cosine/{correct,all}/{l2,l1,lda}/[eqnorm/].
+CORRECT = '--all' not in sys.argv[1:]
+CTAG = '_correct' if CORRECT else ''
+TSET = 'correct' if CORRECT else 'all'
 if L1:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
 elif LDA:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_lda',         'lda_', '_lda', 'shrinkage-LDA'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_lda',         'lda_', '_lda', 'shrinkage-LDA'
 else:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_correct_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+DLAB = f'{DLAB} · {TSET} trials'
 BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 
 DATA_IN = '../data/overlaps'
@@ -72,7 +83,9 @@ CODES = [
 ]
 
 VDIR = 'l1' if L1 else 'lda' if LDA else 'l2'   # decoder variant → own subfolder
-OUT = f'figures/overlaps/cosine/{VDIR}'
+OUT = f'figures/overlaps/cosine/{TSET}/{VDIR}'  # trial set (correct|all) → variant
+if EQNORM:
+    OUT = f'{OUT}/eqnorm'                        # equal-weight (signal-scale) trajectories → own subdir
 for sub in ('png', 'svg'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
@@ -232,19 +245,25 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
     Xt = Xb[tm][:, 1].astype(float)
     yt = yb[tm].reset_index(drop=True)
     mouse = yt.mouse.to_numpy(); sg = yt.learning.to_numpy(); lz = yt.laser.to_numpy() == 0
-    # correct-only, matching the correct-fit decoders: DPA needs performance==1; GNG (Dual) needs the
-    # go/nogo response correct too (odr_perf==1), i.e. the same rule dataloader(correct=True) applies.
-    ok = (lz & (yt.performance.to_numpy() == 1) & (yt.tasks.to_numpy() == 'DPA')) if context == 'dpa' \
-        else (lz & (yt.tasks.to_numpy() != 'DPA') & (yt.performance.to_numpy() == 1)
-              & (yt.odr_perf.to_numpy() == 1))
+    # Trajectory trials match the decoder's trial set. correct: DPA needs performance==1; GNG (Dual) needs
+    # the go/nogo response correct too (odr_perf==1) — the same rule dataloader(correct=True) applies.
+    # all: no performance filter (every laser-off trial of the right task).
+    perf = (yt.performance.to_numpy() == 1) if CORRECT else np.ones(len(yt), bool)
+    odr  = (yt.odr_perf.to_numpy() == 1)    if CORRECT else np.ones(len(yt), bool)
+    ok = (lz & perf & (yt.tasks.to_numpy() == 'DPA')) if context == 'dpa' \
+        else (lz & (yt.tasks.to_numpy() != 'DPA') & perf & odr)
     lab_v = yt[col].to_numpy()
 
     def blz(trace):
+        # per mouse: subtract baseline mean; divide by baseline std (default) or, with --eqnorm, by the
+        # SIGNAL scale = whole-trial std (over trials × time), so each mouse contributes ~equally rather
+        # than being amplified by a small baseline std.
         Z = np.full_like(trace, np.nan)
         for mo in MICE:
             mm = mouse == mo
             z = trace[mm] - trace[mm][:, BL].mean()
-            Z[mm] = z / (trace[mm][:, BL].std() + 1e-9)
+            scale = trace[mm].std() if EQNORM else trace[mm][:, BL].std()
+            Z[mm] = z / (scale + 1e-9)
         return Z
 
     band = outer[r, 1].subgridspec(1, NCOLS, wspace=0.28)
@@ -277,9 +296,10 @@ for r, ((title, target, col, levels, context), Mdisp, mblocks, windows, tnames) 
 cax = fig.add_axes([0.005, 0.35, 0.008, 0.30])
 fig.colorbar(im_mat, cax=cax, label='cosine'); cax.yaxis.set_ticks_position('left')
 cax.yaxis.set_label_position('left')
+NORMLAB = 'equal-weight z (signal-scale)' if EQNORM else 'baseline-z'
 fig.suptitle(f'Code read windows (left, boxes on the cosine matrix; data-driven squares, all-pairs cos ≥ '
-             f'{THR}, complete-linkage, stage-pooled, per code) and each window read across test-time (right) — '
-             f'{STAGE}   ·   {DLAB}', fontsize=13, y=0.975)
+             f'{THR}, complete-linkage, stage-pooled, per code) and each window read across test-time (right; '
+             f'{NORMLAB} per mouse) — {STAGE}   ·   {DLAB}', fontsize=13, y=0.975)
 NAME = 'raw' if CLUSTER_RAW else 'epoch'      # epoch-averaged vs raw 84-bin left matrix, both windowed
 p = os.path.join(OUT, 'png', f'overlaps_code_{NAME}_combined_{STAGE.lower()}.png')
 fig.savefig(p, dpi=200, bbox_inches='tight')

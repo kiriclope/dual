@@ -199,9 +199,11 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     expected, not a bug.
   - **Cosine read-window figures (`fig_overlaps_cosine_matrices.py`).** Discriminant-axis cosine over
     the four decoder codes (sample/choice/test/GNG), from the bundled weights. Decoders are **correct-only**
-    by default (`run_overlaps.py --correct`; fit on `performance==1 & (DPA | odr_perf==1)`), variants
-    `--l1`/`--lda`. Outputs are split by decoder variant into **subfolders `figures/overlaps/cosine/{l2,l1,lda}/`**
-    (filenames carry no `_l1`/`_lda` suffix — the folder encodes it). Families per stage: `overlaps_cosine_matrices_*`
+    by default (`run_overlaps.py --correct`; fit on `performance==1 & (DPA | odr_perf==1)`); pass **`--all`**
+    to use the all-trials decoders. Variants `--l1`/`--lda`. Outputs are split by **trial set then decoder
+    variant** into **subfolders `figures/overlaps/cosine/{correct,all}/{l2,l1,lda}/`** (filenames carry no
+    `_l1`/`_lda` suffix — the folder encodes it; titles tag `· correct trials` / `· all trials`). All five
+    cosine scripts below take `--all`. Families per stage: `overlaps_cosine_matrices_*`
     (plain time×time 84×84: diagonal = within-code stability, upper triangle = cross-code alignment),
     `overlaps_cosine_epochs_*` (plain coarse epoch grid, values printed), and the **read-window** figures
     `overlaps_cosine_epoch_*` (epoch-averaged 10×10) / `overlaps_cosine_raw_*` (`--rawclust`, raw 84-bin) —
@@ -218,10 +220,21 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     **correct trials**; GNG trajectory filtered `performance==1 & odr_perf==1` to match the decoder) — showing
     what each sub-code represents over the trial. Combined fig = one band per code (LEFT epoch/raw cosine matrix
     with the squares + RIGHT one trajectory column per window, count varies per code) → `overlaps_code_epoch_combined_*`
-    / `overlaps_code_raw_combined_*`; flags `--l1`/`--lda`, `--naive`, `--rawclust`, with sample/distractor/test
-    event bands. Finding: sample & GNG each carry one dominant stable code; choice/test drift through a
-    fragmented, flat delay and only lock a task-relevant code (lick / C-D) at the response.
-  - **Read-window method supplements** (same `cosine/{l2,l1,lda}/` subfolders): `fig_overlaps_genmap.py`
+    / `overlaps_code_raw_combined_*`; flags `--l1`/`--lda`, `--naive`, `--rawclust`, `--all`, with
+    sample/distractor/test event bands. In `--all` mode the trajectory drops the performance filter (every
+    laser-off trial of the right task). Finding: sample & GNG each carry one dominant stable code; choice/test
+    drift through a fragmented, flat delay and only lock a task-relevant code (lick / C-D) at the response.
+  - **Trajectory normalization (`--eqnorm`).** Per-mouse trajectories default to **baseline-z** (subtract
+    baseline mean, ÷ baseline std). Diagnostic (2026-07-15): no mouse is a bad decoder (Expert correct peak
+    AUC ≥0.62 for every mouse×code; test weakest, mean 0.81), so cosines — unit-normalized, scale-invariant —
+    are safe to average. BUT baseline-z does **not** equalize trajectory amplitude: baseline std varies 6×
+    across mice, so 2–3 high-SNR mice dominate the mean (sample peak |A−B| spans 1.9→13.1 z, 7×; top mouse
+    ~27% of the summed amplitude). The **shape is robust** (amplitude-weighted vs equal-weight mean r=0.99;
+    drop top-2 mice r=0.98) so no conclusion changes, but the y-axis is SNR-weighted. **`--eqnorm`** divides
+    each mouse by its **signal scale (whole-trial std)** instead → a democratic per-mouse mean (y-axes ~O(1));
+    output to a separate **`.../{trialset}/{variant}/eqnorm/`** subdir for side-by-side comparison. Use eqnorm
+    for the honest amplitude / to pre-empt "driven by 2 mice?".
+  - **Read-window method supplements** (same `cosine/{correct,all}/{l2,l1,lda}/` subfolders): `fig_overlaps_genmap.py`
     (cross-temporal DECODING-AUC vs chance 0.5 per code), `fig_overlaps_cosgen.py` (cross-temporal cosine vs the
     CROSS-CODE null), `fig_overlaps_eigenmap.py` (per-code spectral segmentation of the raw cosine map) — three
     independent methods that agree GNG reorganizes at the distractor/cue while sample stays one block.

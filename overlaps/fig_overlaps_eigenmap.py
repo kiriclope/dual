@@ -29,12 +29,16 @@ sns.set_context('notebook'); sns.set_style('ticks')
 
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
+CORRECT = '--all' not in sys.argv[1:]     # default correct-only; --all uses all-trials decoders
+CTAG = '_correct' if CORRECT else ''
+TSET = 'correct' if CORRECT else 'all'
 if L1:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_1.0', 'l1_', '_l1', 'L1 (lasso)'
 elif LDA:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_lda',         'lda_', '_lda', 'shrinkage-LDA'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_lda',         'lda_', '_lda', 'shrinkage-LDA'
 else:
-    DUM, PFX, SUF, DLAB = 'log_generalizing_overlaps_none_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+    DUM, PFX, SUF, DLAB = f'log_generalizing_overlaps_none{CTAG}_l1_ratio_0.0', '',    '',    'ridge (logistic L2)'
+DLAB = f'{DLAB} · {TSET} trials'
 BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
 
 DATA_IN = '../data/overlaps'
@@ -45,7 +49,7 @@ xtime = np.linspace(0, 14, 84)
 CODES = ['sample', 'choice', 'test', 'gng']
 
 VDIR = 'l1' if L1 else 'lda' if LDA else 'l2'   # decoder variant → own subfolder
-OUT = f'figures/overlaps/cosine/{VDIR}'
+OUT = f'figures/overlaps/cosine/{TSET}/{VDIR}'  # trial set (correct|all) → variant
 for sub in ('png', 'svg'):
     os.makedirs(os.path.join(OUT, sub), exist_ok=True)
 
