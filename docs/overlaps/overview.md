@@ -169,10 +169,20 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     mean±SEM bars). Stat = deepening mixed model `depth ~ stage + sample + (1|mouse)` **β=−0.68 p=0.023
     `*`** (default LD_TEST axis). (The per-mouse paired-t / delta test is only a directional n.s.
     trend — the random-intercept model is the less-conservative estimator chosen for uniformity with C.)
-  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + (1|mouse)` (ΔDPA β=−0.031 **p=0.016 `*`**,
-    ΔGNG p=0.31 n.s.). Training-axis-sensitive (loses the star on the 51–56 `--ld05` axis, p=0.065). Do
-    NOT report the pseudoreplicated n=18 correlation.
+  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + C(sample) + (1|mouse)` (ΔDPA β=−0.031
+    **p=0.020 `*`**, ΔGNG p n.s.); `C(sample)` added 2026-07-15 so the RHS matches B. Training-axis-
+    sensitive (loses the star on the 51–56 `--ld05` axis). Do NOT report the pseudoreplicated n=18
+    correlation. **B vs C have different N by design (36 vs 18 obs) — NOT an inconsistency:** B stacks
+    the two stages (per mouse×sample×stage; tests the `stage` deepening), C uses Expert−Naive DIFFERENCES
+    (per mouse×sample; tests the `Δdepth` coupling). Same RHS form, different DV level. Making C 36-obs
+    would pool within-mouse learning change with between-mouse baseline → weakens the causal read →
+    rejected. B = "effect exists", C = "effect is behaviourally relevant"; captions print both N so the
+    mismatch reads as intentional.
   - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.006 / BC n.s.).
+  - **`--eqnorm` (2026-07-15)** — equal-weight normalization (per-mouse whole-trial std instead of
+    baseline std) → democratic per-mouse mean, output to `figures/overlaps/main/eqnorm/`. All headline
+    stats survive (B p=0.014, C ΔDPA p=0.028, D p=0.003). Panel B 2D plane limits are now data-driven
+    (symmetric square from the mean±SEM trajectories + delay KDE, ×1.18 margin) rather than fixed.
   - **Shared conventions:** B/C/D use ONE per-mouse palette (`MOUSE_COLOR`, same mouse = same colour);
     B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
     a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file

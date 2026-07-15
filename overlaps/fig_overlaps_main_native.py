@@ -19,8 +19,8 @@ Layout (4-row gridspec, print-scale typography ~7 pt):
      pairs joined, black mean±SEM bars). Stat = deepening mixed model depth ~ stage + sample +
      (1|mouse) (β=−0.68, p=0.023).                                     (← plot_traj2d.py --all --dpa-only)
   C  Δ depth vs Δ performance (Expert−Naive), A&B-independent: ΔDPA (sig `*`) & ΔGNG (null).
-     Stat = mouse-respecting MIXED MODEL (Δperf ~ Δdepth + (1|mouse); ΔDPA β=−0.03 p=0.016) —
-     NOT the pseudoreplicated n=18 correlation.                           (← plot_scatter_perf.py --dpa-panel)
+     Stat = mouse-respecting MIXED MODEL matching panel B's form: Δperf ~ Δdepth + C(sample) + (1|mouse)
+     — NOT the pseudoreplicated n=18 correlation.                         (← plot_scatter_perf.py --dpa-panel)
   D  DPA choice-code depth on NONPAIRED trials, correct-rejection vs false-alarm, Naive, split
      by sample (AD=A, BC=B); per-mouse colours (panel-C palette), corr-rej filled / false-alarm open,
      black mean±SEM bars. Clean test of the well↔behaviour link: false alarms sit in shallower
@@ -137,6 +137,11 @@ elif LDA:                                                              # shrinka
     AXIS_LABEL += ', LDA'
 else:
     PFX = ''
+# --eqnorm: per-mouse normalisation divides by each mouse's SIGNAL scale (whole-trial std) instead of
+# its BASELINE std, so every mouse contributes ~equally to the averaged codes/push rather than the mean
+# being SNR-weighted toward the 2-3 highest-SNR mice (baseline std varies ~6× across mice). Shape/story
+# are robust; eqnorm just makes the amplitude an honest per-mouse mean. → figures/overlaps/main/eqnorm/.
+EQNORM = '--eqnorm' in sys.argv[1:]
 # Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),
 # mirroring the run_overlaps `--targets sample choice test gng` layout. (Ridge: assembled by
 # concatenating the legacy main + gng files, which many other scripts still load separately.)
@@ -181,11 +186,11 @@ _tr_test   = X[:, 1, np.arange(58, 84), :].mean(1).astype(float)
 _tr_task   = X[:, 1, np.arange(33, 57), :].mean(1).astype(float)
 del X                                                                  # free ~1.9 GB
 
-# normalisation variant used by B/C/D (per-mouse BINS_BL std)
+# normalisation variant used by B/C/D (per-mouse BINS_BL std; --eqnorm → whole-trial signal std)
 X_bl = raw.copy()
 for mo in ALL_MICE:
     mm = (y.mouse == mo).values
-    sd = X_bl[mm][:, BINS_BL].std()
+    sd = X_bl[mm].std() if EQNORM else X_bl[mm][:, BINS_BL].std()
     if sd > 0:
         X_bl[mm] /= sd
 
@@ -336,11 +341,12 @@ delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
 
 
 def _panelC_lmm(perf_dict):
-    # Δperf ~ Δdepth + (1|mouse) over the 18 (mouse × sampleclass) observations.
-    rows = [dict(mouse=mo, dd=delta_choice_sample[(mo, cls)], dp=perf_dict[(mo, cls)])
+    # Δperf ~ Δdepth + C(sample) + (1|mouse) — SAME covariate form as panel B's deepening model
+    # (depth ~ st + C(sample) + (1|mouse)); the sample-class fixed effect controls for the A/B split.
+    rows = [dict(mouse=mo, cls=cls, dd=delta_choice_sample[(mo, cls)], dp=perf_dict[(mo, cls)])
             for mo in ALL_MICE for cls, _ in D_SAMPLE_CLASSES]
     d = pd.DataFrame(rows).dropna()
-    fit = smf.mixedlm('dp ~ dd', d, groups=d['mouse']).fit()
+    fit = smf.mixedlm('dp ~ dd + C(cls)', d, groups=d['mouse']).fit()
     return float(fit.params['dd']), float(fit.pvalues['dd']), d['mouse'].nunique(), len(d)
 
 
@@ -452,7 +458,7 @@ def _draw_traj_B(ax, stage, xlim, ylim):
     ax.axvline(0, color='0.85', lw=0.6, zorder=0)
     ax.set_xlim(xlim); ax.set_ylim(ylim)
     ax.set_aspect('equal', adjustable='box')
-    ax.set_xticks([-4, -2, 0, 2, 4]); ax.set_yticks([-2, 0, 2, 4, 6])
+    ax.locator_params(axis='both', nbins=5)                               # adaptive ticks (limits are data-driven)
     ax.tick_params(length=3, width=0.9)
 
 
@@ -511,7 +517,7 @@ def _draw_codes_row(axes_row, base, stage_label, show_titles, show_xlabel):
         for mo in ALL_MICE:                                            # per-mouse BL z of the code
             mm = (y.mouse == mo).to_numpy() & (y.target == code).to_numpy()
             z = src[mm]; z = z - z[:, BL_A].mean()
-            Zc[mm] = z / (src[mm][:, BL_A].std() + 1e-9)
+            Zc[mm] = z / ((src[mm].std() if EQNORM else src[mm][:, BL_A].std()) + 1e-9)
         for lv, lab, color in zip(levels, labs, cols):
             per_mouse = []
             for mo in ALL_MICE:
@@ -537,7 +543,7 @@ def _draw_gng(ax, stage, show_title, show_xlabel):
     for mo in ALL_MICE:                                                # per-mouse BL z
         mm = (yg.mouse == mo).to_numpy() & (yg.target == 'gng').to_numpy()
         z = _gng_tr[mm]; z = z - z[:, BL_A].mean()
-        Zc[mm] = z / (_gng_tr[mm][:, BL_A].std() + 1e-9)
+        Zc[mm] = z / ((_gng_tr[mm].std() if EQNORM else _gng_tr[mm][:, BL_A].std()) + 1e-9)
     base = ((yg.laser == 0) & (yg.learning == stage) & (yg.tasks != 'DPA')
             & (yg.target == 'gng')).to_numpy()
     for lv, lab, color in [(0, 'NoGo', '#2ca02c'), (1, 'Go', '#1f77b4')]:
@@ -660,7 +666,22 @@ axCos.set_ylabel('|cos| between codes', fontsize=7.5)
 
 # ── B: no-lick push planes (Naive | Expert) + choice-dist strips — left half ───
 gsB = gs[3, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)   # B full row: Naive traj|kde, Expert traj|kde, push scatter
-xlimB, ylimB = (-4, 4), (-2, 6)
+# data-driven square limits: fit the mean±SEM push trajectories + choice-code delay KDE, 18% margin
+# (aspect is equal, so one symmetric range). Adapts to the normalisation — the old fixed (-4,4)/(-2,6)
+# dwarfed the eqnorm trajectories.
+_vals = []
+for _stg in STAGES:
+    for _pid in PAIR_LABELS:
+        _xs, _ys = trajB[_stg][_pid]
+        if not _xs or not _ys:
+            continue
+        _ax = np.stack(_xs, 0)[:, :TRAJ_END]; _ay = np.stack(_ys, 0)[:, :TRAJ_END]
+        _nm = _ax.shape[0]
+        _vals.append(np.abs(_ax.mean(0)) + _ax.std(0, ddof=1) / np.sqrt(_nm))
+        _vals.append(np.abs(_ay.mean(0)) + _ay.std(0, ddof=1) / np.sqrt(_nm))
+        _vals += [np.abs(np.asarray(_yt)[BINS_DELAY]) for _yt in _ys]     # KDE delay values must fit
+_rB = float(np.concatenate(_vals).max()) * 1.18 if _vals else 4.0
+xlimB, ylimB = (-_rB, _rB), (-_rB, _rB)
 axB_traj, axB_hist = [], []
 ax0 = None
 for ci, stage in enumerate(STAGES):
@@ -803,7 +824,7 @@ panel_letter(axB_traj[0], 'B')
 panel_letter(axC[0], 'C')
 panel_letter(axD, 'D', x=0.655)
 
-OUT = 'figures/overlaps/main'
+OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}.{ext}'
