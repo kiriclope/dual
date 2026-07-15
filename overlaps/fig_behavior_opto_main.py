@@ -21,8 +21,17 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
   H  Δ DPA choice-code depth (on−off)  vs  Δ DPA accuracy   (5 Jaws; Naive▲+Expert● × A&B, 20 pts)
   I  Δ DPA choice-code depth (on−off)  vs  Δ GNG accuracy   (the coupled one; r=−0.61 p=.004,
      ρ=−0.56 p=.011 — a between-animal coupling; per-mouse-mean r=−0.80, robust across slicings)
+     NB the DRAWN G–I stat is the 20-point correlation (kept per user choice). A mouse-respecting
+     mixed model `Δacc ~ Δdepth + C(sample) + (1|mouse)` (same form as the main non-opto fig panel
+     C) is printed to stdout as the honest caveat: the ΔGNG arm I survives (β=−0.014 p=0.023) but
+     the trade-off G drops to n.s. (β=+0.021 p=0.145) — the 20 pts are 5 mice × stage × sample, so
+     the raw p is anti-conservative. Dropping C(sample) does not rescue G (p→.158): it's the
+     (1|mouse) clustering, not the covariate. Adding C(stage) doesn't rescue G either (p=.147) and
+     costs I its star (p=.023→.052). See `_gi_lmm`.
   Depth read on the trainLD_TEST axis (bins 45-59, main-overlaps-fig convention); readout window
-  27-53 (delay, pre-response); G–I square, all trials.
+  = LD epoch bins_LD 45-53 (pre-test late delay, narrowed from the broad 27-53 per user 2026-07-15
+  — the coupling is readout-robust and end-of-delay is slightly cleaner; NB the main non-opto fig
+  still reads 27-53, so the two figures' depth windows now differ); G–I square, all trials.
   ── Last row: behavioural balance under silencing + code discriminability (recorded, 5 Jaws) ──
   J  DPA vs GNG performance in laser-ON trials (balance plane of the non-opto main figure),
      5 Jaws × {Naive○, Expert●} = 10 pts; optimal corner starred (r=+0.44 p=0.20, descriptive).
@@ -101,6 +110,11 @@ _STMK = {'Expert': 'o', 'Naive': '^'}        # Expert circle / Naive triangle (s
 # --poster : simplified poster variant — swap the D/E recorded LEARNING CURVES for two
 # perf ON-vs-OFF scatters (DPA & GNG, sample A/B × Naive/Expert, Jaws); writes _poster file.
 POSTER = '--poster' in sys.argv[1:]
+# --eqnorm : equal-weight normalization — divide each mouse's choice-code depth trace by its
+# WHOLE-TRIAL std (signal scale) instead of BASELINE std, so the per-mouse depth Δ (F–J) is not
+# SNR-weighted toward the highest-baseline-SNR mice (baseline std varies across mice). d′ panels
+# (K,L) are scale-invariant → unchanged. Writes to a separate eqnorm/ subdir.
+EQNORM = '--eqnorm' in sys.argv[1:]
 
 JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']   # ACC→Prl INHIBITION
 CHR  = ['ChRM04', 'ChRM23']                                      # ACC→Prl EXCITATION
@@ -116,7 +130,7 @@ DATA_IN = '../data/overlaps'
 BATCH = 'DualTask-Silencing-ACC-Prl'
 DATA_ROOT = '/storage/leon/dual_task/data/behavior'
 
-OUT = 'figures/overlaps/behavior'
+OUT = 'figures/overlaps/behavior/eqnorm' if EQNORM else 'figures/overlaps/behavior'
 for sub in ('png', 'svg', 'assets'):
     os.makedirs(f'{OUT}/{sub}', exist_ok=True)
 
@@ -143,16 +157,16 @@ options = set_options(
     days=['first', 'last'],
 )
 BINS_BL = options['bins_BL']
-BINS_LATE = np.arange(27, 54)                                    # test-time late-delay window
+BINS_LATE = np.asarray(options['bins_LD'])                       # LD epoch 45-53 (pre-test late delay, NOT the broad 27-53)
 
 
 def _depth_on_axis(bins_train):
     """Per-trial late-delay DPA choice-code depth read on `bins_train` (train axis),
-    per-mouse BL-std normalised."""
+    per-mouse normalised — by BASELINE std (default) or WHOLE-TRIAL std (--eqnorm)."""
     Xe = X[..., bins_train, :].mean(-2)[:, 1].astype(float)     # (n, 84) over test-time
     for m in LASER_MICE:
         mm = (y.mouse == m).values
-        sd = Xe[mm][:, BINS_BL].std()
+        sd = Xe[mm].std() if EQNORM else Xe[mm][:, BINS_BL].std()
         if sd > 0:
             Xe[mm] /= sd
     return Xe[:, BINS_LATE].mean(1)
@@ -424,6 +438,25 @@ def regression_band(ax, xs, ys, color='0.25'):
     ax.fill_between(xl, yl - tc * seb, yl + tc * seb, color=color, alpha=0.15, zorder=2)
 
 
+def _gi_lmm(ykey):
+    """Δaccuracy ~ Δdepth + C(sample) + (1|mouse) — the mouse-respecting analog of the main
+    (non-opto) figure's panel C, computed and LOGGED as a robustness caveat next to the DRAWN
+    20-point correlation (the drawn stat is kept per user request). Respects the per-mouse
+    clustering (each Jaws mouse gives 4 rows: stage × sample). Under it the trade-off G drops to
+    n.s. (β=+0.021 p=0.145) while the ΔGNG arm I survives (β=−0.014 p=0.023); H stays n.s.
+    Dropping C(sample) barely moves it (G p→.158, I p→.025) — the loss is the (1|mouse)
+    clustering, not the covariate. Adding C(stage) doesn't rescue G (p=.147) and softens I to a
+    marginal p=.052 (stage explains part of the ΔGNG variance), so C(sample)-only is kept here to
+    mirror panel C exactly. ykey: 'd_dpa' (H) | 'd_gng' (I) | 'trade' (G, ΔDPA−ΔGNG).
+    Returns (β_depth, p_depth, n_mice, n_obs)."""
+    rr = [dict(mouse=r['mouse'], cls=r['cls'], dep=r['d_depth'],
+               y=(r['d_dpa'] - r['d_gng']) if ykey == 'trade' else r[ykey])
+          for r in rows_ab]
+    df = pd.DataFrame(rr).dropna()
+    fit = smf.mixedlm('y ~ dep + C(cls)', df, groups=df['mouse']).fit()
+    return float(fit.params['dep']), float(fit.pvalues['dep']), df['mouse'].nunique(), len(df)
+
+
 # Row-4 mechanism data is computed above: panel L uses `rows_ab` (the trade-off contrast),
 # panels M/N use `DPR`/`LMM_DPR` (per mouse×stage d′). The former trial-level GEE
 # readout-vs-silencing analysis (and an earlier behavioural d′/criterion SDT control) were
@@ -602,6 +635,8 @@ for ax, key, ylab, msg in [
     ax.set_ylim(ylim)
     ok = ~(np.isnan(xdep) | np.isnan(yv))
     r_p, p_p = pearsonr(xdep[ok], yv[ok]); rho, ps = spearmanr(xdep[ok], yv[ok])
+    _b, _p, _nm, _no = _gi_lmm(key)                 # mouse-respecting LMM — logged caveat, NOT drawn
+    print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
     ax.text(0.5, 0.02, f'n={ok.sum()}: r={r_p:+.2f} p={p_p:.3f}  ρ={rho:+.2f} p={ps:.3f}',
             transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
@@ -699,6 +734,8 @@ regression_band(axL, _xdep, _ytr, color='0.25')
 axL.axhline(0, ls=':', color='k', lw=0.8); axL.axvline(0, ls=':', color='k', lw=0.8)
 _ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
 _rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
+_gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logged caveat, NOT drawn
+print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
 axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
          transform=axL.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',

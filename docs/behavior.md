@@ -311,18 +311,28 @@ caption strip (removed); message-titled panels; row banners over the recorded / 
 - **G** — **TRADE-OFF contrast (headline coupling stat), in the same row as H/I:** Δdepth vs
   `ΔDPA − ΔGNG`. The trade-off hypothesis (depth↑ → DPA↑ *and* GNG↓) makes one joint prediction —
   depth positively predicts (ΔDPA−ΔGNG) — pooling both arms into a single test. **Significant on the
-  pre-committed trainLD_TEST axis, no window search: Pearson r=+0.48 p=0.034 (Expert-10 r=+0.75
-  p=0.013).** H and I are its two arms (I ΔGNG robust `*`; H ΔDPA the same-signed positive *trend*,
-  n.s. on its own). Chosen over two individually-starred H+I panels because forcing H's `*` needs the
-  argmax 51–56 window + Spearman specifically = window×stat selection a reviewer would flag. **This
-  panel REPLACED the old trial-level GEE readout-vs-silencing forest** (removed from the script; git
-  history: DPA readout preserved OFF OR=1.41 / ON OR=1.46).
+  pre-committed trainLD_TEST axis, no window search: Pearson r=+0.53 p=0.016 (readout 45–53, updated
+  2026-07-15; was r=+0.48 p=0.034 on the old 27–53 readout).** H and I are its two arms (I ΔGNG robust
+  `*`; H ΔDPA the same-signed positive *trend*, n.s. on its own). Chosen over two individually-starred
+  H+I panels because forcing H's `*` needs the argmax 51–56 window + Spearman specifically = window×stat
+  selection a reviewer would flag. **This panel REPLACED the old trial-level GEE readout-vs-silencing
+  forest** (removed from the script; git history: DPA readout preserved OFF OR=1.41 / ON OR=1.46).
+  **Mixed-model caveat (`_gi_lmm`, added 2026-07-15 per user request to mirror the main non-opto fig's
+  panel-C model `Δacc ~ Δdepth + C(sample) + (1|mouse)`):** computed and PRINTED to stdout, NOT drawn
+  (drawn stat stays the between-animal correlation). Under it G drops to n.s. (β=+0.021 p=0.108) while
+  I survives (β=−0.013 p=0.018); **but note this LMM tests the WITHIN-mouse slope** — for a
+  between-animal coupling the random intercept absorbs the signal (see the H/I stats note below), so it
+  is a conservative lower bound, not the primary test. The proper clustering-robust check is the
+  per-mouse-mean correlation (I n=5 r=−0.80). Adding C(stage) doesn't rescue G (p=.147) and softens I
+  to p=.052.
 - **H, I** — overlaps causal coupling, laser ON−OFF, **Jaws only**, depth = DPA choice-code on the
   **trainLD_TEST** axis (bins **45-59** = LD+TEST, the main-overlaps-figure convention), readout
-  window **27-53** (delay, pre-response). Also sets F's & G's depth (F–J all on one axis). Points =
-  **5 Jaws × {Naive ▲, Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square**
-  panels, **Pearson star, Spearman shown** (agrees). H (ΔDPA) n.s. (r=+0.28 p=0.23); **I (ΔGNG) `*`
-  (r=−0.61 p=0.004, ρ=−0.56 p=0.011).**
+  window **45-53 (LD epoch, pre-test)** — narrowed 2026-07-15 from the old broad 27-53 and **unified
+  with the main overlaps figure** (the coupling is readout-robust: `*` at every window, end-of-delay is
+  slightly cleaner). Also sets F's & G's depth (F–J all on one axis). Points = **5 Jaws × {Naive ▲,
+  Expert ●} × odor A/B = 20** (A&B joined within each mouse×stage). **Square** panels, **Pearson star,
+  Spearman shown** (agrees). H (ΔDPA) n.s. (r=+0.34 p=0.15); **I (ΔGNG) `*` (r=−0.65 p=0.002,
+  ρ=−0.62 p=0.003).**
 
   **Stats note (important — this is a *between-animal* coupling):** mice with a bigger
   laser-induced Δdepth show a bigger Δaccuracy. A `(1|mouse)` random-intercept LMM is the
@@ -339,8 +349,15 @@ caption strip (removed); message-titled panels; row banners over the recorded / 
   near the decision), but picking the *argmax* window (the narrow 51-56 boundary) would be post-hoc
   cherry-picking. So the headline uses **trainLD_TEST** = the pre-committed main-overlaps-figure
   axis (not the max), and the monotonic window-sweep is the honest way to report the boundary result.
-  ΔDPA stays n.s. on every axis (specificity holds). Readout on 27-53 keeps depth in the delay
-  (pre-response), so it is not circular despite the axis being trained through TEST.
+  ΔDPA stays n.s. on every axis (specificity holds). Readout on **45-53** (LD epoch) keeps depth in the
+  delay (pre-test, ends bin 53), so it is not circular despite the axis being trained through TEST.
+  (The per-mouse-mean window-sweep r's above were computed at the prior 27-53 readout; the monotonic
+  train-axis trend is unchanged.)
+- **`--eqnorm`** (added 2026-07-15, mirrors the main figure's flag) — equal-weight normalization:
+  `_depth_on_axis` divides each mouse's choice-code depth by its WHOLE-TRIAL std (signal scale) instead
+  of BASELINE std, so the per-mouse Δdepth (F–J) isn't SNR-weighted toward high-baseline-SNR mice. d′
+  panels K/L are scale-invariant → unchanged. Output → separate `figures/overlaps/behavior/eqnorm/`.
+  All headline coupling stats survive (G p=0.019, I p=0.001, H n.s.).
 
 Row 4 (last row) — **behavioural balance under silencing + code discriminability** (recorded, Jaws n=5):
 - **J** — **DPA vs GNG performance in laser-ON trials** (the balance plane of the non-opto main

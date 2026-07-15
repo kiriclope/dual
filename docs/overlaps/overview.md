@@ -142,9 +142,11 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   bins 45–59** — the test bins carry the lick/no-lick contrast, so the choice trace shows clear
   discrimination (Expert lick↑/no-lick↓), plus clean B trajectories and the ΔDPA coupling star; flags
   `--ld` (pure pre-test 45–53) and `--ld05` (LD/TEST boundary 51–56). Sample/test/task use their OWN
-  generalization best-axes (independent of the choice axis). Choice-code depth read over the broad
-  late-delay `BINS_LATE` 27–53 (pre-test) in every quantitative panel — the push's decision-not-response
-  defense rests on this readout window, not the training axis.
+  generalization best-axes (independent of the choice axis). Choice-code depth read over the LD epoch
+  `BINS_LATE = bins_LD` 45–53 (pre-test) in every quantitative panel — unified with the opto figure
+  (2026-07-15, narrowed from the broad 27–53; ΔDPA stays ★ p=.026 under the C(sample) mixed model, so
+  the old Spearman-driven "27–53 only" pin is superseded). The push's decision-not-response defense
+  rests on this readout window (ends bin 53, before test onset), not the training axis.
   - **A** — 2×4 code grid (sample/choice/test/task × Naive-top/Expert-bottom), y shared per code
     column, **plus a d′ scatter row for sample/test/task** (choice DROPPED). Each code is decoded on
     its **generalization best axis** — trained AND read at its diagonal plateau (sample 2.7–7.9 s
@@ -181,8 +183,12 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.006 / BC n.s.).
   - **`--eqnorm` (2026-07-15)** — equal-weight normalization (per-mouse whole-trial std instead of
     baseline std) → democratic per-mouse mean, output to `figures/overlaps/main/eqnorm/`. All headline
-    stats survive (B p=0.014, C ΔDPA p=0.028, D p=0.003). Panel B 2D plane limits are now data-driven
-    (symmetric square from the mean±SEM trajectories + delay KDE, ×1.18 margin) rather than fixed.
+    stats survive (eqnorm on the 45–53 readout: B p=0.018, C ΔDPA p=0.042).
+  - **Panel B 2D plane limits (2026-07-15)** — decoupled x/y (aspect stays equal → box rectangular):
+    x fits the mean±SEM sample trajectory; y is framed to the mean±SEM choice trajectory (`×1.28`), and
+    the choice-code delay KDE strips DROP their out-of-range tail (`|vals| ≤ 0.70·ylim`) so the
+    distribution tapers to ~0 inside the axis and exactly fits it (dashed mean lines stay on the full
+    data). The old fixed `(-4,4)/(-2,6)` and a symmetric square were both too big on y.
   - **Shared conventions:** B/C/D use ONE per-mouse palette (`MOUSE_COLOR`, same mouse = same colour);
     B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
     a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file
