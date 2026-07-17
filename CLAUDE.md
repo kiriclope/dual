@@ -39,6 +39,25 @@ Always `cd` into the script's directory before running (scripts use relative pat
 - Before editing a script, read it in full
 - After changing a script, run it and confirm no errors before reporting done
 
+## Logging & keeping docs current (do this from time to time, not only at session end)
+- **Auto-log to memory as you go.** Write settled conclusions, gotchas, decisions, and dead-ends to the
+  file-based memory (`/home/leon/.claude/projects/-home-leon-dual/memory/`) at natural checkpoints —
+  whenever a result is settled, a normalization/axis/window is chosen, or a wrong path is ruled out —
+  not just when asked. Update the existing memory file for a topic rather than duplicating it.
+- **Update the docs when findings change**, in the same pass. Don't let a figure's script and its docs
+  drift apart across a long exploration.
+- **When you touch the docs, sweep the WHOLE doc set for that area, not just the one file you last
+  edited.** For overlaps that means checking ALL of `docs/overlaps/` (`overview.md`, the reproduction
+  guide `main_figure.md`, `routines.md`, `feedback.md`, `laser_onoff.md`) plus `docs/shared_*` — and the
+  memory index — for claims the change makes stale. The authoritative source (`overview.md` + memory) and
+  the reproduction/routines guides must AGREE; if an older guide describes a superseded build, at minimum
+  add a staleness pointer to the authoritative file rather than leaving wrong numbers.
+- Before finishing a task that changed a figure/analysis, do a quick pass: memory updated? every relevant
+  doc updated or redirected? If unsure which docs are affected, `grep` the changed concepts across
+  `docs/` and check each hit.
+- NOTE: the "delegate all doc writing via ask-kimi" workflow below is currently BROKEN (no API key) —
+  edit the docs directly.
+
 -------------------------------------------------------------------------------------------
 
 ## Cheap-Worker Delegation Tools (Token Saving)
