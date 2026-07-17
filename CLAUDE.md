@@ -14,6 +14,7 @@ Then load the subproject docs for the area being worked on:
   `docs/pca/story_figure_reproduction.md` (full reproduction guide: hypotheses, routines, math, results,
   caveats); also `story_figure_methods.md`, `story_figure_review.md`, `flows_handoff.md`
 - **Decoders**: `docs/decoders/` (when populated)
+- **Behaviour / opto**: `docs/behavior.md` (learning curves, ACC→Prl silencing, laser ON−OFF figure)
 
 **When resuming in-progress work, read the memory FIRST.** The "where I left off / what's settled /
 resume from here" state lives in the file-based memory (`/home/leon/.claude/projects/-home-leon-dual/memory/`
@@ -23,10 +24,20 @@ the relevant memory file(s) and handoff doc for the current state BEFORE the ref
 and treat memory + `overview.md` as authoritative when a reproduction guide looks stale.
 
 ## Project structure
-Three subprojects, all using the same dataset (9 mice, DPA + DualGo + DualNoGo tasks):
-- **Overlaps** — `/home/leon/dual/overlaps/` — CCGD sample×choice analysis
-- **PCA** — `/home/leon/dual/decode/` — pseudo-population PCA (Fig 2E)
-- **Decoders** — `/home/leon/dual/decode/` — single-neuron decoders (Fig 3)
+Paper: **mPFC population geometry (Dual task)** — sample identity and lick action on near-orthogonal axes;
+with learning the DPA delay state is pushed along the lick/action axis into the no-lick region without
+disrupting sample coding, and depth↔behaviour link. Full hypothesis + current findings: `docs/meta_project.md`.
+
+All areas share the same dataset (9 mice, DPA + DualGo + DualNoGo tasks). Directories (note: `pca/` and
+`decode/` are DISTINCT — don't conflate):
+- **Overlaps** — `/home/leon/dual/overlaps/` — CCGD (cross-generalising decision codes): sample / choice(lick) /
+  test / GNG decoder axes; the no-lick push, the shared action code, depth↔accuracy. Docs `docs/overlaps/`.
+- **PCA / dPCA flows** — `/home/leon/dual/pca/` — pseudo-population PCA + dPCA + latent flow fields
+  (Fig 2E and follow-ups). Docs `docs/pca/` (resume from `flows_handoff.md`).
+- **Decoders** — `/home/leon/dual/decode/` — single-neuron / population decoders on the sample & lick axes
+  across learning (Fig 3). Docs `docs/decoders/` (when populated).
+- **Behaviour / opto** — `/home/leon/dual/behavior/` — learning curves + the ACC→Prl silencing story and the
+  within-mouse laser ON−OFF figure. Docs `docs/behavior.md`.
 
 ## Python environment
 ```bash
