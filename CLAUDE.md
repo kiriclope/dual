@@ -15,6 +15,13 @@ Then load the subproject docs for the area being worked on:
   caveats); also `story_figure_methods.md`, `story_figure_review.md`, `flows_handoff.md`
 - **Decoders**: `docs/decoders/` (when populated)
 
+**When resuming in-progress work, read the memory FIRST.** The "where I left off / what's settled /
+resume from here" state lives in the file-based memory (`/home/leon/.claude/projects/-home-leon-dual/memory/`
+— the `MEMORY.md` index + per-topic files like `project_overlaps_main_native.md`, which carry settled
+conclusions, resume points, and dead-ends), plus any handoff doc (e.g. `docs/pca/flows_handoff.md`). Read
+the relevant memory file(s) and handoff doc for the current state BEFORE the reference/reproduction docs,
+and treat memory + `overview.md` as authoritative when a reproduction guide looks stale.
+
 ## Project structure
 Three subprojects, all using the same dataset (9 mice, DPA + DualGo + DualNoGo tasks):
 - **Overlaps** — `/home/leon/dual/overlaps/` — CCGD sample×choice analysis
