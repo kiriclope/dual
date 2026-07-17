@@ -445,6 +445,17 @@ point the **same way** — a preceding distractor-containing trial mildly taxes 
 memory — but both are small and the batch's blocked design precludes a clean trial-lag test,
 so state the design limitations explicitly if this goes in the paper.
 
+**Does ACC→Prl silencing amplify the into-dual switch-cost? No** (tested 2026-07-18, ACC-Prl
+batch, 9 control vs 9 opto, dual-current trials, GEE `perf ~ switch*opto` clustered by mouse).
+The **group×switch interaction is null and the wrong sign** for amplification: DPA memory
+β(switch:opto)=+0.064, p=0.24 (control switch cost −2.2 pp / OR=0.90 p=0.02; opto −0.9 pp /
+OR=0.96 p=0.24 — if anything *smaller* under silencing); per-mouse switch cost control +2.1 pp
+vs opto +0.9 pp, Mann-Whitney p=0.33; GNG β(switch:opto)=+0.10, p=0.27. What silencing does is
+depress dual DPA memory **uniformly** (opto main effect OR=0.78, ~64% vs ~71% — the documented
+ACC-Prl DPA impairment), landing equally on 1st-dual and mid-block trials rather than
+concentrating at the pure→dual transition. Caveat: 9 v 9 rules out only a *large* (~≥2–3 pp)
+interaction. Not figured (clean negative); numbers logged here.
+
 ---
 
 ## 7. Key statistical stance (see also `docs/shared_feedback.md`)
