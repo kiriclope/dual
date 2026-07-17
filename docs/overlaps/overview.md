@@ -136,29 +136,50 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   cells, stage-resolved), `fig_overlaps_depth_sdt_sample.py` (within-pair, sample-split),
   `fig_overlaps_depth_fa_cr.py` (FA-vs-CR, the panel-D source; adds an all-mouse trial-level LMM —
   ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
-- **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 5-row, redesigned 2026-07-15).** The
-  publication figure (NN typography, `figures/overlaps/main/{png,svg}/fig_overlaps_main_ab.png`).
-  **CHOICE training axis (drives the choice trace + depth B/C/D): default = full `trainLD_TEST`
-  bins 45–59** — the test bins carry the lick/no-lick contrast, so the choice trace shows clear
-  discrimination (Expert lick↑/no-lick↓), plus clean B trajectories and the ΔDPA coupling star; flags
-  `--ld` (pure pre-test 45–53) and `--ld05` (LD/TEST boundary 51–56). Sample/test use their OWN
-  generalization best-axes (independent of the choice axis). Choice-code depth read over the LD epoch
-  `BINS_LATE = bins_LD` 45–53 (pre-test) in every quantitative panel — unified with the opto figure
-  (2026-07-15, narrowed from the broad 27–53; ΔDPA stays ★ p=.026 under the C(sample) mixed model, so
-  the old Spearman-driven "27–53 only" pin is superseded). The push's decision-not-response defense
-  rests on this readout window (ends bin 53, before test onset), not the training axis.
-  - **A** — 2×4 code TRACE grid (sample/choice/test/**GNG** × Naive-top/Expert-bottom), y shared per
-    stimulus-code column (GNG own scale). The **task code was removed** (it read Go/NoGo off the choice
-    axis, d′≈0.1, redundant with the real GNG decoder). The **GNG code is now the mid-delay memory axis**
-    — the dedicated Go-vs-NoGo decoder (`run_overlaps.py --targets gng`, trained on Dual trials,
-    generalizing) trained at `bins_MD` (33–38) and read across time: Go↑/NoGo↓ diverge at mid-delay
-    (~6.5 s) and hold, sharper in Expert = a working-memory readout. Below the traces, a **3rd row shows
-    the SHARED-ACTION TRAJECTORIES** (4 cells): both tasks projected onto **each lick axis** over time —
-    GNG lick axis (Naive|Expert) and DPA choice axis (Naive|Expert). Each axis is defined by fixing the
-    generalizing-tensor train window at that task's action/reward window (GNG 42–54, DPA response 60–72)
-    and reading the decision value across test-time (no retraining — the cross-temporal tensor already
-    holds every task on every axis). **Symmetric result on both axes:** GNG Go rises at the GNG action
-    (~7 s), DPA lick rises at the DPA action (~10 s), both no-lick conditions go negative, sharper in
+- **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 5-row A–E, 2026-07-18).** The
+  publication figure (`figures/overlaps/main/{png,svg}/fig_overlaps_main_ab_dpaact[_testwin].png`; `--eqnorm`
+  → `main/eqnorm/`). **A** traces (sample / DPA-action-lick / test / GNG-memory), **B** two compact panels
+  right of A (action-code d′ stable + shared-action cosine ★), **C** the no-lick push (now **Sample A vs B**,
+  not the 4 pairs) + KDE + depth paired plot, **D** Δdepth↔Δacc coupling, **E** FA/CR (winsorised). The lick
+  axis = DPA choice/lick decoder @ the DPA lick moment (bins **57–63**), on target=='choice' rows; `--testwin`
+  trains it on the TEST window (54–60) instead → relabelled "DPA decision" (d′lick 0.87→0.29 since lick isn't
+  decodable until ~bin 58). Depth read over the LD epoch **45–53** (pre-test).
+  - **UNIFORM NORMALISATION (2026-07-18): class-signed POOLED EVOKED-std** — per mouse, per code, divide by
+    the temporal std of the class-signed (+class1/−class0) all-trial both-stages MEAN trajectory (evoked
+    amplitude, trial noise removed by averaging-first). `--eqnorm` divides by the all-trials std instead
+    (signal+noise, ~5× larger → washes the push out). This is the honest scale for the push (positions are
+    literal displacements, democratic across mice).
+  - **THE PUSH↔COUPLING TENSION is irreducible** (don't keep trying to fix): the **push** (C, between-stage)
+    wants pooled-evoked; the **coupling** (D, between-mouse) wants eqnorm/baseline. No single scale gives both,
+    robust estimators (winsor/median/RLM/Spearman) don't reconcile, and no readout window recovers D.
+    **pooled-evoked**: push β−0.74 **p=.046 ★**, D n.s.; **eqnorm**: push n.s., D **p=.021 ★**, E ★, clean.
+    `--testwin`: strongest push (β−1.53 **p=.005**) but D n.s. + E outliers. Present eqnorm as main (keeps
+    D+E, clean) + pooled-evoked as the supplement isolating the push, or pick per headline. Supersedes the
+    old decision-axis (45–59) numbers.
+  - **The push is SAMPLE-A-SPECIFIC** (genuine, not fixable): A −1.45 (p=.054) vs B −0.02 (p=.95); counts are
+    balanced, correct-only/balancing don't help, and a balanced A+B push only appears by detuning off the lick
+    axis (MD-train d′=0.13). Report it as sample-A (matches E, where only AD=sample A is ★).
+  - Diagnostics (→ figures/overlaps/action/): `fig_overlaps_push_norm_compare.py` (push × 4 norms × axis ×
+    trial-set), `fig_overlaps_action_norm_diag.py` (per-group-unit-std ARTIFACT demo — the removed A-3rd-row
+    trajectory normalisation manufactures an LD gap that vanishes under a shared scale), `fig_overlaps_gng_on_dpaaxis.py`
+    (Go/NoGo on the DPA action axis, stage×norm — Go→lick+, NoGo→no-lick−, sharpens with learning).
+    The old `--gngact` flag is inert (DPA action hardcoded); the shared-action TRAJECTORY row was removed.
+  - **A** — 2×4 code TRACE grid (sample / **LICK (action)** / test / **GNG** × Naive-top/Expert-bottom),
+    y shared per stimulus-code column (GNG own scale). The 2nd column is the **DPA lick contrast read on
+    the selected ACTION axis** (`--dpaact`/`--gngact`) — separates only at the action moment (~10 s), flat
+    before. The **task code was removed** (it read Go/NoGo off the choice axis, d′≈0.1, redundant with the
+    real GNG decoder). The **GNG code (4th col) is the mid-delay memory axis** — the dedicated Go-vs-NoGo
+    decoder (`run_overlaps.py --targets gng`) trained at `bins_MD` (33–38) and read across time: Go↑/NoGo↓
+    diverge at mid-delay (~6.5 s) and hold, sharper in Expert = a working-memory readout. Below the traces,
+    a **3rd row shows the SHARED-ACTION TRAJECTORIES** (4 cells): both tasks projected onto **each lick
+    axis** over time — GNG lick axis (Naive|Expert) and DPA choice axis (Naive|Expert). Each axis is
+    defined by fixing the generalizing-tensor train window at that task's lick moment and reading the
+    decision value across test-time (no retraining — the cross-temporal tensor already holds every task on
+    every axis). **Action windows = each task's lick moment:** GNG = CUE (39–42) +
+    gngRwd (42–45) = bins 39–45; DPA = last 0.5 s of TEST (57–60) + first 0.5 s of CHOICE just after
+    test (60–63) = bins 57–63 (each ~1 s, straddling the lick boundary). **Symmetric result on both
+    axes:** GNG Go rises at the GNG action (~7 s), DPA lick rises at the DPA action (~10 s), both no-lick
+    conditions go negative, sharper in
     Expert ⇒ the lick command is ONE shared action code, engaged whenever each task calls for the action.
     (GNG uses stim category `gng` on the GNG-axis rows; on the choice-axis rows `gng` is NaN so it uses
     task class DualGo/DualNoGo. Prototype twin `fig_overlaps_action_traj.py` → figures/overlaps/action/.)
@@ -177,22 +198,24 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     ALIGNED off-diagonally at each task's action/reward moment (boxed DPA resp/rwd 60–84 × GNG rwd 42–60),
     strengthening with learning (action-block cos Naive +0.15 → Expert +0.24, Δ paired-t p=0.005). This
     is the weight-space version of panel A's shared-action trajectories.
-  - **B** — no-lick push planes (Naive|Expert sample×choice + KDE strips, own full row; trajectories &
-    KDE stop at test onset so B is pre-test) **plus a 5th sub-panel**: per-mouse late-delay depth
-    Naive→Expert as a **D-style paired plot** (stage on x, per-mouse colour, sample A filled / B open,
-    mean±SEM bars). Stat = deepening mixed model `depth ~ stage + sample + (1|mouse)` **β=−0.68 p=0.023
-    `*`** (default LD_TEST axis). (The per-mouse paired-t / delta test is only a directional n.s.
-    trend — the random-intercept model is the less-conservative estimator chosen for uniformity with C.)
-  - **C** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + C(sample) + (1|mouse)` (ΔDPA β=−0.031
-    **p=0.020 `*`**, ΔGNG p n.s.); `C(sample)` added 2026-07-15 so the RHS matches B. Training-axis-
-    sensitive (loses the star on the 51–56 `--ld05` axis). Do NOT report the pseudoreplicated n=18
-    correlation. **B vs C have different N by design (36 vs 18 obs) — NOT an inconsistency:** B stacks
-    the two stages (per mouse×sample×stage; tests the `stage` deepening), C uses Expert−Naive DIFFERENCES
-    (per mouse×sample; tests the `Δdepth` coupling). Same RHS form, different DV level. Making C 36-obs
-    would pool within-mouse learning change with between-mouse baseline → weakens the causal read →
-    rejected. B = "effect exists", C = "effect is behaviourally relevant"; captions print both N so the
-    mismatch reads as intentional.
-  - **D** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (AD `*` p=0.006 / BC n.s.).
+  - **B** (NEW, own letter) — **Shared action code**: compact Naive→Expert paired plot of per-mouse signed
+    **cos(DPA lick axis @57–63, GNG lick axis @39–45)** (decoder weights), with a chance floor. Both stages
+    well above chance (N +0.12 p<.001, E +0.18 p=.001) ⇒ the two lick commands share one direction; the
+    star keys on that (the Naive→Expert growth Δ p=.146 is n.s. at these tight action windows — the broad
+    action/reward block that grows ★ p=.005 stays in the supplement). Identical in both versions.
+  - **C** — no-lick push planes (Naive|Expert sample×lick + KDE strips, own full row; pre-test) **plus** a
+    D-style paired plot of per-mouse late-delay lick depth Naive→Expert. Stat = deepening mixed model
+    `depth ~ stage + C(sample) + (1|mouse)`. On the action axes the push is **n.s.** (DPA-action β=−0.24
+    p=.31; GNG-action p=.41) — the pre-test well is a property of the DECISION axis (45–59), which the
+    action-window axes replace; the depth↔behaviour COUPLING (panel D) is what survives.
+  - **D** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + C(sample) + (1|mouse)` (**DPA-action: ΔDPA
+    β=−0.054 p=.002 ★★; GNG-action: β=−0.015 p=.033 ★**; ΔGNG null both). Do NOT report the pseudoreplicated
+    n=18 correlation. **C vs D have different N by design (36 vs 18 obs) — NOT an inconsistency:** C stacks
+    the two stages (tests the `stage` deepening), D uses Expert−Naive DIFFERENCES (tests the `Δdepth`
+    coupling). Same RHS form, different DV level. C = "effect exists", D = "effect is behaviourally
+    relevant"; captions print both N.
+  - **E** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (DPA-action AD `*` p=0.015 / BC n.s.;
+    GNG-action n.s. — the FA/CR link is cleanest on the DPA-defined lick axis).
   - **`--eqnorm` (2026-07-15)** — equal-weight normalization (per-mouse whole-trial std instead of
     baseline std) → democratic per-mouse mean, output to `figures/overlaps/main/eqnorm/`. All headline
     stats survive (eqnorm on the 45–53 readout: B p=0.018, C ΔDPA p=0.042).
