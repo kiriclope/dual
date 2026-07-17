@@ -1,11 +1,18 @@
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
-> **NOTE (2026-07-13):** this guide documents the *legacy* glued 5-panel figure
-> (`fig_overlaps_main.py`, panels A→E assembled from pre-rendered strips). The **current
-> publication figure is `fig_overlaps_main_native.py`** — natively composed, 4 panels A/B/C/D,
-> per-mouse paired plots, mixed-model stats. See `overview.md` → "Native main figure — CURRENT
-> layout" and the memory `project_overlaps_main_native.md`. The hypothesis / scientific arc below
-> still applies; only the composition and per-panel stats changed.
+> **NOTE — this guide documents the *legacy* glued figure (`fig_overlaps_main.py`, panels A→E from
+> pre-rendered strips). The hypothesis / scientific arc below still applies, but the COMPOSITION,
+> NORMALISATION and per-panel STATS are all superseded — do not trust the specific numbers here.**
+> The **current publication figure is `fig_overlaps_main_native.py`**, natively composed. As of
+> 2026-07-18 it is **5 panels A–E**: A traces (sample / DPA-action-lick / test / GNG-memory), B
+> action-code d′ + shared-action cosine, C the no-lick push (**Sample A vs B**), D Δdepth↔Δaccuracy,
+> E FA/CR. It uses **ONE uniform normalisation everywhere = class-signed pooled evoked-std** (`--eqnorm`
+> for the all-trials-std variant), the DPA **action axis** (choice decoder @ bins 57–63; `--testwin` =
+> test window 54–60), and depth read at LD 45–53. Key settled results: the no-lick push is **sample-A-
+> specific**, and there is an **irreducible push↔coupling tension** (pooled-evoked gives the push
+> β≈−0.74 p≈.05 but D n.s.; eqnorm gives D p≈.02 + clean but the push is a trend). **For all current
+> details see `overview.md` → "Native main figure — CURRENT layout" and the memory
+> `project_overlaps_main_native.md` — those are authoritative; this file is history.**
 
 The overlaps-only main paper figure: a 5-panel arc (A→E) showing the **dual code**, its
 **learning-driven no-lick push**, and the **acute-optogenetic test** of the same link, all read on

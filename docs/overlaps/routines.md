@@ -322,6 +322,11 @@ cd /home/leon/dual/overlaps
 
 ## Overlaps MAIN figure (2026-07-02, LOCKED) — CCGD codes + no-lick push + behaviour
 
+> **STALE (see `overview.md` → "Native main figure — CURRENT layout" + memory `project_overlaps_main_native.md`
+> for the authoritative current state, 2026-07-18).** The current figure is `fig_overlaps_main_native.py`
+> (5-panel A–E, uniform class-signed pooled-evoked normalisation, DPA action axis @57–63, sample-A-specific
+> push, push↔coupling tension). The axes/stats below describe the earlier locked build and are superseded.
+
 A single overlaps-only 4-panel main figure. **Locked read-out axis = `trainLD_TEST`**
 (combined late-delay + test window, bins 45-59). Arc:
 **A** sample/choice/test/task 1-D codes → **B** 2D sample×choice push trajectory →
