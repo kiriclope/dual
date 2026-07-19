@@ -68,6 +68,7 @@ def ccgd_validation(
     splits = list(cv.split(X_within, strata))
 
     within_probas, within_dfs, y_cv_within = [], [], []
+    within_idx = []                      # original within-trial index per test row (for repeat-averaging)
     cross_probas, cross_dfs = [], []
     laser_probas, laser_dfs = [], []
     null_info = {
@@ -82,6 +83,7 @@ def ccgd_validation(
         y_tr = y_within_labels[train_idx].copy()
         y_te = y_within_labels[test_idx]
         y_cv_within.append(y_within.iloc[test_idx].reset_index(drop=True))
+        within_idx.append(np.asarray(test_idx))
 
         est = clone(estimator)
 
@@ -195,6 +197,26 @@ def ccgd_validation(
     within_probas = np.vstack(within_probas)
     within_dfs = np.vstack(within_dfs)
     y_cv_within = pd.concat(y_cv_within, axis=0, ignore_index=True)
+
+    # RepeatedStratifiedKFold (n_repeats>1) puts each within trial in a test fold ONCE PER
+    # REPEAT → duplicate rows. Collapse to one row/trial by averaging the repeat predictions:
+    # keeps the output shape identical to n_repeats=1 AND denoises the decision function
+    # (the whole point of repeats). No-op when there are no duplicate indices (n_repeats=1).
+    _all_idx = np.concatenate(within_idx)
+    if len(_all_idx) != len(np.unique(_all_idx)):
+        uniq, inv = np.unique(_all_idx, return_inverse=True)
+        first = np.unique(_all_idx, return_index=True)[1]        # first occurrence, sorted-uniq order
+
+        def _avg_by_trial(arr):
+            out = np.zeros((len(uniq),) + arr.shape[1:], dtype=float)
+            cnt = np.zeros(len(uniq))
+            np.add.at(out, inv, arr)
+            np.add.at(cnt, inv, 1)
+            return out / cnt.reshape((-1,) + (1,) * (arr.ndim - 1))
+
+        within_probas = _avg_by_trial(within_probas)
+        within_dfs = _avg_by_trial(within_dfs)
+        y_cv_within = y_cv_within.iloc[first].reset_index(drop=True)   # aligned with sorted-uniq order
 
     # within + optional cross-condition + optional laser-ON blocks (each fold-averaged)
     y_blocks, p_blocks, d_blocks = [y_cv_within], [within_probas], [within_dfs]

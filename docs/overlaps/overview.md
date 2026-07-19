@@ -86,10 +86,20 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   — and the *direction* of the Naive→Expert change — is valid. BUT a deeper Expert depth conflates (i)
   the delay **state genuinely moving** into no-lick with (ii) the Expert **choice code being more
   decodable** (larger decision-function magnitude). Per-mouse BL-std normalisation (pooled over stages)
-  rescales but does NOT undo the between-stage axis rotation. The clean control — project **both** stages
-  onto **one common axis** (Expert or pooled decoder; weights in the `_raw` pkl + raw activity from
-  `get_X_y_days`) and re-test — was **not run** (user declined). So report the deepening as a directional
-  claim; don't over-read its magnitude as pure geometry.
+  rescales but does NOT undo the between-stage axis rotation.
+  **CLEAN CONTROL NOW RUN (2026-07-18, `fig_overlaps_common_axis_supp.py` → `figures/overlaps/controls/`;
+  diag `$CLAUDE_JOB_DIR/tmp/common_axis_control2.py`).** Cells are REGISTERED across days (Naive∩Expert
+  valid-neuron Jaccard = 1.00, all 9 mice), so a single fixed axis is well-defined. Projecting BOTH stages'
+  raw delay activity onto ONE fixed choice axis (@action window 57–63, pooled-evoked norm): the **per-stage
+  axis reproduces the figure** (push β=−0.78 p=0.002, coupling ρ=−0.85 p=0.004), but on a **FIXED axis the
+  push ATTENUATES to a trend** (Expert axis β=−0.35 p=0.148; pooled axis β=−0.41 p=0.102) — confirming that
+  a substantial part of the per-stage push MAGNITUDE is the axis reorganising, not pure translation. **The
+  behaviour COUPLING survives on the pooled fixed axis** (ρ=−0.72 p=0.030) though not the Expert axis
+  (ρ=−0.27). ⇒ report the push as a DIRECTIONAL claim (Expert state sits toward no-lick; sign is
+  label-pinned) and do NOT over-read its magnitude; the depth↔accuracy COUPLING is the robust brain↔behaviour
+  result (and see its resampling battery below). **Panel B1 (d′ stable with learning) is the in-figure
+  partial rebuttal** — decodability doesn't change, so the effect is a position shift not a decodability
+  change — but the fixed-axis supplement is the direct control a reviewer will want.
 - **A/B asymmetry ("A strong ≈−0.66 / B weak") is TRAIN-AXIS-DEPENDENT — scope it, don't headline it
   (2026-07-02).** On the **trainTEST** axis A is deeper than B (B−A=+0.34 BLσ, dz+0.63, 1-sided p=0.064);
   on the **delay axis the asymmetry vanishes/reverses** — B is pushed as deep or deeper than A
@@ -110,11 +120,16 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   predicts Δ**DPA** accuracy, NOT Δ**GNG** accuracy (ρ≈0, null on every axis) — a genuine DPA-specific
   link. It IS panel D of the **locked main figure** (`trainLD_TEST`), captioned as a population-level,
   DPA-specific, n=9-borderline link (still sign-contested vs the dPCA side). Do not over-claim a
-  within-animal effect. **In the native figure `fig_overlaps_main_native.py` this is panel C, and its
-  headline stat is now the mouse-respecting MIXED MODEL** `Δperf ~ Δdepth + (1|mouse)` (ΔDPA
-  β=−0.031 **p=0.016** `*`, ΔGNG null p=0.31) — NOT the pseudoreplicated n=18 (9 mice × sample A/B)
-  correlation, which inflates to p=0.011. Per-mouse (n=9) it is ρ=−0.67 p=0.050; the LMM keeps all the
-  data while respecting the mouse grouping, so report β/p, not the n=18 star.
+  within-animal effect. **In the native figure `fig_overlaps_main_native.py` this is panel D. Its headline
+  stat is now the BETWEEN-mouse per-mouse n=9 Spearman** (A/B aggregated within mouse), which on the current
+  DPA-action axis is **ρ=−0.83 p=0.005 `*`** (ΔGNG ρ=+0.20 p=0.61 null → DPA-specific). **CORRECTION
+  (2026-07-18):** an earlier version used the mouse-respecting MIXED MODEL `Δperf ~ Δdepth + (1|mouse)`,
+  but that was the WRONG tool — a mouse random intercept absorbs the between-mouse variance that is the
+  entire claim, so it estimates only the within-mouse (A-vs-B) slope and washed the effect to n.s. under
+  pooled-evoked. The honest n=9 aggregate Spearman (not the pseudoreplicated n=18) is the correct
+  between-mouse estimator, and under it the coupling is significant under every normalisation (ρ=−0.83..−0.90,
+  p≤.005). Still an n=9 individual-difference link, still sign-contested vs the null dPCA side — report
+  those caveats, but the stat is no longer fragile to normalisation.
 - **Trial-level behavioural relevance — the no-lick well predicts false alarms (Naive, sample A).**
   Complement to the population-level Δdepth↔Δperf link above, at the single-trial level. Split DPA
   trials by signal-detection outcome (`y.response` ∈ {correct_hit, incorrect_miss, correct_rej,
@@ -149,13 +164,23 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     amplitude, trial noise removed by averaging-first). `--eqnorm` divides by the all-trials std instead
     (signal+noise, ~5× larger → washes the push out). This is the honest scale for the push (positions are
     literal displacements, democratic across mice).
-  - **THE PUSH↔COUPLING TENSION is irreducible** (don't keep trying to fix): the **push** (C, between-stage)
-    wants pooled-evoked; the **coupling** (D, between-mouse) wants eqnorm/baseline. No single scale gives both,
-    robust estimators (winsor/median/RLM/Spearman) don't reconcile, and no readout window recovers D.
-    **pooled-evoked**: push β−0.74 **p=.046 ★**, D n.s.; **eqnorm**: push n.s., D **p=.021 ★**, E ★, clean.
-    `--testwin`: strongest push (β−1.53 **p=.005**) but D n.s. + E outliers. Present eqnorm as main (keeps
-    D+E, clean) + pooled-evoked as the supplement isolating the push, or pick per headline. Supersedes the
-    old decision-axis (45–59) numbers.
+  - **THE "PUSH↔COUPLING TENSION" DISSOLVED (2026-07-18) — it was a panel-D ESTIMATOR artifact, not a
+    normalisation problem.** The coupling (D) had been read with a differenced random-intercept LMM
+    `dp ~ dd + C(sample) + (1|mouse)` on 18 obs; a mouse random intercept absorbs ALL between-mouse variance
+    into the intercept, so the Δdepth slope is estimated only from within-mouse (A-vs-B) variation and
+    structurally CANNOT see the between-mouse individual-difference coupling that IS the claim (it washed
+    pooled-evoked to p=.20, and gave nan under some norms). **Panel D now uses the honest BETWEEN-mouse
+    per-mouse n=9 Spearman** (Δdepth vs Δacc, A/B aggregated within mouse — 9 points, not the 18-obs
+    pseudoreplication). Under that estimator the coupling is significant under EVERY normalisation
+    (pooled-evoked ρ=−0.83 p=.005, eqnorm ρ=−0.85 p=.004, baseline ρ=−0.90 p=.001, and even **raw/no-norm
+    ρ=−0.90 p=.001**) and stays DPA-specific (GNG ρ=+0.20 p=.61). It is NOT a spurious-normalisation
+    artifact (the coupling lives in the raw undivided Δdepth, survives a common denominator + partialling
+    out the class-gap). The **push** (C) is a WITHIN-mouse effect → its random-intercept LMM is correct and
+    unchanged (β=−0.74 **p=.046 ★** under pooled-evoked). **Net: pooled-evoked (the default) is now the
+    STRICT best — the only variant with BOTH C push ★ AND D coupling ★.** eqnorm keeps D but loses the push
+    (p=.145); `--testwin` keeps the push ★★ (β−1.53 p=.005) but D→n.s. (ρ=−0.53 p=.139, a pre-lick axis).
+    So headline pooled-evoked; eqnorm/testwin are robustness variants, not a forced either/or. Supersedes the
+    old decision-axis (45–59) numbers AND the earlier "irreducible tension / present eqnorm as main" verdict.
   - **The push is SAMPLE-A-SPECIFIC** (genuine, not fixable): A −1.45 (p=.054) vs B −0.02 (p=.95); counts are
     balanced, correct-only/balancing don't help, and a balanced A+B push only appears by detuning off the lick
     axis (MD-train d′=0.13). Report it as sample-A (matches E, where only AD=sample A is ★).
@@ -208,17 +233,28 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     `depth ~ stage + C(sample) + (1|mouse)`. On the action axes the push is **n.s.** (DPA-action β=−0.24
     p=.31; GNG-action p=.41) — the pre-test well is a property of the DECISION axis (45–59), which the
     action-window axes replace; the depth↔behaviour COUPLING (panel D) is what survives.
-  - **D** — Δdepth↔Δperf scatter, mixed model `Δperf ~ Δdepth + C(sample) + (1|mouse)` (**DPA-action: ΔDPA
-    β=−0.054 p=.002 ★★; GNG-action: β=−0.015 p=.033 ★**; ΔGNG null both). Do NOT report the pseudoreplicated
-    n=18 correlation. **C vs D have different N by design (36 vs 18 obs) — NOT an inconsistency:** C stacks
-    the two stages (tests the `stage` deepening), D uses Expert−Naive DIFFERENCES (tests the `Δdepth`
-    coupling). Same RHS form, different DV level. C = "effect exists", D = "effect is behaviourally
-    relevant"; captions print both N.
-  - **E** — Naive nonpaired corr-rej vs false-alarm depth, sample-split (DPA-action AD `*` p=0.015 / BC n.s.;
-    GNG-action n.s. — the FA/CR link is cleanest on the DPA-defined lick axis).
+  - **D** — Δdepth↔Δperf scatter. **Headline stat = per-mouse n=9 Spearman** (A/B aggregated within mouse;
+    the BETWEEN-mouse individual-difference correlation that is the actual claim): **ΔDPA ρ=−0.83 p=.005 ★,
+    ΔGNG ρ=+0.20 p=.61 n.s. → DPA-specific.** (Was a differenced random-intercept LMM — the WRONG tool, see
+    the tension bullet above; it removes the between-mouse variance. Do NOT report the pseudoreplicated
+    n=18 correlation either — the n=9 aggregate is the honest between-mouse stat.) The regression band is
+    drawn on the 9 per-mouse means so the line matches the reported stat; the 18 A/B dots are still shown
+    for transparency. Panel C (push) remains a WITHIN-mouse deepening LMM over 36 stacked obs — the two
+    panels differ in estimator BY DESIGN: C = "effect exists" (within-mouse), D = "effect is behaviourally
+    relevant" (between-mouse). **ROBUSTNESS (2026-07-18, `$CLAUDE_JOB_DIR/tmp/coupling_robustness.py`):**
+    ΔDPA ρ=−0.83 is NOT a single-mouse artifact — **Mundlak within-between LMM between-mouse β=−0.041
+    p=0.006** (the principled multilevel estimator; the citable defense of using a between-mouse stat
+    instead of the random-intercept LMM), **jackknife 9/9 leave-one-out stay p<.05**, **bootstrap 95% CI
+    [−1.00,−0.26] excludes 0**, **permutation p=0.008**; ΔGNG null on all (DPA-specific). Consider reporting
+    the Mundlak between-β as the primary stat to pre-empt an "estimator-shopping" critique.
+  - **E** — Naive nonpaired corr-rej vs false-alarm depth, sample-split. **NOTE (2026-07-18): now n.s. under
+    the current pooled-evoked action-axis build** (AD Δ(cr−fa)=−0.86, paired-t p=0.204; BC p=0.833) — the
+    earlier ★ p=0.015 predates the uniform pooled-evoked / action-axis rebuild. E is the weakest panel;
+    treat separately (not yet diagnosed whether the drop is recoverable).
   - **`--eqnorm` (2026-07-15)** — equal-weight normalization (per-mouse whole-trial std instead of
-    baseline std) → democratic per-mouse mean, output to `figures/overlaps/main/eqnorm/`. All headline
-    stats survive (eqnorm on the 45–53 readout: B p=0.018, C ΔDPA p=0.042).
+    baseline std) → democratic per-mouse mean, output to `figures/overlaps/main/eqnorm/`. On the current
+    action-axis build: coupling D SURVIVES (ρ=−0.85 p=.004, per-mouse n=9) but the push C is n.s.
+    (β=−0.10 p=.145) — which is why pooled-evoked (both ★) is the headline default, not eqnorm.
   - **Panel B 2D plane limits (2026-07-15)** — decoupled x/y (aspect stays equal → box rectangular):
     x fits the mean±SEM sample trajectory; y is framed to the mean±SEM choice trajectory (`×1.28`), and
     the choice-code delay KDE strips DROP their out-of-range tail (`|vals| ≤ 0.70·ylim`) so the
@@ -228,6 +264,37 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     B & D are matching per-mouse paired plots (fill = sample in B, = outcome cr/fa in D); all three carry
     a C-style bold `*`/`n.s.` marker. Full panel-by-panel + iteration history in the memory file
     `project_overlaps_main_native.md`.
+  - **REVIEWER-READINESS CONTROLS (2026-07-18) — Nature Neuroscience pass.** Literature-grounded critique
+    + controls (supplements in `figures/overlaps/controls/`; details in the memory file):
+    - **Decoder rigor:** re-ran with **n_repeats=10** (RepeatedStratifiedKFold, repeat-averaged in `ccgd.py`
+      → denoised, same shape; nested inner-CV C selection + balanced classes were already default). New
+      bundle `..._cv_5x10`; figure flag **`--cv10`**. Under denoised decoders the **coupling holds (ρ=−0.77
+      p=.016) and B1/B2 hold/strengthen, but the push softens to a TREND (β=−0.57 p=.093)**.
+    - **Fixed-axis control** (`fig_overlaps_common_axis_supp.py`): the push is partly per-stage decoder
+      REORGANISATION (attenuates on a fixed axis); the coupling survives on the pooled fixed axis (ρ=−0.72
+      p=.030). Cells registered across days (Jaccard=1.0), so the fixed axis is valid.
+    - **Coupling robustness:** Mundlak within-between LMM β=−0.041 p=.006, jackknife 9/9, bootstrap CI
+      excludes 0, permutation p=.008; DPA-specific (GNG null on all).
+    - **B2 cosine null** (`cosine_null.py`): survives a LABEL-PERMUTATION null (group perm p=.002 both
+      stages) + approaches the split-half noise ceiling — not just the 1/√N floor.
+    - **Normalisation robustness** (`fig_overlaps_norm_robustness_supp.py`): the coupling is ★ under ALL six
+      norms (raw..d′-action, ρ=−0.83..−0.90); the push is ★ only under pooled-evoked & gap-action → push is
+      normalisation-sensitive, coupling is not. **d′-action** (÷ within-class σ at the action window) is the
+      recommended interpretable primary unit (ties to the opto behavioural d′).
+    - **Anticipatory-lick / movement control** (Musall/Stringer; `fig_overlaps_lick_control_supp.py`, source
+      `behavior/licks.org`): per-trial LATE-DELAY lick rate — window matched to the figure's readout
+      (licks.org LD [7.0,7.5]s ≈ neural bins_LD), DPA-only, aligned to the raw neural trials (100% validated).
+      Late-delay licking is rare (11% of trials). **Both effects survive:** depth does NOT track late-delay
+      licking (ρ=+0.07, negligible); the PUSH is UNCHANGED with a lick covariate (β=−0.735→−0.754, both sig);
+      the COUPLING is clean (partial|Δlick r=−0.870 unchanged, Δlick↔Δacc null). NB an earlier broad
+      [4.5,9.0]s window spuriously showed the push attenuating ~24% by leaking test/response licking into the
+      "delay" measure — always read licks in the SAME window as the depth.
+    - **Net:** the COUPLING (D) and the shared-code GEOMETRY (B1/B2) are robust every way tested (decoder
+      denoising, six normalisations, resampling, AND the movement confound). The PUSH (C) is real and, on the
+      readout-aligned window, NOT a delay-licking artifact; its one genuine caveat is that its MAGNITUDE
+      softens under denoising and on a fixed common axis (partly decoder reorganisation) — so report the push
+      as DIRECTIONAL (Expert sits toward no-lick), not a precise magnitude. Only text-level item left:
+      reconcile the null dPCA side of the coupling.
   - **Decoder variants `--l1` (lasso) & `--lda` (shrinkage-LDA) + bundled tensor.** `--l1` renders the
     L1 (l1_ratio=1, sparse) version → `fig_overlaps_main_ab_l1`; `--lda` the shrinkage-LDA
     (covariance-aware `Σ⁻¹Δμ`, Ledoit-Wolf) version → `fig_overlaps_main_ab_lda`; default = ridge

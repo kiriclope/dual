@@ -50,7 +50,35 @@ Always `cd` into the script's directory before running (scripts use relative pat
 - Per-mouse BL normalisation applied after X_epoch averaging — see `shared_data.md`
 - Sample A = odor_pairs [0,1] (#332288 indigo), Sample B = [2,3] (#44AA99 teal)
 - Condition titles: DPA / Go / NoGo (strip "Dual" prefix in figures)
-- Save both PNG (`dpi=300`) and SVG (`svg.fonttype='none'`) for every figure
+
+## Figure style — matplotlib conventions (SUPPLEMENTS MUST MATCH THE MAIN FIGURES)
+Every overlaps/opto figure AND every supplement uses ONE shared style. Do NOT hand-pick larger fonts,
+bold panel titles, or dpi=300 for supplements — copy this block verbatim (it is the header of
+`overlaps/fig_overlaps_main_native.py`). Nature-Neuroscience print typography: 6–8 pt at final size, thin rules.
+```python
+import seaborn as sns, matplotlib.pyplot as plt
+sns.set_context('notebook')          # MUST come AFTER importing src.common.plot_utils (which sets
+sns.set_style('ticks')               #   "poster" at module level → huge ticks; set_style/rcParams alone don't undo it)
+plt.rcParams.update({
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = 8                          # panel titles: ax.set_title(..., loc='left', fontsize=TITLE_FS)  — NOT bold
+```
+Rules that go with it:
+- **Panel titles** left-aligned, `fontsize=TITLE_FS` (8), NOT bold. **Panel letters** (A/B/C…) are the only
+  bold text: `fig.text(..., fontsize=11, fontweight='bold')`.
+- **Significance markers**: `fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55'`
+  (`*` when p<.05 else `n.s.`). **Stats text** (β/ρ/p lines): `fontsize=6.5, color='0.3'`.
+- **Per-mouse colour** = `sns.color_palette('tab10')` keyed by `ALL_MICE` (same mouse = same colour across
+  panels); fill = category (sample A solid / B open, or cr/fa); scatter `s≈28–42`, thin `linewidths≈0.6–1.0`.
+- **Save BOTH** PNG and SVG for every figure (`savefig.dpi=400`; SVG carries `svg.fonttype='none'`, and `*.svg`
+  is gitignored so only the PNG is committed). Axis/other font sizes: labels 8, ticks 7, small annotations 6–6.5.
 
 ## Behaviour
 - Verify data structure and code behaviour empirically before asserting — see `shared_feedback.md`

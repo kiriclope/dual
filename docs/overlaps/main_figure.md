@@ -9,10 +9,13 @@
 > E FA/CR. It uses **ONE uniform normalisation everywhere = class-signed pooled evoked-std** (`--eqnorm`
 > for the all-trials-std variant), the DPA **action axis** (choice decoder @ bins 57–63; `--testwin` =
 > test window 54–60), and depth read at LD 45–53. Key settled results: the no-lick push is **sample-A-
-> specific**, and there is an **irreducible push↔coupling tension** (pooled-evoked gives the push
-> β≈−0.74 p≈.05 but D n.s.; eqnorm gives D p≈.02 + clean but the push is a trend). **For all current
-> details see `overview.md` → "Native main figure — CURRENT layout" and the memory
-> `project_overlaps_main_native.md` — those are authoritative; this file is history.**
+> specific**; and (2026-07-18) the earlier "irreducible push↔coupling tension" was resolved as a **panel-D
+> estimator artifact** — the coupling had been read with a differenced random-intercept LMM that removes
+> the between-mouse variance that is the claim. Panel D now uses the honest **per-mouse n=9 Spearman**, and
+> under it **pooled-evoked (the default) gives BOTH** the push (C, β≈−0.74 p≈.05 ★) and the coupling
+> (D, DPA ρ≈−0.83 p≈.005 ★, GNG null). **For all current details see `overview.md` → "Native main figure —
+> CURRENT layout" and the memory `project_overlaps_main_native.md` — those are authoritative; this file is
+> history.**
 
 The overlaps-only main paper figure: a 5-panel arc (A→E) showing the **dual code**, its
 **learning-driven no-lick push**, and the **acute-optogenetic test** of the same link, all read on

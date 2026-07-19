@@ -13,7 +13,10 @@ Layout (5-row gridspec, print-scale typography ~7 pt) — panels A B C D E:
   C  the no-lick PUSH: DPA state Naive→Expert in the sample × lick plane (own full row) + KDE strips +
      a paired plot of per-mouse late-delay lick depth. Naive ≈ 0/positive → Expert deep no-lick;
      deepening mixed model depth ~ stage + C(sample) + (1|mouse) (β≈−0.74, p≈.05).
-  D  Δ depth vs Δ performance (Expert−Naive): ΔDPA & ΔGNG, mixed model Δperf ~ Δdepth + C(sample)+(1|mouse).
+  D  Δ depth vs Δ performance (Expert−Naive): ΔDPA & ΔGNG, BETWEEN-mouse per-mouse (n=9) Spearman of
+     Δdepth vs Δacc (A/B aggregated within mouse → NOT the 18-obs pseudoreplication; the differenced
+     random-intercept LMM used before is the WRONG tool — its mouse intercept absorbs the between-mouse
+     variance that IS the claim). DPA ρ≈−0.83 p≈.005 ★, GNG ρ≈+0.20 n.s. → DPA-specific.
   E  lick-code depth on NONPAIRED trials, correct-rejection vs false-alarm, Naive, split by sample.
 
 UNIFORM NORMALISATION (2026-07-17) — every code/panel uses ONE per-mouse scale: the CLASS-SIGNED POOLED
@@ -43,7 +46,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-from scipy.stats import gaussian_kde, linregress, ttest_rel, ttest_1samp, t as t_dist
+from scipy.stats import gaussian_kde, linregress, ttest_rel, ttest_1samp, t as t_dist, spearmanr
 import statsmodels.formula.api as smf
 import seaborn as sns
 
@@ -152,7 +155,14 @@ if TESTWIN:
 # Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),
 # mirroring the run_overlaps `--targets sample choice test gng` layout. (Ridge: assembled by
 # concatenating the legacy main + gng files, which many other scripts still load separately.)
-_BDUM = f'{DUM}_raw_targets_choice-gng-sample-test'
+# --cv10: load the n_repeats=10 (RepeatedStratifiedKFold, repeat-averaged → denoised) bundle instead of
+# the n_repeats=1 default. Same tensor shape (repeats collapsed to one row/trial in ccgd.py); the decision
+# functions are averaged over 10 CV partitions → lower estimation noise (a reviewer-rigor variant). Ridge only.
+CV10 = '--cv10' in sys.argv[1:]
+_CVSUF = '_cv_5x10' if CV10 else ''
+if CV10:
+    FILE_SUF += '_cv10'
+_BDUM = f'{DUM}_raw_targets_choice-gng-sample-test{_CVSUF}'
 BINS_DELAY   = options['bins_DELAY']
 TEST_ONSET   = options['bins_TEST'][0]
 TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
@@ -237,10 +247,14 @@ idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_pe
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PANEL C — Δdepth ↔ Δperf, A&B-independent (plot_scatter_perf.py --dpa-panel AB twin)
-#   depth deltas on idx_correct, per sample class; perf deltas per sample class.
-#   Headline stat = mixed model Δperf ~ Δdepth + (1|mouse) (respects the 2-obs/mouse
-#   clustering; the raw n=18 correlation is pseudoreplicated — do NOT report it).
+# PANEL D (drawn here; scatter block below) — Δdepth ↔ Δperf, A&B-independent
+#   (plot_scatter_perf.py --dpa-panel AB twin). depth deltas on idx_correct, per sample
+#   class; perf deltas per sample class.
+#   Headline stat = BETWEEN-mouse per-mouse n=9 Spearman (A/B aggregated within mouse), see
+#   _panelC_coupling. The old differenced random-intercept LMM Δperf ~ Δdepth + (1|mouse) was
+#   the WRONG tool — its mouse intercept absorbs the between-mouse variance that IS the claim,
+#   so it saw only the within-mouse (A-vs-B) slope. The raw n=18 correlation is pseudoreplicated
+#   — do NOT report it either; the n=9 aggregate is the honest between-mouse stat.
 # ══════════════════════════════════════════════════════════════════════════════
 D_SAMPLE_CLASSES = [(0, [0, 1]), (1, [2, 3])]                           # (cls_label, odor_pairs)
 
@@ -273,14 +287,25 @@ delta_dpa_perf_sample = _perf_delta_by_sample('performance', y.tasks == 'DPA')
 delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
 
 
-def _panelC_lmm(perf_dict):
-    # Δperf ~ Δdepth + C(sample) + (1|mouse) — SAME covariate form as panel B's deepening model
-    # (depth ~ st + C(sample) + (1|mouse)); the sample-class fixed effect controls for the A/B split.
-    rows = [dict(mouse=mo, cls=cls, dd=delta_choice_sample[(mo, cls)], dp=perf_dict[(mo, cls)])
-            for mo in ALL_MICE for cls, _ in D_SAMPLE_CLASSES]
-    d = pd.DataFrame(rows).dropna()
-    fit = smf.mixedlm('dp ~ dd + C(cls)', d, groups=d['mouse']).fit()
-    return float(fit.params['dd']), float(fit.pvalues['dd']), d['mouse'].nunique(), len(d)
+def _panelC_coupling(perf_dict):
+    # BETWEEN-MOUSE individual-difference coupling: per-mouse (n=9) Spearman of Δdepth vs Δperf,
+    # aggregating the two sample classes WITHIN mouse (so 9 points, NOT the 18-obs pseudoreplication).
+    # 2026-07-18: this REPLACES the differenced random-intercept LMM `dp ~ dd + C(cls) + (1|mouse)`.
+    # That LMM was the WRONG tool here — a mouse random intercept absorbs ALL between-mouse variance
+    # into the intercept, leaving the Δdepth slope estimated only from within-mouse (A-vs-B) variation,
+    # so it structurally cannot see the between-mouse coupling that IS the claim (it washed pooled-evoked
+    # to p=0.20 and gave nan under some norms). The honest per-mouse Spearman is significant under EVERY
+    # normalisation (ρ≈−0.83..−0.90, p≤.005) and is DPA-specific (GNG ρ≈+0.20 n.s.). Returns the
+    # per-mouse means too so the regression band is drawn on the same 9 points as the stat.
+    mx, my = [], []
+    for mo in ALL_MICE:
+        dd = np.nanmean([delta_choice_sample[(mo, cls)] for cls, _ in D_SAMPLE_CLASSES])
+        dp = np.nanmean([perf_dict.get((mo, cls), np.nan) for cls, _ in D_SAMPLE_CLASSES])
+        if np.isfinite(dd) and np.isfinite(dp):
+            mx.append(dd); my.append(dp)
+    mx, my = np.array(mx), np.array(my)
+    rho, pv = spearmanr(mx, my)
+    return float(rho), float(pv), len(mx), mx, my
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -684,39 +709,37 @@ axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', l
 gsC = gs[4, 0:8].subgridspec(1, 2, wspace=0.55)                        # D + E share the last row
 axC = [fig.add_subplot(gsC[0, 0]), fig.add_subplot(gsC[0, 1])]
 C_specs = [(delta_dpa_perf_sample, 'Δ DPA accuracy (Exp−Naive)', 'Δ depth vs Δ DPA accuracy',
-            _panelC_lmm(delta_dpa_perf_sample)),
+            _panelC_coupling(delta_dpa_perf_sample)),
            (delta_gng_perf_sample, 'Δ GNG accuracy (Exp−Naive)', 'Δ depth vs Δ GNG accuracy',
-            _panelC_lmm(delta_gng_perf_sample))]
+            _panelC_coupling(delta_gng_perf_sample))]
 _allyC = np.array([d[(m, c)] for d, _, _, _ in C_specs for m in ALL_MICE for c in (0, 1)], float)
 _allyC = _allyC[~np.isnan(_allyC)]
 _padC = (_allyC.max() - _allyC.min()) * 0.15 or 0.05
 ylimC = (_allyC.min() - _padC, _allyC.max() + _padC)
-for ax, (yv_dict, ylabel, msg, (beta, pv, n_mice, n_obs)) in zip(axC, C_specs):
-    xs, ys = [], []
+for ax, (yv_dict, ylabel, msg, (rho, pv, n_mice, mx, my)) in zip(axC, C_specs):
     for mouse in ALL_MICE:
         px, py = [], []
         for cls, pairs in D_SAMPLE_CLASSES:
             xx = delta_choice_sample[(mouse, cls)]
             yy = yv_dict.get((mouse, cls), np.nan)
-            px.append(xx); py.append(yy); xs.append(xx); ys.append(yy)
+            px.append(xx); py.append(yy)
             if not (np.isnan(xx) or np.isnan(yy)):
                 face = MOUSE_COLOR[mouse] if cls == 0 else 'w'         # A solid / B open
                 ax.scatter(xx, yy, facecolors=face, edgecolors=MOUSE_COLOR[mouse],
                            marker='o', s=42, linewidths=1.0, zorder=5)
         ax.plot(px, py, '-', color=MOUSE_COLOR[mouse], lw=0.7, alpha=0.5, zorder=3)
-    xs = np.array(xs, float); ys = np.array(ys, float)
-    regression_band(ax, xs, ys)
+    regression_band(ax, mx, my)                                        # band on the per-mouse means (matches the n=9 stat)
     ax.axhline(0, ls=':', color='k', lw=0.7); ax.axvline(0, ls=':', color='k', lw=0.7)
     ax.set_ylim(ylimC)
     sig = pv < 0.05
-    ax.text(0.03, 0.03, f'mixed model ({n_mice} mice, {n_obs} obs)\nβ={beta:+.3f}, p={pv:.3f}',
+    ax.text(0.03, 0.03, f'per-mouse (n={n_mice})\nSpearman ρ={rho:+.2f}, p={pv:.3f}',
             transform=ax.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
     ax.text(0.92, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
             fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
     ax.set_xlabel('Δ DPA choice-code depth'); ax.set_ylabel(ylabel)
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
     ax.set_box_aspect(1)
-    print(f'C[{ylabel[:6]}] mixed model β={beta:+.3f} p={pv:.3f} ({n_mice} mice, {n_obs} obs)')
+    print(f'D[{ylabel[:6]}] per-mouse n={n_mice} Spearman ρ={rho:+.3f} p={pv:.3f}')
 _C_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')]
 axC[0].legend(handles=_C_leg, frameon=False, loc='upper center', bbox_to_anchor=(0.42, 1.0),
