@@ -70,9 +70,9 @@ GNG_D = _norm_code(GNG_R, Y_GNG, 'gng', 1, 'Dual')
 # column order: sample, GNG, test, DPA-action.  spec = (title, D, YY, split_col, levels, labs, colours)
 SPECS = [
     ('sample',        SAMPLE_D, Y_SAM, 'sample_odor', [0, 1], ['Odor A', 'Odor B'], ['#332288', '#44AA99']),
-    ('GNG\n(memory)', GNG_D,    Y_GNG, 'gng',         [0, 1], ['NoGo', 'Go'],       ['#2ca02c', '#1f77b4']),
+    ('GNG',           GNG_D,    Y_GNG, 'gng',         [0, 1], ['NoGo', 'Go'],       ['#2ca02c', '#1f77b4']),
     ('test',          TEST_D,   Y_TST, 'test_odor',   [0, 1], ['Odor C', 'Odor D'], ['#CC6677', '#999933']),
-    ('DPA action',    LICK_D,   Y_LCK, 'choice',      [0, 1], ['No lick', 'Lick'],  ['#377eb8', '#4daf4a']),
+    ('choice',        LICK_D,   Y_LCK, 'choice',      [0, 1], ['No lick', 'Lick'],  ['#377eb8', '#4daf4a']),
 ]
 PANELS = [('A', 'Go trials', 'DualGo'), ('B', 'NoGo trials', 'DualNoGo')]
 

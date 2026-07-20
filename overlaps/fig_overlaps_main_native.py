@@ -3,9 +3,11 @@ fig_overlaps_main_native.py — the overlaps MAIN paper figure (A&B-independent 
 variant), COMPOSED NATIVELY as one matplotlib gridspec, Nature-Neuroscience-styled.
 
 Layout (5-row gridspec, print-scale typography ~7 pt) — panels A B C D E:
-  A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / LICK(DPA action) / test / GNG.
-     The LICK column is the DPA lick contrast on the DPA ACTION axis (choice decoder @ bins 57–63 = last
-     0.5 s TEST + first 0.5 s CHOICE). GNG = MID-DELAY memory axis (Go/NoGo decoder @ bins_MD 33–38).
+  A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / GNG / test / choice.
+     Titles: "sample code", "GNG code", "test code", "choice code". The choice column is the DPA lick
+     contrast on the DPA ACTION axis (choice decoder @ bins 57–63 = last 0.5 s TEST + first 0.5 s CHOICE).
+     GNG = Go/NoGo decoder @ bins_MD (33–38), own y-scale (col 1). (Titles renamed 2026-07-20:
+     "GNG (memory)"→"GNG", "DPA action"→"choice".)
   B  the DPA action/lick code, two compact panels right of A: (B1) action-code d′ (lick vs no-lick @
      57–63), Naive x vs Expert y — decodable and ~UNCHANGED with learning (near unity), so C's effect is
      a POSITION shift not a decodability change; (B2) shared action code = cos(DPA-lick axis @57–63,
@@ -234,7 +236,7 @@ LICK_D   = _norm_code(LICK_R,   Y_LCK, 'choice',      1, 'DPA')        # DPA act
 GNG_D    = _norm_code(GNG_R,    Y_GNG, 'gng',         1, 'Dual')
 
 # lick-axis aliases used by B/C/D/E (the DPA action / lick code drives the push + depth panels)
-LICK_Y, Lm, LICK_TGT, LICK_TITLE = Y_LCK, Y_LCK, 'choice', ('DPA decision' if TESTWIN else 'DPA action')
+LICK_Y, Lm, LICK_TGT, LICK_TITLE = Y_LCK, Y_LCK, 'choice', 'choice'   # panel-A title = "choice code" (the DPA lick/no-lick decision axis)
 lick_depth = LICK_D[:, BINS_LATE].mean(1)
 L_laser = (Lm.laser == 0); L_tgt = (Lm.target == 'choice')
 L_correct = L_laser & (Lm.performance == 1) & (Lm.tasks == 'DPA')
@@ -464,7 +466,7 @@ VARS_A = [
     (LICK_TITLE, LICK_D, Lm, 'choice', [0, 1], ['No lick', 'Lick'], ['#377eb8', '#4daf4a'], 'DPA'),
     ('test',   TEST_D,   Y_TST, 'test_odor',   [0, 1], ['Odor C', 'Odor D'], ['#CC6677', '#999933'], 'DPA'),
 ]
-VAR_GNG = ('GNG\n(memory)', GNG_D, Y_GNG, 'gng', [0, 1], ['NoGo', 'Go'], ['#2ca02c', '#1f77b4'], 'Dual')
+VAR_GNG = ('GNG', GNG_D, Y_GNG, 'gng', [0, 1], ['NoGo', 'Go'], ['#2ca02c', '#1f77b4'], 'Dual')
 
 
 def _setup_A(ax, ylab):
