@@ -4,7 +4,7 @@
 > pre-rendered strips). The hypothesis / scientific arc below still applies, but the COMPOSITION,
 > NORMALISATION and per-panel STATS are all superseded — do not trust the specific numbers here.**
 > The **current publication figure is `fig_overlaps_main_native.py`**, natively composed. As of
-> 2026-07-18 it is **5 panels A–E**: A traces (sample / DPA-action-lick / test / GNG-memory), B
+> 2026-07-18 it is **5 panels A–E**: A traces (sample / GNG-memory / test / DPA-action-lick), B
 > action-code d′ + shared-action cosine, C the no-lick push (**Sample A vs B**), D Δdepth↔Δaccuracy,
 > E FA/CR. It uses **ONE uniform normalisation everywhere = class-signed pooled evoked-std** (`--eqnorm`
 > for the all-trials-std variant), the DPA **action axis** (choice decoder @ bins 57–63; `--testwin` =

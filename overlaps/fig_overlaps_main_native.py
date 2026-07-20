@@ -534,14 +534,14 @@ def panel_letter(ax, L, x=0.008, dy=0.014):
 axA = np.empty((2, 4), dtype=object)
 _rowsub = [gs[0, :].subgridspec(1, 4, wspace=0.55), gs[1, :].subgridspec(1, 4, wspace=0.55)]
 for c in range(4):
-    _shy0 = axA[0, 0] if (0 < c < 3) else None                         # GNG (c==3) not row-shared
+    _shy0 = axA[0, 0] if c in (2, 3) else None                         # GNG (c==1) own scale; test/action share sample
     axA[0, c] = fig.add_subplot(_rowsub[0][0, c], sharey=_shy0)
-    _shy1 = axA[1, 0] if (0 < c < 3) else None
+    _shy1 = axA[1, 0] if c in (2, 3) else None
     axA[1, c] = fig.add_subplot(_rowsub[1][0, c], sharex=axA[0, c], sharey=_shy1)
-_A_SPECS = VARS_A + [VAR_GNG]                                          # sample, lick(action), test, GNG
+_A_SPECS = [VARS_A[0], VAR_GNG, VARS_A[2], VARS_A[1]]                  # sample, GNG, test, lick(action)
 for ri, STG in enumerate(STAGES):
     for c, spec in enumerate(_A_SPECS):
-        ylab = (f'{STG}\ncode (z)' if c == 0 else ('GNG code (z)' if c == 3 else ''))
+        ylab = (f'{STG}\ncode (z)' if c == 0 else ('GNG code (z)' if c == 1 else ''))
         _draw_trace_col(axA[ri, c], spec, STG, ylab, show_title=(ri == 0), show_xlabel=(ri == 1))
 
 # ══════════════════════════════════════════════════════════════════════════════

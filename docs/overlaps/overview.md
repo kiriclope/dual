@@ -153,7 +153,7 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   ignore its Expert BC star, a pseudoreplication artifact from ~1-2 mice with many deep FA trials).
 - **Native main figure — CURRENT layout (`fig_overlaps_main_native.py`, 5-row A–E, 2026-07-18).** The
   publication figure (`figures/overlaps/main/{png,svg}/fig_overlaps_main_ab_dpaact[_testwin].png`; `--eqnorm`
-  → `main/eqnorm/`). **A** traces (sample / DPA-action-lick / test / GNG-memory), **B** two compact panels
+  → `main/eqnorm/`). **A** traces (sample / GNG-memory / test / DPA-action-lick), **B** two compact panels
   right of A (action-code d′ stable + shared-action cosine ★), **C** the no-lick push (now **Sample A vs B**,
   not the 4 pairs) + KDE + depth paired plot, **D** Δdepth↔Δacc coupling, **E** FA/CR (winsorised). The lick
   axis = DPA choice/lick decoder @ the DPA lick moment (bins **57–63**), on target=='choice' rows; `--testwin`
