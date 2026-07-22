@@ -64,34 +64,43 @@ zx = np.concatenate(zx); zy = np.concatenate(zy); cat = np.concatenate(cat)
 rho = np.mean([spearmanr(np.abs(axes_mouse(m, 'Expert')[0]), np.abs(axes_mouse(m, 'Expert')[1]))[0] for m in MICE])
 chance = np.mean([1 / np.sqrt(len(axes_mouse(m, 'Naive')[0])) for m in MICE])
 
-# ── D input: per-neuron selectivity to the 4 variables (Welch t + BH-FDR) ──
+# ── D input: per-neuron selectivity via a PERMUTATION test (no effect-size threshold) ──
 print('loading X_all …', flush=True)
 Xall = np.asarray(pkl_load('X_all_nan_', path='../data/pca')); yall = pkl_load('y_all_nan_', path='../data/pca')
 yall['gng'] = np.where(yall.tasks.to_numpy() == 'DualGo', 1.0,           # derive gng (not in raw labels): Go=1 / NoGo=0
                        np.where(yall.tasks.to_numpy() == 'DualNoGo', 0.0, np.nan))
 lo = (yall.laser == 0).to_numpy(); dpa = (yall.tasks == 'DPA').to_numpy(); mo = yall.mouse.to_numpy()
-# Each variable read at ITS OWN DECODER window (same train-bin averaging as the main-figure codes):
-# sample 16-48, GNG bins_MD (36-38), test 58-84, choice 57-63. NB the Go-response lick coincides with
-# ~bins_MD (peaks ~5.2-5.8s post-sample; neural↔behaviour alignment uncertain ~1s), so the GNG diagonal
-# read here may include the Go-lick (Go=lick/NoGo=withhold) as well as the Go/NoGo odour — see report.
-VARS = [('sample', np.arange(16, 48), 'sample_odor', True), ('GNG', MD, 'gng', False),
-        ('test', np.arange(58, 84), 'test_odor', True), ('choice', np.arange(57, 63), 'choice', True)]
+# All four variables tested on the SAME Dual (Go/NoGo) trials — sample/test/choice are all present there —
+# so trial counts (power) are MATCHED across variables. Each read at its decoder window: sample 16-48,
+# GNG bins_MD (per options.py AFTER distractor [4.5,5.5]s, BEFORE cue [6.5,7]s → pre-lick), test 58-84,
+# choice 57-63. Selectivity = per-neuron PERMUTATION test: shuffle the class labels NPERM times to build
+# each neuron's OWN null for |d'|; p=(#null≥obs +1)/(NPERM+1); BH-FDR q<0.05. No effect-size cutoff.
+VARS = [('sample', np.arange(16, 48), 'sample_odor'), ('GNG', MD, 'gng'),
+        ('test', np.arange(58, 84), 'test_odor'), ('choice', np.arange(57, 63), 'choice')]
 VLAB = [v[0] for v in VARS]
+NPERM = 500; RNG = np.random.default_rng(0)
+
+
+def dprime(A, m1):                                           # |d'| per neuron for a boolean split m1
+    a, b = A[m1], A[~m1]
+    return np.abs(a.mean(0) - b.mean(0)) / (np.sqrt((a.var(0, ddof=1) + b.var(0, ddof=1)) / 2) + 1e-9)
+
+
 SEL = []                                                     # per neuron: boolean tuning to each of the 4 variables
 for m in MICE:
     val = VALID[(m, 'Expert')]; nsig = np.zeros((int(val.sum()), 4), bool)
-    for j, (nm, win, col, is_dpa) in enumerate(VARS):
-        idx = lo & (mo == m) & (dpa if is_dpa else ~dpa)
-        A = np.nanmean(Xall[idx][:, val, :][:, :, win], axis=2)   # (ntr, nneur)
-        lab = yall.loc[idx, col].to_numpy().astype(float); ok = np.isfinite(lab)
-        A, lab = A[ok], lab[ok]
-        a, b = A[lab == 1], A[lab == 0]
-        if len(a) < 3 or len(b) < 3:
+    dual = lo & (mo == m) & ~dpa
+    for j, (nm, win, col) in enumerate(VARS):
+        A = np.nan_to_num(np.nanmean(Xall[dual][:, val, :][:, :, win], axis=2))   # (ntr, nneur), matched Dual trials
+        lab = yall.loc[dual, col].to_numpy().astype(float); ok = np.isfinite(lab)
+        A, lab = A[ok], (lab[ok] == 1)
+        if lab.sum() < 5 or (~lab).sum() < 5:
             continue
-        _, p = ttest_ind(a, b, axis=0, equal_var=False, nan_policy='omit')
-        p = np.where(np.isfinite(p), p, 1.0)
-        nsig[:, j] = fdrcorrection(p, alpha=0.05)[0]
-    SEL.append(nsig)
+        obs = dprime(A, lab); cnt = np.ones(A.shape[1])      # +1 (add-one)
+        for _ in range(NPERM):
+            cnt += dprime(A, RNG.permutation(lab)) >= obs
+        nsig[:, j] = fdrcorrection(cnt / (NPERM + 1), alpha=0.05)[0]
+    SEL.append(nsig); print(f'  {m} done', flush=True)
 SEL = np.concatenate(SEL, 0)                                  # (n_neurons, 4)
 Mmat = np.zeros((4, 4))
 for i in range(4):
@@ -158,10 +167,10 @@ for i in range(4):
 d.set_xticks(range(4)); d.set_xticklabels(VLAB); d.set_yticks(range(4)); d.set_yticklabels(VLAB)
 d.tick_params(length=0)
 d.set_title('tuned to one (diag) vs both (off-diag)', loc='left', fontsize=TITLE_FS)
-d.text(0.5, -0.19, 'each variable read at ITS decoder window (sample 16-48, GNG bins_MD, test 58-84, choice 57-63).\n'
-       'off-diag = observed % (chance in parens = product of diagonals); stimulus pairs ≈ chance.\n'
-       f'NB the Go-response lick coincides with ~bins_MD, so the GNG diagonal may include it. mixed(≥2)={mixed*100:.0f}%',
-       transform=d.transAxes, ha='center', va='top', fontsize=5.1, color='0.3')
+d.text(0.5, -0.19, 'per-neuron PERMUTATION test (500 shuffles, BH-FDR q<.05), MATCHED Dual trials, each read at its\n'
+       'decoder window (sample 16-48, GNG bins_MD [after distractor, before cue → pre-lick], test 58-84, choice 57-63).\n'
+       f'off-diag = tuned to BOTH (chance in parens = product of diagonals); off-diagonals ≈ chance. mixed(≥2)={mixed*100:.0f}%',
+       transform=d.transAxes, ha='center', va='top', fontsize=5.0, color='0.3')
 cb = fig.colorbar(im, ax=d, fraction=0.046, pad=0.04); cb.ax.tick_params(labelsize=6); cb.set_label('% of neurons', fontsize=6)
 d.text(-0.32, 1.05, 'D', transform=d.transAxes, fontsize=11, fontweight='bold', va='bottom', ha='left')
 
