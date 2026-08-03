@@ -35,6 +35,8 @@ HIDE_PROJECTS = {'root', 'figures'}    # stray repo-root PNGs + the tiny top-lev
 # nothing is copied. Edit these lists to curate the paper; order here = display order. A path that
 # doesn't exist yet shows a greyed "missing" card (harmless placeholder).
 MAIN = [
+    ('Fig — task & behaviour (learning curves, DPA↔GNG balance)',
+     'overlaps/figures/overlaps/behavior/png/behavior_main.png'),
     ('Fig — overlaps geometry (sample ⊥ action, no-lick push)',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab.png'),
     ('Fig — dPCA story (tasks/time factors)',
