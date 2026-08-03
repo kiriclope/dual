@@ -1,12 +1,16 @@
-# Compositional learning by geometric editing — main paper (draft v3)
+# Compositional learning by geometric editing — main paper (draft v4)
 
 > **Thesis:** cortical computation is low-dimensional and carried by the *geometry* of population
 > activity; the brain composes a new task by **editing that geometry** — reusing a pre-existing neural
-> manifold and re-sculpting its attractor landscape — rather than by building new coding dimensions.
+> manifold and repositioning the memory state along its existing axes — rather than by building new
+> coding dimensions.
 > Working title: *"Compositional learning by geometric editing: mPFC reuses a low-dimensional manifold
-> and re-sculpts its attractors to interleave memory and action."*
+> and repositions the working-memory state to interleave memory and action."*
 >
-> Figure order: **1 Behaviour · 2 dPCA (low-D dynamics) · 3 Overlaps (reused geometry) · 4 Model
+> **Flow fields / attractor-dynamics are OUT of the paper (2026-08-03) — kept as "extra"** (gallery pca/
+> overlaps tabs), so Fig 2 is dPCA GEOMETRY + the no-lick push (no flow model), and Supp Fig 7 is dropped.
+>
+> Figure order: **1 Behaviour · 2 dPCA (low-D geometry) · 3 Overlaps (reused geometry) · 4 Model
 > (deferred) · 5 Opto (causal).** Publication-ready standard: **every panel is referenced and described.**
 > Panel letters/stats verified against the RENDERED figures (Fig 1 `behavior_main.png`;
 > Fig 2 `fig_dpca_story_main.png`; Fig 3 `fig_overlaps_main_ab_dpaact.png` — the CURRENT build, not the
@@ -20,7 +24,7 @@ already performs. Rather than learn each new demand from scratch, cortex may reu
 representational structure and adapt it — an economical strategy if computation is implemented, as
 increasingly argued, in the low-dimensional geometry of population activity. We asked whether prefrontal
 cortex acquires a two-component task in exactly this way: by reusing an existing population manifold and
-making a *targeted edit* to its dynamics, rather than by forming a new representation.
+making a *targeted edit* to its geometry, rather than by forming a new representation.
 
 We trained head-fixed mice (n = 9) on a delayed paired-association (DPA) working-memory task — a sample
 odour (A or B), after a 6 s delay, matched to a test odour (C or D) with a lick-for-reward response. On a
@@ -34,9 +38,9 @@ a pseudo-population of 3,319 neurons spanning naïve and expert stages.
 
 We find that mPFC does not construct a new representation for the dual task. The memory and the action are
 carried on near-orthogonal axes of a low-dimensional manifold that is already present in naïve animals;
-learning leaves this factorized geometry in place and instead re-sculpts the delay-period attractor
-landscape, repositioning the working-memory state along a pre-existing action axis into the no-lick
-basin — an edit that protects the memory, predicts performance across animals, and is set by top-down input
+learning leaves this factorized geometry in place and instead repositions the working-memory state along
+a pre-existing action axis into the no-lick region — an edit that protects the memory, predicts performance
+across animals, and is set by top-down input
 from anterior cingulate cortex (ACC). Computation here is low-dimensional and geometric, and composition is
 an edit to that geometry.
 
@@ -69,7 +73,7 @@ asked how the population solves it. _(caveat: n = 9, underpowered; Fig. 1h suppo
 trade-off correlation", not a significant trade-off. LMM random-effect variance is near its boundary, so
 per-day curve p-values are mildly anti-conservative.)_
 
-## 2. Low-dimensional dynamics: near-orthogonal factors and an attractor landscape that learning re-sculpts (Fig. 2)
+## 2. Low-dimensional dPCA geometry: near-orthogonal factors, and learning pushes the delay memory into no-lick (Fig. 2)
 
 To see how mPFC arranges the memory and the action, we applied demixed PCA (dPCA) to the
 condition-averaged pseudo-population, factorising activity into marginal axes for sample identity, test
@@ -93,26 +97,21 @@ p < 0.001), binding the lick decision to the action context, while the sample an
 is retained; its factors are tuned. _(caveat: axis-mixing significance is a neuron bootstrap over the
 shared 3,319-neuron pool, not an across-animal test.)_
 
-We captured the computation as a low-rank, gain-modulated flow on the sample × choice plane, fit per
-regime (autonomous delay, sample A, sample B, Go, NoGo, cue, test C, test D; flow-field panels, Fig. 2,
-"computation" row). The fit generalised on held-out velocities (cross-validated R² = +0.08) and rendered
-the delay as a bistable, attractor-like landscape with two sample wells separated by a saddle. Learning
-then edited this landscape along a single pre-existing axis. The task/action axis orders the conditions by
-their required action (DualGo/lick positive; DualNoGo and DPA/no-lick negative), and along it the DPA
-delay state was pushed deeper into the no-lick region (Fig. 2f naïve vs Fig. 2g expert flows; per mouse
-mean push = −0.59, paired Wilcoxon p = 0.012, 8/9 mice, Fig. 2h left). Modelled explicitly, this is a
-*gated deformation* in which the no-lick wells deepen (fitted gated well ≈ −0.53) while the separating
-saddle stays pinned (Fig. 2g). Crucially the edit was protective: the two sample wells (A vs B) stayed
-separated across learning (Fig. 2h right; separation |B−A| 1.65 → 2.33, p = 0.10; significantly sharpening
-on all-trials, p = 0.02), and it was specific — the deepening survived removal of the condition-independent
-time ramp (−0.59 / −0.58 / −0.61 after projecting out the top 0/1/2 time directions, p ≤ 0.012, 8/9).
-Learning thus edits the delay dynamics along a pre-existing action axis, moving the memory into no-lick
-without disturbing what is remembered. _(caveats: the cyan "naïve memory level" line in Fig. 2f–h is a
-display anchor — naïve mice already sit at a non-zero no-lick depth (≈ −0.9); learning *deepens* an
-existing push, the clearest evidence that the structure pre-exists. The delay push is specific to the
-task/action axis and does not appear on the choice axis, which is resolved only at test; earlier
-"choice-polarization" claims were retracted as an orientation/leakage artifact. The attractor/bistable
-landscape is a fitted modelling portrait, not a validated property of the dynamics.)_
+The decisive change was confined to a single pre-existing axis. The task/action axis orders the conditions
+by their required action (DualGo/lick positive; DualNoGo and DPA/no-lick negative), and along it the DPA
+delay state was pushed deeper into the no-lick region with learning — visible in the tasks-axis trajectory
+(Fig. 2d, rightmost column) and quantified per mouse (mean push = −0.59, paired Wilcoxon p = 0.012, 8/9
+mice; Fig. 2f). The shift was protective — the two sample states (A vs B) stayed separated across learning
+(Fig. 2g; separation |B−A| 1.65 → 2.33, p = 0.10; significantly sharpening on all-trials, p = 0.02) — and
+specific: the deepening survived removal of the condition-independent time ramp (−0.59 / −0.58 / −0.61
+after projecting out the top 0/1/2 time directions, p ≤ 0.012, 8/9). Learning thus repositions the delay
+memory along a pre-existing action axis, into no-lick, without disturbing what is remembered. _(caveats:
+the naïve level marked in Fig. 2d,f is a display anchor — naïve mice already sit at a non-zero no-lick
+depth (≈ −0.9); learning *deepens* an existing push, the clearest evidence that the structure pre-exists.
+The delay push is specific to the task/action axis and does not appear on the choice axis, which is
+resolved only at test; earlier "choice-polarization" claims were retracted as an orientation/leakage
+artifact. A dynamical (low-rank flow / attractor-landscape) account of this push is NOT claimed from the
+dPCA geometry — that analysis is retained as "extra", outside the paper.)_
 
 ## 3. A reused geometry: memory and action share one manifold, and learning repositions the state on it (Fig. 3)
 
@@ -130,7 +129,7 @@ aligned above chance at both stages (Fig. 3b2; signed cosine naïve +0.12, p < 0
 p = 0.001; label-permutation p = 0.002), so composing the tasks reuses the same lick direction rather than
 building a second one.
 
-Within this fixed geometry, learning repositioned the state exactly as the dynamics predicted. The expert
+Within this fixed geometry, learning repositioned the state exactly as the dPCA analysis predicted. The expert
 DPA delay state sat further into the no-lick half of the action axis than the naïve state (Fig. 3c;
 sample × choice planes for naïve and expert, and the per-mouse choice-code depth Naïve → Expert; mixed
 model 9 mice/36 obs, β = −0.744, p = 0.046), specifically for sample A (A ≈ −1.45, p = 0.054; B ≈ −0.02,
@@ -202,12 +201,79 @@ sentence.)_
 
 Together these results describe compositional learning as **geometric editing**. mPFC represents the memory
 and the action on near-orthogonal, reusable axes of a low-dimensional manifold that predates expertise
-(Fig. 2, 3); learning does not add representational dimensions but re-sculpts the delay-period attractor
-landscape, repositioning the working-memory state along a pre-existing action axis into the no-lick basin
+(Fig. 2, 3); learning does not add representational dimensions but repositions the working-memory state
+along a pre-existing action axis into the no-lick region
 (Fig. 2), an edit that shields the memory and, animal by animal, predicts how well the two tasks are
 composed (Fig. 3); and top-down ACC→mPFC input supplies this edit — setting the state's position on the
 manifold without changing what the population encodes (Fig. 5). Computation is low-dimensional and
 geometric, and to compose is to edit that geometry.
+
+---
+
+## Extended Data Figures
+
+> Consolidated from the granular supplement set into **8 multi-panel Extended Data (ED) figures** (Nature
+> Neuroscience caps ED at 10); the trial-count reporting figure → Supplementary Information. Each ED figure
+> backs specific main-figure claims/_(caveats)_; all panels are in the shared house style (gallery Supp
+> tab). Stats are current run values (verified 2026-08-03). **Trims applied 2026-08-03:** former S5
+> (demixed axes) and S17 (d′ standalone) cut as redundant; former S13 folded into ED 6; flows (former S7)
+> removed → "extra".
+
+**ED Fig. 1 | Behaviour: learning curves (Fig. 1).** DPA/GNG, Go/NoGo, paired/unpaired and
+unpaired-by-context curves over six sessions + the LMM effect-size forest, pooled and split by opsin/target
+(Jaws, ChR, ACC) and for laser-ON trials. Condition effects reproduce (GNG−DPA β=+0.037 p=0.045; NoGo−Go
++0.072; unpaired−paired −0.185; Go−DPA −0.073). Learning is comparable across cohorts.
+
+**ED Fig. 2 | Behaviour: the DPA↔GNG balance is not a trade-off (Fig. 1e/g/h).** (a–c) per-animal
+DPA-vs-GNG scatter (Naïve co-vary r≈0.67 → Expert decouple r=+0.10), Pareto front (no animal on the
+both-optimal corner), a small fixed dual cost (Δ≈−0.03), and a *positive* within-trial DPA|GNG-correct
+coupling (GEE OR=2.03, p<0.001). (d–e) trial-history: a preceding dual trial lowers current-Go DPA accuracy
+(OR=0.81, p=0.047; GNG history-independent), and the blocked-design switch-cost mirrors it (into-dual
+OR=0.90, p<0.001).
+
+**ED Fig. 3 | dPCA dimensionality (Fig. 2b).** Reduced-rank test — held-out fit rises smoothly with no
+elbow at 2 (rank-2 = 62–67% of full); the condition-mean task manifold is ~2-D (top-2 ≈94% Expert/92%
+Naïve, PR≈2.2). Backs the "rank-2 geometry, not rank-2 dynamics" caveat.
+
+**ED Fig. 4 | dPCA no-lick push robustness (Fig. 2f).** The Naïve→Expert deepening reproduces in raw ΔF/F
+(r≈0.997, not a z-score artifact), survives condition-independent time-ramp removal (q0/1/2 =
+−0.59/−0.60/−0.61), holds on a Naïve-defined pooled basis (8/9; bootstrap CI [−0.56,−0.08]), and is
+population- not individual-level (depth↔accuracy null, r=+0.46, p=0.21).
+
+**ED Fig. 5 | Overlaps: coupling/push robustness + movement control (Fig. 3c,d).** (a–b) the Δdepth↔ΔDPA
+coupling is ★ under all six normalisations (ρ=−0.83 to −0.90) and survives a fixed common axis (ρ=−0.72)
+where the push attenuates to a trend; (c) a resampling battery (Mundlak β=−0.041 p=0.006; jackknife 9/9;
+bootstrap CI [−1.00,−0.26]; permutation p=0.008), ΔGNG null throughout; (d) movement control — late-delay
+licking is rare, the choice-code depth does not track it (ρ=+0.07), and the push/coupling are unchanged
+with a lick covariate.
+
+**ED Fig. 6 | Overlaps: the factorised geometry is robust (Fig. 3a,b).** (a) cross-temporal cosine matrices
+— cross-code |cos| ≈ the 0.05 chance floor at all time-pairs, within-code diagonals 0.4–0.9, choice×GNG the
+one least-orthogonal pair (~0.29); (b) modular, not mixed, selectivity — per-neuron permutation tuning
+(sample 10 / GNG 39 / test 3 / choice 10 %, cross-variable co-tuning at chance); (c) decoder-variant
+robustness — the main figure under L1 and LDA decoders (geometry/orthogonality decoder-invariant;
+push/coupling clearest under logistic); (d) codes robust to the Go/NoGo distractor — panel-A codes split by
+Go vs NoGo (sample/test unperturbed; the action code carries the distractor lick).
+
+**ED Fig. 7 | Opto: chronic silencing + transient behaviour (Fig. 5b–e).** (a–c) control-vs-opto learning
+curves for the ACC, ACC→Prl and Prl→ACC batches — ACC null; ACC→Prl impairs DPA (β=−0.06 p=0.009) and its
+unpaired trials (β=−0.12 p=0.014); Prl→ACC impairs GNG; (d–e) transient within-mouse laser OFF-vs-ON curves
+(Jaws n=5): DPA p=0.40, GNG p=0.24 — geometric, not a behavioural knock-down.
+
+**ED Fig. 8 | Opto: laser ON−OFF coupling, 7 mice (Fig. 5g–i).** The acute causal analog of the learning
+coupling over all 7 laser mice (5 Jaws + 2 ChR): GNG ρ≈−0.90 (p≈0.007), DPA null. Backs the axis choice and
+the alternative-n disclosure.
+
+**Supplementary Information**
+- **Trial counts per mouse** — per-mouse × stage × task counts entering the pseudo-population (balanced by
+  design; 5,568 laser-OFF trials total). _(Analysis-balanced counts, not raw behavioural trial numbers —
+  see Methods.)_
+
+**Omitted:** retracted dPCA choice-polarization figures (`dpca_flow_learning_ingain*`,
+`dpca_flow_autonomous_choice`, `dpca_choice_ci_qsweep`); the flow-field / bistability analysis (former S7 →
+"extra"); the standalone d′ figure (former S17 → already main Fig. 5k,l); demixed-axes loadings/mixing
+(former S5 → covered by Fig. 2e + ED 6). **Author-supplied gaps still needed:** histology / viral
+expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 
 ---
 
@@ -216,11 +282,14 @@ geometric, and to compose is to edit that geometry.
   FA/CR n.s. in E). A stale `fig_overlaps_main_ab.png` (4-panel, 18-obs LMM coupling) still exists in the
   repo — do NOT ship it; regenerate/replace so only the current build is used (the gallery Main tab was
   repointed to the `_dpaact` file).
-- **Fig. 2 flow panels are unlettered:** the per-regime flow grid (section 3) carries no panel letters in
-  the current render; either letter them or reference as a titled sub-figure. The push/preserve panels are
-  lettered F (naïve flow), G (expert flow), H (push p=0.012 | sample-preserved p=0.10).
-- **Fig. 2 letter drift:** the reproduction docs disagree on section-4 lettering; letters above (A,B,C,D,E,
-  flows, F,G,H) are read off the current PNG — re-verify at final render.
+- **Fig. 2 flow-free — DONE (2026-08-03):** `fig_dpca_story_main.py` regenerated without the section-3 flow
+  grid or the section-4 flow panels → 7-panel **a** schematic, **b** scree, **c** per-task variance, **d**
+  trajectory grid, **e** axis-mixing, **f** no-lick push (p=0.012), **g** sample-memory preserved (p=0.10);
+  title "The dPCA **geometry**…". Push stats reproduce (−0.59, 8/9). The Main-tab `fig_dpca_story_main.png`
+  now shows the flow-free build.
+- **Centered vs left titles:** the two newly-built supplements (Supp. Fig. 8 battery, Supp. Fig. 17 d′)
+  use centered subplot titles; the house convention is left-aligned (`loc='left'`). Minor consistency
+  sweep pending (the restyled existing supplements already use `loc='left'`).
 
 ### Open drafting decisions
 - **Fig. 1h framing:** "decoupled / suboptimal balance" (defensible, n.s. correlation) vs a stronger
@@ -234,8 +303,9 @@ geometric, and to compose is to edit that geometry.
 - **Fig. 5 numbering:** kept as 5 to reserve 4 for the deferred model; renumber if the model is cut.
 
 ### Framing guardrails (keep the thesis defensible)
-- "low-dimensional **geometry** / rank-2 portrait", never "the dynamics are rank-2"; attractor/bistability
-  = modelling portrait ("attractor-like").
+- "low-dimensional **geometry** / rank-2 portrait", never "the dynamics are rank-2". Flow-field /
+  attractor-dynamics claims are OUT of the paper (kept as "extra") — don't reintroduce "landscape",
+  "gated deformation", "bistable" into the main text.
 - near-orthogonality = the representational basis of compositionality (factorised code → combine without
   cross-talk) — the load-bearing, solid claim.
 - the pre-existing naïve no-lick well is the strongest "structure already there, fine-tuned" evidence —

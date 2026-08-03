@@ -32,15 +32,19 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-sns.set_context("poster")
-sns.set_style("ticks")
-plt.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 13, 'axes.titlesize': 13, 'xtick.labelsize': 10, 'ytick.labelsize': 10,
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
-    'axes.linewidth': 0.8,
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 STAGE_C = {'Naive': '#888888', 'Expert': '#332288'}
 
@@ -95,20 +99,20 @@ for ax, (title, formula, term, prep, xlab, note) in zip(axes, PANELS):
         ax.scatter(orr, i, s=110, facecolor=c if sig else 'w', edgecolor=c,
                    linewidths=1.8, zorder=3)
         ax.text(hi * 1.04, i, f'OR={orr:.2f}  p={p:.3f}{"*" if sig else ""}  (n={n})',
-                va='center', ha='left', fontsize=8.5, color='0.25')
+                va='center', ha='left', fontsize=6.5, color='0.3')
     ax.axvline(1.0, ls='--', color='k', lw=0.9, zorder=1)
     ax.set_xscale('log')
     ax.set_xticks([0.5, 0.7, 1.0, 1.5, 2.0, 3.0])
     ax.get_xaxis().set_major_formatter(mticker.ScalarFormatter())
     ax.set_xlim(0.45, 6.0)
     ax.set_yticks(range(len(ROWS)))
-    ax.set_yticklabels([f'{st}\n{sc}' for st, sc in ROWS], fontsize=9)
+    ax.set_yticklabels([f'{st}\n{sc}' for st, sc in ROWS], fontsize=7)
     ax.set_ylim(-0.6, len(ROWS) - 0.4)
-    ax.set_xlabel(f'{xlab}\n{note}', fontsize=11)
-    ax.set_title(title, loc='left', fontweight='bold')
+    ax.set_xlabel(f'{xlab}\n{note}', fontsize=8)
+    ax.set_title(title, loc='left', fontsize=TITLE_FS)
 
 fig.suptitle(f'Dual-task cost & trial coupling at the trial level '
-             f'(GEE logistic, clustered by mouse, laser {LASLAB})', fontsize=12, y=1.02)
+             f'(GEE logistic, clustered by mouse, laser {LASLAB})', fontsize=9, y=1.02)
 fig.tight_layout(rect=(0, 0.04, 1, 1))
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_dual_cost_trials{LASSFX}.{ext}'

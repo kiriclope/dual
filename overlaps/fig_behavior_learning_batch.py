@@ -37,15 +37,23 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import seaborn as sns
 import scipy.io as sio
 import statsmodels.formula.api as smf
 
-matplotlib.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'svg.fonttype': 'none',
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'
 N_MIN = 4
@@ -147,18 +155,18 @@ if '--compare' in sys.argv[1:]:
     ip = float(wt.loc[[i for i in wt.index if i.startswith('C(grp') and ':' in i][0], 'pvalue'])
     print(f'single vs dual DPA: group p={gp:.4f}{star(gp) or " ns"} | group×day p={ip:.4f}{star(ip) or " ns"}')
     ax.text(0.03, 0.03, f'single vs dual DPA  (LMM):\n group p={gp:.3f}{star(gp)}   group×day p={ip:.3f}{star(ip)}',
-            transform=ax.transAxes, va='bottom', ha='left', fontsize=8.5,
+            transform=ax.transAxes, va='bottom', ha='left', fontsize=6.5, color='0.3',
             bbox=dict(boxstyle='round,pad=0.3', fc='white', ec='0.8', lw=0.6, alpha=0.9))
 
     ax.axhline(0.5, ls=':', color='0.5', lw=1)
     ax.set_ylim(0.4, 1.02)
     ax.set_xticks(range(2, len(days) + 1, 2))
     ax.set_xlabel('training day'); ax.set_ylabel('performance')
-    ax.legend(frameon=False, fontsize=9, loc='lower right')
+    ax.legend(frameon=False, fontsize=6.5, loc='lower right')
     ax.spines[['top', 'right']].set_visible(False)
-    ax.set_title('Single-DPA vs Dual — DPA & GNG performance', loc='left', fontweight='bold', fontsize=12)
+    ax.set_title('Single-DPA vs Dual — DPA & GNG performance', loc='left', fontsize=TITLE_FS)
     fig.suptitle(f'{BATCH}: single-DPA (n={ds.mouse.nunique()}) vs dual-trained (n={dd.mouse.nunique()})',
-                 fontsize=11, y=0.99)
+                 fontsize=9, y=0.99)
     fig.tight_layout()
     OUT = 'figures/overlaps/behavior/batch'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
@@ -240,7 +248,7 @@ if '--delta' in sys.argv[1:]:
                 pv = float(ttest_ind(o, c, equal_var=False).pvalue)
                 if star(pv):
                     ax.text(day, 0.225 - idx * 0.02, star(pv), ha='center', va='center',
-                            fontsize=9, fontweight='bold', color=color)
+                            fontsize=8, fontweight='bold', color=color)
         eff = grp_effect(col, mask_fn)
         if eff is not None:
             effects.append((f'{panel} {label}', *eff))
@@ -250,31 +258,31 @@ if '--delta' in sys.argv[1:]:
         ax.set_ylim(-0.24, 0.24)
         ax.set_xticks(xt); ax.set_xlabel('training day')
         if ax.get_legend_handles_labels()[0]:
-            ax.legend(frameon=False, fontsize=9, loc='lower right')
+            ax.legend(frameon=False, fontsize=6.5, loc='lower right')
         ax.spines[['top', 'right']].set_visible(False)
-        ax.set_title(TITLES[panel], loc='left', fontweight='bold', fontsize=11)
+        ax.set_title(TITLES[panel], loc='left', fontsize=TITLE_FS)
     axA.set_ylabel(f'Δ performance  ({g2} − {g1})')
 
     for i, (lab, b, lo, hi, pv) in enumerate(effects):          # panel E — per-condition effect
         cc = 'k' if pv < 0.05 else '0.6'
         axE.errorbar(i, b, yerr=[[b - lo], [hi - b]], fmt='o', color=cc, ms=6, capsize=3, lw=1.5, zorder=3)
         if star(pv):
-            axE.text(i, hi + 0.004, star(pv), ha='center', va='bottom', fontsize=10, fontweight='bold')
+            axE.text(i, hi + 0.004, star(pv), ha='center', va='bottom', fontsize=12, fontweight='bold')
     axE.axhline(0, ls='--', color='0.4', lw=1)
     axE.set_xticks(range(len(effects)))
-    axE.set_xticklabels([lab for lab, *_ in effects], rotation=45, ha='right', fontsize=8)
+    axE.set_xticklabels([lab for lab, *_ in effects], rotation=45, ha='right', fontsize=7)
     axE.set_xlim(-0.6, len(effects) - 0.4)
     axE.set_ylabel(f'mean Δ  ({g2} − {g1})')
-    axE.set_title(f'E  Silencing effect per condition (95% CI)', loc='left', fontweight='bold', fontsize=11)
+    axE.set_title(f'E  Silencing effect per condition (95% CI)', loc='left', fontsize=TITLE_FS)
     axE.spines[['top', 'right']].set_visible(False)
 
     fig.suptitle(f'Silencing effect Δ({g2}−{g1}) vs day — {BATCH} '
-                 f'({g1} n={d1.mouse.nunique()}, {g2} n={d2.mouse.nunique()})', fontsize=13, y=0.99)
+                 f'({g1} n={d1.mouse.nunique()}, {g2} n={d2.mouse.nunique()})', fontsize=9, y=0.99)
     fig.text(0.5, 0.005,
              f'Between-group Δ = {g2} − {g1} (different animals), mean ± SEM of the difference.  '
              'Top stars: per-day Welch t-test between groups (exploratory, uncorrected).  '
              'Panel E: LMM perf ~ group×day + (1|mouse), group effect at mean day.  * p<0.05  ** p<0.01  *** p<0.001',
-             ha='center', va='bottom', fontsize=8, color='0.35')
+             ha='center', va='bottom', fontsize=6.5, color='0.3')
     fig.tight_layout(rect=(0, 0.05, 1, 0.94))
     OUT = 'figures/overlaps/behavior/batch'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
@@ -334,7 +342,7 @@ if '--ctrlopto' in sys.argv[1:]:
                 pv = float(ttest_ind(b, a, equal_var=False).pvalue)
                 if star(pv):
                     ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
-                            fontsize=10, fontweight='bold')
+                            fontsize=12, fontweight='bold')
         g = pd.concat([p1.assign(grp=g1), p2.assign(grp=g2)], ignore_index=True)   # LMM group test
         g['dayc'] = g['day'] - g['day'].mean()
         try:
@@ -354,9 +362,9 @@ if '--ctrlopto' in sys.argv[1:]:
         if ylo < 0.5 < yhi:
             ax.axhline(0.5, ls=':', color='0.5', lw=1)
         ax.set_xticks(xt); ax.set_xlabel('training day')
-        ax.legend(frameon=False, fontsize=9, loc='lower right')
+        ax.legend(frameon=False, fontsize=6.5, loc='lower right')
         ax.spines[['top', 'right']].set_visible(False)
-        ax.set_title(title, loc='left', fontweight='bold', fontsize=11)
+        ax.set_title(title, loc='left', fontsize=TITLE_FS)
     axA.set_ylabel('performance')
 
     # Panel D — LMM group effect (opto−control) per metric: group β (○) + group×day β (□)
@@ -370,24 +378,24 @@ if '--ctrlopto' in sys.argv[1:]:
                          ms=6, capsize=3, lw=1.5, zorder=3)
             if np.isfinite(pv) and star(pv):
                 axD.text(i + dx, vhi + 0.003, star(pv), ha='center', va='bottom',
-                         fontsize=9, fontweight='bold')
+                         fontsize=12, fontweight='bold')
     axD.axhline(0, ls='--', color='0.4', lw=1)
     axD.set_xticks(range(len(coefs)))
     axD.set_xticklabels([c[0] for c in coefs], rotation=20, ha='right')
     axD.set_xlim(-0.6, len(coefs) - 0.4)
     axD.set_ylabel(f'{g2} − {g1}   (β, Δ performance)')
-    axD.set_title('D  LMM group effect (95% CI)', loc='left', fontweight='bold', fontsize=11)
+    axD.set_title('D  LMM group effect (95% CI)', loc='left', fontsize=TITLE_FS)
     axD.spines[['top', 'right']].set_visible(False)
     axD.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=6, label='group (at mean day)'),
                         mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=6, label='group×day (slope)')],
-               frameon=False, fontsize=8, loc='best')
+               frameon=False, fontsize=6.5, loc='best')
 
     fig.suptitle(f'Control vs Opto learning curves — {BATCH} '
-                 f'({g1} n={d1.mouse.nunique()}, {g2} n={d2.mouse.nunique()})', fontsize=13, y=0.99)
+                 f'({g1} n={d1.mouse.nunique()}, {g2} n={d2.mouse.nunique()})', fontsize=9, y=0.99)
     fig.text(0.5, 0.005,
              'Curves: mean ± SEM across mice; top stars = per-day Welch t-test control vs opto (exploratory, uncorrected).  '
              'Panel D: LMM perf ~ group×day + (1|mouse), between-mouse.  * p<0.05  ** p<0.01  *** p<0.001',
-             ha='center', va='bottom', fontsize=8, color='0.35')
+             ha='center', va='bottom', fontsize=6.5, color='0.3')
     fig.tight_layout(rect=(0, 0.05, 1, 0.94))
     OUT = 'figures/overlaps/behavior/batch'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
@@ -514,7 +522,7 @@ def perday_stars(ax, mask, cond, correct, ref, tag, y_star=1.03):
           + '  '.join(f'd{k} p={ps[k]:.3f}{star(ps[k]) or "ns"}' for k in sorted(ps)))
     for k in sorted(ps):
         if star(ps[k]):
-            ax.text(k, y_star, star(ps[k]), ha='center', va='top', fontsize=11,
+            ax.text(k, y_star, star(ps[k]), ha='center', va='top', fontsize=12,
                     fontweight='bold', color='k')
 
 
@@ -549,9 +557,9 @@ def build_panel(ax, title, lines, stat_args):
     ax.set_xticks(xticks)
     ax.set_xlabel('training day')
     if ax.get_legend_handles_labels()[0]:
-        ax.legend(frameon=False, fontsize=9, loc='lower right')
+        ax.legend(frameon=False, fontsize=6.5, loc='lower right')
     ax.spines[['top', 'right']].set_visible(False)
-    ax.set_title(title, loc='left', fontweight='bold', fontsize=11)
+    ax.set_title(title, loc='left', fontsize=TITLE_FS)
     perday_stars(ax, *stat_args, y_star=yhi - 0.02 * (yhi - ylo))
 
 
@@ -589,25 +597,25 @@ for i, c in enumerate(cond_recs):
     for r, dx in ((c, -0.16), (it, 0.16)):
         if star(r['p']):
             axE.text(i + dx, r['hi'] + 0.02, star(r['p']), ha='center', va='bottom',
-                     fontsize=10, fontweight='bold')
+                     fontsize=12, fontweight='bold')
     xlabels.append((i, f"{c['model']}  {c['contrast']}"))
 axE.axhline(0, ls='--', color='0.4', lw=1)
 axE.set_xticks([x for x, _ in xlabels])
-axE.set_xticklabels([lab for _, lab in xlabels], rotation=40, ha='right', fontsize=8.5)
+axE.set_xticklabels([lab for _, lab in xlabels], rotation=40, ha='right', fontsize=7)
 axE.set_xlim(-0.6, max(len(cond_recs) - 0.4, 0.6))
 axE.set_ylabel('LMM coefficient  β  (Δ performance)')
-axE.set_title('E  LMM fixed-effect coefficients (95% CI)', loc='left', fontweight='bold', fontsize=11)
+axE.set_title('E  LMM fixed-effect coefficients (95% CI)', loc='left', fontsize=TITLE_FS)
 axE.spines[['top', 'right']].set_visible(False)
 axE.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='condition (β at mean day)'),
                     mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=6, label='condition × day (slope)')],
-           frameon=False, fontsize=8, loc='upper right')
+           frameon=False, fontsize=6.5, loc='upper right')
 
-fig.suptitle(TITLE, fontsize=13, y=0.99)
+fig.suptitle(TITLE, fontsize=9, y=0.99)
 fig.text(0.5, 0.005,
          f'Curves: mean ± SEM across mice ({len(MICE)}).  '
          'Top stars: per-day LMM condition effect, random intercept mouse, UNCORRECTED (exploratory; days with <4 mice untested).  '
          'Panel E: trajectory LMM, perf ~ condition×day + (1|mouse).  * p<0.05  ** p<0.01  *** p<0.001',
-         ha='center', va='bottom', fontsize=8, color='0.35')
+         ha='center', va='bottom', fontsize=6.5, color='0.3')
 fig.tight_layout(rect=(0, 0.05, 1, 0.94))
 
 OUT = 'figures/overlaps/behavior/batch'

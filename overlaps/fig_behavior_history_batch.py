@@ -46,14 +46,19 @@ import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
-sns.set_style("ticks")
-plt.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 11, 'axes.titlesize': 11, 'xtick.labelsize': 9, 'ytick.labelsize': 9,
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
-    'axes.linewidth': 0.9, 'lines.linewidth': 1.8,
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'    # DPA / Go / NoGo
 SWITCH_C, REPEAT_C = '#332288', '#999999'             # switch / mid-block
@@ -165,12 +170,11 @@ def gee_or(sub, formula, term):
 fig = plt.figure(figsize=(14.5, 4.6))
 gs = fig.add_gridspec(1, 4, width_ratios=[1.15, 1.0, 1.0, 0.95], wspace=0.42,
                       left=0.045, right=0.99, top=0.82, bottom=0.2)
-TITLE_FS = 10.5
 
 
 def panel_letter(ax, L, dx=0.028, dy=0.05):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=15, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
 
 
 # ── A: block-structure strip from a representative session ─────────────────────
@@ -194,7 +198,7 @@ axA.axis('off')
 axA.legend(handles=[mlines.Line2D([0], [0], marker='s', color=TASK_COL[t], ls='none', ms=8, label=t)
                     for t in ['DPA', 'Go', 'NoGo']], frameon=False, fontsize=8,
            loc='lower center', ncol=3, bbox_to_anchor=(0.5, -0.02), handletextpad=0.1, columnspacing=0.9)
-axA.set_title('Blocked design (example session)', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axA.set_title('Blocked design (example session)', loc='left', fontsize=TITLE_FS)
 
 # ── B: switch cost on DPA memory (→dual and →pure) ─────────────────────────────
 axB = fig.add_subplot(gs[0, 1])
@@ -218,17 +222,17 @@ for ctx, name, x0, x1 in PAIRS:
     ybr = 74
     axB.plot([x0, x0, x1, x1], [ybr - 0.6, ybr, ybr, ybr - 0.6], color='k', lw=1.2)
     axB.text((x0 + x1) / 2, ybr + 0.3, star(p), ha='center', va='bottom',
-             fontsize=12 if p < 0.05 else 9.5, fontweight='bold')
+             fontsize=12 if p < 0.05 else 8, fontweight='bold', color='k' if p < 0.05 else '0.55')
     axB.text((x0 + x1) / 2, 62.5, f'OR={orr:.2f}\np={p:.3f}', ha='center', va='bottom',
-             fontsize=7.5, color='0.3')
-    axB.text((x0 + x1) / 2, 76.2, name, ha='center', va='bottom', fontsize=9, fontweight='bold')
+             fontsize=6.5, color='0.3')
+    axB.text((x0 + x1) / 2, 76.2, name, ha='center', va='bottom', fontsize=8)
 axB.set_xticks([0, 1, 2.4, 3.4])
 axB.set_xticklabels(['1st\nafter\nswitch', 'mid\nblock', '1st\nafter\nswitch', 'mid\nblock'], fontsize=8)
 for t, c in zip(axB.get_xticklabels(), [SWITCH_C, REPEAT_C, SWITCH_C, REPEAT_C]):
     t.set_color(c); t.set_fontweight('bold')
 axB.set_xlim(-0.5, 3.9); axB.set_ylim(62, 78)
 axB.set_ylabel('DPA performance (%)')
-axB.set_title('Switching into dual costs memory', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axB.set_title('Switching into dual costs memory', loc='left', fontsize=TITLE_FS)
 
 # ── C: warm-up within the dual block (GNG accuracy vs position) ────────────────
 axC = fig.add_subplot(gs[0, 2])
@@ -242,13 +246,13 @@ mn, se = np.array(mn), np.array(se)
 axC.errorbar(pos, mn, yerr=se, fmt='-o', color=BLUE, ms=6, capsize=3, lw=1.8, zorder=3)
 axC.scatter(pos[0], mn[0], s=140, facecolor='none', edgecolor=SWITCH_C, linewidths=2, zorder=4)
 axC.annotate('switch\n(1st dual)', (pos[0], mn[0]), textcoords='offset points',
-             xytext=(14, -2), fontsize=7.5, color=SWITCH_C, va='center')
+             xytext=(14, -2), fontsize=6.5, color=SWITCH_C, va='center')
 orr, lo, hi, p = gee_or(du[['op', 'switch', 'mouse']], 'op ~ switch', 'switch')
 axC.text(0.96, 0.06, f'switch OR={orr:.2f}\np={p:.3f} {star(p)}', transform=axC.transAxes,
-         ha='right', va='bottom', fontsize=8, color='0.3')
+         ha='right', va='bottom', fontsize=6.5, color='0.3')
 axC.set_xticks(pos); axC.set_xlabel('position within dual block')
 axC.set_ylabel('GNG accuracy (%)')
-axC.set_title('Distractor accuracy warms up', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axC.set_title('Distractor accuracy warms up', loc='left', fontsize=TITLE_FS)
 
 # ── D: clean trial-lag — prev-Go vs prev-NoGo on dual trials (matched position) ─
 axD = fig.add_subplot(gs[0, 3])
@@ -264,25 +268,26 @@ for yy, (name, col, orr, lo, hi, p) in zip(ys, rows):
     sig = p < 0.05
     axD.errorbar(orr, yy, xerr=[[orr - lo], [hi - orr]], fmt='o', color=col,
                  mfc=col if sig else 'white', mec=col, ms=9, capsize=4, lw=1.6, zorder=3)
-    axD.text(hi + 0.01, yy, star(p), va='center', ha='left', fontsize=11, fontweight='bold')
+    axD.text(hi + 0.01, yy, star(p), va='center', ha='left',
+             fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
 axD.axvline(1.0, ls='--', color='0.4', lw=1)
 axD.set_yticks(ys); axD.set_yticklabels([n for n, *_ in rows])
 for t, (_, col, *_) in zip(axD.get_yticklabels(), rows):
     t.set_color(col); t.set_fontweight('bold')
 axD.set_ylim(-0.6, len(rows) - 0.4)
 axD.set_xlabel('prev NoGo vs Go\n(odds ratio, 95% CI)')
-axD.set_title('Clean lag: null memory, weak GNG', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axD.set_title('Clean lag: null memory, weak GNG', loc='left', fontsize=TITLE_FS)
 
 for _ax, _L in [(axA, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D')]:
     panel_letter(_ax, _L)
 
 fig.suptitle(f'Trial-history in the blocked training batches — {SRC}',
-             fontsize=12.5, fontweight='bold', y=0.99)
+             fontsize=11, y=0.99)
 fig.text(0.5, 0.015,
          f'{SRC} · blocked design (~4 pure-DPA / ~8 dual, repeating) confounds previous-task with '
          'block position → only the switch-cost & matched within-dual (prev Go/NoGo) contrasts are '
          'clean · GEE clustered by mouse · D controls for position + current task + previous outcome · '
-         '* p<0.05 ** p<0.01 *** p<0.001', ha='center', va='bottom', fontsize=7.3, color='0.45')
+         '* p<0.05 ** p<0.01 *** p<0.001', ha='center', va='bottom', fontsize=6.5, color='0.45')
 
 OUT = 'figures/overlaps/behavior'
 os.makedirs(f'{OUT}/png', exist_ok=True)

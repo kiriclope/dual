@@ -32,18 +32,20 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import seaborn as sns
 
-sns.set_context("poster")
-sns.set_style("ticks")
-E_RC = {
-    'figure.dpi': 150, 'savefig.dpi': 300,
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 13, 'axes.titlesize': 13,
-    'xtick.labelsize': 10, 'ytick.labelsize': 10,
-    'axes.spines.top': False, 'axes.spines.right': False,
-    'svg.fonttype': 'none', 'axes.linewidth': 0.8,
-    'xtick.major.width': 0.8, 'ytick.major.width': 0.8,
-    'xtick.major.size': 3.5, 'ytick.major.size': 3.5,
-}
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = 8
+E_RC = {}                             # rcParams set globally above; rc_context kept as a no-op shim
 
 ALL_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18',
             'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
@@ -139,9 +141,9 @@ with plt.rc_context(E_RC):
                        label=m if ax is axes[1] else None)
         ax.text(0.03, 0.03, f'Pareto front: {len(front)}/{len(pts)}\n'
                 f'dominated: {len(pts) - len(front)}/{len(pts)}',
-                transform=ax.transAxes, ha='left', va='bottom', fontsize=9, color='0.25')
+                transform=ax.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
         ax.set_xlim(lim); ax.set_ylim(lim); ax.set_aspect('equal')
-        ax.set_xlabel(xlab); ax.set_title(stage, fontweight='bold')
+        ax.set_xlabel(xlab); ax.set_title(stage, loc='left', fontsize=TITLE_FS)
     axes[0].set_ylabel(ylab)
 
     handles = [mlines.Line2D([0], [0], marker='o', color='k', mfc='w', mec='k',
@@ -150,12 +152,12 @@ with plt.rc_context(E_RC):
                              alpha=0.5, label='dominated (faded)')]
     handles += [mlines.Line2D([0], [0], marker='o', color=MOUSE_COLOR[m], ls='none',
                               ms=8, label=m) for m in ALL_MICE]
-    axes[1].legend(handles=handles, frameon=False, fontsize=8, loc='upper left',
+    axes[1].legend(handles=handles, frameon=False, fontsize=6.5, loc='upper left',
                    bbox_to_anchor=(1.01, 1),
-                   title='mouse (● Jaws / ▲ ChR / ■ ACC)', title_fontsize=8)
+                   title='mouse (● Jaws / ▲ ChR / ■ ACC)', title_fontsize=6.5)
     fig.suptitle(f'Pareto frontier of DPA vs GNG per animal — laser {LASLAB}, {NOTE}'
                  + (f'  (n={len(STG["Expert"])} mice — ACC has no laser)' if ON else ''),
-                 fontsize=12, y=1.01)
+                 fontsize=9, y=1.01)
     fig.tight_layout()
     for ext in ('png', 'svg'):
         p = f'{OUT}/{ext}/behavior_pareto{SUFFIX}{LASSFX}.{ext}'

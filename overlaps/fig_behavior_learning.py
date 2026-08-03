@@ -52,15 +52,22 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import seaborn as sns
 import statsmodels.formula.api as smf
 
-matplotlib.rcParams.update({
-    'figure.dpi':   150,
-    'savefig.dpi':  300,
-    'font.family':  'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'svg.fonttype': 'none',
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 ALL_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18',
             'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
@@ -227,7 +234,7 @@ def perday_stars(ax, mask, cond, correct, ref, tag, y_star=1.03):
     for k in days:
         if star(ps[k]):
             ax.text(k, y_star, star(ps[k]), ha='center', va='top',
-                    fontsize=11, fontweight='bold', color='k')
+                    fontsize=12, fontweight='bold', color='k')
 
 
 IS_DPA   = d.tasks == 'DPA'
@@ -263,21 +270,21 @@ plot_line(axA, pmd_dpa, RED,  'DPA')
 plot_line(axA, pmd_gng, BLUE, 'GNG')
 betas += lmm(axA, IS_DPA | IS_DUAL, COND_A, CORR_A, 'DPA', 'A DPA vs GNG')
 perday_stars(axA, IS_DPA | IS_DUAL, COND_A, CORR_A, 'DPA', 'A DPA vs GNG')
-axA.set_title('A  DPA vs GNG performance', loc='left', fontweight='bold', fontsize=11)
+axA.set_title('DPA vs GNG performance', loc='left', fontsize=TITLE_FS)
 
 # B — GNG Go vs NoGo distractor
 plot_line(axB, pmd_go,   BLUE,  'Go')
 plot_line(axB, pmd_nogo, GREEN, 'NoGo')
 betas += lmm(axB, IS_DUAL, COND_TASK, CORR_GNG, 'Go', 'B Go vs NoGo')
 perday_stars(axB, IS_DUAL, COND_TASK, CORR_GNG, 'Go', 'B Go vs NoGo')
-axB.set_title('B  GNG: Go vs NoGo', loc='left', fontweight='bold', fontsize=11)
+axB.set_title('GNG: Go vs NoGo', loc='left', fontsize=TITLE_FS)
 
 # C — DPA paired vs unpaired
 plot_line(axC, pmd_pair,   RED, 'paired',   ls='-')
 plot_line(axC, pmd_unpair, RED, 'unpaired', ls='--')
 betas += lmm(axC, IS_DPA, COND_PAIR, CORR_DPA, 'paired', 'C paired vs unpaired')
 perday_stars(axC, IS_DPA, COND_PAIR, CORR_DPA, 'paired', 'C paired vs unpaired')
-axC.set_title('C  DPA: paired vs unpaired', loc='left', fontweight='bold', fontsize=11)
+axC.set_title('DPA: paired vs unpaired', loc='left', fontsize=TITLE_FS)
 
 # D — DPA UNPAIRED performance by task context (all dashed)
 plot_line(axD, pmd_u_dpa,  RED,   'DPA only', ls='--')
@@ -285,14 +292,14 @@ plot_line(axD, pmd_u_go,   BLUE,  'Go',       ls='--')
 plot_line(axD, pmd_u_nogo, GREEN, 'NoGo',     ls='--')
 betas += lmm(axD, UNP, COND_TASK, CORR_DPA, 'DPA', 'D unpaired by task')
 perday_stars(axD, UNP, COND_TASK, CORR_DPA, 'DPA', 'D unpaired by task')
-axD.set_title('D  DPA unpaired, by task', loc='left', fontweight='bold', fontsize=11)
+axD.set_title('DPA unpaired, by task', loc='left', fontsize=TITLE_FS)
 
 for ax in (axA, axB, axC, axD):
     ax.axhline(0.5, ls=':', color='0.5', lw=1)
     ax.set_ylim(0.18, 1.07)
     ax.set_xticks(DAYS)
     ax.set_xlabel('training day')
-    ax.legend(frameon=False, fontsize=9, loc='lower right')
+    ax.legend(frameon=False, fontsize=6.5, loc='lower right')
     ax.spines[['top', 'right']].set_visible(False)
 axA.set_ylabel('performance')
 
@@ -311,28 +318,34 @@ for i, c in enumerate(cond_recs):
     for r, dx in ((c, -0.16), (it, 0.16)):
         if star(r['p']):
             axE.text(i + dx, r['hi'] + 0.08, star(r['p']), ha='center', va='bottom',
-                     fontsize=10, fontweight='bold')
+                     fontsize=12, fontweight='bold')
     xlabels.append((i, f"{c['model']}  {c['contrast']}"))
 
 axE.axhline(0, ls='--', color='0.4', lw=1)
 axE.set_xticks([x for x, _ in xlabels])
-axE.set_xticklabels([lab for _, lab in xlabels], rotation=40, ha='right', fontsize=8.5)
+axE.set_xticklabels([lab for _, lab in xlabels], rotation=40, ha='right', fontsize=7)
 axE.set_xlim(-0.6, len(cond_recs) - 0.4)
 axE.set_ylabel('LMM coefficient  β  (Δ performance)')
-axE.set_title('E  LMM fixed-effect coefficients (95% CI)', loc='left', fontweight='bold', fontsize=11)
+axE.set_title('LMM fixed-effect coefficients (95% CI)', loc='left', fontsize=TITLE_FS)
 axE.spines[['top', 'right']].set_visible(False)
 leg_h = [mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='condition (β at mean day)'),
          mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=6, label='condition × day (slope)')]
-axE.legend(handles=leg_h, frameon=False, fontsize=8, loc='upper right')
+axE.legend(handles=leg_h, frameon=False, fontsize=6.5, loc='upper right')
 
-fig.suptitle(TITLE, fontsize=13, y=0.99)
+fig.suptitle(TITLE, fontsize=9, y=0.99)
 fig.text(0.5, 0.005,
          f'Curves: mean ± SEM across mice ({d.mouse.nunique()} mice).  '
          'Top stars: per-day LMM condition effect, random intercept mouse, UNCORRECTED (exploratory; day 6 n=4).  '
          'Panel E: trajectory LMM, perf ~ condition×day + (1|mouse) — less conservative than GEE, '
          'RE variance near boundary (mildly anti-conservative).  * p<0.05  ** p<0.01  *** p<0.001',
-         ha='center', va='bottom', fontsize=8, color='0.35')
+         ha='center', va='bottom', fontsize=6.5, color='0.3')
 fig.tight_layout(rect=(0, 0.05, 1, 0.94))
+
+# Panel letters — the only bold text (placed after layout so positions are final)
+for ax, L in zip((axA, axB, axC, axD, axE), 'ABCDE'):
+    p = ax.get_position()
+    fig.text(p.x0 - 0.012, p.y1 + 0.02, L, fontsize=11, fontweight='bold',
+             va='top', ha='left')
 
 OUT = 'figures/overlaps/behavior'
 os.makedirs(f'{OUT}/png', exist_ok=True)

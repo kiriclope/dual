@@ -36,15 +36,23 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import seaborn as sns
 import statsmodels.formula.api as smf
 from scipy.stats import ttest_1samp
 
-matplotlib.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'svg.fonttype': 'none',
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 LASER_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23']
 GROUP = {m: ('Jaws' if m.startswith('Jaws') else 'ChR') for m in LASER_MICE}
@@ -129,7 +137,7 @@ def make(mice, out_name, subtitle):
                     pv = float(ttest_1samp(dv, 0.0).pvalue)
                     if star(pv):
                         ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
-                                fontsize=10, fontweight='bold')
+                                fontsize=12, fontweight='bold')
         # within-mouse LMM laser effect: perf ~ laser*day + (1|mouse)
         gg = g.copy(); gg['dayc'] = gg['day'] - gg['day'].mean()
         try:
@@ -153,9 +161,9 @@ def make(mice, out_name, subtitle):
         if ylo < 0.5 < yhi:
             ax.axhline(0.5, ls=':', color='0.5', lw=1)
         ax.set_xticks(DAYS); ax.set_xlabel('training day')
-        ax.legend(frameon=False, fontsize=9, loc='lower right')
+        ax.legend(frameon=False, fontsize=6.5, loc='lower right')
         ax.spines[['top', 'right']].set_visible(False)
-        ax.set_title(title, loc='left', fontweight='bold', fontsize=11)
+        ax.set_title(title, loc='left', fontsize=TITLE_FS)
     axA.set_ylabel('performance')
 
     # Panel D — within-mouse laser effect per metric: laser β (○) + laser×day β (□)
@@ -170,24 +178,24 @@ def make(mice, out_name, subtitle):
                          fmt=mk, color=cc, ms=6, capsize=3, lw=1.5, zorder=3)
             if np.isfinite(pv) and star(pv):
                 axD.text(i + dx, (vhi if has_ci else val) + 0.004, star(pv), ha='center',
-                         va='bottom', fontsize=9, fontweight='bold')
+                         va='bottom', fontsize=12, fontweight='bold')
     axD.axhline(0, ls='--', color='0.4', lw=1)
     axD.set_xticks(range(len(coefs)))
     axD.set_xticklabels([c[0] for c in coefs], rotation=20, ha='right')
     axD.set_xlim(-0.6, len(coefs) - 0.4)
     axD.set_ylabel('ON − OFF   (β, Δ performance)')
-    axD.set_title('D  within-mouse LMM laser effect (95% CI)', loc='left', fontweight='bold', fontsize=11)
+    axD.set_title('D  within-mouse LMM laser effect (95% CI)', loc='left', fontsize=TITLE_FS)
     axD.spines[['top', 'right']].set_visible(False)
     axD.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=6, label='laser (at mean day)'),
                         mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=6, label='laser×day (slope)')],
-               frameon=False, fontsize=8, loc='best')
+               frameon=False, fontsize=6.5, loc='best')
 
     test = 'within-mouse LMM perf ~ laser×day + (1|mouse)' if n >= 3 else 'n=2 — mean Δ only, no test'
-    fig.suptitle(f'Laser OFF vs ON learning curves · {subtitle}', fontsize=13, y=0.99)
+    fig.suptitle(f'Laser OFF vs ON learning curves · {subtitle}', fontsize=9, y=0.99)
     fig.text(0.5, 0.005,
              f'Within-mouse (interleaved laser), mean ± SEM across mice ({n}).  Top stars: per-day one-sample '
              f't-test of per-mouse ON−OFF Δ vs 0 (exploratory).  Panel D: {test}.  * p<0.05  ** p<0.01  *** p<0.001',
-             ha='center', va='bottom', fontsize=8, color='0.35')
+             ha='center', va='bottom', fontsize=6.5, color='0.3')
     fig.tight_layout(rect=(0, 0.05, 1, 0.94))
     for ext in ('png', 'svg'):
         p = f'{OUT}/{ext}/{out_name}.{ext}'

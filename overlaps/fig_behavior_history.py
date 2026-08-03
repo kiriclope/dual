@@ -46,14 +46,19 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from scipy.stats import wilcoxon
 
-sns.set_style("ticks")
-plt.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 11, 'axes.titlesize': 11, 'xtick.labelsize': 9, 'ytick.labelsize': 9,
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
-    'axes.linewidth': 0.9, 'lines.linewidth': 1.8,
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'   # DPA / Go / NoGo
 TASK_COL = {'DPA': RED, 'Go': BLUE, 'NoGo': GREEN}
@@ -114,7 +119,7 @@ def grid_panel(ax, outcol, curset, hi_row, title):
     im = ax.imshow(piv.values, cmap='RdBu_r', vmin=gm - 6, vmax=gm + 6, aspect='auto')
     for i, rc in enumerate(curset):
         for j in range(3):
-            ax.text(j, i, f'{piv.values[i, j]:.1f}', ha='center', va='center', fontsize=10,
+            ax.text(j, i, f'{piv.values[i, j]:.1f}', ha='center', va='center', fontsize=8,
                     fontweight='bold' if rc == hi_row else 'normal', color='k')
     ax.set_xticks(range(3)); ax.set_xticklabels(ORDER)
     ax.set_yticks(range(len(curset))); ax.set_yticklabels(curset)
@@ -125,7 +130,7 @@ def grid_panel(ax, outcol, curset, hi_row, title):
     ax.set_xlabel('previous task'); ax.set_ylabel('current task')
     cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cb.set_label('perf (%)', fontsize=8); cb.ax.tick_params(labelsize=7)
-    ax.set_title(title, loc='left', fontweight='bold', fontsize=TITLE_FS)
+    ax.set_title(title, loc='left', fontsize=TITLE_FS)
 
 
 def bytask_panel(ax, sub, outcol, title, ylabel, bracket=False):
@@ -152,13 +157,14 @@ def bytask_panel(ax, sub, outcol, title, ylabel, bracket=False):
             txt += f'\npaired Wilcoxon p={pw:.2f} (n={int(ok.sum())})'
         ybr = np.nanmax(pm.values) + 2
         ax.plot([0, 0, 1.5, 1.5], [ybr - 1, ybr, ybr, ybr - 1], color='k', lw=1.2, zorder=6)
-        ax.text(0.75, ybr + 0.4, star(p), ha='center', va='bottom', fontsize=12, fontweight='bold')
-    ax.text(0.5, 0.035, txt, transform=ax.transAxes, ha='center', va='bottom', fontsize=8, color='0.3')
+        ax.text(0.75, ybr + 0.4, star(p), ha='center', va='bottom',
+                fontsize=12 if p < 0.05 else 8, fontweight='bold', color='k' if p < 0.05 else '0.55')
+    ax.text(0.5, 0.035, txt, transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
     ax.set_xticks(xs); ax.set_xticklabels(ORDER)
     for t, c in zip(ax.get_xticklabels(), ORDER):
         t.set_color(TASK_COL[c]); t.set_fontweight('bold')
     ax.set_xlim(-0.4, 2.4); ax.set_xlabel('previous task'); ax.set_ylabel(ylabel)
-    ax.set_title(title, loc='left', fontweight='bold', fontsize=TITLE_FS)
+    ax.set_title(title, loc='left', fontsize=TITLE_FS)
 
 
 def forest_panel(ax, outcol, curset, title):
@@ -169,26 +175,26 @@ def forest_panel(ax, outcol, curset, title):
         col = TASK_COL[c] if sig else '0.6'
         ax.errorbar(orr, yy, xerr=[[orr - lo], [hi - orr]], fmt='o', color=col,
                     mfc=col if sig else 'white', mec=col, ms=9, capsize=4, lw=1.6, zorder=3)
-        ax.text(hi + 0.015, yy, star(p), va='center', ha='left', fontsize=11, fontweight='bold')
+        ax.text(hi + 0.015, yy, star(p), va='center', ha='left',
+                fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
     ax.axvline(1.0, ls='--', color='0.4', lw=1)
     ax.set_yticks(ys); ax.set_yticklabels([f'{c}-current' for c, *_ in rows])
     for t, (c, *_) in zip(ax.get_yticklabels(), rows):
         t.set_color(TASK_COL[c]); t.set_fontweight('bold')
     ax.set_ylim(-0.6, len(rows) - 0.4)
     ax.set_xlabel('prev-dual effect\n(odds ratio, 95% CI)')
-    ax.set_title(title, loc='left', fontweight='bold', fontsize=TITLE_FS)
+    ax.set_title(title, loc='left', fontsize=TITLE_FS)
 
 
 # ── figure ─────────────────────────────────────────────────────────────────────
 fig = plt.figure(figsize=(13.2, 10.6))
 gs = fig.add_gridspec(2, 4, width_ratios=[1.0, 1.0, 1.0, 1.05], height_ratios=[1, 1],
                       wspace=0.5, hspace=0.42, left=0.06, right=0.985, top=0.9, bottom=0.09)
-TITLE_FS = 10.5
 
 
 def panel_letter(ax, L, dx=0.030, dy=0.028):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=15, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
 
 
 # row 1 — DPA memory performance
@@ -210,14 +216,14 @@ for _ax, _L in [(axA, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
     panel_letter(_ax, _L)
 
 fig.text(0.5, 0.5, 'DPA memory (performance)   ·   row below: GNG distractor (odr_perf)',
-         ha='center', va='center', fontsize=9, color='0.5', style='italic')
-fig.suptitle(f'Trial-history effects — {SRC}', fontsize=12.5, fontweight='bold', y=0.965)
+         ha='center', va='center', fontsize=7, color='0.5', style='italic')
+fig.suptitle(f'Trial-history effects — {SRC}', fontsize=11, y=0.965)
 fig.text(0.5, 0.018,
          f'{SRC} · previous task within session (first trial dropped) · '
          'GEE: correct ~ prev-dual + prev-outcome' + (' + stage' if HAS_STAGE else '') +
          ', clustered by mouse · prev-dual = previous trial was Go or NoGo · '
          'C/G show Go-current trials · * p<0.05 ** p<0.01 *** p<0.001',
-         ha='center', va='bottom', fontsize=7.3, color='0.45')
+         ha='center', va='bottom', fontsize=6.5, color='0.45')
 
 OUT = 'figures/overlaps/behavior'
 os.makedirs(f'{OUT}/png', exist_ok=True)

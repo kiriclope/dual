@@ -37,15 +37,23 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import seaborn as sns
 import statsmodels.formula.api as smf
 from scipy.stats import ttest_1samp
 
-matplotlib.rcParams.update({
-    'figure.dpi': 150, 'savefig.dpi': 300,
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'svg.fonttype': 'none',
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
+TITLE_FS = 8
 
 LASER_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23']
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'
@@ -118,7 +126,7 @@ def perday_stars(ax, pmd, color, y_star):
             continue
         p = float(ttest_1samp(v, 0.0).pvalue)
         if star(p):
-            ax.text(day, y_star, star(p), ha='center', va='center', fontsize=10,
+            ax.text(day, y_star, star(p), ha='center', va='center', fontsize=8,
                     fontweight='bold', color=color)
 
 
@@ -178,9 +186,9 @@ for panel, ax in AXES.items():
     ax.set_ylim(-0.22, 0.24)
     ax.set_xticks(DAYS)
     ax.set_xlabel('training day')
-    ax.legend(frameon=False, fontsize=9, loc='lower right')
+    ax.legend(frameon=False, fontsize=6.5, loc='lower right')
     ax.spines[['top', 'right']].set_visible(False)
-    ax.set_title(TITLES[panel], loc='left', fontweight='bold', fontsize=11)
+    ax.set_title(TITLES[panel], loc='left', fontsize=TITLE_FS)
 axA.set_ylabel('Δ performance  (ON − OFF)')
 
 # ── Panel E — per-condition mean laser effect ± 95% CI (β on y) ────────────────
@@ -190,21 +198,21 @@ for i, (lab, m, lo, hi, p) in enumerate(effects):
     yerr = [[m - lo], [hi - m]] if np.isfinite(lo) else None
     axE.errorbar(i, m, yerr=yerr, fmt='o', color=col, ms=6, capsize=3, lw=1.5, zorder=3)
     if sig:
-        axE.text(i, hi + 0.005, star(p), ha='center', va='bottom', fontsize=10, fontweight='bold')
+        axE.text(i, hi + 0.005, star(p), ha='center', va='bottom', fontsize=12, fontweight='bold')
 axE.axhline(0, ls='--', color='0.4', lw=1)
 axE.set_xticks(range(len(effects)))
-axE.set_xticklabels([lab for lab, *_ in effects], rotation=45, ha='right', fontsize=8)
+axE.set_xticklabels([lab for lab, *_ in effects], rotation=45, ha='right', fontsize=7)
 axE.set_xlim(-0.6, len(effects) - 0.4)
 axE.set_ylabel('mean Δ performance  (ON − OFF)')
-axE.set_title('E  Laser effect per condition (95% CI)', loc='left', fontweight='bold', fontsize=11)
+axE.set_title('E  Laser effect per condition (95% CI)', loc='left', fontsize=TITLE_FS)
 axE.spines[['top', 'right']].set_visible(False)
 
-fig.suptitle(TITLE, fontsize=13, y=0.99)
+fig.suptitle(TITLE, fontsize=9, y=0.99)
 fig.text(0.5, 0.005,
          f'Within-mouse Δ(ON−OFF), interleaved laser trials, mean ± SEM across mice ({d.mouse.nunique()}).  '
          'Top stars: per-day one-sample t-test of Δ vs 0 (exploratory, uncorrected).  '
          'Panel E: one-sample LMM Δ ~ 1 + (1|mouse) per condition.  * p<0.05  ** p<0.01  *** p<0.001',
-         ha='center', va='bottom', fontsize=8, color='0.35')
+         ha='center', va='bottom', fontsize=6.5, color='0.3')
 fig.tight_layout(rect=(0, 0.05, 1, 0.94))
 
 OUT = 'figures/overlaps/behavior'

@@ -41,16 +41,102 @@ MAIN = [
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
     ('Fig — dPCA story (tasks/time factors)',
      'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),
-    ('Fig — overlaps flow story (per-regime decoders)',
-     'overlaps/figures/overlaps/story/png/fig_overlaps_story_main.png'),
     ('Fig — behaviour / opto (ACC→Prl silencing)',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
 ]
 SUPP = [
-    ('Supp — mixed vs modular selectivity',
+    # ── Fig 1 (Behaviour) ──────────────────────────────────────────────────────
+    ('S1 · Learning curves — pooled 9 mice (Fig 1)',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning.png'),
+    ('S1 · Learning curves — Jaws',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning_jaws.png'),
+    ('S1 · Learning curves — ChR',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning_chr.png'),
+    ('S1 · Learning curves — ACC',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning_acc.png'),
+    ('S1 · Learning curves — laser ON',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning_laseron.png'),
+    ('S2 · DPA↔GNG balance, not a trade-off (Fig 1h)',
+     'overlaps/figures/overlaps/behavior/png/behavior_dpa_vs_gng_off.png'),
+    ('S2 · Pareto front',
+     'overlaps/figures/overlaps/behavior/png/behavior_pareto.png'),
+    ('S2 · Dual cost + within-trial coupling',
+     'overlaps/figures/overlaps/behavior/png/behavior_dual_cost.png'),
+    ('S2 · Dual cost — trial-level GEE',
+     'overlaps/figures/overlaps/behavior/png/behavior_dual_cost_trials.png'),
+    ('S3 · Trial-history (recorded, Fig 1e/g)',
+     'overlaps/figures/overlaps/behavior/png/behavior_history.png'),
+    ('S3 · Switch-cost (batch)',
+     'overlaps/figures/overlaps/behavior/png/behavior_history_batch.png'),
+    ('G3 · Trial counts per mouse (balanced)',
+     'overlaps/figures/overlaps/behavior/png/behavior_trialcounts.png'),
+    # ── Fig 2 (dPCA) ───────────────────────────────────────────────────────────
+    ('S4 · Rank sufficiency — no elbow at 2 (Fig 2b)',
+     'pca/figures/pseudo/flow/png/rank_sufficiency_Expert.png'),
+    ('S4 · Task-manifold rank-2',
+     'pca/figures/pseudo/flow/png/rank_task_manifold.png'),
+    # (S5 demixed axes — loadings/mixing/EVR — CUT 2026-08-03 as redundant with Fig 2e + ED6 cosine.)
+    ('S6 · Push — raw ΔF/F deepening',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_descent_rawdff.png'),
+    ('S6 · Push — CI/time-ramp q-sweep',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_nolick_ci_qsweep.png'),
+    ('S6 · Push — pooled-basis',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_nolick_pooledbasis.png'),
+    ('S6 · Depth↔performance null (n=9)',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_depth_vs_perf.png'),
+    # (S7 dPCA flows & bistability REMOVED from the paper 2026-08-03 — kept as "extra"
+    #  in the gallery pca tab, not part of the submission.)
+    # ── Fig 3 (Overlaps) ───────────────────────────────────────────────────────
+    ('S8 · Coupling — normalisation robustness (Fig 3d)',
+     'overlaps/figures/overlaps/controls/png/overlaps_norm_robustness.png'),
+    ('S8 · Common-axis / decoder-sharpening control',
+     'overlaps/figures/overlaps/controls/png/overlaps_common_axis_control.png'),
+    ('S8 · Coupling resampling battery',
+     'overlaps/figures/overlaps/controls/png/overlaps_coupling_battery.png'),
+    ('S9 · Movement / anticipatory-lick control',
+     'overlaps/figures/overlaps/controls/png/overlaps_lick_control.png'),
+    ('S10 · Cosine orthogonality matrices (Fig 3a,b)',
+     'overlaps/figures/overlaps/cosine/correct/l2/png/overlaps_cosine_matrices_expert.png'),
+    ('S11 · Mixed vs modular selectivity',
      'overlaps/figures/overlaps/controls/png/overlaps_mixed_selectivity.png'),
-    ('Supp — 1D codes across time',
-     'overlaps/figures/overlaps/main/png/fig_overlaps_codes_supp.png'),
+    ('S12 · Decoder variant — L1 (lasso)',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_l1.png'),
+    ('S12 · Decoder variant — LDA (whitened)',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_lda.png'),
+    ('S13 · Codes robust to Go/NoGo distractor',
+     'overlaps/figures/overlaps/controls/png/overlaps_codes_gng_trials.png'),
+    # ── Fig 5 (Opto) ───────────────────────────────────────────────────────────
+    ('S14 · Batch ACC→Prl controls',
+     'overlaps/figures/overlaps/behavior/batch/png/behavior_learning_batch_ACCPrl_ctrlopto.png'),
+    ('S14 · Batch ACC (null)',
+     'overlaps/figures/overlaps/behavior/batch/png/behavior_learning_batch_ACC_ctrlopto.png'),
+    ('S14 · Batch Prl→ACC (GNG)',
+     'overlaps/figures/overlaps/behavior/batch/png/behavior_learning_batch_PrlACC_ctrlopto.png'),
+    ('S15 · Transient laser OFF/ON — spared',
+     'overlaps/figures/overlaps/behavior/png/behavior_learning_offon.png'),
+    ('S16 · Laser ON−OFF coupling — 7 mice',
+     'overlaps/figures/overlaps/scatter_laser/png/log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_choice_onoff_ld_test_expert_ab.png'),
+    # (S17 d′-spared standalone — CUT 2026-08-03: already shown as main Fig 5k,l.)
+]
+
+# ── "Extra" — parked, not in the paper ─────────────────────────────────────────
+# Flow-field / low-rank attractor-dynamics work, REMOVED from the main figures and supplements
+# (2026-08-03) but kept here for reference. Not part of the submission.
+EXTRA = [
+    ('Extra — overlaps flow story (per-regime decoders)',
+     'overlaps/figures/overlaps/story/png/fig_overlaps_story_main.png'),
+    ('Extra — dPCA low-rank flows (partial pooling)',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_lowrank_partial_Expert.png'),
+    ('Extra — dPCA low-rank flows (shared)',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_lowrank_shared_Expert.png'),
+    ('Extra — no-lick flow push (Expert)',
+     'pca/figures/pseudo/flow/lowrank/png/dpca_lowrank_independent_Expert_push.png'),
+    ('Extra — bistability survey (4/9)',
+     'pca/figures/pseudo/flow/bistability_summary.png'),
+    ('Extra — defensible manifold (measured vs modelled)',
+     'pca/figures/pseudo/flow/wm_manifold_defensible.png'),
+    ('Extra — slow-manifold → double-well under CI',
+     'pca/figures/pseudo/flow/slowmanifold_test_pooled.png'),
 ]
 
 
@@ -231,7 +317,7 @@ def scanned_panel(proj, secs, groups, active):
 def render_index(groups):
     tree = build_sections(groups)
     pills, panels, first = [], [], True
-    for name, entries in (('Main', MAIN), ('Supp', SUPP)):        # pinned curated tabs, always first
+    for name, entries in (('Main', MAIN), ('Supp', SUPP), ('Extra', EXTRA)):  # pinned curated tabs, first
         pills.append(pill(name, len(entries), first))
         panels.append(curated_panel(name, entries, first))
         first = False

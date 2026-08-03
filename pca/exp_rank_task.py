@@ -16,7 +16,22 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
 from src.pca.io import pkl_load
+
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = 8
 
 WIN = np.arange(12, 72)                                            # stimulus → response (task-active window)
 os.makedirs('figures/pseudo/flow/png', exist_ok=True); os.makedirs('figures/pseudo/flow/svg', exist_ok=True)
@@ -41,11 +56,12 @@ for ax, STAGE in zip(axes, ('Expert', 'Naive')):
         print(f'  {nm:18s} (D={len(dd)}): var/PC={np.round(ev[:4], 2)}  top2={top2:.0%}  PR={pr:.2f}')
         ax.plot(range(1, len(ev) + 1), np.cumsum(ev), '-o', label=f'{nm} (PR {pr:.1f})')
     ax.axhline(0.9, ls=':', color='0.6', lw=0.8); ax.axvline(2, ls='--', color='k', lw=0.8)
-    ax.set_xlabel('# PCs of the condition-mean manifold'); ax.set_title(STAGE)
-    ax.legend(frameon=False, fontsize=8); ax.set_xlim(1, 8)
+    ax.set_xlabel('# PCs of the condition-mean manifold'); ax.set_title(STAGE, loc='left', fontsize=TITLE_FS)
+    ax.legend(frameon=False); ax.set_xlim(1, 8)
 axes[0].set_ylabel('cumulative variance explained')
-fig.suptitle('Task states live on a ~2-D manifold (top-2 PCs ≈ 82–94%) → rank-2 OK for the state geometry', y=1.02)
+fig.suptitle('Task states live on a ~2-D manifold (top-2 PCs ≈ 82–94%) → rank-2 OK for the state geometry',
+             y=1.02, fontsize=TITLE_FS)
 fig.tight_layout()
 p = 'figures/pseudo/flow/png/rank_task_manifold.png'
-fig.savefig(p, dpi=300, bbox_inches='tight'); fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
+fig.savefig(p, bbox_inches='tight'); fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
 print('\nsaved', p)

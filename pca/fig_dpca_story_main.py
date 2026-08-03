@@ -525,28 +525,7 @@ def depth_of(Zr, y, stage):
     return uy, sep
 
 
-def section4(axL, axM, axN1, axN2):
-    Zr, y = load_st()
-    mnA, mnB, dN = stage_delay(Zr, y, 'Naive')                          # naive DPA delay means + depth
-    meA, meB, dE = stage_delay(Zr, y, 'Expert')
-    fx = fit_sample_bistab(np.concatenate([mnA[0], meA[0]]),            # shared sample landscape (both stages)
-                           np.concatenate([mnB[0], meB[0]]))
-    push = dE - dN                                                      # learned deepening (Naive well = 0)
-    ylo = push - 1.1; yhi = max(-dN, 0.0) + 0.4                         # room for the delay-onset start above 0
-    hE = 0.0                                                            # tune the gated input so the wells reach `push`
-    for h in np.linspace(0, 5, 51):
-        att = [p for p, k, _ in flow_fixed_points(make_flow(fx, h), [(-XB, XB), (ylo, yhi)], n_seed=21) if k == 'attractor']
-        if len(att) >= 2:
-            hE = h
-            if np.mean([p[1] for p in att]) <= push:
-                break
-    draw_st(axL, make_flow(fx, 0.0), mnA, mnB, dN, 'Naive', ylo, yhi)
-    draw_st(axM, make_flow(fx, hE), meA, meB, dN, 'Expert', ylo, yhi, ghost=True)
-    axM.text(0.04, 0.035, f'gated push\nwell {push:+.2f}', transform=axM.transAxes, color='w',
-             fontsize=6.5, va='bottom', ha='left', zorder=8)
-    axL.set_xlabel('sample axis', fontsize=8.5); axM.set_xlabel('sample axis', fontsize=8.5)
-    axL.set_ylabel('no-lick axis\n(0 = naive memory)', fontsize=8.5); axM.tick_params(labelleft=False)
-    print(f'sec4 gated push: dN {dN:+.2f}  dE {dE:+.2f}  learned push {push:+.2f}  hE {hE:.2f}')
+def section4(axN1, axN2):
     depth = np.zeros((len(MICE), 2)); sep = np.zeros((len(MICE), 2))
     for i, mm in enumerate(MICE):
         Zr2, ym = load_mouse(mm)
@@ -620,23 +599,17 @@ def section2_mixing(ax):
 
 
 # ══ ASSEMBLE ══════════════════════════════════════════════════════════════════
-print(f'[{TRIALSET}]  sec3 panels={A.panels}')
-fig = plt.figure(figsize=(9.6, 14.9))
-gs = fig.add_gridspec(4, 12, height_ratios=[0.95, 1.8, 2.05, 1.05],
-                      hspace=0.5, wspace=0.62, left=0.072, right=0.978, top=0.94, bottom=0.05)
+fig = plt.figure(figsize=(9.6, 10.5))
+gs = fig.add_gridspec(3, 12, height_ratios=[0.95, 1.8, 1.1],
+                      hspace=0.5, wspace=0.62, left=0.072, right=0.978, top=0.93, bottom=0.06)
 
-np3 = A.panels
-ncol3 = 4 if np3 == 8 else 2
 axSch = fig.add_subplot(gs[0, 0:4]); axEvr = fig.add_subplot(gs[0, 4:8]); axCon = fig.add_subplot(gs[0, 8:12])
 gsT = gs[1, 0:12].subgridspec(2, 5, width_ratios=[1, 1, 1, 1, 0.9], hspace=0.30, wspace=0.55)  # Naive/Expert rows + mixing
 axTrN = [fig.add_subplot(gsT[0, k]) for k in range(4)]      # D — Naive row
 axTrE = [fig.add_subplot(gsT[1, k]) for k in range(4)]      #     Expert row
 axMix = fig.add_subplot(gsT[0:2, 4])                        # E — full pairwise mixing (spans both rows)
-gsF = gs[2, 0:12].subgridspec(2, ncol3, hspace=0.14, wspace=0.05)
-axF = [fig.add_subplot(gsF[i // ncol3, i % ncol3]) for i in range(np3)]
-gsL = gs[3, 0:12].subgridspec(1, 4, width_ratios=[1.1, 1.1, 0.5, 0.5], wspace=0.5)
-axLf = fig.add_subplot(gsL[0]); axMf = fig.add_subplot(gsL[1])
-axN1 = fig.add_subplot(gsL[2]); axN2 = fig.add_subplot(gsL[3])
+gsL = gs[2, 0:5].subgridspec(1, 2, width_ratios=[1, 1], wspace=0.5)     # F push · G sample-preserved
+axN1 = fig.add_subplot(gsL[0]); axN2 = fig.add_subplot(gsL[1])
 
 schematic(axSch)
 s1 = section1_evr(axEvr)
@@ -649,66 +622,26 @@ for k in range(4):                                       # share y-scale per mar
     ylo = min(axTrN[k].get_ylim()[0], axTrE[k].get_ylim()[0])
     yhi = max(axTrN[k].get_ylim()[1], axTrE[k].get_ylim()[1])
     axTrN[k].set_ylim(ylo, yhi); axTrE[k].set_ylim(ylo, yhi)
-section3(axF, ncol3)
-section4(axLf, axMf, axN1, axN2)
+section4(axN1, axN2)
 
-# panel letters (none on the section-3 flow grid, per request)
+# panel letters
 plabel(axSch, 'A'); plabel(axEvr, 'B'); plabel(axCon, 'C')
 plabel(axTrN[0], 'D')                                    # sec-2 trajectory grid (Naive/Expert × 4 marginals)
 plabel(axMix, 'E')                                       # sec-2 full pairwise axis mixing
-for ax, Lc in zip([axLf, axMf, axN1], ['F', 'G', 'H']): plabel(ax, Lc)
-# shared flow-grid axis labels (one x, one y — not one per flow)
-fb = np.array([[a.get_position().x0, a.get_position().y0, a.get_position().x1, a.get_position().y1] for a in axF])
-fx0, fy0, fx1, fy1 = fb[:, 0].min(), fb[:, 1].min(), fb[:, 2].max(), fb[:, 3].max()
-fig.text((fx0 + fx1) / 2, fy0 - 0.010, 'sample axis', ha='center', va='top', fontsize=9)
-fig.text(fx0 - 0.028, (fy0 + fy1) / 2, 'choice axis  (+ = lick)', ha='center', va='center', rotation=90, fontsize=9)
-# section headers (left-aligned, positioned from each section's top edge) + flow-fit equation
+plabel(axN1, 'F'); plabel(axN2, 'G')                     # sec-3 no-lick push + sample-memory-preserved
+# section headers (left-aligned, positioned from each section's top edge)
 def _top(axs):
     return max(a.get_position().y1 for a in (axs if isinstance(axs, list) else [axs]))
 def sechead(y, tx):
     fig.text(0.075, y, tx, ha='left', va='bottom', fontsize=10.5, fontweight='bold')
 sechead(_top(axSch) + 0.024, '1.  Low-dimensional dPCA geometry & per-task variance')
 sechead(_top(axTrN) + 0.012, '2.  dPCA-axis trajectories (Naive vs Expert) & axis mixing')
-sechead(_top(axF) + 0.046, '3.  The computation: partial-pooled gain-modulated flows (sample × choice, pooled)')
-fig.text(0.075, _top(axF) + 0.027, r'$\dot z = -z + S(z)\,(A_{\mathrm{sh}}\!+\!\Delta A_r)\,z + c_r,\ \ '
-         r"S(z)=\langle\varphi'(\sqrt{a^2\|z\|^2+\delta}\,\xi)\rangle$"
-         '   —  shared $A_{\\mathrm{sh}}$ per epoch (delay: sample wells / cue-test: choice wells) + ridge '
-         '$\\Delta A_r$ + input $c_r$; $a,\\delta,\\lambda$ CV-tuned',
-         ha='left', va='bottom', fontsize=8, color='0.25')
-sechead(_top([axLf, axMf]) + 0.024, '4.  Learning pushes the sample memory down into no-lick')
-leg = [Line2D([0], [0], ls='', marker='*', mfc='yellow', mec='k', ms=12, label='attractor'),
-       Line2D([0], [0], ls='', marker='s', mfc='w', mec='k', ms=8, label='saddle'),
-       Line2D([0], [0], color='c', ls='--', label='naive memory level'),
+sechead(_top([axN1, axN2]) + 0.024, '3.  Learning pushes the sample memory into no-lick')
+leg = [Line2D([0], [0], color='c', ls='--', label='naive memory level'),
        Line2D([0], [0], color=SAMPLE_COL[0], lw=2, label='sample A'),
        Line2D([0], [0], color=SAMPLE_COL[1], lw=2, label='sample B')]
-fig.legend(handles=leg, loc='lower center', ncol=5, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, 0.002))
-fig.suptitle('The dPCA computation of the dual working-memory task', y=0.984, fontsize=13)
-
-# ── match the section-4 flows to the section-3 panel BOX + add flow-speed colorbars (sec 3 & sec 4) ──
-# The figure is portrait, so a figure-fraction square is NOT a pixel square. A section-3 panel spans
-# (_w3 × _h3) in figure fraction, which is pixel-square; reuse those exact spans for the section-4 flows.
-fig.canvas.draw()
-_s3 = axF[0].get_position(); _w3, _h3 = _s3.width, _s3.height
-_x0 = axLf.get_position().x0; _fy1 = axN1.get_position().y1; _g = 0.014; _y4 = _fy1 - _h3
-axLf.set_position([_x0, _y4, _w3, _h3])
-axMf.set_position([_x0 + _w3 + _g, _y4, _w3, _h3])
-
-def _flow_cbar(rect, label='flow speed |ż|  (per panel)'):
-    sm = plt.cm.ScalarMappable(norm=plt.Normalize(0, 1), cmap='magma'); sm.set_array([])
-    cb = fig.colorbar(sm, cax=fig.add_axes(rect))
-    if label:
-        cb.set_label(label, fontsize=7.5)
-    cb.set_ticks([0, 1]); cb.set_ticklabels(['slow', 'fast']); cb.ax.tick_params(labelsize=7)
-_flow_cbar([_x0 + 2 * (_w3 + _g), _y4, 0.011, _h3], label='')                 # section-4 (label-free; sec-3 carries it)
-_r = max(a.get_position().x1 for a in axF)                                    # section-3 grid extent
-_t = max(a.get_position().y1 for a in axF); _b = min(a.get_position().y0 for a in axF)
-_flow_cbar([_r + 0.010, _b, 0.011, _t - _b])                                 # section-3 (right of the grid)
-# stat panels J/K (no-lick push, sample separation): evenly spaced in the right region
-_jy = axN1.get_position().y0; _jh = axN1.get_position().height
-_jxs = _x0 + 2 * (_w3 + _g) + 0.105; _jgap = 0.10; _stats = [axN1, axN2]
-_jw = (0.978 - _jxs - _jgap * (len(_stats) - 1)) / len(_stats)
-for _k, _axj in enumerate(_stats):
-    _axj.set_position([_jxs + _k * (_jw + _jgap), _jy, _jw, _jh])
+fig.legend(handles=leg, loc='lower center', ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, 0.004))
+fig.suptitle('The dPCA geometry of the dual working-memory task', y=0.985, fontsize=13)
 
 OUT = 'figures/pseudo/story'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

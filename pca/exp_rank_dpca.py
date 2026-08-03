@@ -15,8 +15,23 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import KFold
 from src.pca.io import pkl_load
+
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = 8
 
 STAGE = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] in ('Naive', 'Expert') else 'Expert'
 HORIZON = int(sys.argv[2]) if len(sys.argv) > 2 else 3
@@ -77,8 +92,8 @@ for Zd, name, col in [(Zc, 'full 8-D', '#2171b5'), (Zc[:, TASK, :], f'task {len(
     ax.plot(ranks, r2 / full, '-o', color=col, label=name)
 ax.axvline(2, ls='--', color='k', lw=0.8); ax.axhline(0.95, ls=':', color='0.6', lw=0.8)
 ax.set_xlabel('rank of A (connectivity)'); ax.set_ylabel(f'held-out {HORIZON}-step R²  (/ full-rank)')
-ax.set_title(f'Is rank-2 good enough? — dPCA latents, {STAGE}'); ax.legend(frameon=False, fontsize=9)
+ax.set_title(f'Is rank-2 good enough? — dPCA latents, {STAGE}', loc='left', fontsize=TITLE_FS); ax.legend(frameon=False)
 ax.set_ylim(top=1.02); fig.tight_layout()
 p = f'figures/pseudo/flow/png/rank_sufficiency_{STAGE}.png'
-fig.savefig(p, dpi=300, bbox_inches='tight'); fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
+fig.savefig(p, bbox_inches='tight'); fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
 print('\nsaved', p)

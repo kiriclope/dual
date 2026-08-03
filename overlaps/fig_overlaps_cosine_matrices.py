@@ -25,8 +25,19 @@ from matplotlib.patches import Rectangle
 import seaborn as sns
 from src.pca.io import pkl_load
 
-matplotlib.rcParams['svg.fonttype'] = 'none'
-sns.set_context('notebook'); sns.set_style('ticks')
+# ── Style (Nature Neuroscience house style — matches the main figures) ──────────
+sns.set_context('notebook')          # MUST come after importing src.common.plot_utils (sets "poster")
+sns.set_style('ticks')
+plt.rcParams.update({                 # NN print typography: 6–8 pt at final size, thin rules
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
+    'legend.fontsize': 6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = 8
 
 # ── decoder variant (parallel to the main figure) ───────────────────────────────
 L1  = '--l1'  in sys.argv[1:]
@@ -117,9 +128,9 @@ def draw_stage(stage):
                 ax.axvline(onset, color='0.35', lw=0.5, alpha=0.6)
                 ax.axhline(onset, color='0.35', lw=0.5, alpha=0.6)
             if i == j:
-                ax.set_title(f'{CLABEL[a]}  (within, n={n})', fontsize=9, fontweight='bold')
+                ax.set_title(f'{CLABEL[a]}  (within, n={n})', loc='left', fontsize=TITLE_FS)
             else:
-                ax.set_title(f'{CLABEL[a]} × {CLABEL[b]}', fontsize=9)
+                ax.set_title(f'{CLABEL[a]} × {CLABEL[b]}', loc='left', fontsize=TITLE_FS)
             # ticks/labels only on the outer edges
             if i == 0:
                 ax.xaxis.set_label_position('top'); ax.xaxis.tick_top()
@@ -139,10 +150,10 @@ def draw_stage(stage):
     fig.suptitle(f'Discriminant-axis cosine similarity (time × time) — {stage}   ·   {DLAB}\n'
                  f'diagonal = within-code temporal stability   ·   upper triangle = cross-code '
                  f'alignment (≈0 ⇒ orthogonal, chance |cos|≈{CHANCE:.2f})',
-                 fontsize=12, y=0.965)
+                 fontsize=TITLE_FS, y=0.965)
     stem = f'overlaps_cosine_matrices_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
-    fig.savefig(p, dpi=300, bbox_inches='tight')
+    fig.savefig(p, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
     plt.close(fig); print('saved', p)
 
@@ -184,7 +195,7 @@ def draw_stage_epochs(stage):
                     ax.text(c, r, f'{M[r, c]:+.2f}'.replace('+', ''), ha='center', va='center',
                             fontsize=5.2, color='w' if abs(M[r, c]) > 0.6 else '0.15')
             ax.set_title(f'{CLABEL[a]}  (within, n={n})' if i == j else f'{CLABEL[a]} × {CLABEL[b]}',
-                         fontsize=9, fontweight='bold' if i == j else 'normal')
+                         loc='left', fontsize=TITLE_FS)
             if j == i:
                 ax.set_yticks(range(ne)); ax.set_yticklabels(ENAMES, fontsize=6)
                 ax.set_ylabel(f'{CLABEL[a]} epoch', fontsize=7.5)
@@ -200,10 +211,10 @@ def draw_stage_epochs(stage):
     fig.suptitle(f'Discriminant-axis cosine by trial epoch — {stage}   ·   {DLAB}\n'
                  f'diagonal = within-code (high adjacent + slow decay ⇒ drifting axis; block ⇒ discrete '
                  f'code)   ·   upper triangle = cross-code (≈0 ⇒ orthogonal, chance |cos|≈{CHANCE:.2f})',
-                 fontsize=12, y=0.965)
+                 fontsize=TITLE_FS, y=0.965)
     stem = f'overlaps_cosine_epochs_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
-    fig.savefig(p, dpi=300, bbox_inches='tight')
+    fig.savefig(p, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
     plt.close(fig); print('saved', p)
 
@@ -330,15 +341,15 @@ def draw_stage_clustered(stage, thr_cos=0.5):
             ax.set_yticks(range(ne)); ax.set_yticklabels(ENAMES, fontsize=6)
             subt = '  |  '.join(names)
         print(f'      {a:>7}: ' + '  |  '.join(names))
-        ax.set_title(f'{CLABEL[a]}  (n={n})\n{subt}', fontsize=8, fontweight='bold')
+        ax.set_title(f'{CLABEL[a]}  (n={n})\n{subt}', loc='left', fontsize=TITLE_FS)
     cax = fig.add_axes([0.945, 0.32, 0.012, 0.38])
     fig.colorbar(im, cax=cax, label='cosine')
     fig.suptitle(f'Code read windows — {stage}   ·   {DLAB}   ·   data-driven squares (all-pairs cos ≥ '
-                 f'{thr_cos}, complete-linkage, stage-pooled), per code', fontsize=12, y=0.95)
+                 f'{thr_cos}, complete-linkage, stage-pooled), per code', fontsize=TITLE_FS, y=0.95)
     NAME = 'raw' if CLUSTER_RAW else 'epoch'     # epoch-averaged 10×10 vs raw 84-bin, both with read-windows
     stem = f'overlaps_cosine_{NAME}_{stage.lower()}'
     p = os.path.join(OUT, 'png', f'{stem}.png')
-    fig.savefig(p, dpi=300, bbox_inches='tight')
+    fig.savefig(p, bbox_inches='tight')
     fig.savefig(p.replace('/png/', '/svg/').replace('.png', '.svg'), bbox_inches='tight')
     plt.close(fig); print('  saved', p)
 
