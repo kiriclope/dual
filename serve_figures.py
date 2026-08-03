@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Live figure gallery for /home/leon/dual — replaces sshfs for looking at PNGs.
 
-Browse by FOLDER: the landing page lists every figure directory (newest-active first) with a cover
-thumbnail and count; click one to render just that folder's figures. Nothing loads until you open a
-folder, so the ~2000-figure repo stays snappy. Regenerate a figure, refresh, it's there — no mount.
+Grouped, low-clutter navigation. The landing page has one PROJECT tab per top-level dir
+(overlaps / pca / rnn / …). Under the active tab, figures are grouped into collapsible SECTIONS
+(e.g. "overlaps / cosine", "pca / traj", "rnn / sweep_nonolick"), collapsed by default with a
+figure + folder count. Expand a section to see its folder cards; click a folder to render just that
+folder's figures. The filter box searches folders across ALL projects and auto-expands the matches.
+
+Nothing heavy loads until you open a section or folder (thumbnails inside a collapsed <details> are
+not fetched), so the ~5000-figure repo stays snappy. Regenerate a figure, refresh, it's there.
 
 Usage (on the remote box, once):
     /home/leon/mambaforge/envs/dual/bin/python serve_figures.py            # port 8000
@@ -16,12 +21,35 @@ and open http://localhost:8000.
 Binds 127.0.0.1 only — reachable exclusively through the SSH tunnel.
 """
 import argparse, html, os
-from collections import defaultdict
+from collections import defaultdict, Counter
 from urllib.parse import quote, unquote, urlsplit
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 EXTS = ('.png',)                       # PNG only; SVG twins share the folder and view rasters here
+HIDE_PROJECTS = {'root', 'figures'}    # stray repo-root PNGs + the tiny top-level figures/ dir
+
+# ── Curated paper figures ──────────────────────────────────────────────────────────────────────
+# Two pinned tabs ("Main" / "Supp") at the front of the gallery. Each entry is (label, repo-relative
+# PNG path). Paths point at the REAL figure files, so they always show the current regenerated PNG —
+# nothing is copied. Edit these lists to curate the paper; order here = display order. A path that
+# doesn't exist yet shows a greyed "missing" card (harmless placeholder).
+MAIN = [
+    ('Fig — overlaps geometry (sample ⊥ action, no-lick push)',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab.png'),
+    ('Fig — dPCA story (tasks/time factors)',
+     'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),
+    ('Fig — overlaps flow story (per-regime decoders)',
+     'overlaps/figures/overlaps/story/png/fig_overlaps_story_main.png'),
+    ('Fig — behaviour / opto (ACC→Prl silencing)',
+     'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
+]
+SUPP = [
+    ('Supp — mixed vs modular selectivity',
+     'overlaps/figures/overlaps/controls/png/overlaps_mixed_selectivity.png'),
+    ('Supp — 1D codes across time',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_codes_supp.png'),
+]
 
 
 def scan():
@@ -39,11 +67,56 @@ def scan():
     return groups
 
 
-def label(dir_rel):
-    """Friendly folder label: drop a trailing /png, keep the last 2-3 meaningful parts."""
+def dedup_parts(dir_rel):
+    """Path parts with noise ('figures'/'png') dropped and adjacent repeats collapsed."""
     parts = [p for p in dir_rel.split(os.sep) if p not in ('figures', 'png')]
-    dedup = [p for i, p in enumerate(parts) if i == 0 or p != parts[i - 1]]   # drop repeated 'overlaps/overlaps'
+    return [p for i, p in enumerate(parts) if i == 0 or p != parts[i - 1]]
+
+
+def project_of(dir_rel):
+    p = dir_rel.split(os.sep)[0]
+    return 'root' if p == '.' else p
+
+
+def label(dir_rel):
+    """Friendly folder label: last 2-3 meaningful path parts."""
+    dedup = dedup_parts(dir_rel)
     return ' / '.join(dedup[-3:]) if dedup else dir_rel
+
+
+def build_sections(groups):
+    """project -> {section_label -> [dir_rel, …]}, ordered by recency.
+
+    Section token = first meaningful part after the project name, descending one extra level for a
+    project whose folders overwhelmingly share that part (e.g. pca/pseudo/* -> group by 'traj')."""
+    by_proj = defaultdict(list)
+    for d in groups:
+        proj = project_of(d)
+        if proj not in HIDE_PROJECTS:
+            by_proj[proj].append(d)
+
+    def newest(dir_list):
+        return max(m for d in dir_list for _, m in groups[d])
+
+    tree = {}
+    for proj in sorted(by_proj, key=lambda p: newest(by_proj[p]), reverse=True):
+        dirs = by_proj[proj]
+        idx1 = Counter(dedup_parts(d)[1] for d in dirs if len(dedup_parts(d)) >= 2)
+        descend = bool(idx1) and max(idx1.values()) / len(dirs) >= 0.6
+        secs = defaultdict(list)
+        for d in dirs:
+            dp = dedup_parts(d)
+            if descend and len(dp) >= 3:
+                tok = dp[2]
+            elif len(dp) >= 2:
+                tok = dp[1]
+            elif dp:
+                tok = dp[-1]
+            else:
+                tok = proj
+            secs[f'{proj} / {tok}'].append(d)
+        tree[proj] = dict(sorted(secs.items(), key=lambda kv: newest(kv[1]), reverse=True))
+    return tree
 
 
 HEAD = """<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -61,15 +134,31 @@ header h1 .crumb{color:#5b8;font-weight:500}
 #count{color:#7a8590;font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .back{padding:6px 11px;background:#1c2024;border:1px solid #333a40;border-radius:6px;color:#cde;font-size:13px}
 .back:hover{border-color:#3a8}
-button{padding:7px 11px;background:#1c2024;border:1px solid #333a40;border-radius:6px;color:#ccd;cursor:pointer;font-size:13px}
-button.on{background:#2f9e6f;border-color:#2f9e6f;color:#04120a}
-main{display:grid;gap:14px;padding:16px}
-.folders{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-.figs{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.pills{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px 2px}
+.pill{padding:6px 13px;border-radius:999px;background:#1c2024;border:1px solid #333a40;color:#ccd;cursor:pointer;font-size:13px}
+.pill:hover{border-color:#3a8}
+.pill.on{background:#2f9e6f;border-color:#2f9e6f;color:#04120a;font-weight:600}
+.pill .pc{opacity:.6;font-size:11px;font-variant-numeric:tabular-nums}
+.sections{display:flex;flex-direction:column;gap:8px;padding:12px 16px 24px;max-width:1400px}
+details.sec{background:#141719;border:1px solid #24292e;border-radius:9px;overflow:hidden}
+details.sec[open]{border-color:#2c343a}
+details.sec>summary{list-style:none;cursor:pointer;padding:11px 14px;display:flex;align-items:center;gap:10px}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary:hover{background:#171b1e}
+.chev{color:#5b8;transition:transform .12s;display:inline-block;width:12px}
+details.sec[open] .chev{transform:rotate(90deg)}
+.stitle{color:#6ec7a0;font-weight:600}
+.scount{color:#7a8590;font-size:12px;font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+.secbody{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;padding:4px 14px 16px}
+.figs{display:grid;gap:14px;padding:16px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.pinned .figs{padding:16px 16px 24px;max-width:1400px}
 .card{margin:0;background:#171a1d;border:1px solid #24292e;border-radius:9px;overflow:hidden;display:flex;flex-direction:column}
 .card:hover{border-color:#356}
 .card img{width:100%;display:block;background:#fff;min-height:60px}
-.folder .thumb{height:150px;background:#fff center/cover no-repeat}
+.folder .thumb{height:130px;background:#fff center/cover no-repeat}
+.card.missing{opacity:.5}
+.card.missing .thumb.miss{height:130px;background:#1c2024;display:flex}
+.empty{padding:40px 20px;color:#7a8590;font-size:13px;text-align:center}
 figcaption,.meta{padding:8px 11px;display:flex;flex-direction:column;gap:2px;font-size:12px}
 .lbl{color:#6ec7a0;font-weight:600}
 .nm{color:#aab3bb;word-break:break-all}
@@ -79,22 +168,80 @@ time{color:#6b757e;font-size:11px}
 </style>"""
 
 
+def folder_card(d, items):
+    newest_name, newest_mt = max(items, key=lambda t: t[1])
+    cover = quote(f'{d}/{newest_name}') + f'?v={int(newest_mt)}'       # mtime busts the browser cache
+    return (
+        f'<a class="card folder" href="/view?d={quote(d)}" data-h="{html.escape((label(d)+" "+d).lower())}">'
+        f'<div class="thumb" style="background-image:url(/{cover})"></div>'
+        f'<div class="meta"><span class="lbl">{html.escape(label(d))}</span>'
+        f'<span class="sub">{len(items)} figures · <time data-ts="{newest_mt:.0f}"></time></span></div></a>')
+
+
+def figure_card(lbl, rel):
+    """A curated single-figure card pointing at the real PNG (greyed placeholder if missing)."""
+    path = os.path.join(BASE, rel)
+    dh = html.escape((lbl + ' ' + rel).lower())
+    if not os.path.isfile(path):
+        return (f'<figure class="card fig missing" data-h="{dh}"><div class="thumb miss"></div>'
+                f'<figcaption><span class="lbl">{html.escape(lbl)}</span>'
+                f'<span class="nm">missing · {html.escape(rel)}</span></figcaption></figure>')
+    mt = os.stat(path).st_mtime
+    src = quote(rel) + f'?v={int(mt)}'                                # mtime busts the browser cache
+    return (f'<figure class="card fig" data-h="{dh}">'
+            f'<a href="/{src}" target="_blank"><img loading="lazy" src="/{src}"></a>'
+            f'<figcaption><span class="lbl">{html.escape(lbl)}</span>'
+            f'<span class="nm">{html.escape(os.path.basename(rel))}</span>'
+            f'<time data-ts="{mt:.0f}"></time></figcaption></figure>')
+
+
+def pill(name, count, active):
+    return (f'<button class="pill{" on" if active else ""}" data-proj="{html.escape(name)}">'
+            f'{html.escape(name)} <span class=pc>{count}</span></button>')
+
+
+def curated_panel(name, entries, active):
+    inner = (f'<div class="figs">{"".join(figure_card(l, r) for l, r in entries)}</div>' if entries
+             else '<div class="empty">No figures yet — add (label, path) lines to '
+                  f'{name.upper()} at the top of serve_figures.py.</div>')
+    return (f'<div class="project pinned{"" if active else " hidden"}" data-proj="{html.escape(name)}">'
+            f'{inner}</div>')
+
+
+def scanned_panel(proj, secs, groups, active):
+    blocks = []
+    for slabel, dirs in secs.items():
+        dirs = sorted(dirs, key=lambda d: max(m for _, m in groups[d]), reverse=True)
+        newest_mt = max(m for d in dirs for _, m in groups[d])
+        n_fig = sum(len(groups[d]) for d in dirs)
+        cards = ''.join(folder_card(d, groups[d]) for d in dirs)
+        short = slabel.split(' / ', 1)[1] if ' / ' in slabel else slabel
+        blocks.append(
+            f'<details class="sec" data-proj="{html.escape(proj)}">'
+            f'<summary><span class="chev">▸</span><span class="stitle">{html.escape(short)}</span>'
+            f'<span class="scount">{n_fig} figs · {len(dirs)} folders · '
+            f'<time data-ts="{newest_mt:.0f}"></time></span></summary>'
+            f'<div class="secbody">{cards}</div></details>')
+    return (f'<div class="project{"" if active else " hidden"}" data-proj="{html.escape(proj)}">'
+            f'<div class="sections">{"".join(blocks)}</div></div>')
+
+
 def render_index(groups):
-    order = sorted(groups.items(), key=lambda kv: max(m for _, m in kv[1]), reverse=True)
-    cards = []
-    for d, items in order:
-        newest_name, newest_mt = max(items, key=lambda t: t[1])
-        cover = quote(f'{d}/{newest_name}') + f'?v={int(newest_mt)}'   # mtime busts the browser cache
-        cards.append(
-            f'<a class="card folder" href="/view?d={quote(d)}" data-h="{html.escape((label(d)+" "+d).lower())}">'
-            f'<div class="thumb" style="background-image:url(/{cover})"></div>'
-            f'<div class="meta"><span class="lbl">{html.escape(label(d))}</span>'
-            f'<span class="sub">{len(items)} figures · <time data-ts="{newest_mt:.0f}"></time></span></div></a>')
+    tree = build_sections(groups)
+    pills, panels, first = [], [], True
+    for name, entries in (('Main', MAIN), ('Supp', SUPP)):        # pinned curated tabs, always first
+        pills.append(pill(name, len(entries), first))
+        panels.append(curated_panel(name, entries, first))
+        first = False
+    for proj, secs in tree.items():                               # scanned project tabs
+        pills.append(pill(proj, sum(len(d) for d in secs.values()), False))
+        panels.append(scanned_panel(proj, secs, groups, False))
     body = (f'<header><h1>dual figures</h1>'
-            f'<input id=q placeholder="filter folders (e.g. cosine, story, flow)" autofocus>'
+            f'<input id=q placeholder="filter figures / folders across all tabs (e.g. cosine, opto, sweep)" autofocus>'
             f'<span id=count></span></header>'
-            f'<main class="folders" id=grid>{"".join(cards)}</main>')
-    return page(body, total=len(order), unit='folders')
+            f'<div class="pills">{"".join(pills)}</div>'
+            f'{"".join(panels)}')
+    return page(body, total=0, unit='', index=True)
 
 
 def render_folder(d, items):
@@ -107,16 +254,52 @@ def render_folder(d, items):
             f'<a href="/{src}" target="_blank"><img loading="lazy" src="/{src}"></a>'
             f'<figcaption><span class="nm">{html.escape(name)}</span>'
             f'<time data-ts="{mt:.0f}"></time></figcaption></figure>')
-    body = (f'<header><a class="back" href="/">← folders</a>'
+    body = (f'<header><a class="back" href="/">← projects</a>'
             f'<h1><span class="crumb">{html.escape(label(d))}</span></h1>'
             f'<input id=q placeholder="filter figures in this folder" autofocus>'
             f'<span id=count></span></header>'
             f'<main class="figs" id=grid>{"".join(cards)}</main>')
-    return page(body, total=len(items), unit='figures')
+    return page(body, total=len(items), unit='figures', index=False)
 
 
-def page(body, total, unit):
-    js = f"""
+def page(body, total, unit, index):
+    if index:
+        js = """
+const pills=[...document.querySelectorAll('.pill')],
+      panels=[...document.querySelectorAll('.project')],
+      secs=[...document.querySelectorAll('details.sec')],
+      cards=[...document.querySelectorAll('.card')],
+      q=document.getElementById('q'), cnt=document.getElementById('count');
+const fmt=ts=>{const d=new Date(ts*1000),p=n=>String(n).padStart(2,'0');
+  return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes());};
+document.querySelectorAll('time[data-ts]').forEach(t=>t.textContent=fmt(+t.dataset.ts));
+function activeProj(){return (pills.find(b=>b.classList.contains('on'))||pills[0]).dataset.proj;}
+function setProject(p){
+  pills.forEach(b=>b.classList.toggle('on',b.dataset.proj===p));
+  panels.forEach(el=>el.classList.toggle('hidden',el.dataset.proj!==p));}
+function shown(){return cards.filter(c=>!c.classList.contains('hidden')&&
+  !c.closest('.project').classList.contains('hidden')).length;}
+function apply(){
+  const term=q.value.trim();
+  if(!term){
+    cards.forEach(c=>c.classList.remove('hidden'));
+    secs.forEach(s=>{s.classList.remove('hidden');s.open=false;});
+    setProject(activeProj());
+    cnt.textContent=shown()+' figures';
+    return;}
+  let re=null;try{re=new RegExp(term,'i');}catch(e){}
+  const t=term.toLowerCase();
+  cards.forEach(c=>{const h=c.dataset.h||'';const ok=re?re.test(h):h.includes(t);
+    c.classList.toggle('hidden',!ok);});
+  secs.forEach(s=>{const vis=[...s.querySelectorAll('.card')].some(c=>!c.classList.contains('hidden'));
+    s.classList.toggle('hidden',!vis);s.open=vis;});
+  panels.forEach(el=>{const vis=[...el.querySelectorAll('.card')].some(c=>!c.classList.contains('hidden'));
+    el.classList.toggle('hidden',!vis);});
+  cnt.textContent=shown()+' matches';}
+pills.forEach(b=>b.addEventListener('click',()=>{q.value='';setProject(b.dataset.proj);apply();}));
+q.addEventListener('input',apply);apply();"""
+    else:
+        js = f"""
 const items=[...document.querySelectorAll('#grid>*')], q=document.getElementById('q'),
       cnt=document.getElementById('count');
 const fmt=ts=>{{const d=new Date(ts*1000),p=n=>String(n).padStart(2,'0');
@@ -165,7 +348,9 @@ if __name__ == '__main__':
     ap.add_argument('--port', type=int, default=8000)
     a = ap.parse_args()
     g = scan()
-    print(f'serving {sum(len(v) for v in g.values())} figures in {len(g)} folders from {BASE}')
+    t = build_sections(g)
+    print(f'serving {sum(len(v) for v in g.values())} figures in {len(g)} folders '
+          f'({len(t)} projects) from {BASE}')
     print(f'  remote:  http://127.0.0.1:{a.port}  (localhost only)')
     print(f'  laptop:  ssh -L {a.port}:localhost:{a.port} <this-box>  then open http://localhost:{a.port}')
     ThreadingHTTPServer(('127.0.0.1', a.port), Handler).serve_forever()
