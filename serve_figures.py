@@ -38,7 +38,7 @@ MAIN = [
     ('Fig — task & behaviour (learning curves, DPA↔GNG balance)',
      'overlaps/figures/overlaps/behavior/png/behavior_main.png'),
     ('Fig — overlaps geometry (sample ⊥ action, no-lick push)',
-     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab.png'),
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
     ('Fig — dPCA story (tasks/time factors)',
      'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),
     ('Fig — overlaps flow story (per-regime decoders)',
