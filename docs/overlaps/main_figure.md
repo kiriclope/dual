@@ -1,13 +1,15 @@
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
-> **SPLIT (2026-08-04) — the overlaps main figure is now TWO paper figures.** Geometry / abstraction
-> (dPCA-manifold link, code traces, within-vs-cross-task generalization matrix, CCGP-across-learning,
-> shared-action axis) → **new figure `fig_overlaps_manifold.py` = paper Fig. 3**; push / repositioning →
-> `fig_overlaps_main_native.py` = **paper Fig. 4**, TRIMMED to the push panels (a push planes + depth
-> deepening, b Δdepth↔Δaccuracy coupling, c Naïve FA-CR). The 5-panel A–E description in the NOTE below is
-> the pre-split build — the push analysis (axes / normalisation / stats) is unchanged and now lives in
-> Fig. 4; the traces / d′ / shared-action-cosine panels moved to Fig. 3. Manuscript: `docs/paper/results_draft.md`
-> §3 (manifold) / §4 (push).
+> **SPLIT (2026-08-04; Fig 3 panels updated 2026-08-05) — the overlaps main figure is now TWO paper
+> figures.** Geometry / abstraction → **`fig_overlaps_manifold.py` = paper Fig. 3**, CURRENT panels: a code
+> traces / b within-vs-cross-task generalization matrix / **c shared action axis (Go/NoGo↔DPA-lick cross-
+> decode)** / **d cross-context generalization summary** / e CCGP-across-learning scatters. The dPCA linking
+> plane moved to Fig. 2g; the weak weight-space shared-action COSINE panel was DROPPED (superseded by the
+> cross-decode 3c, Expert off/diag 0.56 ≫chance); the action-code **d′** panel moved to Fig. 4d. Push /
+> repositioning → `fig_overlaps_main_native.py` = **paper Fig. 4**, push panels a push planes+depth / b
+> Δdepth↔Δaccuracy coupling / c Naïve FA-CR / d action-code d′. The 5-panel A–E description in the NOTE
+> below is the pre-split build — the push analysis (axes / normalisation / stats) is unchanged and now
+> lives in Fig. 4. Manuscript: `docs/paper/results_draft.md` §3 (manifold) / §4 (push).
 
 > **NOTE — this guide documents the *legacy* glued figure (`fig_overlaps_main.py`, panels A→E from
 > pre-rendered strips). The hypothesis / scientific arc below still applies, but the COMPOSITION,

@@ -126,33 +126,41 @@ how learning repositions the working-memory state on it (Fig. 4).
 
 The manifold is inherited directly from the dPCA geometry. Re-plotting the Fig. 2 sample × action plane,
 sample A and B separated along a *single shared* sample axis, essentially identically across DPA, DualGo
-and DualNoGo trials, orthogonal to the pre-existing task/action axis (Fig. 3a) — one memory dimension,
+and DualNoGo trials, orthogonal to the pre-existing task/action axis (Fig. 2g) — one memory dimension,
 reused whichever action context it is embedded in. To confirm this at the single-trial, single-animal
 level we trained cross-generalising decision-code decoders (CCGD): a balanced logistic decoder per mouse
 and stage for each of the sample, GNG, test and choice(lick) variables, read across the whole trial
-(Fig. 3b, naïve top / expert bottom). The four codes matched the dPCA account — the sample memory code was
+(Fig. 3a, naïve top / expert bottom). The four codes matched the dPCA account — the sample memory code was
 stable and epoch-invariant, the GNG code diverged sharply around the cue, the test code appeared only at
 test, and the choice/action code separated only at the response — four near-orthogonal, temporally stable
 directions of one manifold.
 
 That this manifold is *abstract*, not a collection of task-specific codes, was shown by cross-task
 generalisation: decoders trained within one task and tested on another decoded above chance, the cross-task
-(off-diagonal) balanced accuracy approaching the within-task (diagonal) values (Fig. 3c, Naïve and Expert)
-— the geometry is shared across contexts rather than re-learned in each. Critically, this abstraction was
-not built by learning. Per-mouse cross-condition generalisation performance (CCGP) sat on the Naïve =
-Expert unity line for the sample and choice codes (n.s.), with only the test code nudging up slightly
-(p ≈ 0.04) (Fig. 3d) — the factorised, abstract format is present already in naïve animals and preserved,
-consistent with the two component tasks being pre-learned before the dual composition.
+(off-diagonal) balanced accuracy approaching the within-task (diagonal) values (Fig. 3b, Naïve and Expert)
+— the geometry is shared across contexts rather than re-learned in each. Aggregated across the four codes,
+every code read out above chance across the context that challenges it, with the choice and GNG action
+codes the strongest cross-context generalisers (Fig. 3d). Critically, this abstraction was not built by
+learning. Per-mouse cross-condition generalisation performance (CCGP) sat on the Naïve = Expert unity line
+for the sample and choice codes (n.s.), with only the test code nudging up slightly (p ≈ 0.04) (Fig. 3e) —
+the factorised, abstract format is present already in naïve animals and preserved, consistent with the two
+component tasks being pre-learned before the dual composition.
 
-The action dimension in particular was a *single shared command*. The DPA-lick and GNG-lick axes were
-aligned above chance at both stages (Fig. 3e; signed cosine naïve +0.12, p < 0.001; expert +0.18,
-p = 0.001; label-permutation p = 0.002), so composing the tasks reuses the same lick direction rather than
-building a second. And the within-task decodability of this action code was unchanged with learning
-(Fig. 3e; action-code d′ naïve vs expert Δ = +0.27, p = 0.246, n.s.) — the code's fidelity is stable, so
-what learning changes is not the abstraction but the state's *position* on the manifold, the repositioning
-we quantify next (Fig. 4). The abstraction is therefore *inherited* — the animal enters the dual task with
-a reusable factorised geometry already in place — and the learning signal lives not in this abstraction
-index but in the geometric edit that follows.
+The action dimension in particular was a *single shared command*. Because the go/no-go decision and the DPA
+match-lick are two expressions of the same lick action, we tested directly whether they share a neural axis
+by cross-decoding between them — training a decoder on Go-vs-NoGo (at the distractor) and testing it on DPA
+lick-vs-no-lick (at test), and vice versa; because train and test draw on different trials, tasks *and*
+epochs, above-chance transfer cannot arise from leakage. In expert animals the two action codes cross-
+decoded well above chance (Fig. 3c; cross-decoded balanced accuracy 0.60 and 0.84; off-/within-diagonal
+ratio 0.56, 95% CI [0.36, 0.78]) — composing the tasks reuses one lick direction rather than building a
+second. This shared axis was weaker and not clearly above chance in naïve animals (off/diagonal 0.32, CI
+including zero), a positive but non-significant consolidation with learning (Δ = +0.24, p = 0.30). (This
+generalisation-based test supersedes a raw weight-space cosine between the two action axes, which is only
+~0.18 — statistically above its ±1/√N floor but numerically small, because independently fit high-
+dimensional decoders share little raw direction even when they cross-decode; cross-decoding is the robust
+measure of a shared axis.) What learning changes is therefore not the abstraction — largely inherited from
+the pre-learned component tasks — but the state's *position* on the manifold, the repositioning we quantify
+next (Fig. 4).
 
 That the code is reusable and compositional was borne out at the single-neuron level: the near-
 orthogonality did not arise from conjunctive mixed selectivity but from largely separate, independently
@@ -174,7 +182,10 @@ no-lick, the more its DPA accuracy improved (Fig. 4b left; between-mouse per-mou
 p = 0.005, n = 9), with no relationship to Go/NoGo accuracy (Fig. 4b right; ρ = +0.20, p = 0.61) —
 repositioning the state on the pre-existing manifold specifically buys memory performance. The coupling
 held across every normalisation (ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and a resampling battery (jackknife;
-bootstrap CI excluding 0; permutation p = 0.008). As an internal within-trial validation that this axis is
+bootstrap CI excluding 0; permutation p = 0.008). Crucially this was a change in the state's *position*, not
+in the code itself: the within-task decodability of the action code was statistically unchanged across
+learning (Fig. 4d; action-code d′ Δ = +0.27, p = 0.25, n.s.) — the manifold's coding fidelity is fixed while
+the state moves on it. As an internal within-trial validation that this axis is
 the action code, on naïve error trials the choice code sat closer to lick before false alarms than before
 correct rejections, though on the current build this did not reach significance (Fig. 4c; sample-A/AD
 p = 0.204; sample-B/BC p = 0.833, n.s.). _(caveats: the push is directional rather than a precise magnitude
@@ -306,11 +317,13 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 ---
 
 ### To reconcile before submission (figure ↔ text integrity)
-- **Overlaps split (2026-08-04):** the single overlaps figure was split into **Fig. 3** (manifold /
-  abstraction, `fig_overlaps_manifold.py` → `fig_overlaps_manifold.png`, panels a–e = dPCA link / code
-  traces / within-vs-cross-task matrix / CCGP-across-learning / shared-action axis+d′) and **Fig. 4** (push
-  / repositioning, `fig_overlaps_main_native.py` → `fig_overlaps_main_ab_dpaact.png`, trimmed to push
-  panels a–c = push planes+depth / Δdepth↔Δacc coupling / Naïve FA-CR). A stale `fig_overlaps_main_ab.png`
+- **Overlaps split (2026-08-04; Fig 3 panels updated 2026-08-05):** the single overlaps figure was split
+  into **Fig. 3** (manifold / abstraction, `fig_overlaps_manifold.py` → `fig_overlaps_manifold.png`,
+  panels a–e = code traces / within-vs-cross-task matrix / **shared action axis (Go/NoGo↔DPA-lick cross-
+  decode)** / **cross-context generalisation summary** / CCGP-across-learning; the dPCA linking plane moved
+  to Fig 2g and the weak weight-cosine panel was dropped) and **Fig. 4** (push / repositioning,
+  `fig_overlaps_main_native.py` → `fig_overlaps_main_ab_dpaact.png`, push panels a–d = push planes+depth /
+  Δdepth↔Δacc coupling / Naïve FA-CR / action-code d′). A stale `fig_overlaps_main_ab.png`
   (4-panel, 18-obs LMM coupling) still exists in the repo — do NOT ship it; use only the current builds
   (the gallery Main tab was repointed to the `_dpaact` file).
 - **Fig. 2 flow-free — DONE (2026-08-03):** `fig_dpca_story_main.py` regenerated without the section-3 flow

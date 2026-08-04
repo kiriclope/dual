@@ -148,6 +148,47 @@ def gng_matrix(stage, wkey='MD'):
     return M
 
 
+# ── SHARED ACTION AXIS: do the Go/NoGo decision and the DPA lick decision ride ONE action axis? ──
+# Cross-decode the two action codes: Go(1)/NoGo(0) @mid-delay (distractor response) vs DPA lick(1)/no-lick(0)
+# @test. Off-diagonal = train on one action code, test on the OTHER (different trials, tasks AND epochs → no
+# leakage). Above-chance off-diagonal ⇒ a single action/lick axis serves both readouts. This is the robust,
+# generalization-based version of the (weak, ~0.18) cos(DPA-lick · GNG-axis) — noise dims dilute cosine but
+# not cross-decoding.
+ACT_CODES = ['GNG', 'choice']; ACT_WIN = {'GNG': 'MD', 'choice': 'TE'}
+
+
+def dpa_choice_cond(cls, stage):                          # DPA lick(1)/no-lick(0) at test
+    base = (LEARN == stage) & (LAS == 0) & (TSK == 'DPA') & (y['choice'].to_numpy() == cls)
+    return {m: np.where(base & (MOUSE == m))[0] for m in ALL_MICE}
+
+
+def gng_action_cond(cls, stage):                          # Go(1)/NoGo(0) pooled across sample, Dual trials
+    gv = (TSK == 'DualGo')
+    base = (LEARN == stage) & (LAS == 0) & np.isin(TSK, ['DualGo', 'DualNoGo']) & (gv == bool(cls))
+    return {m: np.where(base & (MOUSE == m))[0] for m in ALL_MICE}
+
+
+def act_cond(which, cls, stage):
+    return gng_action_cond(cls, stage) if which == 'GNG' else dpa_choice_cond(cls, stage)
+
+
+def action_matrix(stage):
+    """2×2 (rows/cols = GNG action, DPA choice). diagonal = within-code held-out half; off-diagonal =
+    cross-decode between the go/no-go axis and the DPA lick axis. Each code uses its own read window."""
+    M = np.zeros((2, 2))
+    for i, ci in enumerate(ACT_CODES):
+        s = {c: split_halves(act_cond(ci, c, stage)) for c in (0, 1)}
+        clf = PIPE().fit(np.vstack([pseudo(s[0][0], ACT_WIN[ci], stage), pseudo(s[1][0], ACT_WIN[ci], stage)]), Y2)
+        for j, cj in enumerate(ACT_CODES):
+            if cj == ci:
+                Xte = np.vstack([pseudo(s[0][1], ACT_WIN[cj], stage), pseudo(s[1][1], ACT_WIN[cj], stage)])
+            else:
+                d = {c: act_cond(cj, c, stage) for c in (0, 1)}
+                Xte = np.vstack([pseudo(d[0], ACT_WIN[cj], stage), pseudo(d[1], ACT_WIN[cj], stage)])
+            M[i, j] = cell(clf, Xte)
+    return M
+
+
 
 
 # ÷within generalization: divide each cell's ABOVE-CHANCE value by its TEST task's within-task above-chance
@@ -191,11 +232,31 @@ for stage in STAGES:
     GNG_Mms[stage] = np.stack([gng_matrix(stage) for _ in range(B)]).mean(0)
     print(f'{stage:6s} GNG    (Go/NoGo × sample A/B) 2×2\n{np.round(GNG_Mms[stage],2)}')
 
+# SHARED ACTION AXIS: Go/NoGo <-> DPA-lick cross-decode (2×2), bootstrap over B draws + Expert−Naive Δ CI
+ACT_Mms, ACT_SUMM, ACT_BOOT = {}, {}, {}
+E2 = np.eye(2, dtype=bool)
+for stage in STAGES:
+    Ab = np.stack([action_matrix(stage) for _ in range(B)])                   # (B,2,2)
+    ACT_Mms[stage] = Ab.mean(0)
+    offr = np.array([(Ab[b][~E2] - CHANCE).mean() / (np.diag(Ab[b]) - CHANCE).mean() for b in range(B)])
+    olo, ohi = np.percentile(offr, [2.5, 97.5])
+    ACT_SUMM[stage] = dict(off=np.array([Ab[b][~E2].mean() for b in range(B)]).mean(),
+                           offdiag=offr.mean(), offdiag_lo=olo, offdiag_hi=ohi)
+    ACT_BOOT[stage] = offr
+    print(f'{stage:6s} ACTION Go/NoGo<->DPA-lick 2×2\n{np.round(ACT_Mms[stage],3)}  '
+          f'off/diag={offr.mean():.2f} [{olo:.2f},{ohi:.2f}]')
+dA = ACT_BOOT['Expert'] - ACT_BOOT['Naive']
+alo, ahi = np.percentile(dA, [2.5, 97.5]); ap = 2 * min((dA <= 0).mean(), (dA >= 0).mean())
+ACT_DIFF = dict(mean=dA.mean(), lo=alo, hi=ahi, p=ap, sig=(alo > 0 or ahi < 0))
+print(f'  ACTION Δ off/diag (Expert−Naive) = {dA.mean():+.2f} [{alo:+.2f},{ahi:+.2f}] p={ap:.3f} '
+      f'{"★ excludes 0" if ACT_DIFF["sig"] else "n.s."}')
+
 # cache the computed arrays so downstream figures (fig_overlaps_manifold.py) can replot without recomputing
 import pickle
 os.makedirs('figures/overlaps/ccgp', exist_ok=True)
 pickle.dump({'Mms': Mms, 'Nms': Nms, 'SUMM': SUMM, 'DIFF': DIFF, 'CHANCE': CHANCE, 'MLAB': MLAB,
-             'STAGES': STAGES, 'LABS': LABS, 'TASKS': TASKS, 'TLAB': TLAB, 'GNG_Mms': GNG_Mms},
+             'STAGES': STAGES, 'LABS': LABS, 'TASKS': TASKS, 'TLAB': TLAB, 'GNG_Mms': GNG_Mms,
+             'ACT_Mms': ACT_Mms, 'ACT_SUMM': ACT_SUMM, 'ACT_DIFF': ACT_DIFF, 'ACT_CODES': ACT_CODES},
             open(f'figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}.pkl', 'wb'))
 print(f'cached arrays → figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}.pkl')
 

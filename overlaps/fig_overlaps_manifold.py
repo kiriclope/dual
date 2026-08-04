@@ -1,19 +1,23 @@
 """Fig 3 — "The low-dimensional manifold is abstract and reused across tasks".
 
 Bridges Fig 2 (low-dimensional, factorised) to Fig 4 (learning repositions the state). Panels:
-  A  dPCA linking panel        — Fig-2 manifold (sample × action plane); the memory code is on ONE shared axis
-                                  across DPA/Go/NoGo (reused), orthogonal to the pre-existing action axis.
-  B  code traces               — sample / GNG / test / choice codes, Naive vs Expert  (main_panels _draw_trace_col).
-  C  within- vs cross-task      — balanced-accuracy generalization matrix, Naive+Expert; diagonals = within-task,
+  A  code traces               — sample / GNG / test / choice codes, Naive vs Expert  (main_panels _draw_trace_col).
+  B  within- vs cross-task      — balanced-accuracy generalization matrix, Naive+Expert; diagonals = within-task,
      generalization matrix        off-diagonals = cross-task; off-diag above chance ⇒ shared/abstract geometry.
-  D  abstraction across learning— per-mouse CCGP Naive vs Expert per code (sample/choice/test); diamonds on the
-                                  unity line ⇒ abstraction already present in Naive, preserved.
-  E  shared action axis + d'    — signed cos(DPA-lick · GNG-lick) Naive→Expert + within-task action-code d'
-                                  unchanged  (main_panels _lick_dprime / _act_cos).
+  C  shared action axis         — cross-decode Go/NoGo ↔ DPA-lick (2×2, Naive|Expert). Off-diagonals above chance
+                                  (different trials, tasks AND epochs → no leakage) ⇒ ONE action axis serves both
+                                  the go/no-go decision and the DPA lick. Solidly established in the Expert
+                                  (off/diag 0.56, 95% CI excludes 0); weaker/uncertain in Naive (CI incl. 0), a
+                                  positive but non-significant learning trend (Δ off/diag +0.24, p≈0.30). Robust,
+                                  generalization-based replacement for the weak (~0.18) axis cosine.
+  D  generalization summary     — cross-context bal-acc per code (Naive vs Expert), chance line: every code reads
+                                  out above chance across the context that challenges it (choice/GNG strongest).
+  E  abstraction across learning— per-mouse CCGP Naive vs Expert per code; diamonds near the unity line ⇒
+                                  abstraction already present in Naive, preserved.
 
-Panels B/E reuse the code/geometry builders from main_panels.py; panels C/D read cached arrays
-(figures/overlaps/ccgp/*.pkl) from fig_ccgp_matrices_pseudo.py --acc and fig_ccgp.py.
-Output figures/overlaps/manifold/{png,svg}/fig_overlaps_manifold.{png,svg}
+Panel A reuses the code builders from main_panels.py; panels B/C/D read cached arrays
+(figures/overlaps/ccgp/matrices_cache_acc.pkl, from fig_ccgp_matrices_pseudo.py --acc); panel E reads
+permouse_ccgp_cache.pkl (fig_ccgp.py). Output figures/overlaps/manifold/{png,svg}/fig_overlaps_manifold.{png,svg}
 """
 import sys, os, warnings, pickle
 warnings.filterwarnings('ignore')
@@ -21,11 +25,9 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, '/home/leon/dual/')
 import numpy as np, pandas as pd
 import seaborn as sns, matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 from scipy.stats import wilcoxon
-from src.pca.io import pkl_load
 
-# Pull main_panels' data + code/geometry builders (traces, d′, cosine) into globals (renders nothing).
+# Pull main_panels' data + code builders (traces) into globals (renders nothing).
 import main_panels as _MP
 globals().update({k: v for k, v in vars(_MP).items() if not k.startswith('__')})
 
@@ -39,58 +41,10 @@ plt.rcParams.update({
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
 TITLE_FS = 8
-SAMPLE_COL = {0: '#332288', 1: '#44AA99'}                 # odor A indigo, B teal
-TASK_LS = {'DPA': '-', 'Go': '--', 'NoGo': ':'}
-TASKDUM = 'pseudo_ALL_{}_zscore_5x1_scale_blcenter_f-sample-test-tasks_dpca'
-FS = 6.0
+CACHE = 'figures/overlaps/ccgp/matrices_cache_acc.pkl'
 
 
-# ── A: dPCA linking panel (Fig-2 bridge) ──────────────────────────────────────
-def _load_marg(dum, stage='Expert'):
-    X = pkl_load(f'pseudo_traj_{dum}', path='../data/pca')
-    y = pkl_load(f'pseudo_labels_{dum}', path='../data/pca')
-    labels = pkl_load(f'pseudo_marglabels_{dum}', path='../data/pca')
-    IDX = {nm: labels.index(nm) for nm in dict.fromkeys(labels)}
-    m = ((y.laser == 0) & (y.learning == stage) & (y.performance == 1)).to_numpy()
-    Z = X[m].astype(float); Z = (Z - Z.mean((0, 2), keepdims=True)) / Z.std((0, 2), keepdims=True)
-    yc = y[m].reset_index(drop=True)
-    DLYw, TST = np.arange(42, 54), np.arange(57, 66)
-    B = (yc['sample'] == 1).to_numpy(); Dd = (yc['test'] == 1).to_numpy()
-    lick = (yc['sample'] == yc['test']).to_numpy()
-    go = (yc['tasks'] == 'DualGo').to_numpy(); nogo = (yc['tasks'] == 'DualNoGo').to_numpy()
-    for nm, (pos, neg, w) in {'sample': (B, ~B, DLYw), 'test': (Dd, ~Dd, TST),
-                              'sample:test': (lick, ~lick, TST), 'tasks': (go, nogo, TST)}.items():
-        if nm in IDX and Z[pos][:, IDX[nm]][:, w].mean() < Z[neg][:, IDX[nm]][:, w].mean():
-            Z[:, IDX[nm], :] *= -1
-    return Z, yc, IDX
-
-
-def draw_link(ax, stage='Expert', win=np.arange(30, 54)):
-    Z, yc, IDX = _load_marg(TASKDUM.format(stage), stage)
-    sx, ay = IDX['sample'], IDX['tasks']
-    TASKS = {'DPA': (yc['tasks'] == 'DPA').to_numpy(), 'Go': (yc['tasks'] == 'DualGo').to_numpy(),
-             'NoGo': (yc['tasks'] == 'DualNoGo').to_numpy()}
-    for tname, tmask in TASKS.items():
-        for s in (0, 1):
-            m = tmask & (yc['sample'] == s).to_numpy()
-            if m.sum() < 2:
-                continue
-            traj = Z[m][:, [sx, ay], :][:, :, win].mean(0)
-            ax.plot(traj[0], traj[1], TASK_LS[tname], color=SAMPLE_COL[s], lw=1.4, alpha=0.9, zorder=2)
-            ax.scatter(traj[0, -1], traj[1, -1], s=40, color=SAMPLE_COL[s], edgecolor='k', linewidths=0.6, zorder=4)
-    ax.axvline(0, color='0.85', lw=0.6, zorder=0); ax.axhline(0, color='0.85', lw=0.6, zorder=0)
-    ax.set_xlabel('sample (memory) axis\n← odor A          odor B →', fontsize=7.5)
-    ax.set_ylabel('action axis (tasks)\n← no-lick        lick →', fontsize=7.5)
-    ax.set_title('Codes reused on the low-D dPCA manifold', loc='left', fontsize=TITLE_FS)
-    h1 = [Line2D([0], [0], color=SAMPLE_COL[0], lw=2, label='odor A'),
-          Line2D([0], [0], color=SAMPLE_COL[1], lw=2, label='odor B')]
-    h2 = [Line2D([0], [0], color='0.4', ls=TASK_LS[t], lw=1.4, label=t) for t in TASK_LS]
-    leg1 = ax.legend(handles=h1, frameon=False, fontsize=6.5, loc='upper left', handlelength=1.3)
-    ax.add_artist(leg1)
-    ax.legend(handles=h2, frameon=False, fontsize=6.5, loc='lower right', handlelength=1.8)
-
-
-# ── B: code traces (2×4, Naive/Expert × sample/GNG/test/choice), via main_panels helpers ──
+# ── A: code traces (2×4, Naive/Expert × sample/GNG/test/choice), via main_panels helpers ──
 def draw_traces(fig, cell):
     sub = cell.subgridspec(2, 4, wspace=0.55, hspace=0.32)
     axA = np.empty((2, 4), dtype=object)
@@ -105,48 +59,11 @@ def draw_traces(fig, cell):
     return axA
 
 
-# ── E: within-task action-code d′ (unchanged) + shared action axis cosine ──
-def draw_axis_dprime(ax):
-    dN = np.array([_lick_dprime(m, 'Naive') for m in ALL_MICE]); dE = np.array([_lick_dprime(m, 'Expert') for m in ALL_MICE])
-    ok = np.isfinite(dN) & np.isfinite(dE)
-    av = np.concatenate([dN[ok], dE[ok]]); lim = (min(av.min(), -0.1), av.max() * 1.12)
-    ax.plot(lim, lim, ls='--', color='0.6', lw=0.8, zorder=1)
-    ax.axhline(0, ls=':', color='0.8', lw=0.6); ax.axvline(0, ls=':', color='0.8', lw=0.6)
-    for m, xn, ye in zip(np.array(ALL_MICE)[ok], dN[ok], dE[ok]):
-        ax.scatter(xn, ye, s=26, facecolors=MOUSE_COLOR[m], edgecolors=MOUSE_COLOR[m], linewidths=0.6, zorder=4)
-    pt = float(ttest_rel(dE[ok], dN[ok]).pvalue); dd = float((dE[ok] - dN[ok]).mean()); sig = pt < 0.05
-    ax.set_xlim(lim); ax.set_ylim(lim); ax.set_box_aspect(1)
-    ax.set_title('action-code d′', fontsize=TITLE_FS, loc='left')
-    ax.set_xlabel('Naive d′', fontsize=7.5); ax.set_ylabel('Expert d′', fontsize=7.5)
-    ax.text(0.06, 0.95, '*' if sig else 'n.s.', transform=ax.transAxes, ha='left', va='top',
-            fontsize=11 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
-    ax.text(0.5, 0.02, f'Δ={dd:+.2f}, p={pt:.3f}', transform=ax.transAxes, ha='center', va='bottom',
-            fontsize=6, color='0.3')
-
-
-def draw_shared_axis(ax):
-    acN = np.array([_act_cos(m, 'Naive') for m in ALL_MICE]); acE = np.array([_act_cos(m, 'Expert') for m in ALL_MICE])
-    for i, m in enumerate(ALL_MICE):
-        ax.plot([0, 1], [acN[i], acE[i]], '-o', color=MOUSE_COLOR[m], lw=0.9, ms=4.5, mec='w', mew=0.5, zorder=3)
-    for x, v in ((-0.16, acN), (1.16, acE)):
-        mu = np.nanmean(v); se = np.nanstd(v, ddof=1) / np.sqrt(np.isfinite(v).sum())
-        ax.errorbar(x, mu, yerr=se, fmt='s', color='k', ms=6, capsize=3.5, lw=1.3, zorder=5)
-    ax.axhline(COS_CHANCE, ls=':', color='0.6', lw=0.8); ax.axhline(0, color='0.85', lw=0.6)
-    ax.text(1.55, COS_CHANCE, 'chance', fontsize=5.5, color='0.6', va='bottom', ha='right')
-    ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=8); ax.set_xlim(-0.45, 1.65)
-    ax.set_ylabel('cos(DPA-lick · GNG-lick axis)', fontsize=7.5)
-    p0E = float(ttest_1samp(acE[np.isfinite(acE)], 0).pvalue); sig = p0E < 0.05
-    ax.set_title('shared action code', loc='left', fontsize=TITLE_FS)
-    ax.text(0.06, 0.96, '*' if sig else 'n.s.', transform=ax.transAxes, ha='left', va='top',
-            fontsize=11 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
-    ax.set_box_aspect(1)
-
-
-# ── C: within- vs cross-task generalization matrix (balanced accuracy, Naive+Expert), 4 codes ──
+# ── B: within- vs cross-task generalization matrix (balanced accuracy, Naive+Expert), 4 codes ──
 #    sample/test/choice = across TASK (3×3, DPA/Go/NoGo); GNG = across SAMPLE (2×2, A/B) — GNG IS the task
 #    distinction so it has no within-task diagonal; its abstraction is w.r.t. memory content.
 def draw_matrix(fig, axes):
-    c = pickle.load(open('figures/overlaps/ccgp/matrices_cache_acc.pkl', 'rb'))
+    c = pickle.load(open(CACHE, 'rb'))
     Mms, GNG_Mms, STG, TLAB, CH = c['Mms'], c['GNG_Mms'], c['STAGES'], c['TLAB'], c['CHANCE']
     ORDER = ['sample', 'GNG', 'test', 'choice']
     allM = [Mms[(s, l)] for s in STG for l in ('sample', 'test', 'choice')] + [GNG_Mms[s] for s in STG]
@@ -156,9 +73,9 @@ def draw_matrix(fig, axes):
         for cc, lab in enumerate(ORDER):
             ax = axes[r][cc]
             if lab == 'GNG':
-                M = GNG_Mms[stage]; labs = ['A', 'B']; xlab, ylab = 'test sample', 'train sample'
+                M = GNG_Mms[stage]; labs = ['A', 'B']; xlab = 'test sample'
             else:
-                M = Mms[(stage, lab)]; labs = TLAB; xlab, ylab = 'test task', 'train task'
+                M = Mms[(stage, lab)]; labs = TLAB; xlab = 'test task'
             n = M.shape[0]
             im = ax.imshow(M, cmap='Reds', vmin=0.5, vmax=0.5 + DEV, aspect='equal')
             for i in range(n):
@@ -169,8 +86,8 @@ def draw_matrix(fig, axes):
             ax.set_xticks(range(n)); ax.set_yticks(range(n))
             ax.set_xticklabels(labs, fontsize=6.3); ax.set_yticklabels(labs, fontsize=6.3)
             ax.spines[['top', 'right', 'left', 'bottom']].set_visible(True)
-            ax.set_title(lab + ('  (÷sample)' if lab == 'GNG' and r == 0 else ''), loc='center',
-                         fontsize=TITLE_FS) if r == 0 else None
+            if r == 0:
+                ax.set_title(lab + ('  (÷sample)' if lab == 'GNG' else ''), loc='center', fontsize=TITLE_FS)
             if cc == 0:
                 ax.set_ylabel(f'{stage}\ntrain task', fontsize=7)
             if r == len(STG) - 1:
@@ -179,7 +96,74 @@ def draw_matrix(fig, axes):
     cb.ax.tick_params(labelsize=6); cb.set_label('bal. acc.', fontsize=6.5)
 
 
-# ── D: per-mouse abstraction Naive vs Expert, one scatter per code (sample/GNG/test/choice).
+# ── C: shared action axis — cross-decode Go/NoGo ↔ DPA-lick (2×2, Naive | Expert) ──
+def draw_action(fig, axes):
+    c = pickle.load(open(CACHE, 'rb'))
+    ACT, SUM, DIF, STG = c['ACT_Mms'], c['ACT_SUMM'], c['ACT_DIFF'], c['STAGES']
+    labs = ['Go/NoGo', 'DPA-lick']
+    allv = np.concatenate([ACT[s].ravel() for s in STG])
+    DEV = max(np.abs(allv - 0.5).max(), 0.05)
+    im = None
+    for k, stage in enumerate(STG):
+        ax = axes[k]; M = ACT[stage]
+        im = ax.imshow(M, cmap='Reds', vmin=0.5, vmax=0.5 + DEV, aspect='equal')
+        for i in range(2):
+            for j in range(2):
+                ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=7.5,
+                        color='w' if M[i, j] > 0.5 + 0.62 * DEV else 'k',
+                        fontweight='bold' if i == j else 'normal')
+        # ring the cross-decode (off-diagonal) cells — the shared-axis evidence
+        for (i, j) in [(0, 1), (1, 0)]:
+            ax.add_patch(plt.Rectangle((j - 0.5, i - 0.5), 1, 1, fill=False, ec='#117733', lw=1.4, zorder=5))
+        ax.set_xticks([0, 1]); ax.set_yticks([0, 1])
+        ax.set_xticklabels(labs, fontsize=6.0); ax.set_yticklabels(labs, fontsize=6.0, rotation=90, va='center')
+        ax.spines[['top', 'right', 'left', 'bottom']].set_visible(True)
+        ax.set_title(f'{stage}  (cross {SUM[stage]["off"]:.2f})', loc='left', fontsize=TITLE_FS)
+        if k == 0:
+            ax.set_ylabel('train code', fontsize=7)
+        ax.set_xlabel('test code', fontsize=6.5)
+    cb = fig.colorbar(im, ax=axes[-1], fraction=0.05, pad=0.10)
+    cb.ax.tick_params(labelsize=6); cb.set_label('bal. acc.', fontsize=6.5)
+    axes[0].text(0.0, -0.42,
+                 f"green = cross-decode (shared axis). Expert off/diag {SUM['Expert']['offdiag']:.2f} "
+                 f"[{SUM['Expert']['offdiag_lo']:.2f},{SUM['Expert']['offdiag_hi']:.2f}] ≫ chance; "
+                 f"Naive {SUM['Naive']['offdiag']:.2f} (n.s.); Δ p={DIF['p']:.2f}",
+                 transform=axes[0].transAxes, fontsize=6, color='0.3', ha='left', va='top')
+
+
+# ── D: generalization summary — cross-context bal-acc per code, Naive vs Expert ──
+def draw_summary(ax):
+    c = pickle.load(open(CACHE, 'rb'))
+    Mms, GNG, STG = c['Mms'], c['GNG_Mms'], c['STAGES']
+    codes = ['sample', 'GNG', 'test', 'choice']
+
+    def cross(stage, code):
+        if code == 'GNG':
+            M = GNG[stage]; e = np.eye(2, dtype=bool)
+        else:
+            M = Mms[(stage, code)]; e = np.eye(len(M), dtype=bool)
+        return M[~e].mean()
+
+    def within(stage, code):
+        M = GNG[stage] if code == 'GNG' else Mms[(stage, code)]
+        return np.diag(M).mean()
+
+    x = np.arange(len(codes))
+    for stage, dx, ec, fc in [('Naive', -0.14, '0.45', 'none'), ('Expert', 0.14, '#332288', '#332288')]:
+        wy = [within(stage, cd) for cd in codes]
+        cy = [cross(stage, cd) for cd in codes]
+        ax.scatter(x + dx, wy, marker='_', s=150, color=ec, linewidths=1.3, zorder=2)   # within = tick (ceiling ref)
+        ax.scatter(x + dx, cy, marker='o', s=44, facecolors=fc, edgecolors=ec, linewidths=1.1,
+                   label=stage, zorder=3)
+    ax.axhline(0.5, ls=':', color='0.6', lw=0.8)
+    ax.text(len(codes) - 0.5, 0.505, 'chance', fontsize=5.5, color='0.6', va='bottom', ha='right')
+    ax.set_xticks(x); ax.set_xticklabels(codes); ax.set_xlim(-0.5, len(codes) - 0.5); ax.set_ylim(0.47, 1.03)
+    ax.set_ylabel('bal. acc.', fontsize=7.5)
+    ax.set_title('Cross-context generalization (● cross-context, — within)', loc='left', fontsize=TITLE_FS)
+    ax.legend(frameon=False, fontsize=6.5, loc='lower left', ncol=2)
+
+
+# ── E: per-mouse abstraction Naive vs Expert, one scatter per code (sample/GNG/test/choice).
 #    Fig-1H conventions: colour = mouse (MOUSE_COLOR), marker = opsin group (GMARKER ●/▲/■), white edge. ──
 def draw_scatters(axes):
     R = pd.read_pickle('figures/overlaps/ccgp/permouse_ccgp_cache.pkl')
@@ -204,9 +188,9 @@ def draw_scatters(axes):
 
 # ═══════════════════════════════════ assembly ═══════════════════════════════════
 if __name__ == '__main__':
-    fig = plt.figure(figsize=(11.0, 9.4))
-    gs = fig.add_gridspec(3, 12, height_ratios=[1.15, 1.35, 0.95],
-                          hspace=0.5, wspace=0.9, left=0.065, right=0.975, top=0.94, bottom=0.055)
+    fig = plt.figure(figsize=(11.0, 12.3))
+    gs = fig.add_gridspec(4, 12, height_ratios=[1.02, 1.25, 1.02, 0.9],
+                          hspace=0.6, wspace=0.9, left=0.075, right=0.965, top=0.945, bottom=0.05)
 
     def panel_letter(ax, L, x=0.008, dy=0.016):
         p = ax.get_position(); fig.text(x, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
@@ -217,14 +201,22 @@ if __name__ == '__main__':
     gsB = gs[1, 0:11].subgridspec(2, 4, hspace=0.35, wspace=0.45)
     axB = [[fig.add_subplot(gsB[r, c]) for c in range(4)] for r in range(2)]
     draw_matrix(fig, axB)
-    # Row 2: C abstraction across learning (1×4 scatters)
-    gsC = gs[2, 0:11].subgridspec(1, 4, wspace=0.5)
-    axC = [fig.add_subplot(gsC[0, c]) for c in range(4)]
-    draw_scatters(axC)
+    # Row 2: C shared action axis (2×2 Naive|Expert)  +  D generalization summary
+    gsC = gs[2, 0:5].subgridspec(1, 2, wspace=0.55)
+    axActs = [fig.add_subplot(gsC[0, k]) for k in range(2)]
+    draw_action(fig, axActs)
+    axSum = fig.add_subplot(gs[2, 6:12])
+    draw_summary(axSum)
+    # Row 3: E abstraction across learning (1×4 scatters)
+    gsE = gs[3, 0:11].subgridspec(1, 4, wspace=0.5)
+    axE = [fig.add_subplot(gsE[0, c]) for c in range(4)]
+    draw_scatters(axE)
 
     panel_letter(axA[0, 0], 'A')
     panel_letter(axB[0][0], 'B')
-    panel_letter(axC[0], 'C')
+    panel_letter(axActs[0], 'C')
+    panel_letter(axSum, 'D', x=0.46)
+    panel_letter(axE[0], 'E')
     fig.suptitle('The dual-task codes are abstract and reused across tasks', x=0.008, ha='left',
                  y=0.975, fontsize=10)
     OUT = 'figures/overlaps/manifold'

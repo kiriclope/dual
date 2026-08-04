@@ -638,23 +638,21 @@ def _dp3(a, b):
     return float((a.mean() - b.mean()) / np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2 + 1e-9))
 
 
-def section3_shared(axM, axA):
-    """Per-mouse shared-memory (odor A/B separation on the dPCA sample axis) and shared-action (Go vs
-    NoGo/DPA on the dPCA tasks/action axis), Naive(x) vs Expert(y) on the COMMON Expert axes. Fig-1H markers."""
+def section3_shared(axM):
+    """Per-mouse shared-memory code: odor A/B separation on the dPCA sample axis, Naive(x) vs Expert(y) on the
+    COMMON Expert axes (Fig-1H markers). Flat ≈ memory code present in Naive and preserved (reused substrate).
+    The shared-ACTION claim is carried by the linking plane (below) + quantified by Fig 3 panel C (the Go/NoGo↔
+    DPA-lick cross-decode); the old per-mouse action-d′ scatter (p≈.10) was dropped as under-powered/redundant."""
     Z, yc, IDX = load_common('Expert')
-    dly, rsp = np.arange(42, 54), np.arange(57, 66)
-    per = {'mem': {'Naive': {}, 'Expert': {}}, 'act': {'Naive': {}, 'Expert': {}}}
+    dly = np.arange(42, 54)
+    per = {'mem': {'Naive': {}, 'Expert': {}}}
     for mo in ALL_MICE3:
         for st in ('Naive', 'Expert'):
             mm = ((yc.mouse == mo) & (yc.learning == st)).to_numpy()
             B = (yc['sample'] == 1).to_numpy() & mm; A = (yc['sample'] == 0).to_numpy() & mm
             if B.sum() >= 3 and A.sum() >= 3:
                 per['mem'][st][mo] = _dp3(Z[B][:, IDX['sample']][:, dly].mean(1), Z[A][:, IDX['sample']][:, dly].mean(1))
-            go = (yc['tasks'] == 'DualGo').to_numpy() & mm
-            nl = ((yc['tasks'] == 'DualNoGo') | (yc['tasks'] == 'DPA')).to_numpy() & mm
-            if go.sum() >= 3 and nl.sum() >= 3:
-                per['act'][st][mo] = _dp3(Z[go][:, IDX['tasks']][:, rsp].mean(1), Z[nl][:, IDX['tasks']][:, rsp].mean(1))
-    for ax, key, ttl in [(axM, 'mem', 'shared memory code'), (axA, 'act', 'shared action code')]:
+    for ax, key, ttl in [(axM, 'mem', 'shared memory code')]:
         xs, ys = per[key]['Naive'], per[key]['Expert']
         mice = [m for m in ALL_MICE3 if m in xs and m in ys]
         xv = np.array([xs[m] for m in mice]); yv = np.array([ys[m] for m in mice])
@@ -721,16 +719,16 @@ for k in range(4):                                       # share y-scale per mar
     yhi = max(axTrN[k].get_ylim()[1], axTrE[k].get_ylim()[1])
     axTrN[k].set_ylim(ylo, yhi); axTrE[k].set_ylim(ylo, yhi)
 
-# ── Section 3: shared memory/action codes (per mouse) + the manifold transition ──
-axShM = fig.add_subplot(gs[2, 0:4]); axShA = fig.add_subplot(gs[2, 4:8]); axLink = fig.add_subplot(gs[2, 8:12])
-section3_shared(axShM, axShA)
+# ── Section 3: shared memory code (per mouse) + the manifold transition (action shared → Fig 3) ──
+axShM = fig.add_subplot(gs[2, 0:4]); axLink = fig.add_subplot(gs[2, 5:12])
+section3_shared(axShM)
 link_transition(axLink)
 
 # panel letters
 plabel(axSch, 'A'); plabel(axEvr, 'B'); plabel(axCon, 'C')
 plabel(axTrN[0], 'D')                                    # sec-2 trajectory grid (Naive/Expert × 4 marginals)
 plabel(axMix, 'E')                                       # sec-2 full pairwise axis mixing
-plabel(axShM, 'F'); plabel(axShA, 'G'); plabel(axLink, 'H')  # sec-3 shared codes + transition
+plabel(axShM, 'F'); plabel(axLink, 'G')                 # sec-3 shared memory code + manifold transition
 # section headers (left-aligned, positioned from each section's top edge)
 def _top(axs):
     return max(a.get_position().y1 for a in (axs if isinstance(axs, list) else [axs]))

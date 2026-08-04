@@ -1,14 +1,18 @@
 # Overlaps Subproject Overview
 
 > **SPLIT (2026-08-04) — the overlaps MAIN figure is now TWO main figures.** For the paper the single
-> `fig_overlaps_main_native.py` figure was split: the **geometry / abstraction** content (dPCA-manifold
-> link, code traces, within-vs-cross-task generalization matrix, CCGP-across-learning, shared-action axis)
-> moved to a **new manifold figure `fig_overlaps_manifold.py` = paper Fig. 3**
-> (`figures/overlaps/manifold/{png,svg}/fig_overlaps_manifold.png`); `fig_overlaps_main_native.py` is now
-> **paper Fig. 4**, trimmed to the **push / repositioning** panels only (a push planes + depth deepening,
-> b Δdepth↔Δaccuracy coupling, c Naïve FA-CR). The push-figure details below still describe its analysis
-> (axes, normalisation, stats); read them as Fig. 4, and see `fig_overlaps_manifold.py` for the Fig. 3
-> panels. Manuscript: `docs/paper/results_draft.md` §3 (manifold) / §4 (push).
+> `fig_overlaps_main_native.py` figure was split into a **geometry / abstraction** figure and a **push /
+> repositioning** figure. **Fig. 3 = `fig_overlaps_manifold.py`** (`figures/overlaps/manifold/{png,svg}/
+> fig_overlaps_manifold.png`), CURRENT panels (2026-08-05): **a** code traces (sample/GNG/test/choice,
+> Naive|Expert) · **b** within-vs-cross-task generalization matrix (bal-acc, Naive+Expert) · **c** SHARED
+> ACTION AXIS — Go/NoGo↔DPA-lick cross-decode 2×2 (Expert off/diag 0.56 [0.36,0.78] ≫chance; the robust
+> replacement for the weak ~0.18 weight cosine) · **d** cross-context generalization SUMMARY (● cross vs —
+> within, all codes, Naive|Expert) · **e** per-mouse CCGP Naive-vs-Expert scatters. The dPCA linking plane
+> moved to **Fig. 2g**; the action-code **d′** panel moved to **Fig. 4d**; the weight-cosine panel was
+> DROPPED (too weak, superseded by 3c). **Fig. 4 = `fig_overlaps_main_native.py`**, trimmed to push panels
+> **a** push planes+depth · **b** Δdepth↔Δaccuracy coupling · **c** Naïve FA-CR · **d** action-code d′.
+> The push-figure details below still describe its analysis (axes, normalisation, stats). Manuscript:
+> `docs/paper/results_draft.md` §3 (manifold) / §4 (push).
 
 ## Results so far (2026-07-01) — consolidated
 
