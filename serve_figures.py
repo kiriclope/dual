@@ -35,13 +35,15 @@ HIDE_PROJECTS = {'root', 'figures'}    # stray repo-root PNGs + the tiny top-lev
 # nothing is copied. Edit these lists to curate the paper; order here = display order. A path that
 # doesn't exist yet shows a greyed "missing" card (harmless placeholder).
 MAIN = [
-    ('Fig — task & behaviour (learning curves, DPA↔GNG balance)',
+    ('Fig 1 — task & behaviour (learning curves, DPA↔GNG balance)',
      'overlaps/figures/overlaps/behavior/png/behavior_main.png'),
-    ('Fig — overlaps geometry (sample ⊥ action, no-lick push)',
-     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
-    ('Fig — dPCA story (tasks/time factors)',
+    ('Fig 2 — dPCA: low-dimensional & factorised',
      'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),
-    ('Fig — behaviour / opto (ACC→Prl silencing)',
+    ('Fig 3 — manifold: abstract & reused across tasks ★NEW',
+     'overlaps/figures/overlaps/manifold/png/fig_overlaps_manifold.png'),
+    ('Fig 4 — push / repositioning on the manifold (overlaps)',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
+    ('Fig 5 — behaviour / opto (ACC→Prl silencing)',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
 ]
 SUPP = [
@@ -137,6 +139,32 @@ EXTRA = [
      'pca/figures/pseudo/flow/wm_manifold_defensible.png'),
     ('Extra — slow-manifold → double-well under CI',
      'pca/figures/pseudo/flow/slowmanifold_test_pooled.png'),
+    ('Extra — ★ Fig-2 FOLD PANEL: cross-task generalization (balanced acc., N vs E, colorbar@0.5)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_foldpanel_acc.png'),
+    ('Extra — CCGP abstraction (pseudo-population, correct trials) ★',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_pseudo.png'),
+    ('Extra — CCGP abstraction (per-mouse n=9 companion / stat)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp.png'),
+    ('Extra — generalization index Naive vs Expert (d′, bootstrap CI + Δ test) ★',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_summary.png'),
+    ('Extra — generalization index Naive vs Expert (balanced accuracy, bootstrap CI + Δ test)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_acc_summary.png'),
+    ('Extra — cross-task d′ matrices (pseudo-pop, Naive vs Expert, raw + ÷within)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo.png'),
+    ('Extra — cross-task balanced-acc. matrices (pseudo-pop, Naive vs Expert, raw + ÷within)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_acc.png'),
+    ('Extra — [sample@TEST] generalization index N vs E (d′, bootstrap CI + Δ test)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_test_summary.png'),
+    ('Extra — [sample@TEST] generalization index N vs E (balanced accuracy, CI + Δ test)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_test_acc_summary.png'),
+    ('Extra — [sample@TEST] cross-task d′ matrices (pseudo-pop, N vs E, raw + ÷within)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_test.png'),
+    ('Extra — [sample@TEST] cross-task balanced-acc. matrices (pseudo-pop, N vs E)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_pseudo_test_acc.png'),
+    ('Extra — cross-task generalization matrices (per-mouse)',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices.png'),
+    ('Extra — cross-task generalization matrices @ TEST epoch',
+     'overlaps/figures/overlaps/ccgp/png/overlaps_ccgp_matrices_test.png'),
 ]
 
 

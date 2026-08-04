@@ -1,5 +1,15 @@
 # Overlaps Subproject Overview
 
+> **SPLIT (2026-08-04) — the overlaps MAIN figure is now TWO main figures.** For the paper the single
+> `fig_overlaps_main_native.py` figure was split: the **geometry / abstraction** content (dPCA-manifold
+> link, code traces, within-vs-cross-task generalization matrix, CCGP-across-learning, shared-action axis)
+> moved to a **new manifold figure `fig_overlaps_manifold.py` = paper Fig. 3**
+> (`figures/overlaps/manifold/{png,svg}/fig_overlaps_manifold.png`); `fig_overlaps_main_native.py` is now
+> **paper Fig. 4**, trimmed to the **push / repositioning** panels only (a push planes + depth deepening,
+> b Δdepth↔Δaccuracy coupling, c Naïve FA-CR). The push-figure details below still describe its analysis
+> (axes, normalisation, stats); read them as Fig. 4, and see `fig_overlaps_manifold.py` for the Fig. 3
+> panels. Manuscript: `docs/paper/results_draft.md` §3 (manifold) / §4 (push).
+
 ## Results so far (2026-07-01) — consolidated
 
 The dual-coding hypothesis, now with a measured mechanism, from two independent angles

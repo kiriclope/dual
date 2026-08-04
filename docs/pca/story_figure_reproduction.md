@@ -1,5 +1,12 @@
 # dPCA story figure — full reproduction guide
 
+> **STALE LAYOUT (flagged 2026-08-04).** This guide documents an older multi-row layout; the RENDERED
+> paper Fig. 2 (`fig_dpca_story_main.png`) is now the flow-free **2-row A–E** build (a schematic, b scree,
+> c per-task variance, d trajectory grid, e axis-mixing; the no-lick push / sample-preserved panels are in
+> Extended Data). The manifold / abstraction content (dPCA-manifold link, cross-task generalization, CCGP)
+> has moved to the **new overlaps Fig. 3** (`overlaps/fig_overlaps_manifold.py`). Trust the hypotheses /
+> math / windows below, but not the panel-letter layout.
+
 Self-contained record of the full-arc dPCA main figure: **hypotheses, data, every routine, the exact
 math and windows, the results, and how to regenerate it.** Written so a future session can rebuild and
 defend the figure from scratch. Companions: `story_figure_methods.md` (condensed how-to),

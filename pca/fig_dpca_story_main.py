@@ -127,20 +127,20 @@ def section1_evr(ax):
             X = np.vstack(MM); X = X - X.mean(0)
             ev = np.linalg.svd(X, full_matrices=False)[1] ** 2
             return ev / ev.sum()
-        ev = evr(list(range(len(lab)))); nev = len(ev)
-        ev_wm = evr([k for k, L in enumerate(lab) if L in ('sample', 'sample:test')])
-        out[STAGE] = (float(ev[:2].sum()), float(ev_wm[:2].sum()), float(ev.sum() ** 2 / (ev ** 2).sum()))
+        ev_all = evr(list(range(len(lab))))                                         # full: top comps are time + tasks
+        ev = evr([k for k, L in enumerate(lab) if L in ('sample', 'sample:test')])  # WM = sample:choice subspace
+        nev = len(ev)
+        out[STAGE] = (float(ev_all[:2].sum()), float(ev[:2].sum()), float(ev.sum() ** 2 / (ev ** 2).sum()))
         ax.plot(range(1, len(ev) + 1), ev, '-o', ms=4, label=STAGE, **sty)
     ax.axvline(2, ls='--', color='0.5', lw=0.8)
-    ax.set_xlim(0.7, nev + 0.3); ax.set_ylim(-0.02, 0.72)
-    ax.set_xlabel('dPCA component', fontsize=8.5)
+    ax.set_xlim(0.7, nev + 0.3); ax.set_ylim(-0.02, 0.88)
+    ax.set_xlabel('component (sample:choice subspace)', fontsize=8.5)
     ax.set_ylabel('explained variance', fontsize=8.5)
     ax.legend(frameon=False, fontsize=7.5, loc=(0.62, 0.78))
     eE = out['Expert']
-    ax.text(0.40, 0.60, f'top-2 = {eE[1]:.0%} wm\n{eE[0]:.0%} all,  PR {eE[2]:.1f}',
-            transform=ax.transAxes, fontsize=7)
-    ax.text(0.40, 0.36, '≈ 2-D geometry\n(dynamics higher-\nrank: rank-2\n= 62–67%)',
-            transform=ax.transAxes, fontsize=6.3, style='italic', color='0.35')
+    ax.text(0.40, 0.62, f'top-2 = {eE[1]:.0%}\nPR {eE[2]:.1f}', transform=ax.transAxes, fontsize=7.5)
+    ax.text(0.40, 0.34, 'sample:choice (WM) subspace —\ntime + tasks factored out', transform=ax.transAxes,
+            fontsize=6.5, style='italic', color='0.35')
     ax.spines[['top', 'right']].set_visible(False)
     return out
 
@@ -598,18 +598,116 @@ def section2_mixing(ax):
         print(f'sec2 mix {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f}→E {cE[pr]:.3f} Δ{cE[pr]-cN[pr]:+.3f} p={pval[pr]:.3f}')
 
 
+# ══ SECTION 3 — memory & action codes shared across tasks (per mouse) + the manifold transition to Fig 3 ══
+import seaborn as _sns
+from scipy.stats import wilcoxon as _wilcoxon
+from matplotlib.lines import Line2D as _Line2D
+_S3_FS = 8
+ALL_MICE3 = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
+MCOL3 = {m: c for m, c in zip(ALL_MICE3, _sns.color_palette('tab10', len(ALL_MICE3)))}
+GRP3 = {**{m: 'Jaws' for m in ALL_MICE3[:5]}, **{m: 'ChR' for m in ALL_MICE3[5:7]},
+        **{m: 'ACC' for m in ALL_MICE3[7:]}}
+GMK3 = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
+SAMPLE_COL3 = {0: '#332288', 1: '#44AA99'}
+TASK_LS3 = {'DPA': '-', 'DualGo': '--', 'DualNoGo': ':'}
+TASK_NM3 = {'DPA': 'DPA', 'DualGo': 'Go', 'DualNoGo': 'NoGo'}
+
+
+def load_common(orient='Expert'):
+    """Load the EXPERT dPCA DUM (it contains BOTH stages) so Naive & Expert share the SAME axes; z-score and
+    orient each marginal ONCE on `orient` so signs are comparable across stages."""
+    X = pkl_load(f'pseudo_traj_{BASE}', path='../data/pca')
+    y = pkl_load(f'pseudo_labels_{BASE}', path='../data/pca')
+    labels = pkl_load(f'pseudo_marglabels_{BASE}', path='../data/pca')
+    IDX = {nm: labels.index(nm) for nm in dict.fromkeys(labels)}
+    keep = ((y.laser == 0) & (y.performance == 1)).to_numpy()
+    Z = X[keep].astype(float); Z = (Z - Z.mean((0, 2), keepdims=True)) / Z.std((0, 2), keepdims=True)
+    yc = y[keep].reset_index(drop=True); oo = (yc.learning == orient).to_numpy()
+    DLYw, TST = np.arange(42, 54), np.arange(57, 66)
+    B = (yc['sample'] == 1).to_numpy(); Dd = (yc['test'] == 1).to_numpy()
+    lick = (yc['sample'] == yc['test']).to_numpy()
+    go = (yc['tasks'] == 'DualGo').to_numpy(); nogo = (yc['tasks'] == 'DualNoGo').to_numpy()
+    for nm, (pos, neg, w) in {'sample': (B, ~B, DLYw), 'test': (Dd, ~Dd, TST),
+                              'sample:test': (lick, ~lick, TST), 'tasks': (go, nogo, TST)}.items():
+        if nm in IDX and Z[oo & pos][:, IDX[nm]][:, w].mean() < Z[oo & neg][:, IDX[nm]][:, w].mean():
+            Z[:, IDX[nm], :] *= -1
+    return Z, yc, IDX
+
+
+def _dp3(a, b):
+    return float((a.mean() - b.mean()) / np.sqrt((a.var(ddof=1) + b.var(ddof=1)) / 2 + 1e-9))
+
+
+def section3_shared(axM, axA):
+    """Per-mouse shared-memory (odor A/B separation on the dPCA sample axis) and shared-action (Go vs
+    NoGo/DPA on the dPCA tasks/action axis), Naive(x) vs Expert(y) on the COMMON Expert axes. Fig-1H markers."""
+    Z, yc, IDX = load_common('Expert')
+    dly, rsp = np.arange(42, 54), np.arange(57, 66)
+    per = {'mem': {'Naive': {}, 'Expert': {}}, 'act': {'Naive': {}, 'Expert': {}}}
+    for mo in ALL_MICE3:
+        for st in ('Naive', 'Expert'):
+            mm = ((yc.mouse == mo) & (yc.learning == st)).to_numpy()
+            B = (yc['sample'] == 1).to_numpy() & mm; A = (yc['sample'] == 0).to_numpy() & mm
+            if B.sum() >= 3 and A.sum() >= 3:
+                per['mem'][st][mo] = _dp3(Z[B][:, IDX['sample']][:, dly].mean(1), Z[A][:, IDX['sample']][:, dly].mean(1))
+            go = (yc['tasks'] == 'DualGo').to_numpy() & mm
+            nl = ((yc['tasks'] == 'DualNoGo') | (yc['tasks'] == 'DPA')).to_numpy() & mm
+            if go.sum() >= 3 and nl.sum() >= 3:
+                per['act'][st][mo] = _dp3(Z[go][:, IDX['tasks']][:, rsp].mean(1), Z[nl][:, IDX['tasks']][:, rsp].mean(1))
+    for ax, key, ttl in [(axM, 'mem', 'shared memory code'), (axA, 'act', 'shared action code')]:
+        xs, ys = per[key]['Naive'], per[key]['Expert']
+        mice = [m for m in ALL_MICE3 if m in xs and m in ys]
+        xv = np.array([xs[m] for m in mice]); yv = np.array([ys[m] for m in mice])
+        lim = (min(xv.min(), yv.min(), 0) - 0.2, max(xv.max(), yv.max()) + 0.35)
+        ax.plot(lim, lim, ls='--', color='0.6', lw=0.8, zorder=1)
+        ax.axhline(0, ls=':', color='0.8', lw=0.6); ax.axvline(0, ls=':', color='0.8', lw=0.6)
+        for m in mice:
+            ax.scatter(xs[m], ys[m], s=42, color=MCOL3[m], marker=GMK3[GRP3[m]], edgecolors='w', linewidths=0.5, zorder=4)
+        p = float(_wilcoxon(yv, xv).pvalue); sig = p < 0.05
+        ax.set_xlim(lim); ax.set_ylim(lim); ax.set_box_aspect(1)
+        ax.set_xlabel('Naive  (dPCA d′)', fontsize=8.5); ax.set_ylabel('Expert  (dPCA d′)', fontsize=8.5)
+        ax.set_title(ttl, loc='left', fontsize=_S3_FS)
+        ax.text(0.06, 0.95, '*' if sig else 'n.s.', transform=ax.transAxes, ha='left', va='top',
+                fontsize=11 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
+        ax.text(0.5, 0.02, f'Δ={(yv - xv).mean():+.2f}, p={p:.3f}', transform=ax.transAxes,
+                ha='center', va='bottom', fontsize=6, color='0.3')
+        print(f'sec3 {key}: Naive {xv.mean():+.2f} Expert {yv.mean():+.2f} Δ {(yv - xv).mean():+.2f} p={p:.3f} (n={len(mice)})')
+
+
+def link_transition(ax, stage='Expert', win=np.arange(30, 54)):
+    """The dPCA manifold (sample × action plane): odor A/B on ONE shared sample axis across DPA/Go/NoGo,
+    orthogonal to the action axis — the bridge from Fig 2 (factorised) to Fig 3 (reused)."""
+    Z, yc, IDX = load_common('Expert'); m0 = (yc.learning == stage).to_numpy()
+    sx, ay = IDX['sample'], IDX['tasks']
+    for tname, tls in TASK_LS3.items():
+        tm = (yc['tasks'] == tname).to_numpy() & m0
+        for s in (0, 1):
+            mm = tm & (yc['sample'] == s).to_numpy()
+            if mm.sum() < 3:
+                continue
+            tr = Z[mm][:, [sx, ay], :][:, :, win].mean(0)
+            ax.plot(tr[0], tr[1], tls, color=SAMPLE_COL3[s], lw=1.3, alpha=0.9, zorder=2)
+            ax.scatter(tr[0, -1], tr[1, -1], s=34, color=SAMPLE_COL3[s], edgecolor='k', linewidths=0.5, zorder=4)
+    ax.axvline(0, color='0.85', lw=0.6); ax.axhline(0, color='0.85', lw=0.6)
+    ax.set_xlabel('sample (memory) axis\n← odor A        odor B →', fontsize=7.5)
+    ax.set_ylabel('action axis\n← no-lick     lick →', fontsize=7.5)
+    ax.set_title('one manifold, reused across tasks  (→ Fig 3)', loc='left', fontsize=_S3_FS)
+    h1 = [_Line2D([0], [0], color=SAMPLE_COL3[s], lw=2, label=f'odor {"AB"[s]}') for s in (0, 1)]
+    h2 = [_Line2D([0], [0], color='0.4', ls=TASK_LS3[t], lw=1.3, label=TASK_NM3[t]) for t in TASK_LS3]
+    lg = ax.legend(handles=h1, frameon=False, fontsize=6, loc='upper left', handlelength=1.2); ax.add_artist(lg)
+    ax.legend(handles=h2, frameon=False, fontsize=6, loc='lower right', handlelength=1.6)
+
+
 # ══ ASSEMBLE ══════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(9.6, 10.5))
-gs = fig.add_gridspec(3, 12, height_ratios=[0.95, 1.8, 1.1],
-                      hspace=0.5, wspace=0.62, left=0.072, right=0.978, top=0.93, bottom=0.06)
+fig = plt.figure(figsize=(9.6, 11.3))
+gs = fig.add_gridspec(3, 12, height_ratios=[0.95, 1.8, 1.05],
+                      hspace=0.42, wspace=0.62, left=0.072, right=0.978, top=0.915, bottom=0.05)
 
 axSch = fig.add_subplot(gs[0, 0:4]); axEvr = fig.add_subplot(gs[0, 4:8]); axCon = fig.add_subplot(gs[0, 8:12])
 gsT = gs[1, 0:12].subgridspec(2, 5, width_ratios=[1, 1, 1, 1, 0.9], hspace=0.30, wspace=0.55)  # Naive/Expert rows + mixing
 axTrN = [fig.add_subplot(gsT[0, k]) for k in range(4)]      # D — Naive row
 axTrE = [fig.add_subplot(gsT[1, k]) for k in range(4)]      #     Expert row
 axMix = fig.add_subplot(gsT[0:2, 4])                        # E — full pairwise mixing (spans both rows)
-gsL = gs[2, 0:5].subgridspec(1, 2, width_ratios=[1, 1], wspace=0.5)     # F push · G sample-preserved
-axN1 = fig.add_subplot(gsL[0]); axN2 = fig.add_subplot(gsL[1])
 
 schematic(axSch)
 s1 = section1_evr(axEvr)
@@ -622,26 +720,26 @@ for k in range(4):                                       # share y-scale per mar
     ylo = min(axTrN[k].get_ylim()[0], axTrE[k].get_ylim()[0])
     yhi = max(axTrN[k].get_ylim()[1], axTrE[k].get_ylim()[1])
     axTrN[k].set_ylim(ylo, yhi); axTrE[k].set_ylim(ylo, yhi)
-section4(axN1, axN2)
+
+# ── Section 3: shared memory/action codes (per mouse) + the manifold transition ──
+axShM = fig.add_subplot(gs[2, 0:4]); axShA = fig.add_subplot(gs[2, 4:8]); axLink = fig.add_subplot(gs[2, 8:12])
+section3_shared(axShM, axShA)
+link_transition(axLink)
 
 # panel letters
 plabel(axSch, 'A'); plabel(axEvr, 'B'); plabel(axCon, 'C')
 plabel(axTrN[0], 'D')                                    # sec-2 trajectory grid (Naive/Expert × 4 marginals)
 plabel(axMix, 'E')                                       # sec-2 full pairwise axis mixing
-plabel(axN1, 'F'); plabel(axN2, 'G')                     # sec-3 no-lick push + sample-memory-preserved
+plabel(axShM, 'F'); plabel(axShA, 'G'); plabel(axLink, 'H')  # sec-3 shared codes + transition
 # section headers (left-aligned, positioned from each section's top edge)
 def _top(axs):
     return max(a.get_position().y1 for a in (axs if isinstance(axs, list) else [axs]))
 def sechead(y, tx):
     fig.text(0.075, y, tx, ha='left', va='bottom', fontsize=10.5, fontweight='bold')
-sechead(_top(axSch) + 0.024, '1.  Low-dimensional dPCA geometry & per-task variance')
-sechead(_top(axTrN) + 0.012, '2.  dPCA-axis trajectories (Naive vs Expert) & axis mixing')
-sechead(_top([axN1, axN2]) + 0.024, '3.  Learning pushes the sample memory into no-lick')
-leg = [Line2D([0], [0], color='c', ls='--', label='naive memory level'),
-       Line2D([0], [0], color=SAMPLE_COL[0], lw=2, label='sample A'),
-       Line2D([0], [0], color=SAMPLE_COL[1], lw=2, label='sample B')]
-fig.legend(handles=leg, loc='lower center', ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.5, 0.004))
-fig.suptitle('The dPCA geometry of the dual working-memory task', y=0.985, fontsize=13)
+sechead(_top(axSch) + 0.026, '1.  The dual-task computation is low-dimensional')
+sechead(_top(axTrN) + 0.014, '2.  Near-orthogonal, factorised dPCA axes')
+sechead(_top(axShM) + 0.03, '3.  Memory and action codes are shared across tasks')
+fig.suptitle('Low-dimensional, factorised geometry of the dual working-memory task', y=0.982, fontsize=13)
 
 OUT = 'figures/pseudo/story'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
