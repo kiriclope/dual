@@ -1,7 +1,11 @@
 """Three figures (DPA, dual, all=dpa+dual), each same layout:
  row 1: scree (cvPCA, 3 windows) · PR bars · shattering-SD bars   (Naive vs Expert)
- rows 2-3: PC-coding η² matrices (Naive, Expert) × (delay, decision, delay+dec)."""
-import os, pickle
+ rows 2-3: PC-coding η² matrices (Naive, Expert) × (delay, decision, delay+dec).
+
+Flag --gng : add a 'gng' column to the DPA matrices = Go-vs-NoGo cross-DECODING above-chance per DPA PC
+(2·(bal-acc−0.5)) — gng doesn't exist within DPA, so it's the dual data projected onto the DPA axes.
+Outputs get a _gng suffix, so the default (no gng) figures are kept."""
+import os, sys, pickle
 os.chdir('/home/leon/dual/pca')
 import numpy as np, seaborn as sns, matplotlib.pyplot as plt
 sns.set_context('notebook'); sns.set_style('ticks')
@@ -13,6 +17,9 @@ plt.rcParams.update({'figure.dpi': 150, 'savefig.dpi': 400, 'font.family': 'sans
 TITLE_FS = 8
 d = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
 FITDATA = d['FITDATA']
+WITH_GNG = '--gng' in sys.argv                                            # add gng cross-decode col to DPA
+SUF = '_gng' if WITH_GNG else ''
+DPA_GNG = d.get('DPA_GNG', {})
 SC = {'Naive': '0.55', 'Expert': '#332288'}
 WINS = ['delay', 'decision', 'delay+dec']
 WCOL = {'delay': '#4477AA', 'decision': '#EE6677', 'delay+dec': '#228833'}
@@ -20,9 +27,16 @@ TITLE = {'DPA': 'DPA (4 conditions)', 'dual': 'dual = DualGo + DualNoGo (8 condi
          'all': 'dpa + dual (all 12 conditions)'}
 
 
+NPC_SHOW = {'DPA': 3, 'dual': 4, 'all': 6}                                 # #PCs per fit (all: 6 so test shows)
+
+
 def pc_heatmap(ax, ts, wn, stage, title):
-    F = FITDATA[(ts, wn, stage)]; FO = F['factors']; cmv = F['cm_var']
-    npc = min(4, F['pceta'].shape[0]); M = F['pceta'][:npc]
+    F = FITDATA[(ts, wn, stage)]; FO = list(F['factors']); cmv = F['cm_var']
+    cap = 4 if (WITH_GNG and ts == 'DPA') else NPC_SHOW.get(ts, 4)         # DPA+gng: 4 PCs → 4×4 square
+    npc = min(cap, F['pceta'].shape[0]); M = F['pceta'][:npc]
+    if WITH_GNG and ts == 'DPA':                                          # insert gng cross-decode col after sample
+        g = np.asarray(DPA_GNG[(wn, stage)])[:npc][:, None]
+        M = np.column_stack([M[:, [0]], g, M[:, 1:]]); FO = ['sample', 'gng', 'test', 'choice']
     im = ax.imshow(M, cmap='Purples', vmin=0, vmax=1, aspect='equal')
     for i in range(npc):
         for j in range(len(FO)):
@@ -38,7 +52,7 @@ def pc_heatmap(ax, ts, wn, stage, title):
 
 
 for ts in ['DPA', 'dual', 'all']:
-    fig = plt.figure(figsize=(10.5, 10.0))
+    fig = plt.figure(figsize=(10.5, 10.0 + 0.75 * (NPC_SHOW.get(ts, 4) - 4)))
     gs = fig.add_gridspec(3, 3, height_ratios=[1.0, 1.0, 1.0], hspace=0.55, wspace=0.5,
                           left=0.09, right=0.94, top=0.9, bottom=0.06)
 
@@ -80,7 +94,8 @@ for ts in ['DPA', 'dual', 'all']:
         fig.text(0.02, (p.y0 + p.y1) / 2, stage, rotation=90, va='center', ha='center', fontsize=10, fontweight='bold')
     cb = fig.colorbar(im, ax=[fig.axes[-1]], fraction=0.05, pad=0.04); cb.set_label('η²', fontsize=6.5); cb.ax.tick_params(labelsize=6)
 
-    fig.suptitle(f'Dimensionality & PC coding — {TITLE[ts]}', x=0.01, ha='left', y=0.955, fontsize=11)
+    ttl = TITLE[ts] + ('   (+ gng cross-decode column)' if (WITH_GNG and ts == 'DPA') else '')
+    fig.suptitle(f'Dimensionality & PC coding — {ttl}', x=0.01, ha='left', y=0.955, fontsize=11)
     OUT = 'figures/pseudo/dimensionality'
-    fig.savefig(f'{OUT}/png/dim_{ts}.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/dim_{ts}.svg', bbox_inches='tight')
-    plt.close(fig); print('saved', f'{OUT}/png/dim_{ts}.png')
+    fig.savefig(f'{OUT}/png/dim_{ts}{SUF}.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/dim_{ts}{SUF}.svg', bbox_inches='tight')
+    plt.close(fig); print('saved', f'{OUT}/png/dim_{ts}{SUF}.png')
