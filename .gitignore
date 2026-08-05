@@ -6,3 +6,4 @@
 *.pkl
 data/
 rnn/
+tmp/
