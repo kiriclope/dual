@@ -154,6 +154,12 @@ FILE_SUF += '_gngact' if GNGACT else '_dpaact'
 TESTWIN = '--testwin' in sys.argv[1:]
 if TESTWIN:
     FILE_SUF += '_testwin'
+ANTACT = '--antact' in sys.argv[1:]                                       # single anticipatory+action axis: choice @ 48-62
+if ANTACT:
+    FILE_SUF += '_antact'
+ROBUST = '--robust' in sys.argv[1:]                                       # robust sample-separation units (÷ per-mouse A-B sample sep) — no pooled-evoked per-mouse amplification
+if ROBUST:
+    FILE_SUF += '_robust'
 # Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),
 # mirroring the run_overlaps `--targets sample choice test gng` layout. (Ridge: assembled by
 # concatenating the legacy main + gng files, which many other scripts still load separately.)
@@ -188,7 +194,7 @@ print(f'  X {X.shape}  y {y.shape}')
 # trained at the DPA lick moment, bins 57–63 = last 0.5 s TEST + first 0.5 s CHOICE); GNG below.
 _sam_rows  = (y.target == 'sample').to_numpy(); _tst_rows = (y.target == 'test').to_numpy()
 _cho_rows  = (y.target == 'choice').to_numpy()
-_ACT_DPA   = np.arange(54, 60) if TESTWIN else np.arange(57, 63)       # test (decision) vs action (lick) window
+_ACT_DPA   = np.arange(48, 63) if ANTACT else (np.arange(54, 60) if TESTWIN else np.arange(57, 63))  # antact = single anticipatory+action axis (48-62)
 SAMPLE_R   = X[_sam_rows][:, 1, np.arange(16, 48), :].mean(1).astype(float); Y_SAM = y[_sam_rows].reset_index(drop=True)
 TEST_R     = X[_tst_rows][:, 1, np.arange(58, 84), :].mean(1).astype(float); Y_TST = y[_tst_rows].reset_index(drop=True)
 LICK_R     = X[_cho_rows][:, 1, _ACT_DPA, :].mean(1).astype(float);           Y_LCK = y[_cho_rows].reset_index(drop=True)
@@ -219,7 +225,9 @@ def _norm_code(Draw, YY, class_col, cls1, task):
         pool = mm & (YY.laser == 0).to_numpy() & tk                    # ALL trials, both stages
         if pool.sum() == 0:
             continue
-        if EQNORM:                                                     # --eqnorm: all trials × all bins std
+        if ROBUST:                                                     # --robust: per-mouse A-B sample separation (a stable common scale, not per-mouse SNR)
+            sd = _SEP.get(mo, 1.0)
+        elif EQNORM:                                                   # --eqnorm: all trials × all bins std
             sd = Draw[pool].std()                                      #   (signal + trial noise; ~5× larger)
         else:                                                          # default: class-signed pooled evoked-std
             s = np.where(YY[class_col].to_numpy()[pool] == cls1, 1.0, -1.0)
@@ -229,6 +237,14 @@ def _norm_code(Draw, YY, class_col, cls1, task):
         Z[mm] = (Draw[mm] - mu) / (sd + 1e-9)
     return Z
 
+
+# per-mouse sample separation (|A-B| on the sample code @ late delay) = the ROBUST unit scale (used iff --robust)
+_SEP = {}
+for _mo in ALL_MICE:
+    _p = (Y_SAM.mouse == _mo).to_numpy() & (Y_SAM.laser == 0).to_numpy() & (Y_SAM.tasks == 'DPA').to_numpy()
+    _a = SAMPLE_R[_p & (Y_SAM.odor_pair.isin([0, 1])).to_numpy()][:, BINS_LATE].mean()
+    _b = SAMPLE_R[_p & (Y_SAM.odor_pair.isin([2, 3])).to_numpy()][:, BINS_LATE].mean()
+    _SEP[_mo] = abs(_b - _a)
 
 SAMPLE_D = _norm_code(SAMPLE_R, Y_SAM, 'sample_odor', 1, 'DPA')
 TEST_D   = _norm_code(TEST_R,   Y_TST, 'test_odor',   1, 'DPA')
@@ -563,7 +579,7 @@ __all__ = [
     'BINS_DELAY', 'TEST_ONSET', 'TRAJ_END', 'xtime',
     'BL_A', 'BL_N', 'TRAIN_LDTEST', 'AXIS_LABEL',
     'FILE_SUF', 'PFX', '_BDUM', 'L1',
-    'LDA', 'EQNORM', 'GNGACT', 'TESTWIN',
+    'LDA', 'EQNORM', 'GNGACT', 'TESTWIN', 'ANTACT', 'ROBUST',
     'CV10', '_ACT_DPA', '_ACT_GNG', 'COS_CHANCE',
     'MIN_TR', 'VARS_A', 'VAR_GNG', 'SAMPLE_TRAJ',
     'SAMPLE_SPLITS_HIST', 'FA_CR_SPEC', 'D_SAMPLE_CLASSES', '_setup_A',

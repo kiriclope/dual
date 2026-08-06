@@ -43,6 +43,8 @@ MAIN = [
      'overlaps/figures/overlaps/manifold/png/fig_overlaps_manifold.png'),
     ('Fig 4 — push / repositioning on the manifold (overlaps)',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
+    ('Fig 4 (alt) — push on the anticipatory+action axis, robust units + random-slope LMM ★NEW',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust.png'),
     ('Fig 5 — behaviour / opto (ACC→Prl silencing)',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
 ]

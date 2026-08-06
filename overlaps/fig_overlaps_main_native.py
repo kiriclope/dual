@@ -95,16 +95,26 @@ if __name__ == '__main__':
     _dfp = pd.DataFrame([dict(mouse=mo, sample=_s, st=_st, depth=_v)
                          for _s in ('A', 'B') for _st, _k in ((0, 'naive'), (1, 'expert'))
                          for mo, _v in zip(pushB[_s]['mice'], pushB[_s][_k])])
-    _pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
-    _bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
     _nmB, _noB = _dfp['mouse'].nunique(), len(_dfp)
+    if _MP.ROBUST:                                                        # settled stat (2026-08-06): trial-level odor-A RANDOM-SLOPE LMM (p≈.007), not the aggregated random-intercept
+        _dep = _MP.LICK_D[:, _MP.BINS_LATE].mean(1)
+        _selA = ((_MP.Lm.laser == 0) & (_MP.Lm.tasks == 'DPA') & _MP.Lm.odor_pair.isin([0, 1])).to_numpy()
+        _dfA = pd.DataFrame(dict(depth=_dep[_selA], mouse=_MP.Lm.mouse.to_numpy()[_selA],
+                                 st=(_MP.Lm.stage.to_numpy()[_selA] == 'Expert').astype(int)))
+        _mA = smf.mixedlm('depth ~ st', _dfA, groups='mouse', re_formula='~st').fit(reml=False)
+        _bpush, _ppush = float(_mA.params['st']), float(_mA.pvalues['st'])
+        _statlbl = f'odor-A random-slope LMM\n({_nmB} mice, {_selA.sum()} A-trials)'
+    else:
+        _pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
+        _bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
+        _statlbl = f'mixed model ({_nmB} mice, {_noB} obs)'
     _sigB = _ppush < 0.05
-    print(f'A depth [mixed model, {_noB} obs] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
+    print(f'A depth [{_statlbl.splitlines()[0]}] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
     axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
     axB_sc.set_box_aspect(1)
     axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=7.5)
     axB_sc.set_title('Choice-code depth', loc='left', fontsize=TITLE_FS)
-    axB_sc.text(0.03, 0.03, f'mixed model ({_nmB} mice, {_noB} obs)\nβ={_bpush:+.3f}, p={_ppush:.3f}',
+    axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}',
                 transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
     axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
                 fontsize=12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
