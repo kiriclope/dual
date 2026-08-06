@@ -13,12 +13,11 @@ unchanged (`fig_overlaps_main_ab{FILE_SUF}`) so existing gallery/doc references 
 
 Run:  cd /home/leon/dual/overlaps
       /home/leon/mambaforge/envs/dual/bin/python fig_overlaps_main_native.py
-Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab_dpaact.{png,svg}
+Output: figures/overlaps/main/{png,svg}/fig_overlaps_main_ab_dpaact.{png,svg}  (default = 57-63 pooled-evoked)
 
-DEFAULT build (2026-08-06) = single anticipatory+action axis (choice @ bins 48-62) + robust sample-separation
-units + trial-level odor-A random-slope LMM. This is the settled Fig-4 convention and matches Fig 3's axis
-(fig_overlaps_manifold.py also defaults to 48-62). Pass --legacy for the old 57-63 pooled-evoked build
-(→ fig_overlaps_main_ab_dpaact_legacy).
+ALTERNATIVE build: --antact (single anticipatory+action axis, choice @ bins 48-62) + --robust (robust
+sample-separation units + trial-level odor-A random-slope LMM) → fig_overlaps_main_ab_dpaact_antact_robust.
+(All three panels ★ on that axis: push p=.032, coupling ρ=-.68 p=.042, FA/CR p=.045.)
 
 See main_panels.py for the full analysis/method docstring and the --eqnorm/--testwin/--l1/--lda/--cv10/
 --ld/--ld05/--gngact/--antact/--robust flags (parsed at import from sys.argv).
@@ -27,22 +26,12 @@ import sys, os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, '/home/leon/dual/')
 
-# Fig 4 DEFAULTS to the settled build (2026-08-06): single anticipatory+action axis (bins 48-62) + robust
-# sample-separation units + trial-level odor-A random-slope LMM. Pass --legacy for the old 57-63 pooled-evoked
-# build. Injected here because main_panels parses sys.argv AT IMPORT; scoped to THIS figure so the shared
-# main_panels / manifold figure defaults are unchanged.
-_LEGACY = '--legacy' in sys.argv[1:]
-if not _LEGACY:
-    for _f in ('--antact', '--robust'):
-        if _f not in sys.argv:
-            sys.argv.append(_f)
-
 # Import the module: loads the tensors, applies the uniform normalisation, and defines every panel builder
 # (renders nothing). Pull ALL of its module-level names into this script's globals so the assembly reads as before.
+# DEFAULT (no flags) = 57-63 pooled-evoked (the canonical Fig 4). --antact (48-62 axis) + --robust (sample-sep
+# units + trial-level odor-A random-slope LMM) produce the ALTERNATIVE → fig_overlaps_main_ab_dpaact_antact_robust.
 import main_panels as _MP
 globals().update({k: v for k, v in vars(_MP).items() if not k.startswith("__")})
-# Keep the CANONICAL Fig-4 filename for the (new) default build; --legacy writes a distinct _legacy file.
-FILE_SUF = (FILE_SUF + '_legacy') if _LEGACY else FILE_SUF.replace('_antact', '').replace('_robust', '')
 
 
 if __name__ == '__main__':
