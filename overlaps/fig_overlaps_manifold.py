@@ -18,6 +18,9 @@ Bridges Fig 2 (low-dimensional, factorised) to Fig 4 (learning repositions the s
 Panel A reuses the code builders from main_panels.py; panels B/C/D read cached arrays
 (figures/overlaps/ccgp/matrices_cache_acc.pkl, from fig_ccgp_matrices_pseudo.py --acc); panel E reads
 permouse_ccgp_cache.pkl (fig_ccgp.py). Output figures/overlaps/manifold/{png,svg}/fig_overlaps_manifold.{png,svg}
+DEFAULT axis (2026-08-06) = 48-62 (choice/action window), consistent with Fig 4 (fig_overlaps_main_native.py);
+pass --legacy for the old 57-63 axis (→ fig_overlaps_manifold_legacy). Affects panel A's choice trace and panel
+C's shared-action cosine (both read the DPA action axis).
 """
 import sys, os, warnings, pickle
 warnings.filterwarnings('ignore')
@@ -26,6 +29,13 @@ sys.path.insert(0, '/home/leon/dual/')
 import numpy as np, pandas as pd
 import seaborn as sns, matplotlib.pyplot as plt
 from scipy.stats import wilcoxon
+
+# Fig 3 DEFAULTS to the 48-62 action axis (--antact) for consistency with Fig 4 (pooled-evoked: the traces /
+# d′ / shared-action cosine don't need robust units). Pass --legacy for the old 57-63 axis. Injected before
+# importing main_panels (parses sys.argv at import); scoped to THIS figure so main_panels' global default is off.
+_LEGACY = '--legacy' in sys.argv[1:]
+if not _LEGACY and '--antact' not in sys.argv:
+    sys.argv.append('--antact')
 
 # Pull main_panels' data + code builders (traces) into globals (renders nothing).
 import main_panels as _MP
@@ -220,8 +230,9 @@ if __name__ == '__main__':
     fig.suptitle('The dual-task codes are abstract and reused across tasks', x=0.008, ha='left',
                  y=0.975, fontsize=10)
     OUT = 'figures/overlaps/manifold'
+    _SUF = '_legacy' if _LEGACY else ''                                    # default → canonical fig_overlaps_manifold.png (48-62); --legacy → _legacy (57-63)
     for s in ('png', 'svg'):
         os.makedirs(f'{OUT}/{s}', exist_ok=True)
-    fig.savefig(f'{OUT}/png/fig_overlaps_manifold.png', bbox_inches='tight')
-    fig.savefig(f'{OUT}/svg/fig_overlaps_manifold.svg', bbox_inches='tight')
-    print('saved', os.path.abspath(f'{OUT}/png/fig_overlaps_manifold.png'))
+    fig.savefig(f'{OUT}/png/fig_overlaps_manifold{_SUF}.png', bbox_inches='tight')
+    fig.savefig(f'{OUT}/svg/fig_overlaps_manifold{_SUF}.svg', bbox_inches='tight')
+    print('saved', os.path.abspath(f'{OUT}/png/fig_overlaps_manifold{_SUF}.png'))
