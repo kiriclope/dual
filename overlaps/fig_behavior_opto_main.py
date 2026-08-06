@@ -115,6 +115,13 @@ POSTER = '--poster' in sys.argv[1:]
 # SNR-weighted toward the highest-baseline-SNR mice (baseline std varies across mice). d′ panels
 # (K,L) are scale-invariant → unchanged. Writes to a separate eqnorm/ subdir.
 EQNORM = '--eqnorm' in sys.argv[1:]
+# --antact : read the choice-code depth on the single anticipatory+action axis (bins 48-62), matching Fig 3/4's
+#            alternative build (was TRAIN_LDTEST = bins_LD+bins_TEST). --robust : normalise the depth by each
+#            mouse's |A-B| SAMPLE separation (sample-sep units, from the sample tensor) instead of baseline std.
+ANTACT = '--antact' in sys.argv[1:]
+ROBUST = '--robust' in sys.argv[1:]
+_SUF = ('_antact' if ANTACT else '') + ('_robust' if ROBUST else '')
+AXIS_LBL = ('48–62' if ANTACT else 'trainLD_TEST') + (' · sample-sep' if ROBUST else '')  # axis-aware panel labels
 
 JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']   # ACC→Prl INHIBITION
 CHR  = ['ChRM04', 'ChRM23']                                      # ACC→Prl EXCITATION
@@ -166,6 +173,8 @@ def _depth_on_axis(bins_train):
     Xe = X[..., bins_train, :].mean(-2)[:, 1].astype(float)     # (n, 84) over test-time
     for m in LASER_MICE:
         mm = (y.mouse == m).values
+        if ROBUST:                                             # --robust: normalise by SAMPLE separation later (needs the sample tensor)
+            continue
         sd = Xe[mm].std() if EQNORM else Xe[mm][:, BINS_BL].std()
         if sd > 0:
             Xe[mm] /= sd
@@ -173,7 +182,8 @@ def _depth_on_axis(bins_train):
 
 
 TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])   # 45-59 (main-fig axis)
-depth_all = _depth_on_axis(TRAIN_LDTEST)                       # trainLD_TEST axis — F, G–I, J
+DEPTH_AXIS = np.arange(48, 63) if ANTACT else TRAIN_LDTEST                   # --antact → single anticipatory+action window (48-62)
+depth_all = _depth_on_axis(DEPTH_AXIS)                         # F, G–I, J (raw if --robust; ÷ sample-sep below)
 cdf_diag = np.stack([X[:, 1, t, t] for t in range(X.shape[-1])], axis=1).astype(float)  # choice DV diag(t)
 del X                                                          # free ~1 GB
 
@@ -208,6 +218,15 @@ STAGES = ['Naive', 'Expert']
 _sA, _sB = (ys['sample'].values == 1), (ys['sample'].values == 0)
 _sdpa = (ys.tasks == 'DPA').values
 sLD = sdf_diag[:, options['bins_LD']].mean(1)
+if ROBUST:                                                     # sample-sep units: ÷ per-mouse |A-B| sample separation @ LD (from the sample tensor)
+    for _m in LASER_MICE:                                      # NB: 'smask'/'_m' — do NOT name a loop var 'sm' (clobbers statsmodels → breaks the GEE)
+        smask = (ys.mouse == _m).values & _sdpa
+        _a = sLD[smask & _sA]; _b = sLD[smask & _sB]
+        _a = _a[np.isfinite(_a)]; _b = _b[np.isfinite(_b)]
+        _sep = abs(_a.mean() - _b.mean()) if len(_a) and len(_b) else 0.0
+        _dm = (y.mouse == _m).values
+        if _sep > 0:
+            depth_all[_dm] = depth_all[_dm] / _sep
 _gGo, _gNo = (y.tasks == 'DualGo').values, (y.tasks == 'DualNoGo').values
 cMD = cdf_diag[:, options['bins_MD']].mean(1)
 
@@ -600,7 +619,7 @@ if not POSTER:
     axK.axhline(0, ls=':', color='0.5', lw=1)
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
-    axK.set_ylabel('DPA choice-code depth\n(late delay, trainLD_TEST)')
+    axK.set_ylabel(f'DPA choice-code depth\n(late delay, {AXIS_LBL})')
     axK.set_title('Laser moves the code per mouse', loc='left', fontweight='bold', fontsize=TITLE_FS)
     axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
                ncol=1, handletextpad=0.3)
@@ -642,7 +661,7 @@ for ax, key, ylab, msg in [
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
             va='top', fontsize=20, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
     ax.set_xlabel('Δ choice-code depth (on−off)' if POSTER          # short: narrow poster cells
-                  else 'Δ DPA choice-code depth (on−off, trainLD_TEST)'); ax.set_ylabel(ylab)
+                  else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontweight='bold', fontsize=TITLE_FS)
     ax.set_box_aspect(1)                                  # square panels
 _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='odor A'),
@@ -740,7 +759,7 @@ axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={
          transform=axL.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',
          va='top', fontsize=20, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
-axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else 'Δ choice-code depth (on−off, trainLD_TEST)')
+axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontweight='bold', fontsize=TITLE_FS)
 axL.set_box_aspect(1)
@@ -834,6 +853,6 @@ if not POSTER:                                     # banners describe the full-f
     row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
 
 for ext in ('png', 'svg'):
-    p = f'{OUT}/{ext}/behavior_opto_main{"_poster" if POSTER else ""}.{ext}'
+    p = f'{OUT}/{ext}/behavior_opto_main{_SUF}{"_poster" if POSTER else ""}.{ext}'
     fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
 plt.close(fig)

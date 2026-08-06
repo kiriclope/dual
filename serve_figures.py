@@ -49,6 +49,8 @@ MAIN = [
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust.png'),
     ('Fig 5 — behaviour / opto (ACC→Prl silencing)',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
+    ('Fig 5 (alt) — opto on the antact+robust action axis (48–62) ★NEW',
+     'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact_robust.png'),
 ]
 SUPP = [
     # ── Fig 1 (Behaviour) ──────────────────────────────────────────────────────
