@@ -119,9 +119,10 @@ EQNORM = '--eqnorm' in sys.argv[1:]
 #            alternative build (was TRAIN_LDTEST = bins_LD+bins_TEST). --robust : normalise the depth by each
 #            mouse's |A-B| SAMPLE separation (sample-sep units, from the sample tensor) instead of baseline std.
 ANTACT = '--antact' in sys.argv[1:]
+ACTION = '--action' in sys.argv[1:]                                        # pure action axis 57-62 (matches Fig 3/4's default axis)
 ROBUST = '--robust' in sys.argv[1:]
-_SUF = ('_antact' if ANTACT else '') + ('_robust' if ROBUST else '')
-AXIS_LBL = ('48–62' if ANTACT else 'trainLD_TEST') + (' · sample-sep' if ROBUST else '')  # axis-aware panel labels
+_SUF = ('_antact' if ANTACT else '') + ('_action' if ACTION else '') + ('_robust' if ROBUST else '')
+AXIS_LBL = ('48–62' if ANTACT else '57–62' if ACTION else 'trainLD_TEST') + (' · sample-sep' if ROBUST else '')
 
 JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']   # ACC→Prl INHIBITION
 CHR  = ['ChRM04', 'ChRM23']                                      # ACC→Prl EXCITATION
@@ -182,7 +183,7 @@ def _depth_on_axis(bins_train):
 
 
 TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])   # 45-59 (main-fig axis)
-DEPTH_AXIS = np.arange(48, 63) if ANTACT else TRAIN_LDTEST                   # --antact → single anticipatory+action window (48-62)
+DEPTH_AXIS = np.arange(48, 63) if ANTACT else (np.arange(57, 63) if ACTION else TRAIN_LDTEST)  # --antact 48-62 · --action 57-62
 depth_all = _depth_on_axis(DEPTH_AXIS)                         # F, G–I, J (raw if --robust; ÷ sample-sep below)
 cdf_diag = np.stack([X[:, 1, t, t] for t in range(X.shape[-1])], axis=1).astype(float)  # choice DV diag(t)
 del X                                                          # free ~1 GB
