@@ -97,7 +97,13 @@ options = set_options(
     days=['first', 'last'],
 )
 BINS_BL      = options['bins_BL']
-BINS_LATE    = np.asarray(options['bins_LD'])                           # depth readout = LD epoch (bins 45–53), unified with the opto figure (2026-07-15; ΔDPA stays ★ p=.026 under the C(sample) LMM — the old Spearman-driven n.s. is superseded)
+# depth readout = the LD (late-delay) epoch, bins 48–53. NB each bin is a 0.5 s TRAILING average (T_WINDOW=0.5,
+# frame_rate=6), so bins are LABELLED at the END of their window: labels 8.00–8.83 s but the DATA spans
+# 7.50–8.83 s = essentially all of t_LD=[7.5, 9.0]. TEST ONSET IS 9.0 s (bin label 54) — NOT 9.5 s; bins_TEST
+# starts at 57 only because that is the first bin whose whole 0.5 s window is post-onset. The depth window
+# therefore closes 0.17 s before test onset (no test leakage). Unified with the opto figure.
+# (2026-07-15: ΔDPA stays ★ p=.026 under the C(sample) LMM — the old Spearman-driven n.s. is superseded.)
+BINS_LATE    = np.asarray(options['bins_LD'])
 # NB temporal defense: the readout ends at bin 53, BEFORE test onset (bin 54) and thus before any
 # lick — the push is a pre-motor decision/memory signal by timing. Decision and lick share one axis
 # in this population (cos 0.2–0.7), so they cannot be linearly separated; timing is the clean isolation.
