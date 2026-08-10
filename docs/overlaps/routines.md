@@ -324,7 +324,10 @@ cd /home/leon/dual/overlaps
 
 > **STALE (see `overview.md` → "Native main figure — CURRENT layout" + memory `project_overlaps_main_native.md`
 > for the authoritative current state, 2026-07-18).** The current figure is `fig_overlaps_main_native.py`
-> (5-panel A–E, uniform class-signed pooled-evoked normalisation, DPA action axis @57–63, sample-A-specific
+> (5-panel A–E, uniform class-signed pooled-evoked normalisation, DPA action axis @57–63, push significant
+> for sample A / null for B — but the A-vs-B INTERACTION is only a trend (p≈.05–.08), so do NOT write
+> "sample-A-specific"; and B's per-mouse push has ~zero split-half reliability, so B's spread is noise
+> (2026-08-10 correction, see memory `project_overlaps_main_native`),
 > push; panel D coupling = per-mouse n=9 Spearman ρ≈−0.83 p≈.005 ★ DPA-specific — the earlier
 > "push↔coupling tension" was a panel-D LMM artifact, resolved 2026-07-18). The axes/stats below describe
 > the earlier locked build and are superseded.
