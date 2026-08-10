@@ -309,6 +309,38 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
       softens under denoising and on a fixed common axis (partly decoder reorganisation) — so report the push
       as DIRECTIONAL (Expert sits toward no-lick), not a precise magnitude. Only text-level item left:
       reconcile the null dPCA side of the coupling.
+  - **AXIS × NORMALISATION × DECODER audit (2026-08-07).** Full detail in memory
+    (`project_overlaps_main_native.md`, `project_behavior_opto_figure.md`); figures in the gallery MAIN tab.
+    - **New flags** `--antact` (choice axis = anticipatory+action window **bins 48–62** instead of the action
+      window 57–62) and `--robust` (normalise depth by each mouse's **|A−B| sample separation** instead of the
+      pooled-evoked std) on `fig_overlaps_main_native.py` / `fig_overlaps_manifold.py`; `--antact`/`--action`/
+      `--robust` on `fig_behavior_opto_main.py`. Every main figure now exists as an axis × normalisation grid.
+    - **Why `--robust`:** the pooled-evoked denominator ranges **0.022–0.49 across mice** (≈2–45× amplification;
+      JawsM06 worst), so per-mouse depths are NOT on a common scale — the same class of bug as the tensor's
+      per-mouse unit scale, which varies **0.1–42.8×**. Sample-separation units are cross-mouse comparable.
+    - **THE COUPLING IS THE ROBUST CLAIM.** ρ=−0.833 p=.005 on the action axis, **identical under n_repeats=1 and
+      cv10**, and it survives BOTH depth pipelines (the figures' CV decision-function AND an independent raw
+      unit-vector projection of `X_all_nan_`, which share no code path: ρ=−0.68 p=.042 on antact in both),
+      both normalisations, and the fixed-axis control — DPA-specific (ΔGNG null) throughout. **Headline Fig 4 on it.**
+    - **THE PUSH WEAKENS AS THE ESTIMATOR IMPROVES.** Split-half reliability of the per-mouse push is 0.78
+      (n_rep=1) → **0.88 (cv10)**; under cv10+robust the push is p=.117 (action) / p=.055 (antact). Likely cause:
+      with one CV partition each stage's decoder overfits its own data, exaggerating the stage difference.
+      **Treat "directional but not significant" as SETTLED — do not keep trying new estimators.**
+    - **Two negatives worth not re-testing:** the BASELINE convention is irrelevant (per-mouse vs per-trial vs
+      per-(mouse,stage) give −0.128/−0.130/−0.129), so the push is NOT an across-day baseline-drift artifact; and
+      the READOUT window is already optimal (widening to 44–53 or the full delay 21–53 DEGRADES it — the full
+      delay drops to 4/9 mice — because it pulls in the generic delay ramp).
+    - **⚠ DISCREPANCY with the 2026-07-18 fixed-axis bullet above:** re-running that control in
+      sample-separation units found the push does **NOT** attenuate on a pooled fixed axis (retains 126–139% of
+      magnitude), whereas the July run (pooled-evoked units) found attenuation to β≈−0.35/−0.41. Probable cause:
+      under pooled-evoked the DENOMINATOR is computed from the choice axis itself, so it co-varies when the axis
+      is swapped; sample-sep units hold the denominator fixed and are the cleaner control. Unresolved — do not
+      cite "the push is partly axis reorganisation" as settled without re-checking which normalisation was used.
+    - **⚠ BIN TIMING (has caused a retraction before):** bins are 0.5 s **trailing** averages (`T_WINDOW=0.5`,
+      `frame_rate=6`) **labelled at the END** of their window. So **test onset is 9.0 s = bin label 54, NOT 9.5 s**;
+      `bins_TEST` starts at 57 only because that is the first fully post-onset bin. `bins_LD` 48–53 carries data
+      spanning **7.50–8.83 s** = essentially all of `t_LD=[7.5,9]`, closing 0.17 s before test onset. The 6 LD bins
+      overlap (stepped 1/6 s) → ≈2.7 independent samples. Documented at `BINS_LATE` in `main_panels.py`.
   - **Decoder variants `--l1` (lasso) & `--lda` (shrinkage-LDA) + bundled tensor.** `--l1` renders the
     L1 (l1_ratio=1, sparse) version → `fig_overlaps_main_ab_l1`; `--lda` the shrinkage-LDA
     (covariance-aware `Σ⁻¹Δμ`, Ledoit-Wolf) version → `fig_overlaps_main_ab_lda`; default = ridge
