@@ -284,9 +284,15 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
       → denoised, same shape; nested inner-CV C selection + balanced classes were already default). New
       bundle `..._cv_5x10`; figure flag **`--cv10`**. Under denoised decoders the **coupling holds (ρ=−0.77
       p=.016) and B1/B2 hold/strengthen, but the push softens to a TREND (β=−0.57 p=.093)**.
-    - **Fixed-axis control** (`fig_overlaps_common_axis_supp.py`): the push is partly per-stage decoder
-      REORGANISATION (attenuates on a fixed axis); the coupling survives on the pooled fixed axis (ρ=−0.72
-      p=.030). Cells registered across days (Jaccard=1.0), so the fixed axis is valid.
+    - **Fixed-axis control** (`fig_overlaps_common_axis_supp.py`): the coupling survives on the pooled fixed
+      axis (ρ=−0.72 p=.030). Cells registered across days (Jaccard=1.0), so the fixed axis is valid.
+      ⚠ **RETRACTED 2026-08-10 — "the push attenuates on a fixed axis ⇒ partly decoder REORGANISATION" is an
+      ARTIFACT.** That script projects Naive trials on `wN` and Expert on `wE` using **un-normalised** weight
+      vectors while dividing both by ONE pooled denominator; since **|wE|/|wN| spans 0.00–24.8 across mice**, the
+      two stages sit on different scales and the per-stage push is INFLATED. Unit-normalising the axes gives
+      per-stage β=−0.262 p=.158 → fixed β=−0.396 p=.051 (no attenuation), and **the fixed-axis estimate is
+      identical under both conventions (−0.397 vs −0.396)** — the convention only matters in per-stage mode,
+      where the artifact lives. Trustworthy value = the fixed-axis one, **β≈−0.40, p≈.05–.11 (a trend)**.
     - **Coupling robustness:** Mundlak within-between LMM β=−0.041 p=.006, jackknife 9/9, bootstrap CI
       excludes 0, permutation p=.008; DPA-specific (GNG null on all).
     - **B2 cosine null** (`cosine_null.py`): survives a LABEL-PERMUTATION null (group perm p=.002 both
@@ -306,8 +312,9 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     - **Net:** the COUPLING (D) and the shared-code GEOMETRY (B1/B2) are robust every way tested (decoder
       denoising, six normalisations, resampling, AND the movement confound). The PUSH (C) is real and, on the
       readout-aligned window, NOT a delay-licking artifact; its one genuine caveat is that its MAGNITUDE
-      softens under denoising and on a fixed common axis (partly decoder reorganisation) — so report the push
-      as DIRECTIONAL (Expert sits toward no-lick), not a precise magnitude. Only text-level item left:
+      softens under denoising (cv10 → p=.093; and further under robust units / cv10 → p=.055–.117) — so report
+      the push as DIRECTIONAL (Expert sits toward no-lick), not a precise magnitude. (The former "and on a fixed
+      common axis (partly decoder reorganisation)" clause is RETRACTED — see the fixed-axis bullet above.) Only text-level item left:
       reconcile the null dPCA side of the coupling.
   - **AXIS × NORMALISATION × DECODER audit (2026-08-07).** Full detail in memory
     (`project_overlaps_main_native.md`, `project_behavior_opto_figure.md`); figures in the gallery MAIN tab.
