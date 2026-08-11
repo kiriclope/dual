@@ -15,10 +15,12 @@ plt.rcParams.update({'figure.dpi': 150, 'savefig.dpi': 400, 'font.family': 'sans
     'axes.spines.right': False, 'svg.fonttype': 'none', 'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7})
 TITLE_FS = 8
-d = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
+ALTWIN = '--altwin' in sys.argv                                          # full-delay + test windows (robustness)
+RESSUF = '_altwin' if ALTWIN else ''
+d = pickle.load(open(f'figures/pseudo/dimensionality/results{RESSUF}.pkl', 'rb'))
 FITDATA = d['FITDATA']
 WITH_GNG = '--gng' in sys.argv                                            # add gng cross-decode col to DPA
-SUF = '_gng' if WITH_GNG else ''
+SUF = RESSUF + ('_gng' if WITH_GNG else '')
 DPA_GNG = d.get('DPA_GNG', {})
 SC = {'Naive': '0.55', 'Expert': '#332288'}
 WINS = ['delay', 'decision', 'delay+dec']
@@ -94,7 +96,8 @@ for ts in ['DPA', 'dual', 'all']:
         fig.text(0.02, (p.y0 + p.y1) / 2, stage, rotation=90, va='center', ha='center', fontsize=10, fontweight='bold')
     cb = fig.colorbar(im, ax=[fig.axes[-1]], fraction=0.05, pad=0.04); cb.set_label('η²', fontsize=6.5); cb.ax.tick_params(labelsize=6)
 
-    ttl = TITLE[ts] + ('   (+ gng cross-decode column)' if (WITH_GNG and ts == 'DPA') else '')
+    ttl = TITLE[ts] + ('   [full-delay / test windows]' if ALTWIN else '')
+    ttl += ('   (+ gng cross-decode column)' if (WITH_GNG and ts == 'DPA') else '')
     fig.suptitle(f'Dimensionality & PC coding — {ttl}', x=0.01, ha='left', y=0.955, fontsize=11)
     OUT = 'figures/pseudo/dimensionality'
     fig.savefig(f'{OUT}/png/dim_{ts}{SUF}.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/dim_{ts}{SUF}.svg', bbox_inches='tight')

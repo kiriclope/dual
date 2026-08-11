@@ -27,7 +27,9 @@ Careful-implementation notes:
 
 Run:  cd /home/leon/dual/pca
       /home/leon/mambaforge/envs/dual/bin/python exp_dimensionality.py [--nsplits 30] [--ndich 150] [--quick]
-Output: figures/pseudo/dimensionality/{png,svg}/dimensionality.{png,svg}  + printed numbers.
+Output: figures/pseudo/dimensionality/{png,svg}/dimensionality_qc.{png,svg} (quick-look QC — the curated
+composite dimensionality.png belongs to plot_dimensionality_main.py; the paper figure is
+fig_dimensionality_main.py) + results.pkl (MERGE-dumped) + printed numbers.
 """
 import sys, os, warnings, argparse, pickle
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
@@ -304,10 +306,15 @@ for stage in STAGES:
                                           for k in range(3)))
 
 
-# cache results so the figure can be re-plotted without the ~12-min recompute
+# cache results so the figure can be re-plotted without the ~12-min recompute.
+# MERGE-dump: results.pkl also carries keys merged in by other scripts (FITDATA from
+# exp_dimensionality_fits.py; DPA_GNG/PCETA8/PCETA_DPA from later renders) — never replace it wholesale.
 os.makedirs('figures/pseudo/dimensionality', exist_ok=True)
-pickle.dump({'CV': CV, 'SD': SD, 'CODING': CODING, 'CCHANCE': CCHANCE, 'PCETA': PCETA, 'DICH': DICH,
-             'STAGES': STAGES}, open('figures/pseudo/dimensionality/results.pkl', 'wb'))
+_RES = 'figures/pseudo/dimensionality/results.pkl'
+_d = pickle.load(open(_RES, 'rb')) if os.path.exists(_RES) else {}
+_d.update({'CV': CV, 'SD': SD, 'CODING': CODING, 'CCHANCE': CCHANCE, 'PCETA': PCETA, 'DICH': DICH,
+           'STAGES': STAGES})
+pickle.dump(_d, open(_RES, 'wb'))
 
 # ══════════════════════════ figure ════════════════════════════════════════════
 fig, axes = plt.subplots(1, 5, figsize=(17.0, 3.3), gridspec_kw=dict(wspace=0.55))
@@ -372,9 +379,11 @@ pc_heatmap(axes[4], 'decision', 'what each PC codes — decision', cbar=True)
 
 fig.suptitle('Honest dimensionality of the dual-task pseudo-population — cvPCA + shattering + PC coding',
              x=0.008, ha='left', y=1.02, fontsize=10)
+# QC figure only — the curated composite `dimensionality.png` is owned by plot_dimensionality_main.py,
+# so this quick-look render saves under its own name and never clobbers it.
 OUT = 'figures/pseudo/dimensionality'
 for s in ('png', 'svg'):
     os.makedirs(f'{OUT}/{s}', exist_ok=True)
-fig.savefig(f'{OUT}/png/dimensionality.png', bbox_inches='tight')
-fig.savefig(f'{OUT}/svg/dimensionality.svg', bbox_inches='tight')
-print('\nsaved', os.path.abspath(f'{OUT}/png/dimensionality.png'))
+fig.savefig(f'{OUT}/png/dimensionality_qc.png', bbox_inches='tight')
+fig.savefig(f'{OUT}/svg/dimensionality_qc.svg', bbox_inches='tight')
+print('\nsaved', os.path.abspath(f'{OUT}/png/dimensionality_qc.png'))

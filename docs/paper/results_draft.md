@@ -1,5 +1,9 @@
 # Compositional learning by geometric editing — main paper (draft v4)
 
+> Methods paragraphs are staged per-figure in **`methods_notes.md`** (started 2026-08-10 with the Fig 2
+> dimensionality block: cvPCA incl. the repeated-2-fold-vs-k-fold justification, jackknife CIs, η²
+> decomposition, shattering).
+
 > **Thesis:** cortical computation is low-dimensional and carried by the *geometry* of population
 > activity; the brain composes a new task by **editing that geometry** — reusing a pre-existing neural
 > manifold and repositioning the memory state along its existing axes — rather than by building new
@@ -8,7 +12,10 @@
 > and repositions the working-memory state to interleave memory and action."*
 >
 > **Flow fields / attractor-dynamics are OUT of the paper (2026-08-03) — kept as "extra"** (gallery pca/
-> overlaps tabs), so Fig 2 is dPCA GEOMETRY + the no-lick push (no flow model), and Supp Fig 7 is dropped.
+> overlaps tabs), and Supp Fig 7 is dropped. **Fig 2 (final form 2026-08-10) = the MESSAGE figure
+> "one dedicated axis per task variable — the working memory is a line"**: a schematic · b cvPCA spectrum ·
+> c PR 1→2→3 (Naïve+Expert overlaid) · d η² PC-coding matrices — `fig_dimensionality_main.py`. The dPCA
+> display panels (trajectories, mixing, linking plane) are ED Fig. 9; shattering is ED Fig. 3 / §3.
 >
 > Figure order: **1 Behaviour · 2 dPCA (low-D geometry) · 3 Manifold (abstract / reused geometry) ·
 > 4 Overlaps (push / repositioning) · 5 Opto (causal).** The single overlaps figure was SPLIT
@@ -16,7 +23,8 @@
 > Fig 4 (`fig_overlaps_main_native.py`, trimmed to push panels). The old reserved "Fig 4 — low-rank
 > circuit model" placeholder is dropped; its number is reused by the push figure. Publication-ready
 > standard: **every panel is referenced and described.** Panel letters/stats verified against the RENDERED
-> figures (Fig 1 `behavior_main.png`; Fig 2 `fig_dpca_story_main.png`; Fig 3 `fig_overlaps_manifold.png`;
+> figures (Fig 1 `behavior_main.png`; Fig 2 `fig_dimensionality_main.png` — the dimensionality composite that REPLACED
+`fig_dpca_story_main.png` on 2026-08-10; Fig 3 `fig_overlaps_manifold.png`;
 > Fig 4 `fig_overlaps_main_ab_dpaact.png` — the CURRENT build, not the stale `fig_overlaps_main_ab.png`;
 > Fig 5 `behavior_opto_main.png`). Caveats to carry are flagged inline as _(caveat: …)_; guardrails and
 > to-reconcile items at the bottom.
@@ -79,32 +87,49 @@ per-day curve p-values are mildly anti-conservative.)_
 
 ## 2. The dual-task computation is low-dimensional and factorised (Fig. 2)
 
-To see how mPFC arranges the memory and the action, we applied demixed PCA (dPCA) to the
-condition-averaged pseudo-population, factorising activity into marginal axes for sample identity, test
-identity, choice (lick / no-lick), the task/action context (DualGo vs DualNoGo vs DPA), and a
-condition-independent time component (schematic, Fig. 2a). The computation was low-dimensional: the
-sample × choice condition means lived on an approximately two-dimensional manifold (Fig. 2b; once time and
-tasks — which carry most of the variance — are factored out, the sample:choice subspace has top-2 explained
-variance ≈ 94% and participation ratio ≈ 2.2). Time dominated the demixed variance (≈ 54%),
-followed by the task/action axis (≈ 31%), with the pure sample and choice axes low-variance (≈ 7% each)
-and the test axis ≈ 1% — low-variance but reliably time-locked to their epochs (Fig. 2c). The code is
-thus factorised: what-to-remember and what-to-do are separable, near-orthogonal directions of one
-population geometry. _(caveat: the per-task figures are a variance proxy from demixed condition-mean
-components, not exact dPCA marginal EVR; the ~2-D figure is the state *geometry* — full dynamics are
-higher-rank (~62–67% captured at rank 2, no elbow), so we describe a "rank-2 geometry", not rank-2
-dynamics.)_
+To see how mPFC arranges the memory and the action, we measured the dimensionality and composition of the
+pseudo-population geometry directly, with cross-validated estimators that cannot inherit structure from
+the analysis itself (task variables and the 12-condition space, Fig. 2a), comparing the pure memory task
+(DPA) with the dual tasks at two states: mid-delay (post-distractor but before any cue or lick — clean
+maintenance) and the post-test decision. Cross-validated PCA — the basis fit on one half of the trials,
+variance evaluated on the independent held-out half, so only variance that *replicates* counts — shows
+that the maintained memory state is **one-dimensional**: the DPA mid-delay reliable spectrum is a single
+component (fraction 1.00, 95% CI [0.98, 1.00], jackknife across mice; Fig. 2b), the dual mid-delay adds
+exactly one further reliable component (0.92 + 0.07 [0.01, 0.13]) — the distractor axis — and the
+decision state spreads to ~3 components (DPA 0.66/0.17/0.17; dual 0.61/0.30/0.05). The working memory is
+a line. Decoding makes the same point amplitude-free (Fig. 2c, balanced accuracy of held-out
+pseudo-trials along each variable's demixed axis against a shuffle null): **a variable decodes only when
+in play** — at mid-delay only sample (DPA 0.89; dual 0.81) and, in dual, the distractor (1.00) exceed
+their nulls, with test and choice at chance until the test arrives, whereupon every variable decodes
+(choice 0.96–0.97, test 0.74–0.77). And the reliable dimensions *are* the task variables (Fig. 2d, η² of
+each condition-mean PC on the orthogonal factor contrasts, same mid-delay/decision windows): the memory
+line is the sample axis
+(η² = 0.93); the dual mid-delay holds one large distractor axis (η² = 0.98, 37% of condition-mean
+variance) and the compact sample axis (0.91, 14%); the decision adds choice and test (0.92, 0.71; DPA
+decision = choice, 0.99) — one dedicated axis per engaged variable, appearing exactly when its variable
+comes online. The distractor code, moreover, barely enters the DPA geometry: Go-vs-NoGo cross-decoded from the
+DPA-state subspace ("gng ×") reaches only 0.61 at mid-delay (Naïve n.s.; per-PC values in Fig. 2d) —
+the memory geometry is close to orthogonal to the distractor code it must resist. The sample-memory axis
+is thus compact but reliable — little variance, cleanly decoded — orthogonal to the larger
+distractor/action dimensions. None of these measures changed with learning (Naïve ≈ Expert throughout
+Fig. 2b–d, spectra, decodability and coding pattern alike): learning neither adds nor removes
+representational dimensions. _(caveats: the DPA mid-delay 1-D is partly definitional — only one binary
+variable is encoded during maintenance; variance-weighted summaries (participation ratio: memory 1.0
+[1.0, 1.1] → full-state delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8], and the full 12-condition
+"all-tasks" spectra whose two large delay dimensions are context contrasts) are in Extended Data Fig. 3;
+the time-resolved trajectory dimensionality is excluded because its shuffle null retains ~half the
+variance via the condition-independent time ramp; Naïve shows a small future-choice signal in the dual
+delay (a bias/history state, flagged in the caption); the ~2-D figure is the state *geometry* — full
+dynamics are higher-rank (~62–67% captured at rank 2, no elbow), so we describe a "rank-2 geometry",
+not rank-2 dynamics.)_
 
-The single-axis trajectories sharpened with learning without reorganising (Fig. 2d, naïve top vs expert
-bottom for the sample, test, choice and task axes), and the factorisation was *refined* rather than
-replaced (Fig. 2e): the choice and task/action axes became more aligned (|cos| 0.147 → 0.222, Δ = +0.076,
-p < 0.001), binding the lick decision to the action context, while the sample and test axes de-mixed
-(|cos| 0.098 → 0.033, Δ = −0.065, p = 0.008), sharpening the separation of memory from match. The scaffold
-is retained; its factors are tuned. _(caveat: axis-mixing significance is a neuron bootstrap over the
-shared 3,319-neuron pool, not an across-animal test.)_
-
-Notably, the task/action axis (one of the demixed factors, Fig. 2d rightmost column) orders the conditions
-by their required action (DualGo/lick positive; DualNoGo and DPA/no-lick negative) — a pre-existing action
-direction within the geometry. This near-orthogonal, factorised, low-dimensional geometry is the
+The demixed (dPCA) axes show the same factorisation time-resolved (Extended Data Fig. 9): the single-axis
+trajectories sharpened with learning without reorganising, and the one learning change was a refinement —
+the choice and task/action axes became more aligned (|cos| 0.147 → 0.222, p < 0.001), binding the lick
+decision to the action context, while the sample and test axes de-mixed (0.098 → 0.033, p = 0.008); the
+scaffold is retained, its factors tuned. Notably, the demixed task/action axis orders the conditions by
+their required action (DualGo/lick positive; DualNoGo and DPA/no-lick negative) — a pre-existing action
+direction within the geometry (Extended Data Fig. 9). This near-orthogonal, factorised, low-dimensional geometry is the
 representational substrate on which the two tasks are composed. We next asked whether this substrate is a
 single *abstract* manifold the animal reuses across the two task contexts (Fig. 3), and then how learning
 repositions the working-memory state on it to shield the memory from the intervening action (Fig. 4).
@@ -124,9 +149,9 @@ two component tasks (Naïve = the first three sessions) — this abstract, facto
 present in naïve animals and preserved across learning. Establishing one reusable manifold, we then asked
 how learning repositions the working-memory state on it (Fig. 4).
 
-The manifold is inherited directly from the dPCA geometry. Re-plotting the Fig. 2 sample × action plane,
+The manifold is inherited directly from the dPCA geometry. Re-plotting the dPCA sample × action plane,
 sample A and B separated along a *single shared* sample axis, essentially identically across DPA, DualGo
-and DualNoGo trials, orthogonal to the pre-existing task/action axis (Fig. 2g) — one memory dimension,
+and DualNoGo trials, orthogonal to the pre-existing task/action axis (Extended Data Fig. 9) — one memory dimension,
 reused whichever action context it is embedded in. To confirm this at the single-trial, single-animal
 level we trained cross-generalising decision-code decoders (CCGD): a balanced logistic decoder per mouse
 and stage for each of the sample, GNG, test and choice(lick) variables, read across the whole trial
@@ -144,7 +169,11 @@ codes the strongest cross-context generalisers (Fig. 3d). Critically, this abstr
 learning. Per-mouse cross-condition generalisation performance (CCGP) sat on the Naïve = Expert unity line
 for the sample and choice codes (n.s.), with only the test code nudging up slightly (p ≈ 0.04) (Fig. 3e) —
 the factorised, abstract format is present already in naïve animals and preserved, consistent with the two
-component tasks being pre-learned before the dual composition.
+component tasks being pre-learned before the dual composition. The same signature appears in the geometry's
+functional expressivity: decoding all 462 balanced dichotomies of the 12 conditions (the shattering
+dimension) gives 0.69–0.70 against a shuffle floor of 0.50 and an unstructured ceiling of 1 (Extended Data
+Fig. 3) — high cross-condition generalisation with a moderate shattering dimension is precisely the
+*abstract, compressed* regime, and it too is unchanged by learning (Δ = +0.01).
 
 The action dimension in particular was a *single shared command*. Because the go/no-go decision and the DPA
 match-lick are two expressions of the same lick action, we tested directly whether they share a neural axis
@@ -270,9 +299,27 @@ coupling (GEE OR=2.03, p<0.001). (d–e) trial-history: a preceding dual trial l
 (OR=0.81, p=0.047; GNG history-independent), and the blocked-design switch-cost mirrors it (into-dual
 OR=0.90, p<0.001).
 
-**ED Fig. 3 | dPCA dimensionality (Fig. 2b).** Reduced-rank test — held-out fit rises smoothly with no
-elbow at 2 (rank-2 = 62–67% of full); the condition-mean task manifold is ~2-D (top-2 ≈94% Expert/92%
-Naïve, PR≈2.2). Backs the "rank-2 geometry, not rank-2 dynamics" caveat.
+**ED Fig. 3 | Dimensionality: provenance & robustness (Fig. 2b–d).** (a0) the shattering dimension —
+all 462 balanced dichotomies decoded at the decision window, 0.69 (Naïve) → 0.70 (Expert) vs shuffle 0.50
+and ceiling 1 (cited from §3: abstract + compressed with the CCGP); (a1) the variance-weighted summary
+of Fig. 2 — the previous PR build (`fig_dimensionality_main_pr.png`): full 12-condition "all-tasks"
+spectra + the PR ladder memory 1.0 [1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8]
+(jackknife CIs); the full-state delay's two large dimensions are its context contrasts (distractor
+presence and identity); (a) the descriptive dPCA scree
+(top-2 ≈94%, PR≈2.2) with its circularity caveat — computed on 4 condition-means inside the demixed
+sample/sample:test subspace, hence retired from the main figure in favour of the cross-validated
+estimators; (b) per-marginal demixed variance (time 54% / tasks 31% / sample 7% / choice 7% / test 1%);
+(c) reduced-rank test — held-out fit rises smoothly with no elbow at 2 (rank-2 = 62–67% of full), backing
+the "rank-2 geometry, not rank-2 dynamics" caveat; (d) window robustness — on full-delay / test windows
+the DPA-delay PR stays 1.0–1.1, delay 2.3–2.6, decision ≈2.5; (e) the FULL PC×factor η² grid behind Fig. 2d — Naïve & Expert × {dual, DPA} × {delay, decision}
+(`plot_dimensionality_main.py`) — plus the per-task-set fits (DPA / dual / all, incl. the delay+dec
+window and the 12-cond presence/identity task split); the DPA-delay condition-mean PCs beyond PC1 code
+*future* variables (test, choice) and are stripped by cvPCA (PR = 1): the noise-dimension gotcha flagged
+in Fig. 2d's footnote; (f) the shared-memory dPCA
+d′ scatter (Naïve +0.61 → Expert +0.54, Δ = −0.07, p = 0.91 — memory code present in naïve and preserved);
+(g) the Go/NoGo cross-decode from the DPA subspace, per window (main Fig. 2c/d shows the clean mid-delay
+value 0.61; the late-delay ~0.7 figure is consummatory-inflated — the DPA geometry is close to, but not
+fully, orthogonal to the distractor).
 
 **ED Fig. 4 | dPCA no-lick push robustness (corroborates Fig. 4).** The Naïve→Expert deepening reproduces in raw ΔF/F
 (r≈0.997, not a z-score artifact), survives condition-independent time-ramp removal (q0/1/2 =
@@ -303,6 +350,14 @@ unpaired trials (β=−0.12 p=0.014); Prl→ACC impairs GNG; (d–e) transient w
 coupling over all 7 laser mice (5 Jaws + 2 ChR): GNG ρ≈−0.90 (p≈0.007), DPA null. Backs the axis choice and
 the alternative-n disclosure.
 
+**ED Fig. 9 | dPCA demixed axes: trajectories, mixing, and the shared plane (Fig. 2/3).** The dPCA story
+build (`fig_dpca_story_main.py`): demixing schematic + descriptive scree + marginal contrasts; the 2×4
+Naïve/Expert trajectory grid (single-axis time courses sharpen without reorganising); the full pairwise
+axis-mixing slopegraph (choice–task binds, 0.147→0.222 p<0.001; sample–test demixes, 0.098→0.033 p=0.008 —
+neuron-bootstrap, not across-animal); the per-mouse shared-memory d′ scatter (Δ=−0.07, p=0.91, flat); and
+the sample × action linking plane (one shared sample axis across DPA/Go/NoGo, ⊥ the pre-existing action
+axis — the bridge cited in §3).
+
 **Supplementary Information**
 - **Trial counts per mouse** — per-mouse × stage × task counts entering the pseudo-population (balanced by
   design; 5,568 laser-OFF trials total). _(Analysis-balanced counts, not raw behavioural trial numbers —
@@ -311,12 +366,37 @@ the alternative-n disclosure.
 **Omitted:** retracted dPCA choice-polarization figures (`dpca_flow_learning_ingain*`,
 `dpca_flow_autonomous_choice`, `dpca_choice_ci_qsweep`); the flow-field / bistability analysis (former S7 →
 "extra"); the standalone d′ figure (former S17 → already main Fig. 5k,l); demixed-axes loadings/mixing
-(former S5 → covered by Fig. 2e + ED 6). **Author-supplied gaps still needed:** histology / viral
+(former S5 → covered by Fig. 2g + ED 6). **Author-supplied gaps still needed:** histology / viral
 expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 
 ---
 
 ### To reconcile before submission (figure ↔ text integrity)
+- **Fig. 2 DECODE BUILD ADOPTED (2026-08-10, supersedes the PR build below):** panels B/C/D now share
+  one grid, DPA vs dual × mid-delay vs decision. **b** cvPCA reliable spectra per set (leave-one-mouse-
+  out jackknife 95% CIs; common 6-component axis), **c** per-variable decoding power (held-out
+  pseudo-trials along each variable's demixed axis vs shuffle nulls, Kobak-style; incl. the hatched
+  "gng ×" = Go/NoGo cross-decoded from the DPA-state subspace, 0.61 at mid-delay), **d** η² matrices
+  DPA-first, PC1–4 in both sets, with the boxed gng × column on DPA. Mid-delay (bins 36–38,
+  pre-cue/pre-lick) replaces late delay in b/c; d stays late-delay (footnoted). The PR bars +
+  all-tasks spectra moved to **ED 3(a1)** and render via `fig_dimensionality_main.py --pr` →
+  `fig_dimensionality_main_pr.png`. §2 rewritten accordingly (spectra + decoding numbers headline;
+  PR quoted in the caveat with ED pointer). Metric rationale (PR variance-weighting challenged →
+  decoding adopted; dot-strip variant rejected) and all numbers are logged in memory
+  (`project_dimensionality`).
+- **Fig. 2 REPLACED (2026-08-10, message-first FINAL):** the dPCA story build (`fig_dpca_story_main.py`)
+  is superseded by `pca/fig_dimensionality_main.py` → `figures/pseudo/dimensionality/
+  fig_dimensionality_main.png`, built around ONE message ("one dedicated axis per task variable — the
+  working memory is a line"): **a** trial-timeline + split-half cvPCA schematic, **b** cvPCA reliable
+  spectrum (delay, Naïve/Expert + shuffled null), **c** PR bars with split-level CIs, Naïve+Expert
+  overlaid (memory ≈1 · delay ≈2 · decision ≈3.3), **d** the η² PC-coding matrices, Expert row of four
+  (dual-delay · dual-decision · DPA-delay · DPA-decision). Everything off-message moved out: shattering →
+  ED 3(a0) + cited from §3; dPCA trajectory grid, axis-mixing, linking plane, shared-memory scatter →
+  **ED 9** (= `fig_dpca_story_main.png`, kept rendering); old scree + marginal variance + Naïve η²
+  matrices + per-task-set fits → ED 3. Design iterations that got here (matrices are the real-data
+  panel; a derived chips graphic was rejected) are logged in memory. Data:
+  `figures/pseudo/dimensionality/results.pkl` (merged caches; CIs from `exp_dimensionality_ci.py`).
+  Earlier "Fig. 2 flow-free — DONE" and "Fig 3 panels updated" notes below describe superseded builds.
 - **Overlaps split (2026-08-04; Fig 3 panels updated 2026-08-05):** the single overlaps figure was split
   into **Fig. 3** (manifold / abstraction, `fig_overlaps_manifold.py` → `fig_overlaps_manifold.png`,
   panels a–e = code traces / within-vs-cross-task matrix / **shared action axis (Go/NoGo↔DPA-lick cross-

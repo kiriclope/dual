@@ -4,7 +4,10 @@ Pseudo-population dPCA on the dual working-memory task (9 mice). Latent dynamics
 no-lick learning push. See `docs/meta_project.md` for the paper overview.
 
 ## Docs
-- **`story_figure_reproduction.md`** — ★ START HERE for the main figure: full reproduction guide
+- **`dimensionality.md`** — ★ the CURRENT main Fig 2 (`fig_dimensionality_main.py`, since 2026-08-10):
+  honest cvPCA + shattering + PC-coding dimensionality; methods, settled numbers, gotchas.
+- **`story_figure_reproduction.md`** — the dPCA story figure (`fig_dpca_story_main.py`, now **ED Fig 9**:
+  trajectory grid, axis-mixing, linking plane, shared-memory scatter): full reproduction guide
   (hypotheses, data, every routine, exact math/windows, results, caveats).
 - `overview.md` — subproject overview & results.
 - `flows_handoff.md` — design history / handoff for the flows work (read its SETTLED block first).

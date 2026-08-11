@@ -17,10 +17,16 @@ from src.common.options import set_options
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 STAGES = ['Naive', 'Expert']
 o = set_options()
-WINS = {'delay': np.asarray(o['bins_LD']), 'decision': np.arange(57, 66), 'delay+dec': np.arange(48, 66)}
+ALTWIN = '--altwin' in sys.argv                                           # robustness: full delay + test windows
+SUF = '_altwin' if ALTWIN else ''
+if ALTWIN:                                                                # delay = full delay (21-53); decision = test (57-59)
+    WINS = {'delay': np.asarray(o['bins_DELAY']), 'decision': np.asarray(o['bins_TEST']),
+            'delay+dec': np.concatenate([np.asarray(o['bins_DELAY']), np.asarray(o['bins_TEST'])])}
+else:                                                                     # default: delay = LD (48-53); decision = 57-65
+    WINS = {'delay': np.asarray(o['bins_LD']), 'decision': np.arange(57, 66), 'delay+dec': np.arange(48, 66)}
 # Persistent cache of the window-averaged pseudo-population matrices + labels, so re-analysis never reloads
-# the 20 GB X. Built once (first run), then loaded in seconds. Rebuild by deleting the file (or if WINS change).
-AWPKL = 'figures/pseudo/dimensionality/fits_inputs.pkl'
+# the 20 GB X. Separate cache file per window-set. Built once (first run), then loaded in seconds.
+AWPKL = f'figures/pseudo/dimensionality/fits_inputs{SUF}.pkl'
 if os.path.exists(AWPKL) and set(pickle.load(open(AWPKL, 'rb'))['AW']) >= set(WINS):
     print('loading fits-inputs cache (no 20 GB X reload) …')
     _c = pickle.load(open(AWPKL, 'rb'))
@@ -193,7 +199,8 @@ for tsname, conds in TASKSETS.items():
                                                 sd_arr=sd, pceta=pceta, factors=order, nconds=len(conds), ndich=len(dich))
             print(f'{tsname:4s} {wn:9s} {stage:6s}: cvPR={pr:.2f}  SD={sd.mean():.3f}  cv_var%={np.round(cv_var[:4],2)}')
 
-d = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
+RESPKL = f'figures/pseudo/dimensionality/results{SUF}.pkl'
+d = pickle.load(open(RESPKL, 'rb')) if os.path.exists(RESPKL) else {}
 d['FITDATA'] = FITDATA
-pickle.dump(d, open('figures/pseudo/dimensionality/results.pkl', 'wb'))
-print('merged FITDATA into results.pkl')
+pickle.dump(d, open(RESPKL, 'wb'))
+print('merged FITDATA into', RESPKL)

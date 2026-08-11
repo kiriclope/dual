@@ -37,7 +37,9 @@ HIDE_PROJECTS = {'root', 'figures'}    # stray repo-root PNGs + the tiny top-lev
 MAIN = [
     ('Fig 1 — task & behaviour (learning curves, DPA↔GNG balance)',
      'overlaps/figures/overlaps/behavior/png/behavior_main.png'),
-    ('Fig 2 — dPCA: low-dimensional & factorised',
+    ('Fig 2 — one axis per task variable (ADOPTED decode build: spectra+CI · decoding power · η²+gng×, DPA vs dual)',
+     'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
+    ('ED 9 (was Fig 2) — dPCA axes: trajectories, mixing, linking plane',
      'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),
     # Fig 3/4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
     ('Fig 3 — manifold · ACTION axis · pooled-evoked  [canonical]',
@@ -98,6 +100,10 @@ SUPP = [
     ('G3 · Trial counts per mouse (balanced)',
      'overlaps/figures/overlaps/behavior/png/behavior_trialcounts.png'),
     # ── Fig 2 (dPCA) ───────────────────────────────────────────────────────────
+    ('ED 3(a1) · Fig 2 previous build — all-tasks spectra + PR ladder (variance-weighted summary)',
+     'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main_pr.png'),
+    ('ED 3 candidate · reliable variance per variable, TIME-RESOLVED (compression + gng phases + variables-come-online)',
+     'pca/figures/pseudo/dimensionality/png/factor_variance_time.png'),
     ('S4 · Rank sufficiency — no elbow at 2 (Fig 2b)',
      'pca/figures/pseudo/flow/png/rank_sufficiency_Expert.png'),
     ('S4 · Task-manifold rank-2',
