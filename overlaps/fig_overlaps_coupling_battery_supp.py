@@ -195,9 +195,8 @@ axR.set_title('Multilevel estimator\n(Mundlak within–between LMM)', loc='left'
 handles = [Line2D([0], [0], marker='o', color=CDPA, mfc=CDPA, mec='k', mew=0.5, lw=1.3, label='ΔDPA (memory accuracy)'),
            Line2D([0], [0], marker='o', color=CGNG, mfc=CGNG, mec='k', mew=0.5, lw=1.3, label='ΔGNG (go/no-go accuracy — null control)')]
 fig.legend(handles=handles, loc='upper center', bbox_to_anchor=(0.5, 1.005), ncol=2, frameon=False, fontsize=6.5)
-fig.suptitle('Δdepth ↔ ΔDPA-accuracy coupling: resampling battery (every estimate excludes the null; ΔGNG straddles it)',
-             fontsize=9, y=1.075)
 fig.tight_layout(rect=[0, 0, 1, 0.965])
+# (no centered banner — the two left-aligned panel titles + the ED-figure legend carry the message)
 
 OUT = 'figures/overlaps/controls'
 for s in ('png', 'svg'):

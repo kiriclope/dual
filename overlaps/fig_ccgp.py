@@ -62,7 +62,12 @@ VARS = [
      lambda d: d['tasks'].isin(['DualGo', 'DualNoGo']).to_numpy()),
     ('test',   lambda d: d['test_odor'].to_numpy(float),   'tasks',       W_TE, None),
 ]
-CLF = lambda: make_pipeline(StandardScaler(), LogisticRegression(C=1.0, class_weight='balanced', max_iter=2000))
+USEPCA = '--pca' in sys.argv[1:]            # match the pooled pipeline (PCA(20) denoising)
+PSUF = '_pca' if USEPCA else ''
+from sklearn.decomposition import PCA as _PCA
+CLF = (lambda: make_pipeline(StandardScaler(), _PCA(n_components=20, random_state=0),
+                             LogisticRegression(C=1.0, class_weight='balanced', max_iter=2000))) if USEPCA \
+    else (lambda: make_pipeline(StandardScaler(), LogisticRegression(C=1.0, class_weight='balanced', max_iter=2000)))
 
 
 def population(mouse, stage, win):
@@ -119,7 +124,7 @@ for stage in ['Naive', 'Expert']:
 R = pd.DataFrame(rows)
 import pickle                                                          # cache for fig_overlaps_manifold.py
 os.makedirs('figures/overlaps/ccgp', exist_ok=True)
-R.to_pickle('figures/overlaps/ccgp/permouse_ccgp_cache.pkl')
+R.to_pickle(f'figures/overlaps/ccgp/permouse_ccgp_cache{PSUF}.pkl')
 print('cached per-mouse CCGP → figures/overlaps/ccgp/permouse_ccgp_cache.pkl')
 
 # ── figure: A CCGP per variable (Naive vs Expert) vs chance/null; B CCGP-vs-decode abstraction ──

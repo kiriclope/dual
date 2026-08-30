@@ -27,10 +27,12 @@ DUAL = [c for c in ALL12 if c[0] != 'DPA']
 DPA4 = [c for c in ALL12 if c[0] == 'DPA']
 SETS = {'DPA': DPA4, 'dual': DUAL, 'all': ALL12}
 WINS = ['ed', 'md', 'delay', 'test', 'decision']
-NSPLIT, NNULL, KPSEUDO = 15, 40, 10
+NSPLIT, NNULL, KPSEUDO = 15, 100, 10
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']; N = _c['N']
+assert set(WINS) <= set(AW), (f'fits_inputs.pkl missing windows {sorted(set(WINS) - set(AW))} — '
+                              'run exp_dimensionality_md.py first (merges ed/md/test into the cache)')
 MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
                                              ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
 
@@ -95,7 +97,8 @@ def one_run(M, sd, stage, P, conds, C, rng, shuffle):
     R = R / sd[None, :]
     mu = R.mean(0, keepdims=True); R = R - mu
     # held-out single pseudo-trials (one random test trial per mouse per pseudo-trial;
-    # residual NaNs imputed from the raw-scale train condition mean — train info only, no leakage)
+    # residual NaNs imputed from the raw-scale train GRAND mean — condition-independent (0 after
+    # centering, no label info); dead path on this data (audited 2026-08-12: NaN frac = 0 all windows)
     PT = np.zeros((nc, KPSEUDO, N))
     for m in MICE:
         val = VALIDIX[(m, stage)]
@@ -107,7 +110,7 @@ def one_run(M, sd, stage, P, conds, C, rng, shuffle):
             block = M[np.ix_(picks, val)]
             bad = ~np.isfinite(block)
             if bad.any():
-                fill = (R[ci][val] + mu[0][val]) * sd[val]
+                fill = mu[0][val] * sd[val]
                 block[bad] = np.broadcast_to(fill, block.shape)[bad]
             PT[ci, :, val] = block.T
     PT = PT / sd[None, None, :] - mu[0][None, None, :]

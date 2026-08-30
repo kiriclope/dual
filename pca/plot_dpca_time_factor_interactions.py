@@ -30,6 +30,7 @@ from matplotlib.lines import Line2D
 import seaborn as sns
 
 from src.pca.io import pkl_load
+from _dpca_mouse_avg import stat as mouse_stat
 
 matplotlib.rcParams['svg.fonttype'] = 'none'
 matplotlib.rcParams['font.family'] = 'Arial'
@@ -39,7 +40,11 @@ plt.rc('axes.spines', top=False, right=False)
 ap = argparse.ArgumentParser()
 ap.add_argument('--stage', default='Expert', choices=['Expert', 'Naive'])
 ap.add_argument('--both', action='store_true', help='overlay Naive (dashed) on Expert')
+ap.add_argument('--pooled', action='store_true',
+                help='pooled-trial weighting + trial SEM (default: equal per mouse, '
+                     'SEM across mice)')
 args = ap.parse_args()
+PER_MOUSE = not args.pooled
 
 FS = 6.0
 DATA = '../data/pca'
@@ -119,16 +124,16 @@ for st in STAGES:
     Z, yc, IDX = D[st]
     specs = group_specs(yc)
     stage_ls = STAGE_LS[st]
+    mouse = yc['mouse'].to_numpy()
     for pi, nm in enumerate(MARGS):
         ax = AX[pi]
         c = IDX[nm]
         fracs = []
         for glabel, mask, color, ls in specs[nm]:
-            a = Z[mask][:, c, :]
-            mu = a.mean(0)
-            inter = mu - mu.mean()                       # time:factor part (demean over time)
+            mu, _, _ = mouse_stat(Z, mask, c, mouse=mouse, per_mouse=PER_MOUSE)  # full (for frac/offset)
+            inter, se, _ = mouse_stat(Z, mask, c, mouse=mouse, per_mouse=PER_MOUSE,
+                                      demean=True)               # time:factor part
             fracs.append(inter.var() / (mu.mean()**2 + inter.var() + 1e-12))  # dynamic power frac
-            se = a.std(0) / np.sqrt(max(len(a), 1))
             tt = np.arange(len(mu)) / FS
             use_ls = stage_ls if args.both else ls
             ax.plot(tt, inter, color=color, ls=use_ls, lw=1.3,
@@ -172,8 +177,10 @@ AX[7].text(0.5, 0.08, notes, ha='center', va='bottom', fontsize=6.5,
            transform=AX[7].transAxes)
 
 sfx = 'both' if args.both else args.stage
-fig.suptitle(f'time × factor interactions (time-varying part of each dPCA marginal) — {sfx}',
-             fontsize=9)
+wtag = 'pooled trials' if args.pooled else 'per-mouse, SEM across mice'
+sfx += '' if PER_MOUSE else '_pooled'
+fig.suptitle(f'time × factor interactions (time-varying part of each dPCA marginal) — '
+             f'{sfx} ({wtag})', fontsize=9)
 fig.tight_layout(rect=(0, 0, 1, 0.96))
 for ext in ('png', 'svg'):
     fig.savefig(f'{OUT}/{ext}/dpca_time_factor_interactions_{sfx}.{ext}',
@@ -182,13 +189,13 @@ print(f'saved figures/pseudo/time_inter/*/dpca_time_factor_interactions_{sfx}.*'
 
 for st in STAGES:
     Z, yc, IDX = D[st]
-    specs = group_specs(yc)
-    print(f'\n{st}  dynamic fraction (var_t interaction / var_t component):')
+    specs = group_specs(yc); mouse = yc['mouse'].to_numpy()
+    print(f'\n{st}  dynamic power fraction ({"per-mouse" if PER_MOUSE else "pooled"}):')
     for nm in MARGS:
         c = IDX[nm]
         fr = []
         for _, mask, _, _ in specs[nm]:
-            mu = Z[mask][:, c, :].mean(0)
+            mu, _, _ = mouse_stat(Z, mask, c, mouse=mouse, per_mouse=PER_MOUSE)
             inter = mu - mu.mean()
             fr.append(inter.var() / (mu.mean()**2 + inter.var() + 1e-12))
         print(f'   time:{nm:20s} {np.mean(fr):.2f}')

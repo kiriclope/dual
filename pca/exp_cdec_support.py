@@ -4,6 +4,7 @@ A. SPEC_JK — jackknife-across-mice 95% CIs for the panel-B reliable spectra (D
    x stage): leave one mouse out (its neurons AND trials), recompute the averaged cvPCA spectrum
    FRACTIONS, jackknife SE per component (exp_dimensionality_jk.py convention), CI clipped to [0,1].
    Stores the full-sample fractions too, so the renderer draws point + CI from ONE source.
+A2. SPEC_NULL — within-mouse label-shuffle null spectra for B (÷ the real positive total; Expert).
 B. DPA_GNG_C — the panel-C 'gng in DPA' bar: Go-vs-NoGo cross-decoded from the DPA-STATE SUBSPACE
    (top-3 PCs of the DPA condition means, exp_dpa_gng_column.py convention): dual pseudo-trials
    projected into the subspace, LDA train/test on disjoint trial halves, vs a within-mouse
@@ -29,6 +30,8 @@ WINS = ['md', 'decision']
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']; N = _c['N']
+assert set(WINS) <= set(AW), (f'fits_inputs.pkl missing windows {sorted(set(WINS) - set(AW))} — '
+                              'run exp_dimensionality_md.py first (merges ed/md/test into the cache)')
 MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
                                              ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
 
@@ -44,13 +47,21 @@ def neuron_scale(stage, M):
     return sd
 
 
-def split_means(stage, conds, M, rng, mice):
+def split_means(stage, conds, M, rng, mice, shuffle=False):
+    """shuffle=True permutes, within each mouse, the trial->condition assignment (label-shuffle null).
+    rng consumption for shuffle=False is IDENTICAL to the original (SPEC_JK values reproduce)."""
     R1 = np.zeros((len(conds), N)); R2 = np.zeros((len(conds), N))
     for m in mice:
         val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
+        pools = [np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
+                          & (TSK == t) & (SAMP == s) & (TESTO == te))[0] for (t, s, te) in conds]
+        if shuffle:
+            allidx = np.concatenate(pools); perm = rng.permutation(allidx); k = 0
+            new = []
+            for p in pools:
+                new.append(perm[k:k + len(p)]); k += len(p)
+            pools = new
+        for ci, idx in enumerate(pools):
             if len(idx) < 2:
                 continue
             p = rng.permutation(idx); h = len(p) // 2
@@ -68,13 +79,17 @@ def cvpca_spectrum(S1, S2):
     return 0.5 * (a[:k] + b[:k])
 
 
-def avg_frac(stage, conds, M, mice, nsplits=20):
-    sd = neuron_scale(stage, M); rng = np.random.RandomState(7); spec = None
+def avg_spec(stage, conds, M, mice, nsplits=30, shuffle=False, seed=7):   # 30 = the figure/Methods count
+    sd = neuron_scale(stage, M); rng = np.random.RandomState(seed); spec = None
     for _ in range(nsplits):
-        R1, R2 = split_means(stage, conds, M, rng, mice)
+        R1, R2 = split_means(stage, conds, M, rng, mice, shuffle=shuffle)
         c = cvpca_spectrum(R1 / sd[None, :], R2 / sd[None, :])
         spec = c if spec is None else spec + c
-    pos = np.clip(spec / nsplits, 0, None)
+    return spec / nsplits                          # RAW averaged cross-validated spectrum (can go <0)
+
+
+def avg_frac(stage, conds, M, mice, nsplits=30):
+    pos = np.clip(avg_spec(stage, conds, M, mice, nsplits), 0, None)
     return pos / (pos.sum() + 1e-12)
 
 
@@ -91,6 +106,18 @@ for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
             SPEC_JK[(ts, wn, stage)] = dict(frac=frac, se=se, lo=lo, hi=hi)
             print(f'  {ts:4s} {wn:9s} {stage:6s} frac {np.round(frac[:4], 3)}  '
                   f'CI1 [{lo[0]:.2f},{hi[0]:.2f}]  CI2 [{lo[1]:.2f},{hi[1]:.2f}]', flush=True)
+
+print('\n══ A2. SPEC_NULL: within-mouse label-shuffle null spectra for panel B ══')
+# Legacy-build convention: the null spectrum is expressed as a fraction of the REAL positive total
+# (a null normalised by its own near-zero total would be meaningless). Expert only (display ref).
+SPEC_NULL = {}
+for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
+    for wn in WINS:
+        real = avg_spec('Expert', conds, AW[wn], MICE)
+        null = avg_spec('Expert', conds, AW[wn], MICE, shuffle=True, seed=11)
+        tot = np.clip(real, 0, None).sum() + 1e-12
+        SPEC_NULL[(ts, wn)] = np.clip(null, 0, None) / tot
+        print(f'  {ts:4s} {wn:9s} null frac {np.round(SPEC_NULL[(ts, wn)][:4], 3)}', flush=True)
 
 # ── B. DPA_GNG_C: gng decoded from the DPA-state subspace (top-3 PCs), held-out, vs shuffle null ──
 
@@ -157,13 +184,13 @@ for wn in WINS:
     for stage in STAGES:
         rng = np.random.RandomState(500)
         real = [gng_from_dpa(stage, AW[wn], rng, False) for _ in range(8)]
-        null = [gng_from_dpa(stage, AW[wn], rng, True) for _ in range(12)]
+        null = [gng_from_dpa(stage, AW[wn], rng, True) for _ in range(100)]
         acc = float(np.mean(real)); n95 = float(np.percentile(null, 95))
         DPA_GNG_C[(wn, stage)] = dict(acc=acc, null95=n95, sig=bool(acc > n95))
         print(f'  {wn:9s} {stage:6s} acc={acc:.2f}  null95={n95:.2f}  sig={acc > n95}', flush=True)
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
-d['SPEC_JK'] = SPEC_JK; d['DPA_GNG_C'] = DPA_GNG_C
+d['SPEC_JK'] = SPEC_JK; d['DPA_GNG_C'] = DPA_GNG_C; d['SPEC_NULL'] = SPEC_NULL
 pickle.dump(d, open(RES, 'wb'))
-print('\nmerged SPEC_JK + DPA_GNG_C into', RES)
+print('\nmerged SPEC_JK + SPEC_NULL + DPA_GNG_C into', RES)

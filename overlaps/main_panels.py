@@ -125,7 +125,13 @@ else:
 # two files (combined sample/choice/gng, plus a separate test run), merged below.
 L1  = '--l1'  in sys.argv[1:]
 LDA = '--lda' in sys.argv[1:]
-if L1:
+PCA20 = '--pca' in sys.argv[1:]        # decoder pipeline with PCA(20) denoising (run_overlaps --pca 20)
+if PCA20:
+    DUM       = 'log_generalizing_overlaps_none_l1_ratio_0.0_pca20'
+    PFX       = ''
+    FILE_SUF += '_pca20'
+    AXIS_LABEL += ', PCA20'
+elif L1:
     DUM       = 'log_generalizing_overlaps_none_l1_ratio_1.0'
     PFX       = 'l1_'
     FILE_SUF += '_l1'
@@ -458,7 +464,11 @@ def _draw_hist_B(ax_h, stage, ylim):
     for label, pairs, color in SAMPLE_SPLITS_HIST:
         vals = []
         for y_traj in trajB[stage][label][1]:
-            vals.extend(y_traj[BINS_DELAY].tolist())
+            # LATE delay only (bins_LD 48-53), i.e. the SAME window as the depth panel and the push
+            # statistic. This used to pool BINS_DELAY (21-53, 33 bins): 27 of those sit before the
+            # late delay, where the choice code is still at baseline, so the push was averaged away
+            # and the Naive/Expert strips came out near-identical and symmetric.
+            vals.extend(y_traj[BINS_LATE].tolist())
         if len(vals) < 2:
             continue
         _mean = float(np.mean(vals))                          # mean on the FULL data (before trimming)

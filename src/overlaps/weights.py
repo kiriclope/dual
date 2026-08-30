@@ -26,11 +26,22 @@ def get_space_params_timewise(est, raw=False, min_scale=1e-8):
         if isinstance(est_t, Pipeline):
             clf = est_t.named_steps["model"]
             scaler = est_t.named_steps.get("scaler", None)
+            pca = est_t.named_steps.get("pca", None)
         else:
-            clf, scaler = est_t, None
+            clf, scaler, pca = est_t, None, None
 
         w = np.asarray(clf.coef_).ravel().astype(float)
         b = float(np.asarray(clf.intercept_).item())
+
+        if pca is not None:
+            # With PCA in the pipeline the model's coefficients live in component space. The
+            # transform is (x - pca.mean_) @ V.T, so the equivalent direction in the PCA's INPUT
+            # space is V.T @ w, with the intercept absorbing the mean removal. Without this the
+            # weights come back with n_components entries and every downstream projection (raw
+            # decision values, saved weights, cosines) is shape-mismatched or wrong.
+            V = np.asarray(pca.components_, dtype=float)
+            w = V.T @ w
+            b = b - float(np.dot(w, np.asarray(pca.mean_, dtype=float)))
 
         mu = None
         if scaler is not None:

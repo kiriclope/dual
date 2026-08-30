@@ -3,15 +3,18 @@
 **The non-circular dimensionality analysis of the dual-task pseudo-population, and — since 2026-08-10 —
 main Fig 2** (`pca/fig_dimensionality_main.py`, which replaced `fig_dpca_story_main.py`; that dPCA build
 is now ED Fig 9). **Fig 2 is built around ONE message: "one dedicated axis per task variable — the
-working memory is a line."** Panels: **a** trial-timeline + split-half cvPCA schematic · **b** THREE mini reliable spectra mapping
-1:1 onto c's bars — memory (DPA delay; a single component = the line, visually) · delay (all tasks) ·
-decision (all tasks) — Naive/Expert + shuffled null (÷ real total), LINEAR fraction axis (log axis
-rejected), condition set named in every title (user: B's set was ambiguous vs D's dual/DPA split) ·
-**c** PR bars 1→2→3 with leave-one-mouse-out jackknife 95% CIs, Naive + Expert overlaid (= the
-stability claim shown, not asserted) · **d** the η² PC-coding matrices, square cells, Expert row of
-four (dual-delay · dual-decision · DPA-delay · DPA-decision). Off-message and therefore OUT of the
+working memory is a line."** Panels (the DECODE build, adopted 2026-08-10): **a** trial-timeline +
+split-half cvPCA schematic (mid-delay bracket at 5.5–6.3 s) · **b** 2×2 per-set reliable spectra —
+DPA | dual (columns) × mid-delay | decision (rows), Naive + Expert overlaid, leave-one-mouse-out
+jackknife 95% CIs (`SPEC_JK`), xlim 6 components, LINEAR fraction axis (log axis rejected) ·
+**c** per-variable DECODING POWER (held-out pseudo-trials along each variable's demixed axis vs
+shuffle-null 95th pct, `DPCA_COUNT`; hatched gng× bar = Go/NoGo cross-decoded from the DPA subspace,
+`DPA_GNG_C`) · **d** η² PC-coding matrices, DPA-first, PC1–4, mid-delay + decision, with the boxed
+gng× cross-decode column on DPA (`DPA_GNG`). [Historical: the pre-adoption composition — three
+all-tasks mini spectra + PR bars 1→2→3 (`PR_JK`) — is the `--pr` legacy build, kept as the ED/caption
+source for the PR numbers.] Off-message and therefore OUT of the
 figure: shattering (→ ED 3 + cited from Results §3, where it pairs with CCGP), dPCA trajectories /
-axis-mixing / linking plane (→ ED 9), Naive matrices + per-task-set fits (→ ED 3).
+axis-mixing / linking plane (→ ED 9), Naive matrices + per-task-set fits (→ ED 3), PR bars (→ ED).
 
 ## Why it exists
 Fig 2's old dPCA scree was near-tautological: computed on 4 condition-means inside the demixed
@@ -48,8 +51,10 @@ across independent trial halves counts.
   DPA 'test' n.s. at the narrow test window 57–59 (0.62–0.63 vs n95 0.65) but sig at decision 57–65.
 - `exp_cdec_support.py` — variant support (2026-08-10, cache-only ~3 min): **`SPEC_JK`** =
   leave-one-mouse-out jackknife 95% CIs (+ the point fractions, one source) for the B spectra
-  (DPA/dual × md/decision), and **`DPA_GNG_C`** = the panel-C "gng ×" bar: Go/NoGo cross-decoded from
-  the DPA-STATE SUBSPACE (top-3 DPA condition-mean PCs, LDA, held-out, shuffle null). KEY: at
+  (DPA/dual × md/decision), **`SPEC_NULL`** (added 2026-08-12) = within-mouse label-shuffle null
+  spectra for B, ÷ the REAL positive total (self-normalised null would be meaningless; values ≤0.026
+  everywhere), and **`DPA_GNG_C`** = the panel-C "gng ×" bar: Go/NoGo cross-decoded from
+  the DPA-STATE SUBSPACE (top-3 DPA condition-mean PCs, LDA, held-out, shuffle null, 100 shuffles). KEY: at
   MID-delay the DPA subspace carries the distractor code only WEAKLY — Expert 0.61* / Naive 0.47 n.s.
   (decision 0.63*/0.61*); the older "~0.7 from PC2" figure came from the LATE-delay window and is
   consummatory-inflated.
@@ -57,7 +62,28 @@ across independent trial halves counts.
   main Fig 2 (ADOPTED 2026-08-10)**: B = 2×2 per-set cvPCA spectra (SPEC_JK: point + leave-one-mouse-out
   jackknife 95% CI from one source; common 6-component x-axis), C = per-variable decoding power
   (DPCA_COUNT + the hatched DPA "gng ×" from DPA_GNG_C), D = η² matrices DPA-first, PC1–4 both sets
-  (DPA PC4 = degenerate ~0% row, shown for symmetry) + boxed gng × column (DPA_GNG). Grid = DPA vs
+  (DPA PC4 = degenerate ~0% row, shown for symmetry) + boxed gng × column (DPA_GNG).
+  **Impact pass (2026-08-12, from the external content review):** A brackets carry window labels
+  (5.5–6.3 s / post-test); B adds the SPEC_NULL grey-dashed null floor + in-panel geometry callouts
+  with cartoons ("1 reliable axis — the sample line" A–B line glyph; "+ 1 distractor axis (0.07)"
+  plane glyph with orange gng arrow; "≈3 reliable axes" on the decision row; legend moved to
+  DPA-decision, center right); C gets an in-panel 2×2 legend (Expert bar / Naive circle / null 95% /
+  gng× ← DPA PCs) + the orange "weak transfer (dual gng = 1.0)" annotation on the md gng× bar;
+  D FADES rows beyond B's reliable rank (white veil + grey text/ticklabels + dashed boundary;
+  rank = # leading comps with jackknife CI lo > 1%: DPA-md 1, dual-md 2, both decisions 3 — the
+  `_rank_b()` helper; the boxed gng× column is EXEMPT from the veil so C's cross-decode mechanism
+  stays visible) and the gng× header now reads "gng × (cross-dec)".
+  **SUBMISSION FORM (2026-08-12, Leon: "this is a paper figure, there should be no footnote, no
+  title … keep that for the methods"):** the `fig.suptitle` and BOTH footnote blocks are GONE, as is
+  C's interpretive panel title — all that prose now lives in `docs/paper/methods_notes.md` (η²
+  chance = 1/3 + Beta(½,1) null, the fade criterion, the mid-delay sensory-tail caveat, the gng×
+  definition, the † bias state). What STAYS on the figure: bold panel letters, descriptive panel
+  titles, axis labels, in-panel legends/callouts. Layout consequences (don't regress): figsize
+  10.6×6.2 and outer `wspace=1.0` — each block's gap must hold a shared y-label + tick labels
+  (≥ ~0.035 fig width) or row 1 collides; B y-ticks PINNED to [0, 0.5, 1] (taller axes auto-add
+  0.25 steps that hit the y-label); A's decision bracket label kept SHORT ("decision state", no
+  "(post-test)") for the same reason; C's rotated tick reads "gng cross" NOT "gng ×" (a rotated ×
+  renders as +). Grid = DPA vs
   dual × MID-delay (bins 36–38, pre-cue/pre-lick) vs decision — **all of B–D on the same windows since
   the MD-η² recompute (`exp_pceta_md.py` → FITDATA[(set,'md',stage)] + DPA_GNG[('md',stage)]; Expert:
   DPA PC1 sample .93 41%, gng× [0,.16,.21,0]; dual PC1 gng .98 37%, PC2 sample .91 14%)**;
@@ -69,7 +95,11 @@ across independent trial halves counts.
   Draft §2, ED 3 list and `methods_notes.md` rewritten for the adoption (2026-08-10),
   `plot_dimensionality_main.py` (curated dual-vs-DPA composite `dimensionality.png`),
   `plot_dimensionality_fits.py [--gng] [--altwin]` (`dim_{DPA,dual,all}*.png`),
-  `plot_dimensionality_scree.py`.
+  `plot_dimensionality_scree.py`, `fig_bias_cleanup_ed.py` (**ED 3(h)**, cache-only render from
+  ANTACT_TRAJ + DPCA_COUNT: learning removes the dual-Naive premature-choice/bias signal — Naive
+  choice decodable 0.64–0.66 ED→LD vs Expert chance 0.47–0.49, both * at decision; separation trace
+  on the reward-free LD-defined axis climbs to ~+2 z in Naive, flat in Expert; DPA control flat;
+  decodable already at ED ⇒ trial-history/bias state, not deliberation).
 
 ## Methods (one paragraph each)
 **cvPCA (Stringer 2019).** Each (mouse, condition) correct-trial pool is split into two disjoint halves →
@@ -105,8 +135,9 @@ across-condition variance decomposed onto orthogonal factor contrasts (sample / 
 PC coding → **Fig 2d = the η² MATRICES, Expert row of four** (dual-delay · dual-decision · DPA-delay ·
 DPA-decision), with the message carried by the real data: dual-delay PC1 (40%) = gng .99, PC2 (12%) =
 sample .90; dual-decision PC1 = gng .94, PC2 = choice .92, PC3 = test .71, PC4 = sample .71; **DPA-delay
-PC1 = sample .98 (the 1-D memory line IS the sample axis; its PC2/PC3 code future variables = noise,
-gotcha 4 — flagged in the panel footnote)**; DPA-decision PC1 = choice .99. The FULL 2×4 grid (Naive &
+PC1 = sample .98 (the 1-D memory line IS the sample axis; its PC2/PC3 η² lands on test/choice —
+undetermined at delay BY DESIGN (test drawn independently of sample), at chance in held-out decoding,
+failing cvPCA → SAMPLING NOISE, not anticipatory coding; gotcha 4 — flagged in the panel footnote)**; DPA-decision PC1 = choice .99. The FULL 2×4 grid (Naive &
 Expert, `plot_dimensionality_main.py` → `dimensionality.png`) is ED material. Design settled 2026-08-10
 after iterations: Expert/dual-only heatmaps hid the DPA/Naive evidence; the full 2×4 grid in the main
 buried the message; a derived "chips" summary panel was REJECTED (Leon: keep the matrices — show real

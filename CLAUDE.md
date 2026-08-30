@@ -10,9 +10,10 @@ Then load the subproject docs for the area being worked on:
 - **Overlaps**: `docs/overlaps/overview.md`, `docs/overlaps/routines.md`, `docs/overlaps/feedback.md` —
   for the main figure start with `docs/overlaps/main_figure.md` (full reproduction guide: hypothesis,
   routines, method, results, caveats); `docs/overlaps/laser_onoff.md` is the laser ON−OFF causal analog
-- **PCA**: `docs/pca/README.md` (index) — for the dPCA story main figure start with
-  `docs/pca/story_figure_reproduction.md` (full reproduction guide: hypotheses, routines, math, results,
-  caveats); also `story_figure_methods.md`, `story_figure_review.md`, `flows_handoff.md`
+- **PCA**: `docs/pca/README.md` (index) — for main Fig 2 (the dimensionality composite,
+  `fig_dimensionality_main.py`) start with `docs/pca/dimensionality.md`; the superseded dPCA story build
+  is documented in `docs/pca/story_figure_reproduction.md` (+ `story_figure_methods.md`,
+  `story_figure_review.md`, `flows_handoff.md`)
 - **Decoders**: `docs/decoders/` (when populated)
 - **Behaviour / opto**: `docs/behavior.md` (learning curves, ACC→Prl silencing, laser ON−OFF figure)
 

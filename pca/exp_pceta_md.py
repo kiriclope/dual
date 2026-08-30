@@ -18,6 +18,8 @@ from sklearn.metrics import balanced_accuracy_score
 
 C = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = C['AW']; VALIDIX = C['VALIDIX']; N = C['N']; L = C['L']
+assert 'md' in AW, ("fits_inputs.pkl missing the 'md' window — "
+                    'run exp_dimensionality_md.py first (merges ed/md/test into the cache)')
 MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (L[k] for k in ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 DPA = [('DPA', s, te) for s in (0, 1) for te in (0, 1)]

@@ -116,11 +116,27 @@ if __name__ == '__main__':
         _statlbl = f'mixed model ({_nmB} mice, {_noB} obs)'
     _sigB = _ppush < 0.05
     print(f'A depth [{_statlbl.splitlines()[0]}] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
+    # ── the SAMPLE-SPECIFICITY test, shown rather than left to be inferred (2026-08-30) ──────────
+    # "A moved, B did not" is NOT evidence that A differs from B: the direct paired comparison
+    # across the same 9 mice is n.s. (p≈.055), and it is not a decoder artefact either — the sample
+    # and choice axes are orthogonal (per-mouse |cos| = 0.04) and sample-axis leakage would push A
+    # and B in OPPOSITE directions, which only 3/9 mice show. Printed to stdout, NOT drawn: an
+    # effect-size inset was tried here and removed — the panel already carries traces, KDEs and
+    # per-mouse lines. Keep the claim out of the figure and state it in the text.
+    from scipy.stats import wilcoxon as _wcx
+    _pv = _dfp.pivot_table(index=['mouse', 'sample'], columns='st', values='depth')
+    _dlt = {_s: (_pv.xs(_s, level='sample')[1] - _pv.xs(_s, level='sample')[0]).to_numpy()
+            for _s in ('A', 'B')}
+    _pA, _pB = _wcx(_dlt['A']).pvalue, _wcx(_dlt['B']).pvalue
+    _pAB = _wcx(_dlt['A'], _dlt['B']).pvalue
+    _spec = ''
+    print(f'A depth per-mouse: ΔA={_dlt["A"].mean():+.2f} (p={_pA:.3f})  '
+          f'ΔB={_dlt["B"].mean():+.2f} (p={_pB:.3f})  A-vs-B p={_pAB:.3f}')
     axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
     axB_sc.set_box_aspect(1)
     axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=7.5)
     axB_sc.set_title('Choice-code depth', loc='left', fontsize=TITLE_FS)
-    axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}',
+    axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
                 transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
     axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
                 fontsize=12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')

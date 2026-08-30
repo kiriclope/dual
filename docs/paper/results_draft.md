@@ -95,7 +95,9 @@ maintenance) and the post-test decision. Cross-validated PCA — the basis fit o
 variance evaluated on the independent held-out half, so only variance that *replicates* counts — shows
 that the maintained memory state is **one-dimensional**: the DPA mid-delay reliable spectrum is a single
 component (fraction 1.00, 95% CI [0.98, 1.00], jackknife across mice; Fig. 2b), the dual mid-delay adds
-exactly one further reliable component (0.92 + 0.07 [0.01, 0.13]) — the distractor axis — and the
+exactly one further reliable component (0.92 + 0.07 [0.01, 0.13]) — the distractor axis, whose
+identity and reliability are carried by the decoding and factor tests (Fig. 2c,d) rather than by the
+small variance fraction alone — and the
 decision state spreads to ~3 components (DPA 0.66/0.17/0.17; dual 0.61/0.30/0.05). The working memory is
 a line. Decoding makes the same point amplitude-free (Fig. 2c, balanced accuracy of held-out
 pseudo-trials along each variable's demixed axis against a shuffle null): **a variable decodes only when
@@ -112,14 +114,19 @@ DPA-state subspace ("gng ×") reaches only 0.61 at mid-delay (Naïve n.s.; per-P
 the memory geometry is close to orthogonal to the distractor code it must resist. The sample-memory axis
 is thus compact but reliable — little variance, cleanly decoded — orthogonal to the larger
 distractor/action dimensions. None of these measures changed with learning (Naïve ≈ Expert throughout
-Fig. 2b–d, spectra, decodability and coding pattern alike): learning neither adds nor removes
-representational dimensions. _(caveats: the DPA mid-delay 1-D is partly definitional — only one binary
+Fig. 2b–d, spectra, decodability and coding pattern alike; leave-one-mouse-out jackknife
+Δ(Naïve − Expert) CIs span zero for every spectrum component and every decodable variable — Methods):
+learning neither adds nor removes
+representational dimensions. The one delay-period signal learning does remove is a premature choice
+signal in the naïve dual-task delay — in naïve mice the upcoming choice is decodable from the delay
+state well before the test (0.64–0.66 from early through late delay), whereas in trained mice it sits
+at chance until the test arrives (Extended Data Fig. 3h): training holds the delay clean of the
+decision. _(caveats: the DPA mid-delay 1-D is partly definitional — only one binary
 variable is encoded during maintenance; variance-weighted summaries (participation ratio: memory 1.0
 [1.0, 1.1] → full-state delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8], and the full 12-condition
 "all-tasks" spectra whose two large delay dimensions are context contrasts) are in Extended Data Fig. 3;
 the time-resolved trajectory dimensionality is excluded because its shuffle null retains ~half the
-variance via the condition-independent time ramp; Naïve shows a small future-choice signal in the dual
-delay (a bias/history state, flagged in the caption); the ~2-D figure is the state *geometry* — full
+variance via the condition-independent time ramp; the ~2-D figure is the state *geometry* — full
 dynamics are higher-rank (~62–67% captured at rank 2, no elbow), so we describe a "rank-2 geometry",
 not rank-2 dynamics.)_
 
@@ -313,13 +320,25 @@ estimators; (b) per-marginal demixed variance (time 54% / tasks 31% / sample 7% 
 the "rank-2 geometry, not rank-2 dynamics" caveat; (d) window robustness — on full-delay / test windows
 the DPA-delay PR stays 1.0–1.1, delay 2.3–2.6, decision ≈2.5; (e) the FULL PC×factor η² grid behind Fig. 2d — Naïve & Expert × {dual, DPA} × {delay, decision}
 (`plot_dimensionality_main.py`) — plus the per-task-set fits (DPA / dual / all, incl. the delay+dec
-window and the 12-cond presence/identity task split); the DPA-delay condition-mean PCs beyond PC1 code
-*future* variables (test, choice) and are stripped by cvPCA (PR = 1): the noise-dimension gotcha flagged
-in Fig. 2d's footnote; (f) the shared-memory dPCA
+window and the 12-cond presence/identity task split); the DPA-delay condition-mean PCs beyond PC1 carry
+apparent test/choice η² — variables undetermined at that point by design (the test is drawn independently
+of the sample) and at chance in held-out decoding — i.e. sampling noise stripped by cvPCA (PR = 1), not
+anticipatory coding: the noise-dimension gotcha flagged in Fig. 2d's footnote; (f) the shared-memory dPCA
 d′ scatter (Naïve +0.61 → Expert +0.54, Δ = −0.07, p = 0.91 — memory code present in naïve and preserved);
 (g) the Go/NoGo cross-decode from the DPA subspace, per window (main Fig. 2c/d shows the clean mid-delay
 value 0.61; the late-delay ~0.7 figure is consummatory-inflated — the DPA geometry is close to, but not
-fully, orthogonal to the distractor).
+fully, orthogonal to the distractor); (h) **learning removes the premature choice signal from the dual
+delay** (`fig_bias_cleanup_ed.png`): in naïve mice the upcoming match/nonmatch choice is decodable from
+the dual delay state from ED through LD (0.64–0.66 vs shuffle-null ≈0.59, demixed-axis held-out
+decoding), and the held-out future-choice separation on a late-delay-defined — hence reward-free — axis
+climbs to ~+2 z by LD; in Expert the same signal sits at chance throughout the delay (0.47–0.49) while
+post-test decoding is intact (0.96). DPA shows no such signal at either stage (control). Decodability
+already at ED (post-sample, pre-distractor) marks it as a trial-history/bias state rather than premature
+deliberation. Caveats: on correct trials choice ≡ trial completion, so state-dependent selection
+contributes to the naïve separation (the naïve/expert contrast may partly reflect stronger selection at
+lower naïve accuracy); and at the mouse level the learning difference is not individually resolved
+(Δ accuracy +0.19, leave-one-mouse-out jackknife CI [−0.09, +0.46], n = 9) — the effect is established
+at the pooled-population level, where it replicates across three independent pipelines.
 
 **ED Fig. 4 | dPCA no-lick push robustness (corroborates Fig. 4).** The Naïve→Expert deepening reproduces in raw ΔF/F
 (r≈0.997, not a z-score artifact), survives condition-independent time-ramp removal (q0/1/2 =

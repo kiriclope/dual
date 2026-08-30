@@ -58,8 +58,11 @@ if '--test' in sys.argv[1:]:
     VARS = [(lab, col, 'TE') for lab, col, _ in VARS]; SUF, WINLAB = '_test', 'all codes @ TEST epoch'
 else:
     SUF, WINLAB = '', 'sample @ late delay · choice/test @ TEST'
-PIPE = lambda: make_pipeline(StandardScaler(), PCA(n_components=NPC, random_state=0),
-                             LogisticRegression(C=1.0, max_iter=3000))
+NOPCA = '--nopca' in sys.argv[1:]           # drop the PCA denoising step (robustness variant)
+PSUF = '_nopca' if NOPCA else ''
+PIPE = (lambda: make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=3000))) if NOPCA \
+    else (lambda: make_pipeline(StandardScaler(), PCA(n_components=NPC, random_state=0),
+                                LogisticRegression(C=1.0, max_iter=3000)))
 
 
 def dprime(s, V):
@@ -257,8 +260,8 @@ os.makedirs('figures/overlaps/ccgp', exist_ok=True)
 pickle.dump({'Mms': Mms, 'Nms': Nms, 'SUMM': SUMM, 'DIFF': DIFF, 'CHANCE': CHANCE, 'MLAB': MLAB,
              'STAGES': STAGES, 'LABS': LABS, 'TASKS': TASKS, 'TLAB': TLAB, 'GNG_Mms': GNG_Mms,
              'ACT_Mms': ACT_Mms, 'ACT_SUMM': ACT_SUMM, 'ACT_DIFF': ACT_DIFF, 'ACT_CODES': ACT_CODES},
-            open(f'figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}.pkl', 'wb'))
-print(f'cached arrays → figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}.pkl')
+            open(f'figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}{PSUF}.pkl', 'wb'))
+print(f'cached arrays → figures/overlaps/ccgp/matrices_cache{SUF}{ASUF}{PSUF}.pkl')
 
 # ── figure 1: 4 rows (Naive raw · Naive ÷within · Expert raw · Expert ÷within) × 3 variable columns ──
 DEV = max(np.nanmax(np.abs(Mms[(s, lab)] - CHANCE)) for s in STAGES for lab, _, _ in VARS)  # shared raw scale

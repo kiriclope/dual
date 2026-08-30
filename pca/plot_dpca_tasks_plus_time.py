@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from src.pca.io import pkl_load
+from _dpca_mouse_avg import stat as mouse_stat
 
 matplotlib.rcParams['svg.fonttype'] = 'none'
 matplotlib.rcParams['font.family'] = 'Arial'
@@ -36,7 +37,11 @@ plt.rc('axes.spines', top=False, right=False)
 ap = argparse.ArgumentParser()
 ap.add_argument('--stage', default='Expert', choices=['Expert', 'Naive'])
 ap.add_argument('--both', action='store_true', help='row per stage (Naive + Expert)')
+ap.add_argument('--pooled', action='store_true',
+                help='weight by pooled trials + trial-level SEM (default: equal per '
+                     'mouse, SEM across mice)')
 args = ap.parse_args()
+PER_MOUSE = not args.pooled
 
 FS = 6.0
 DATA = '../data/pca'
@@ -71,10 +76,13 @@ def load(stage):
     if Z[:, cT, 60:].mean() < Z[:, cT, :12].mean():
         Z[:, cT, :] *= -1
 
+    mouse = yc['mouse'].to_numpy()
+    all_ = np.ones(len(yc), bool)
+
     def cond_mean(comp, mask=None):
-        a = Z[:, comp, :] if mask is None else Z[mask][:, comp, :]
-        n = max(len(a), 1)
-        return a.mean(0), a.std(0) / np.sqrt(n)
+        mu, se, _ = mouse_stat(Z, all_ if mask is None else mask, comp,
+                               mouse=mouse, per_mouse=PER_MOUSE)
+        return mu, se
 
     tasks = {tk: cond_mean(ct, (yc['tasks'] == tk).to_numpy()) for tk in TASK_COL}
     time0 = cond_mean(cT)                               # condition-independent
@@ -146,7 +154,10 @@ for col in (0, 2):
         AX[r][col].set_ylim(lo, hi)
 
 sfx = 'both' if args.both else args.stage
-fig.suptitle(f'tasks dPCA + condition-independent time — {sfx}  (top component)', fontsize=9)
+wtag = 'pooled-trials' if args.pooled else 'per-mouse (n mice, SEM across mice)'
+sfx += '' if PER_MOUSE else '_pooled'
+fig.suptitle(f'tasks dPCA + condition-independent time — {sfx}  (top component; {wtag})',
+             fontsize=9)
 fig.tight_layout(rect=(0, 0, 1, 0.96))
 for ext in ('png', 'svg'):
     fig.savefig(f'{OUT}/{ext}/dpca_tasks_plus_time_{sfx}.{ext}', dpi=300, bbox_inches='tight')

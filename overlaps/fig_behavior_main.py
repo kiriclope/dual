@@ -259,6 +259,12 @@ for ax in (axB, axC, axD, axE):
     ax.legend(frameon=False, fontsize=8, loc='lower right')
 axB.set_ylabel('performance')
 
+# no-lick thread — one subtle line tying B–E to the neural no-lick push
+_bp = axB.get_position()
+fig.text(_bp.x0, _bp.y1 + 0.028,
+         'Learning both tasks = learning to withhold (no-lick); an intruding lick interferes',
+         ha='left', va='bottom', fontsize=7, color='0.35')
+
 # ── F: LMM coefficient forest ─────────────────────────────────────────────────
 cond_recs = [r for r in betas if r['kind'] == 'condition']
 int_map = {(r['model'], r['contrast']): r for r in betas if r['kind'] == 'cond×day'}
@@ -315,23 +321,26 @@ for stage, (x0, x1) in STAGE_X.items():
     g = smf.gee('performance ~ licked', groups=ds['mouse'], data=ds,
                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
     orr, pv = np.exp(g.params['licked']), g.pvalues['licked']
-    # significance bracket + star / ns
-    ybr = 1.02
-    axG.plot([x0, x0, x1, x1], [ybr - 0.013, ybr, ybr, ybr - 0.013], color='k', lw=1.3, zorder=6)
+    # significance bracket + star / ns (kept below performance = 1)
+    ybr = 0.96
+    axG.plot([x0, x0, x1, x1], [ybr - 0.012, ybr, ybr, ybr - 0.012], color='k', lw=1.3, zorder=6)
     st = star(pv) or 'ns'
-    axG.text((x0 + x1) / 2, ybr + 0.004, st, ha='center', va='bottom',
+    axG.text((x0 + x1) / 2, ybr + 0.003, st, ha='center', va='bottom',
              fontsize=13 if star(pv) else 9.5, fontweight='bold', color='k')
-    axG.text((x0 + x1) / 2, 1.10, stage, ha='center', va='bottom', fontsize=10,
+    # stage labels in axes-fraction just above the frame (nothing drawn above perf = 1)
+    axG.text((x0 + x1) / 2, 1.02, stage, ha='center', va='bottom',
+             transform=axG.get_xaxis_transform(), clip_on=False, fontsize=10,
              fontweight='bold', color=STAGE_SHADE if stage == 'Expert' else '0.4')
     axG.text((x0 + x1) / 2, 0.565, f'OR={orr:.2f}\np={pv:.3f}',
              ha='center', va='bottom', fontsize=8, color='0.3')
 axG.axhline(0.5, ls=':', color='0.5', lw=1)
 axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no\nlick', 'lick', 'no\nlick', 'lick'])
-axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.55, 1.16); axG.set_ylabel('DPA performance')
+axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.55, 1.0); axG.set_ylabel('DPA performance')
 axG.legend(handles=[mlines.Line2D([0], [0], marker='o', color=NOLICK_C, ls='none', ms=8, label='withhold (no lick)'),
                     mlines.Line2D([0], [0], marker='o', color=LICK_C, ls='none', ms=8, label='intrusive lick')],
            frameon=False, fontsize=8, loc='lower center', ncol=1)
-axG.set_title('Intrusive licks impair DPA early', loc='left', fontweight='bold', fontsize=TITLE_FS)
+axG.set_title('Intrusive licks impair DPA early', loc='left', fontweight='bold',
+              fontsize=TITLE_FS, pad=24)   # raised above the Naive/Expert stage headers
 
 # ── H: suboptimal expert balance — DPA vs GNG per animal ──────────────────────
 axH = fig.add_subplot(gs[2, 8:12])
@@ -350,8 +359,8 @@ xs = np.array([xd[m] for m in ALL_MICE]); ys = np.array([yd[m] for m in ALL_MICE
 ok = np.isfinite(xs) & np.isfinite(ys)
 r_p, p_p = pearsonr(xs[ok], ys[ok]); r_s, p_s = spearmanr(xs[ok], ys[ok])
 gap = np.mean(1.0 - np.minimum(xs[ok], ys[ok]))          # mean shortfall from ceiling
-axH.text(0.965, 0.035, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n={ok.sum()})\n'
-         f'gap to optimal: {gap:.2f}', transform=axH.transAxes, ha='right', va='bottom',
+axH.text(0.035, 0.965, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n={ok.sum()})\n'
+         f'gap to optimal: {gap:.2f}', transform=axH.transAxes, ha='left', va='top',
          fontsize=7.5, color='0.3')
 axH.set_xlim(lim); axH.set_ylim(lim); axH.set_aspect('equal')
 axH.set_xlabel('DPA performance'); axH.set_ylabel('GNG performance')
@@ -366,10 +375,8 @@ for _ax, _L in [(axAm, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
                 (axE, 'E'), (axF, 'F'), (axG, 'G'), (axH, 'H')]:
     panel_letter(_ax, _L)
 
-fig.text(0.5, 0.004, 'Recorded cohort, 9 mice, laser OFF · curves mean ± SEM across mice · '
-         'A: Shaping = paired-trials-only version of the task · '
-         'B–F: LMM perf ~ condition×day + (1|mouse), per-day stars uncorrected · '
-         'G: NoGo trials, DPA-correct ~ lick GEE clustered by mouse · * p<0.05 ** p<0.01 *** p<0.001',
+fig.text(0.5, 0.004, 'Recorded cohort, 9 mice, laser OFF · mean ± SEM · '
+         '* p<.05  ** p<.01  *** p<.001',
          ha='center', va='bottom', fontsize=7.5, color='0.45')
 
 for ext in ('png', 'svg'):

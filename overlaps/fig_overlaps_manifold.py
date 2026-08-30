@@ -225,7 +225,8 @@ if __name__ == '__main__':
     fig.suptitle('The dual-task codes are abstract and reused across tasks', x=0.008, ha='left',
                  y=0.975, fontsize=10)
     OUT = 'figures/overlaps/manifold'
-    _SUF = ('_antact' if _MP.ANTACT else '') + ('_robust' if _MP.ROBUST else '')  # default → canonical (57-63); --antact --robust → _antact_robust
+    _SUF = (('_antact' if _MP.ANTACT else '') + ('_robust' if _MP.ROBUST else '')
+            + ('_pca20' if getattr(_MP, 'PCA20', False) else ''))   # --pca -> separate file  # default → canonical (57-63); --antact --robust → _antact_robust
     for s in ('png', 'svg'):
         os.makedirs(f'{OUT}/{s}', exist_ok=True)
     fig.savefig(f'{OUT}/png/fig_overlaps_manifold{_SUF}.png', bbox_inches='tight')

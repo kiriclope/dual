@@ -31,6 +31,7 @@ from matplotlib.lines import Line2D
 import seaborn as sns
 
 from src.pca.io import pkl_load
+from _dpca_mouse_avg import stat as mouse_stat
 
 matplotlib.rcParams['svg.fonttype'] = 'none'
 matplotlib.rcParams['font.family'] = 'Arial'
@@ -40,7 +41,12 @@ plt.rc('axes.spines', top=False, right=False)
 ap = argparse.ArgumentParser()
 ap.add_argument('--stage', default='Expert', choices=['Expert', 'Naive'])
 ap.add_argument('--both', action='store_true', help='overlay Naive (dashed) on Expert')
+ap.add_argument('--pooled', action='store_true',
+                help='pooled-trial weighting + trial SEM (default: equal per mouse, '
+                     'SEM across mice)')
 args = ap.parse_args()
+PER_MOUSE = not args.pooled
+CUR_MOUSE = None            # per-trial mouse ids of the stage currently being drawn
 
 FS = 6.0
 DATA = '../data/pca'
@@ -93,10 +99,8 @@ def load(stage):
 
 
 def band(ax, Z, mask, comp, color, ls='-', label=None, alpha=0.18):
-    a = Z[mask][:, comp, :]
-    n = max(a.shape[0], 1)
-    mu, se = a.mean(0), a.std(0) / np.sqrt(n)
-    t = np.arange(a.shape[1]) / FS
+    mu, se, _ = mouse_stat(Z, mask, comp, mouse=CUR_MOUSE, per_mouse=PER_MOUSE)
+    t = np.arange(len(mu)) / FS
     ax.plot(t, mu, color=color, ls=ls, lw=1.4, label=label)
     ax.fill_between(t, mu - se, mu + se, color=color, alpha=alpha, lw=0)
 
@@ -120,6 +124,7 @@ ax = ax.ravel()
 for st in STAGES:
     Z, yc, IDX = D[st]
     lsq = STAGE_LS[st]
+    CUR_MOUSE = yc['mouse'].to_numpy()
     B = (yc['sample'] == 1).to_numpy(); D_ = (yc['test'] == 1).to_numpy()
     lick = (yc['sample'] == yc['test']).to_numpy()
     task = yc['tasks'].to_numpy()
@@ -180,8 +185,10 @@ ax[5].legend(handles=handles, fontsize=7, frameon=False, loc='center', ncol=2,
              title='interaction groupings')
 
 sfx = 'both' if args.both else args.stage
+wtag = 'pooled trials' if args.pooled else 'per-mouse, SEM across mice'
+sfx += '' if PER_MOUSE else '_pooled'
 fig.suptitle(f'dPCA time & interaction marginals — {sfx}  '
-             '(f-sample-test-tasks, top component per marginal)', fontsize=9)
+             f'(f-sample-test-tasks, top component per marginal; {wtag})', fontsize=9)
 fig.tight_layout(rect=[0, 0, 1, 0.97])
 for ext in ('png', 'svg'):
     fig.savefig(f'{OUT}/{ext}/dpca_time_interactions_{sfx}.{ext}',

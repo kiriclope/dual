@@ -2,6 +2,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from mne.decoding import GeneralizingEstimator, SlidingEstimator
@@ -24,6 +25,7 @@ def get_estimator(
     C=0.1,
     Cs=np.logspace(-4, 4, 10),
     n_jobs=-1,
+    pca=None,
 ):
     """Build a (Generalizing|Sliding)Estimator wrapping a logistic pipeline.
 
@@ -58,6 +60,13 @@ def get_estimator(
         steps.append(("scaler", StandardScaler()))
     elif scaler == "center":
         steps.append(("scaler", StandardScaler(with_std=False)))
+    if pca:
+        # Optional PCA denoising INSIDE the pipeline, so it is re-fit per CV fold and per
+        # train-time — never on data the decoder is then scored on. Placed after the scaler so the
+        # components are computed on standardised features. Must be a plain, module-level class:
+        # joblib pickles the pipeline to its workers, so a locally-defined PCA subclass fails with
+        # "Could not pickle the task". Folds here carry ~200+ trials, well above any usable rank.
+        steps.append(("pca", PCA(n_components=pca, random_state=0)))
     steps.append(("model", clf_obj))
     pipe = Pipeline(steps)
 

@@ -1,5 +1,15 @@
 # Overlaps Subproject Overview
 
+> **Fig. 3 REPLACED (2026-08-30): the adopted main Fig. 3 is now `pca/fig_manifold_main.py`**
+> (`pca/figures/pseudo/dimensionality/png/fig_manifold_main.png`, + `_nopca` robustness variant) —
+> ONE frame: **a** code traces (sample/dist/test/choice × Naive|Expert, from the overlaps CCGD
+> projections) · **b** states plotted IN the fixed sample × choice axes · **c** axis geometry
+> (|cos|) + per-mouse · **d** dist↔choice cross-decoding + per-mouse · **e** cross-task
+> generalisation (normalised, ceiling in the column labels) + per-mouse · **f** per-mouse CCGP.
+> Everything runs through one decoder (`pca/decoders.py`; PCA(20)+L2 logistic, `--nopca`/`--npc N`
+> variants). **`fig_overlaps_manifold.py` below is SUPERSEDED** — kept for its panels b/d, which
+> did not move into the new build, and as the source of the settled cross-decode numbers.
+>
 > **SPLIT (2026-08-04) — the overlaps MAIN figure is now TWO main figures.** For the paper the single
 > `fig_overlaps_main_native.py` figure was split into a **geometry / abstraction** figure and a **push /
 > repositioning** figure. **Fig. 3 = `fig_overlaps_manifold.py`** (`figures/overlaps/manifold/{png,svg}/
