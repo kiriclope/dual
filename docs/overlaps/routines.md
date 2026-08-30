@@ -21,6 +21,34 @@ X_epoch normalization and idx_correct: see `docs/shared_data.md`.
 
 ---
 
+## `run_overlaps.py --pca N` — PCA denoising inside the cross-temporal decoder (2026-08-30)
+```bash
+cd /home/leon/dual/overlaps
+python run_overlaps.py --scaler none --save-weights --targets sample choice gng test --pca 20   # ~25 min
+#  -> data/overlaps/{X,labels,weights}_log_generalizing_overlaps_none_l1_ratio_0.0_pca20_raw_targets_choice-gng-sample-test.pkl
+python ../pca/exp_traj_orig.py --pca            # caches ORIG_TRACES_pca20 for Fig 3 panel a
+python main_panels.py-consumers --pca           # fig_overlaps_main_native / _manifold / fig_push_bridge
+```
+`get_estimator(..., pca=N)` inserts `PCA(n_components=N)` AFTER the scaler, so it is re-fit per CV fold
+and per train-time — never on data the decoder is then scored on. The run-id gains `_pca{N}`, so the
+denoised fileset saves ALONGSIDE the canonical one; `main_panels.py --pca` selects it (same pattern as
+the existing `--l1` / `--lda` variants) and appends `_pca20` to every output filename.
+
+**TWO BUGS THIS EXPOSED — both fixed, both would have bitten any pipeline change:**
+1. `src/overlaps/weights.py:get_space_params_timewise` read `clf.coef_` assuming NEURON space. With a
+   PCA step the coefficients live in COMPONENT space, so every raw decision value, saved weight and
+   cosine was shape-mismatched (einsum error). It now back-projects `V.T @ w` with the intercept
+   absorbing `pca.mean_`, BEFORE the existing scaler back-projection.
+2. A PCA subclass defined *inside* `get_estimator` is unpicklable → joblib "Could not pickle the task
+   to send it to the workers". Must be a plain module-level `sklearn.decomposition.PCA`.
+
+⚠ **The denoised tensor is NOT a drop-in for Fig 4.** PCA(20) is fit per fold to maximise
+class-discriminative variance, and the push is a condition-INDEPENDENT mean translation — precisely
+what such a projection discards. On the `_pca20` tensor the push roughly halves (bridge Δdepth: sample
+A −1.42 → −0.68, sample B −0.07 → +0.27). It sharpens Fig 3's code traces and shrinks Fig 4's effect.
+Keep the canonical tensor for Figs 4/5; the `_pca20` renders live in `tmp/pca20_variants/`.
+
+
 ## `plot_traj2d.py`
 **Shows:** 2D mean trajectory (sample×choice) over time + KDE histogram strip per panel.
 **Trials:** `correct` (default) or `all` laser-off (correct + incorrect) — pass `all`/`--all` on

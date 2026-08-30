@@ -147,6 +147,20 @@ flow-field / attractor-dynamics analyses of this deepening are retained as "extr
 
 ## 3. The low-dimensional manifold is abstract and reused across tasks (Fig. 3)
 
+> ⚠ **STALE PANEL LETTERING (2026-08-30).** Fig. 3 was replaced by `pca/fig_manifold_main.py`
+> ("one frame"): **a** code traces (Naïve|Expert × sample/dist/test/choice) · **b** states plotted
+> IN the fixed sample × choice axes · **c** axis geometry (attenuation-corrected |cos|) · **d**
+> dist↔choice cross-decoding · **e** cross-task generalisation (normalised by each test task's
+> ceiling) · **f** per-mouse CCGP — each pooled panel paired with an n=9 per-mouse companion.
+> The text below still uses the OLD lettering (a traces / b matrix / c action 2×2 / d summary /
+> e CCGP); the *numbers* are unchanged and still correct. The old panel **d (cross-context summary)
+> was dropped** as a derived digest. Two results to add when rewriting: the axis-geometry claim
+> (sample orthogonal to both others; choice × dist overlap GROWS 0.32 → 0.46 with learning) and the
+> caveat that its per-mouse significance is knob-dependent (p = .039 / .074 / 1.000 at PCA 20 / no
+> PCA / PCA 4 — at 4 components a 4-D subspace forces |cos| ≈ 0.5 and saturates the measure).
+> The robust animal-level result is the cross-decoding increase (p ≤ .008, 8–9 of 9 mice).
+
+
 A low-dimensional code is not automatically a reusable one. Having shown that the computation occupies only
 ~two demixed dimensions (Fig. 2), we asked whether those dimensions form a single abstract manifold shared
 across the two task contexts — one the animal can reuse — rather than task-specific structure. Decoders
@@ -212,7 +226,13 @@ Having established one abstract manifold whose coding axes are fixed across lear
 working-memory state exactly as the dPCA analysis predicted. The expert DPA delay state sat further into
 the no-lick half of the action axis than the naïve state (Fig. 4a; sample × choice planes for naïve and
 expert, and the per-mouse choice-code depth Naïve → Expert; mixed model 9 mice/36 obs, β = −0.744,
-p = 0.046), specifically for sample A (A ≈ −1.45, p = 0.054; B ≈ −0.02, p = 0.95). And the size of this
+p = 0.046; per-animal Wilcoxon p = 0.098). The shift was numerically larger for sample A than for
+sample B (ΔA ≈ −1.42, p = 0.098; ΔB ≈ −0.07, p = 0.91), but this is NOT evidence of sample
+specificity: the direct paired A-vs-B comparison across the same 9 mice is not significant, in the
+canonical build (p = 0.055) or in ANY of the six axis × normalisation builds (p = 0.055–0.203).
+Nor is it a decoder artefact — the sample and choice axes are orthogonal (per-mouse |cos| = 0.04),
+and axis leakage would displace A and B in OPPOSITE directions, which only 3/9 mice show. Report the
+push, not its sample specificity. And the size of this
 geometric edit was behaviourally meaningful across animals: the more a mouse pushed its delay state toward
 no-lick, the more its DPA accuracy improved (Fig. 4b left; between-mouse per-mouse Spearman ρ = −0.83,
 p = 0.005, n = 9), with no relationship to Go/NoGo accuracy (Fig. 4b right; ρ = +0.20, p = 0.61) —

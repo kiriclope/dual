@@ -10,6 +10,18 @@
 > variants). **`fig_overlaps_manifold.py` below is SUPERSEDED** — kept for its panels b/d, which
 > did not move into the new build, and as the source of the settled cross-decode numbers.
 >
+> **Fig. 4 panel-A KDE WINDOW BUG, fixed 2026-08-30.** The density strips pooled `bins_DELAY`
+> (21–53, 33 bins) while the push statistic and the depth panel use `bins_LD` (48–53, 6 bins).
+> 27 of those bins sit before the late delay, where the choice code is still at baseline, so the
+> push was averaged away and the Naive/Expert strips came out near-identical. `_draw_hist_B` now
+> reads `BINS_LATE`. DISPLAY-ONLY — every settled statistic verified unchanged across all six builds.
+> **Sample specificity is NOT supported.** Every build now prints the per-mouse A-vs-B test and it
+> is n.s. in ALL SIX (p = .055 / .074 / .129 / .164 / .203 / .098 for ACTION|ANTACT ×
+> pooled-evoked|robust|robust-cv10). Not a decoder artefact either: the sample and choice axes are
+> orthogonal (per-mouse |cos| = 0.04) and axis leakage would displace A and B in OPPOSITE
+> directions, which only 3/9 mice show. Report the push (LMM p = .046; per-animal p = .098) and the
+> coupling (ρ = −0.83, p = .005 — the animal-level claim), NOT "specific to sample A".
+>
 > **SPLIT (2026-08-04) — the overlaps MAIN figure is now TWO main figures.** For the paper the single
 > `fig_overlaps_main_native.py` figure was split into a **geometry / abstraction** figure and a **push /
 > repositioning** figure. **Fig. 3 = `fig_overlaps_manifold.py`** (`figures/overlaps/manifold/{png,svg}/
