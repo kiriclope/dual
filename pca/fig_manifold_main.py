@@ -8,8 +8,10 @@ GENERALISATION matrices moved to Fig 2 (fig_dimensionality_main.py panel E); the
 generalisation row and the CCGP panel moved to ED (fig_manifold_supp.py). Canonical pipeline =
 no-PCA (--nopca, unsuffixed filenames); the PCA-20 build is the ED robustness variant.
 
-  A  the four codes over time (Naive | Expert rows x sample/dist/test/choice), replayed from the
-     overlaps CCGD projections (ORIG_TRACES).
+  A  the TWO FRAME AXES read per task (Naive | Expert rows x DPA|Go|NoGo x sample/choice),
+     replayed from the overlaps CCGD projections (ORIG_TRACES @go/@nogo keys). ADOPTED
+     2026-08-31 (user): A and B are then the SAME data — time courses vs window snapshots.
+     The four-code 2x4 row (dist + test axes) moved to fig_manifold_supp.py panel A.
   B  the frame itself — the SAME per-mouse CCGD projections as A (FRAME_STATES /
      exp_frame_states.py), read at one window per panel and re-centred per mouse on that window's
      cross-condition mean: a 2 (Naive | Expert) x 5 storyboard (DPA·md -> DPA·decision -> dual·md
@@ -54,9 +56,7 @@ assert NOPCA or NPC == 20, (f'--npc {NPC}: no matching overlaps caches (they are
                             'build matrices/ccgp/ORIG_TRACES at that NPC first')
 ANTACT = '--antact' in sys.argv[1:]                # variant: choice axis = ANTICIPATORY action
 ASUF = '_antact' if ANTACT else ''                 #   axis (overlaps train bins 48-62, vs 57-62)
-TASKSPLIT = '--tasksplit' in sys.argv[1:]          # variant: panel A = 2x6 DPA|Go|NoGo x
-TSSUF = '_tasksplit' if TASKSPLIT else ''          #   sample/choice (fig_traj_tasksplit layout)
-FIGSUF = ('' if NOPCA else f'_pca{NPC}') + ASUF + TSSUF
+FIGSUF = ('' if NOPCA else f'_pca{NPC}') + ASUF    # filename: plain = no denoising
 
 sns.set_context('notebook'); sns.set_style('ticks')
 plt.rcParams.update({
@@ -240,84 +240,14 @@ EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
 # cue is 6.5-7.0 s; the reward window 7.0-7.5 s is deliberately unshaded (as everywhere else)
 
 
-# One panel per code with its own two-class colour pair — the original Fig-3 panel-A convention
-# (colours/levels/labels come from ORIG_SPECS in the cache, written by exp_traj_orig.py).
-
-
+# ══ a — sample & choice codes read PER TASK: DPA | Go | NoGo (ADOPTED 2026-08-31) ══
+#   User rationale: rows A and B are then the SAME data — the same per-mouse CCGD sample/choice
+#   projections with the same task split; A = time courses, B = window snapshots. The four-code
+#   2x4 trace row (with the dist and test axes) moved to fig_manifold_supp.py panel A.
 def panel_traj(fig, gsT):
-    """2 rows (Naive | Expert) x 4 codes — THE ORIGINAL Fig-3 panel A, replayed from ORIG_TRACES
-    (`exp_traj_orig.py`, which extracts overlaps/main_panels' validated per-mouse CCGD projections).
-
-    These are NOT re-derived here. Fitting fresh axes from the cached window matrices gave axes
-    contaminated by the trial's global ramp (29-45% of the code size), which dragged both classes
-    off zero and made the traces asymmetric; the overlaps decoders (per mouse, per stage, ridge,
-    bootstrapped, lick axis orthogonalised to sample) do not have that problem. Units are the
-    overlaps per-mouse shared unit, so amplitudes are comparable ACROSS CODES within this panel —
-    but they are NOT the pseudo-population z of panel b, which answers a different question
-    (position in the frame, not code depth).
-    """
-    # panel a must come from the SAME decoder variant as the rest of the figure (canonical = no-PCA)
-    TKEY = ('ORIG_TRACES' if NOPCA else 'ORIG_TRACES_pca20') + ASUF
-    assert TKEY in RES, (f'missing {TKEY} — run: cd /home/leon/dual/pca && python '
-                         f'exp_traj_orig.py' + ('' if NOPCA else ' --pca')
-                         + (' --antact' if ANTACT else ''))
-    TR = RES[TKEY]; xt = np.asarray(RES['ORIG_XTIME'])
-    SP = sorted(RES['ORIG_SPECS'], key=lambda sp: CODE_ORDER.index(CODE_NAME[sp['code']]))
-    # SHARED y-limits per code COLUMN (across Naive and Expert): the panel's point is the
-    # Naive -> Expert depth comparison, which independent autoscaling silently defeated.
-    YLK = {}
-    for k, spec in enumerate(SP):
-        lo, hi = 0.0, 0.0
-        for stage in ['Naive', 'Expert']:
-            for lv in spec['levels']:
-                M = np.asarray(TR[(stage, spec['code'], int(lv))], dtype=float)
-                if not len(M):
-                    continue
-                mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
-                lo = min(lo, (mu - se).min()); hi = max(hi, (mu + se).max())
-        pad = 0.05 * (hi - lo)
-        YLK[k] = (lo - pad, hi + pad)
-    axes = []
-    for r, stage in enumerate(['Naive', 'Expert']):
-        for k, spec in enumerate(SP):
-            ax = fig.add_subplot(gsT[r, k]); axes.append(ax)
-            for nm, lo, hi, col in EVENTS:
-                ax.axvspan(lo, hi, color=col, alpha=0.10, lw=0)
-                if r == 0 and k == 0:
-                    ax.text((lo + hi) / 2, 0.98, nm, transform=ax.get_xaxis_transform(),
-                            ha='center', va='top', fontsize=5.8, color=col)
-            for lv, lab, col in zip(spec['levels'], spec['labels'], spec['colors']):
-                M = np.asarray(TR[(stage, spec['code'], int(lv))], dtype=float)
-                if not len(M):
-                    continue
-                mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
-                ax.plot(xt, mu, color=col, lw=1.5, label=f'{lab} (n={len(M)})', zorder=3)
-                ax.fill_between(xt, mu - se, mu + se, color=col, alpha=0.20, lw=0, zorder=2)
-                print(f"traj {stage:6s} {spec['code']:7s} {lab:8s} peak {mu.max():+5.2f} "
-                      f"trough {mu.min():+5.2f}")
-            ax.axhline(0, ls='--', color='k', lw=0.5, zorder=1)
-            ax.set_ylim(*YLK[k])                    # shared per code column, Naive vs Expert
-            ax.set_xlim(0, 12); ax.set_xticks([0, 2, 4.5, 6.5, 9, 12])
-            if r == 1:
-                ax.set_xlabel('time (s)', fontsize=7)
-                if k == 0:                              # sample legend lives in the EXPERT panel:
-                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='lower right')
-                    # (the Naive panel's top band carries the epoch names and its lower-right is
-                    #  crossed by the Odor-A tail — both collide with a legend there)
-            else:
-                ax.tick_params(labelbottom=False)
-                ax.set_title(f"{CODE_NAME[spec['code']]} code", loc='left', fontsize=TITLE_FS)
-                if k > 0:
-                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='upper left')
-            ax.set_ylabel(f'{stage}\ncode depth' if k == 0 else 'code depth', fontsize=7)
-    return axes[0]
-
-
-# ══ a VARIANT (--tasksplit) — sample & choice codes read PER TASK: DPA | Go | NoGo ══
-def panel_traj_tasksplit(fig, gsT):
-    """2 rows (Naive | Expert) x 6 cols — the fig_traj_tasksplit.py layout as panel A: sample and
-    choice codes per task set (@go/@nogo ORIG_TRACES keys), y shared per CODE across all task
-    columns so the DPA-vs-dual amplitude comparison is direct."""
+    """2 rows (Naive | Expert) x 6 cols: sample and choice codes per task set (@go/@nogo
+    ORIG_TRACES keys, exp_traj_orig.py), y shared per CODE across all task columns so the
+    DPA-vs-dual amplitude comparison is direct."""
     TKEY = ('ORIG_TRACES' if NOPCA else 'ORIG_TRACES_pca20') + ASUF
     assert TKEY in RES and ('Naive', 'sample@go', 0) in RES[TKEY], \
         f'missing {TKEY} @go/@nogo keys — run exp_traj_orig.py' + ('' if NOPCA else ' --pca')
@@ -671,12 +601,8 @@ def panel_f_spaces(fig, gsF):
 fig = plt.figure(figsize=(12.4, 14.6))
 outer = fig.add_gridspec(4, 12, height_ratios=[1.45, 1.55, 1.65, 0.95], hspace=0.28,
                          left=0.062, right=0.982, top=0.978, bottom=0.028, wspace=0.9)
-if TASKSPLIT:
-    gsT = outer[0, 0:12].subgridspec(2, 6, wspace=0.42, hspace=0.18)
-    axT = panel_traj_tasksplit(fig, gsT)
-else:
-    gsT = outer[0, 0:12].subgridspec(2, 4, wspace=0.34, hspace=0.18)
-    axT = panel_traj(fig, gsT)
+gsT = outer[0, 0:12].subgridspec(2, 6, wspace=0.42, hspace=0.18)
+axT = panel_traj(fig, gsT)
 gsA = outer[1, 0:12].subgridspec(2, 5, wspace=0.16, hspace=0.10)
 axA = panel_a(fig, gsA)
 gsC = outer[2, 0:4].subgridspec(1, 1)                # C = the proof: summary bars
@@ -707,12 +633,18 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 CAP_PARAS = [
     'Figure 3 | One manifold: a single sample × choice plane is necessary and sufficient for the '
     'memory and choice codes — and learning pulls the distractor code into it.',
-    'A. The four codes over time (sample / dist / test / choice; Naive top, Expert bottom): per-mouse '
-    'cross-validated decoder projections (CCGD), mean ± SEM across mice (n = 9), correct laser-off '
-    'trials, one shared per-mouse unit so amplitudes are comparable across codes; y-axes shared '
-    'within each code column. Shaded bands: sample, distractor, GNG cue and test epochs. The sample '
-    'code is maintained throughout the delay in both stages; the dist and choice codes rise at their '
-    'own epochs.',
+    'A. The two frame axes read per task (columns DPA | Go | NoGo × sample / choice code; Naive '
+    'top, Expert bottom): per-mouse cross-validated decoder projections (CCGD), mean ± SEM '
+    'across mice (n = 9), correct laser-off trials, one shared per-mouse unit; y-axes shared per '
+    'code across ALL task columns, so amplitudes compare directly. A and B show the SAME data — '
+    'these time courses, frozen at three windows in B. The DPA sample code is maintained '
+    'throughout the delay, while in both dual tasks the DPA-trained sample readout decays after '
+    'the distractor (lower in 9/9 mice Naive, 8/9 Expert; whether the memory itself survives is '
+    'the cross-task test of Fig. 2E). The Go choice trace rises at the GNG cue in BOTH classes '
+    '(every correct Go trial licks the cue — a motor/reward transient, not choice coding) and '
+    'splits only at test; the Expert NoGo choice trace runs below baseline through the late '
+    'delay on average (7/9 mice — consistent with withholding) before the test split. (The '
+    'four-code trace row with the dist and test axes is in the ED supplement.)',
     'B. The frame itself, Naive (top) and Expert (bottom): the same cross-validated per-mouse '
     'CCGD projections as A — sample axis (x), choice axis (y) — read at one window per panel '
     'and re-centred, per mouse, on that window’s mean state, so each panel shows the condition '
@@ -775,18 +707,6 @@ CAP_PARAS = [
     'unity line (annotation = mean chance-referenced transfer/within; no tests drawn). Learning '
     'moves the state within the frame (Fig. 4B); it does not rotate the frame.',
 ]
-if TASKSPLIT:
-    CAP_PARAS[1] = (
-        'A. [TASK-SPLIT VARIANT] The sample and choice codes read per task (columns DPA | Go | '
-        'NoGo; Naive top, Expert bottom): per-mouse cross-validated decoder projections (CCGD), '
-        'mean ± SEM across mice (n = 9), correct laser-off trials, one shared per-mouse unit; '
-        'y-axes shared per code across ALL task columns, so amplitudes compare directly. The DPA '
-        'sample code is maintained throughout the delay while in both dual tasks it decays after '
-        'the distractor; the Go choice trace rises at the GNG cue in BOTH classes (every correct '
-        'Go trial licks the cue — a motor/reward transient, not choice coding) and splits only '
-        'at test; the Expert NoGo choice trace dips below baseline through the late delay '
-        '(withholding) before the test split. The dist and test code columns of the canonical '
-        'build are omitted here.')
 if ANTACT:
     CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in A (choice trace) and B (y-axis) is '
                       'the ANTICIPATORY action axis — decoders trained over overlaps bins 48–62 '

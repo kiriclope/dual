@@ -12,9 +12,9 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
   bars + per-mouse · cosines · cross-stage decoding) and its ED companion `fig_manifold_supp.py`;
   caches from `exp_permouse_plane.py` / `exp_plane_frame.py` / `exp_axis_time.py` /
   `exp_frame_states.py` / `exp_permouse_xstage.py` (+ `--antact` / `--pca` variants) and the
-  panel-A task-split companion `fig_traj_tasksplit.py` (DPA | Go | NoGo; the FULL-figure
-  build is `fig_manifold_main.py --tasksplit`); four Fig-3 cards pinned in the gallery Main tab
-  (canonical / pca20 / antact / task-split).
+  the task-split trace row (DPA | Go | NoGo) which IS panel A since 2026-08-31 (standalone
+  preview `fig_traj_tasksplit.py`; the four-code 2×4 row is now the supp's panel A); three
+  Fig-3 cards pinned in the gallery Main tab (canonical / pca20 / antact).
 - **`story_figure_reproduction.md`** — the dPCA story figure (`fig_dpca_story_main.py`, now **ED Fig 9**:
   trajectory grid, axis-mixing, linking plane, shared-memory scatter): full reproduction guide
   (hypotheses, data, every routine, exact math/windows, results, caveats).

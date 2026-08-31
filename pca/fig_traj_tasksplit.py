@@ -1,5 +1,6 @@
-"""fig_traj_tasksplit.py — panel-A VARIANT (user request 2026-08-31): sample and choice codes
-per TASK SET — columns DPA·sample | DPA·choice | dual·sample | dual·choice, rows Naive | Expert.
+"""fig_traj_tasksplit.py — standalone preview of the task-split trace row. NOTE (2026-08-31,
+later the same day): this layout was ADOPTED as main Fig 3 panel A — the canonical build lives
+in fig_manifold_main.panel_traj; this script remains only as a quick standalone renderer.
 
 Replays ORIG_TRACES (exp_traj_orig.py; the '@dual' keys added 2026-08-31 carry the dual-trial
 reads of the DPA-filtered canonical traces). Y-limits are shared per CODE across the two task

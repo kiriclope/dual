@@ -497,3 +497,18 @@ gallery Main tab (5th Fig-3 card family member: canonical / pca20 / antact / tas
 If adopted as THE panel A: run `exp_traj_orig.py --pca` first (the @go/@nogo keys exist only
 in the canonical ORIG_TRACES so far), and find a home for the dist + test code traces (ED, or
 a wider merged row).
+
+### 2026-08-31 TASK-SPLIT panel A ADOPTED (user: "same data as panel B — links to it")
+The 2×6 task-split row (DPA | Go | NoGo × sample/choice) IS now Fig 3 panel A — the `--tasksplit`
+flag is GONE (the review's structural objection was answered by the user's design argument: rows
+A and B are the SAME per-mouse CCGD projections with the same task split — A = time courses,
+B = window snapshots — which canonical A, with its dist/test axes absent from B, never had).
+Executed with the review's wording fixes baked into caption A: the dual decay names its per-mouse
+counts (9/9 Naive, 8/9 Expert — the Expert side is a trend, p=.098 if ever tested), is phrased as
+"the DPA-trained sample READOUT decays" with the memory-survival question pointed at Fig 2E, and
+the NoGo dip is "below baseline on average (7/9 mice)". The four-code 2×4 trace row (dist + test
+axes — the definitional reference for C–F's variables) moved to `fig_manifold_supp.py` panel A
+(supp now A traces / B ccgp / C generalisation, 9.4×9.8). ORIG_TRACES @go/@nogo keys now exist
+in ALL THREE cache variants (canonical / _pca20 / _antact — all rebuilt). The interim
+fig_manifold_main_tasksplit.png is deleted (canonical IS task-split); `fig_traj_tasksplit.py`
+stays as a standalone preview renderer only. Gallery Main back to three Fig-3 cards.
