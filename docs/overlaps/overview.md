@@ -10,8 +10,17 @@
 > variants). **`fig_overlaps_manifold.py` below is SUPERSEDED** — kept for its panels b/d, which
 > did not move into the new build, and as the source of the settled cross-decode numbers.
 >
-> **Fig. 4 panel-A KDE WINDOW BUG, fixed 2026-08-30.** The density strips pooled `bins_DELAY`
-> (21–53, 33 bins) while the push statistic and the depth panel use `bins_LD` (48–53, 6 bins).
+> **Fig. 4 RESTRUCTURED 2026-08-31 ("redistribute", user decision).** `fig_overlaps_main_native.py`
+> is now the full LEARNING figure: NEW top row **A** = dist↔choice cross-decode matrices + per-mouse
+> raw-|cos| ∗ + per-mouse cross-decode ∗ (both knob-robust p≤.008; moved in from Fig 3, drawn from
+> the canonical no-PCA caches `matrices_cache_acc_nopca.pkl` + pca `PM_COS_nopca`/`PM_ACT_nopca`
+> regardless of build flags); **B** = the push (∗ kept, per-animal trend p=.098 disclosed in caption);
+> **C** coupling; **D** FA/CR; **E** choice-d′. Old letters A-D → B-E. The frame/geometry half lives
+> in `pca/fig_manifold_main.py` (Fig 3, slimmed) and the generalisation matrices moved into Fig 2.
+> Panel references below this line predate the relettering.
+>
+> **Fig. 4 panel-A KDE WINDOW BUG, fixed 2026-08-30** (now panel B). The density strips pooled `bins_DELAY`
+> (21–53, 33 bins) while the push statistic and the depth panel use `bins_LD` (45–53, 9 bins).
 > 27 of those bins sit before the late delay, where the choice code is still at baseline, so the
 > push was averaged away and the Naive/Expert strips came out near-identical. `_draw_hist_B` now
 > reads `BINS_LATE`. DISPLAY-ONLY — every settled statistic verified unchanged across all six builds.
@@ -126,7 +135,7 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   **CLEAN CONTROL NOW RUN (2026-07-18, `fig_overlaps_common_axis_supp.py` → `figures/overlaps/controls/`;
   diag `$CLAUDE_JOB_DIR/tmp/common_axis_control2.py`).** Cells are REGISTERED across days (Naive∩Expert
   valid-neuron Jaccard = 1.00, all 9 mice), so a single fixed axis is well-defined. Projecting BOTH stages'
-  raw delay activity onto ONE fixed choice axis (@action window 57–63, pooled-evoked norm): the **per-stage
+  raw delay activity onto ONE fixed choice axis (@action window 57–62 incl., pooled-evoked norm): the **per-stage
   axis reproduces the figure** (push β=−0.78 p=0.002, coupling ρ=−0.85 p=0.004), but on a **FIXED axis the
   push ATTENUATES to a trend** (Expert axis β=−0.35 p=0.148; pooled axis β=−0.41 p=0.102) — confirming that
   a substantial part of the per-stage push MAGNITUDE is the axis reorganising, not pure translation. **The
@@ -192,7 +201,7 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
   → `main/eqnorm/`). **A** traces (sample / GNG-memory / test / DPA-action-lick), **B** two compact panels
   right of A (action-code d′ stable + shared-action cosine ★), **C** the no-lick push (now **Sample A vs B**,
   not the 4 pairs) + KDE + depth paired plot, **D** Δdepth↔Δacc coupling, **E** FA/CR (winsorised). The lick
-  axis = DPA choice/lick decoder @ the DPA lick moment (bins **57–63**), on target=='choice' rows; `--testwin`
+  axis = DPA choice/lick decoder @ the DPA lick moment (bins **57–62** incl., `np.arange(57,63)`), on target=='choice' rows; `--testwin`
   trains it on the TEST window (54–60) instead → relabelled "DPA decision" (d′lick 0.87→0.29 since lick isn't
   decodable until ~bin 58). Depth read over the LD epoch **45–53** (pre-test).
   - **UNIFORM NORMALISATION (2026-07-18): class-signed POOLED EVOKED-std** — per mouse, per code, divide by
@@ -236,9 +245,9 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     axis** over time — GNG lick axis (Naive|Expert) and DPA choice axis (Naive|Expert). Each axis is
     defined by fixing the generalizing-tensor train window at that task's lick moment and reading the
     decision value across test-time (no retraining — the cross-temporal tensor already holds every task on
-    every axis). **Action windows = each task's lick moment:** GNG = CUE (39–42) +
-    gngRwd (42–45) = bins 39–45; DPA = last 0.5 s of TEST (57–60) + first 0.5 s of CHOICE just after
-    test (60–63) = bins 57–63 (each ~1 s, straddling the lick boundary). **Symmetric result on both
+    every axis). **Action windows = each task's lick moment:** GNG = CUE + gngRwd = bins 39–44 incl.
+    (`np.arange(39,45)`); DPA = last 0.5 s of TEST + first 0.5 s of CHOICE = bins 57–62 incl.
+    (`np.arange(57,63)`) (each ~1 s, straddling the lick boundary). **Symmetric result on both
     axes:** GNG Go rises at the GNG action (~7 s), DPA lick rises at the DPA action (~10 s), both no-lick
     conditions go negative, sharper in
     Expert ⇒ the lick command is ONE shared action code, engaged whenever each task calls for the action.
@@ -260,7 +269,7 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
     strengthening with learning (action-block cos Naive +0.15 → Expert +0.24, Δ paired-t p=0.005). This
     is the weight-space version of panel A's shared-action trajectories.
   - **B** (NEW, own letter) — **Shared action code**: compact Naive→Expert paired plot of per-mouse signed
-    **cos(DPA lick axis @57–63, GNG lick axis @39–45)** (decoder weights), with a chance floor. Both stages
+    **cos(DPA lick axis @57–62, GNG lick axis @39–44)** (decoder weights), with a chance floor. Both stages
     well above chance (N +0.12 p<.001, E +0.18 p=.001) ⇒ the two lick commands share one direction; the
     star keys on that (the Naive→Expert growth Δ p=.146 is n.s. at these tight action windows — the broad
     action/reward block that grows ★ p=.005 stays in the supplement). Identical in both versions.
@@ -365,11 +374,16 @@ All n=9 mice → treat every p near 0.05 as suggestive; several quantitative hoo
       under pooled-evoked the DENOMINATOR is computed from the choice axis itself, so it co-varies when the axis
       is swapped; sample-sep units hold the denominator fixed and are the cleaner control. Unresolved — do not
       cite "the push is partly axis reorganisation" as settled without re-checking which normalisation was used.
-    - **⚠ BIN TIMING (has caused a retraction before):** bins are 0.5 s **trailing** averages (`T_WINDOW=0.5`,
-      `frame_rate=6`) **labelled at the END** of their window. So **test onset is 9.0 s = bin label 54, NOT 9.5 s**;
-      `bins_TEST` starts at 57 only because that is the first fully post-onset bin. `bins_LD` 48–53 carries data
-      spanning **7.50–8.83 s** = essentially all of `t_LD=[7.5,9]`, closing 0.17 s before test onset. The 6 LD bins
-      overlap (stepped 1/6 s) → ≈2.7 independent samples. Documented at `BINS_LATE` in `main_panels.py`.
+    - **⚠ BIN TIMING (CORRECTED 2026-08-30 — the previous version of this bullet described a pipeline
+      that never existed):** the overlaps figures call `set_options(T_WINDOW=0.0)`, so there is **NO
+      trailing average / temporal smoothing anywhere** (`smooth_and_bin2` is never called) and bin *b*
+      covers `[b/6, (b+1)/6)` s. Under that convention `bins_LD` = **45–53** (9 bins, all of
+      `t_LD=[7.5,9.0]`), `bins_MD` = 33–38, `bins_TEST` = 54–59, and the depth window closes exactly
+      **AT test onset** (bin 53 = 8.83–9.0 s) — still strictly pre-test, pre-lick. The earlier
+      "`T_WINDOW=0.5`, bins 48–53, 0.17 s margin" story (commit cbfa068) was wrong about this code;
+      it IS the convention of the `pca/` scripts, which pass `T_WINDOW=0.5` (their `bins_LD` = 48–53,
+      `bins_MD` = 36–38) — the two pipelines use different window conventions and every settled Fig-4
+      stat was always computed on 45–53. Documented at `BINS_LATE` in `main_panels.py`.
   - **Decoder variants `--l1` (lasso) & `--lda` (shrinkage-LDA) + bundled tensor.** `--l1` renders the
     L1 (l1_ratio=1, sparse) version → `fig_overlaps_main_ab_l1`; `--lda` the shrinkage-LDA
     (covariance-aware `Σ⁻¹Δμ`, Ledoit-Wolf) version → `fig_overlaps_main_ab_lda`; default = ridge

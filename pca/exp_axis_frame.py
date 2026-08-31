@@ -78,8 +78,9 @@ OUT = {}
 for stage in STAGES:
     SD = {wn: neuron_scale(stage, AW[wn]) for wn in ['md', 'decision']}
     raw = np.zeros((3, 3)); rel = np.zeros(3)
-    for _ in range(NREP):
-        rng = np.random.RandomState(None)
+    for rep in range(NREP):
+        rng = np.random.RandomState(100 + rep)     # was RandomState(None): panel-C cosines drifted
+                                                   # at the 2nd decimal on every rebuild
         H = {}                                              # ONE split shared by all axes this rep
         for m in MICE:
             for ci, cd in enumerate(ALL12):

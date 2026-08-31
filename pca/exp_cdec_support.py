@@ -2,15 +2,18 @@
 
 A. SPEC_JK — jackknife-across-mice 95% CIs for the panel-B reliable spectra (DPA/dual x md/decision
    x stage): leave one mouse out (its neurons AND trials), recompute the averaged cvPCA spectrum
-   FRACTIONS, jackknife SE per component (exp_dimensionality_jk.py convention), CI clipped to [0,1].
+   FRACTIONS, jackknife SE per component (exp_dimensionality_jk.py convention), CI = frac ± t8·se
+   (t(8)=2.306 for n=9 mice), clipped to [0,1].
    Stores the full-sample fractions too, so the renderer draws point + CI from ONE source.
 A2. SPEC_NULL — within-mouse label-shuffle null spectra for B (÷ the real positive total; Expert).
 B. DPA_GNG_C — the panel-C 'gng in DPA' bar: Go-vs-NoGo cross-decoded from the DPA-STATE SUBSPACE
    (top-3 PCs of the DPA condition means, exp_dpa_gng_column.py convention): dual pseudo-trials
    projected into the subspace, LDA train/test on disjoint trial halves, vs a within-mouse
-   label-shuffle null (95th pct). Windows md + decision (matching C's rows).
+   label-shuffle null (1000 draws; stores the 95th pct, an explicit permutation p, and the full
+   null array). Windows md + decision (matching C's rows).
 
-Merge-dumps {'SPEC_JK', 'DPA_GNG_C'} into results.pkl. Cache-only (~3 min), no X reload.
+Merge-dumps {'SPEC_JK', 'DPA_GNG_C'} into results.pkl. Cache-only (~20-30 min at 1000 nulls),
+no X reload.
 
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python exp_cdec_support.py
 """
@@ -102,7 +105,8 @@ for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
             jk = np.array([avg_frac(stage, conds, AW[wn], [m for m in MICE if m != mo]) for mo in MICE])
             n = len(MICE)
             se = np.sqrt((n - 1) / n * ((jk - jk.mean(0)) ** 2).sum(0))
-            lo = np.clip(frac - 1.96 * se, 0, 1); hi = np.clip(frac + 1.96 * se, 0, 1)
+            tcrit = 2.306                          # t(df=8) 97.5% — n=9 mice, not z=1.96
+            lo = np.clip(frac - tcrit * se, 0, 1); hi = np.clip(frac + tcrit * se, 0, 1)
             SPEC_JK[(ts, wn, stage)] = dict(frac=frac, se=se, lo=lo, hi=hi)
             print(f'  {ts:4s} {wn:9s} {stage:6s} frac {np.round(frac[:4], 3)}  '
                   f'CI1 [{lo[0]:.2f},{hi[0]:.2f}]  CI2 [{lo[1]:.2f},{hi[1]:.2f}]', flush=True)
@@ -184,10 +188,15 @@ for wn in WINS:
     for stage in STAGES:
         rng = np.random.RandomState(500)
         real = [gng_from_dpa(stage, AW[wn], rng, False) for _ in range(8)]
-        null = [gng_from_dpa(stage, AW[wn], rng, True) for _ in range(100)]
+        # 1000 nulls: at 100 the 95th percentile had Monte-Carlo error ~ the observed margins
+        # (Expert-md cleared by 0.011, decision-Naive by 0.004 — seed-flippable). Also store an
+        # explicit permutation p so the caption doesn't hang on a threshold crossing.
+        null = np.array([gng_from_dpa(stage, AW[wn], rng, True) for _ in range(1000)])
         acc = float(np.mean(real)); n95 = float(np.percentile(null, 95))
-        DPA_GNG_C[(wn, stage)] = dict(acc=acc, null95=n95, sig=bool(acc > n95))
-        print(f'  {wn:9s} {stage:6s} acc={acc:.2f}  null95={n95:.2f}  sig={acc > n95}', flush=True)
+        p = float((np.sum(null >= acc) + 1) / (len(null) + 1))
+        DPA_GNG_C[(wn, stage)] = dict(acc=acc, null95=n95, sig=bool(acc > n95), p=p, null=null)
+        print(f'  {wn:9s} {stage:6s} acc={acc:.2f}  null95={n95:.2f}  p={p:.3f}  sig={acc > n95}',
+              flush=True)
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))

@@ -4,10 +4,19 @@ the pseudo-population matrices get an n=9 statistic instead of resting on one po
 Everything runs on that mouse's OWN neurons (VALIDIX[(mouse, stage)]) and its own trials, from the
 cached window matrices — no 20 GB X reload, no overlaps tensor.
 
-  PM_COS  b: attenuation-corrected |cos| between sample@md / action@decision / distractor@md
-             (Fig 3a/b windows — this companion sits under the axis-geometry matrices).
-  PM_ACT  c: Go-vs-NoGo @md  <->  behavioural lick-vs-no-lick @decision, cross-decoded BOTH ways
-             (held-out halves), plus each code's within-task accuracy.
+  PM_COS  b: per-mouse |cos| between sample@md / action@decision / distractor@md (Fig 3a/b windows —
+             this companion sits under the axis-geometry matrices). Stores BOTH the raw split-half
+             cosine ('ad_raw', ...) and the attenuation-corrected one ('ad', ...); the corrected
+             value is NaN unless both axes clear REL_FLOOR split-half reliability, because
+             raw/sqrt(rel_i*rel_j) explodes at rel~0.05 (|cos|~0.1 -> ~0.9, values >1 occur).
+             THE FIGURE PLOTS THE RAW VALUES — per-mouse reliabilities are too low (many <0.15)
+             for the correction to be usable at the animal level; the pooled AXIS_FRAME panel
+             (rel 0.24-0.62) carries the corrected estimate.
+  PM_ACT  c: Go-vs-NoGo @md  <->  behavioural lick-vs-no-lick @TEST (bins 57-59), cross-decoded BOTH
+             ways (held-out halves), plus each code's within-task accuracy. Windows/filters MATCH the
+             pooled panel-D matrices this sits under (lick @ bins_TEST, GNG side on ALL dual trials,
+             no perf filter — fig_ccgp_matrices_pseudo conventions). An earlier version used
+             decision (57-65) + perf==1 on the GNG side; aligned 2026-08-30.
   PM_GEN  d: cross-TASK generalisation over DPA / Go / NoGo, stored as the full 3x3 so the figure
              can normalise per column. Windows deliberately MATCH the pooled matrices this sits
              under — sample @ LATE DELAY, choice/test @ TEST (overlaps/fig_ccgp_matrices_pseudo.py:58)
@@ -29,6 +38,7 @@ MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23
 STAGES = ['Naive', 'Expert']
 TASKS3 = ['DPA', 'DualGo', 'DualNoGo']
 NREP = 12                    # logistic fits are far costlier than the old mean-difference axes
+REL_FLOOR = 0.15             # min split-half axis reliability for the attenuation-corrected cosine
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']
@@ -113,30 +123,38 @@ for stage in STAGES:
         if not acc_raw['ad']:
             continue
         R = {k: float(np.mean(v)) for k, v in rel.items()}
-        PM_COS[(mo, stage)] = {lab: float(np.mean(acc_raw[lab]) /
-                                          np.sqrt(max(R[i] * R[j], 1e-9)))
-                               for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')),
-                                                   ('ad', ('a', 'd'))]}
-        PM_COS[(mo, stage)]['rel'] = R
+        ent = {}
+        for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')), ('ad', ('a', 'd'))]:
+            raw = float(np.mean(acc_raw[lab]))
+            ent[lab + '_raw'] = raw
+            # corrected value only when BOTH axes are reliable enough for the correction to be
+            # meaningful — at rel~0.05 the denominator turns |cos|~0.1 into ~0.9 (and >1 occurs)
+            ent[lab] = (raw / np.sqrt(R[i] * R[j])
+                        if min(R[i], R[j]) >= REL_FLOOR else float('nan'))
+        ent['rel'] = R
+        PM_COS[(mo, stage)] = ent
 
         # ── c: gng <-> lick cross-decoding, both directions ──────────────────
+        # windows/filters MATCH the pooled panel-D matrices (lick @ bins_TEST, GNG side on ALL
+        # dual trials — see docstring); threshold+sign re-fit on the train half stays (per-mouse
+        # axes carry arbitrary sign/offset; re-fitting on the held-IN half is the fold-safe fix)
+        Mte_c = AW['test']; sdt_c = zscale(AW['test'], val, allc)
+        rng_c = np.random.RandomState(12)          # own stream — edits here can't shift PM_GEN draws
         got = {k: [] for k in ['w_g', 'w_l', 'g2l', 'l2g']}
         for _ in range(NREP):
-            gP, gN = sel(mo, stage, perf=1, task='DualGo'), sel(mo, stage, perf=1, task='DualNoGo')
+            gP, gN = sel(mo, stage, task='DualGo'), sel(mo, stage, task='DualNoGo')
             lP, lN = sel(mo, stage, task='DPA', lick=True), sel(mo, stage, task='DPA', lick=False)
-            gP1, gP2 = halves(rng, gP); gN1, gN2 = halves(rng, gN)
-            lP1, lP2 = halves(rng, lP); lN1, lN2 = halves(rng, lN)
+            gP1, gP2 = halves(rng_c, gP); gN1, gN2 = halves(rng_c, gN)
+            lP1, lP2 = halves(rng_c, lP); lN1, lN2 = halves(rng_c, lN)
             wg, tg = axis_mid(Mmd, val, sdm, gP1, gN1)
-            wl, tl = axis_mid(Mdc, val, sdd, lP1, lN1)
+            wl, tl = axis_mid(Mte_c, val, sdt_c, lP1, lN1)
             if wg is None or wl is None:
                 continue
             got['w_g'].append(bal_acc(Mmd, val, sdm, wg, tg, gP2, gN2))
-            got['w_l'].append(bal_acc(Mdc, val, sdd, wl, tl, lP2, lN2))
-            # cross: apply each axis in the OTHER window/labelling, threshold re-fit on train half
-            _, thr_gl = axis_mid(Mdc, val, sdd, lP1, lN1)
-            proj_p = (Mdc[np.ix_(lP1, val)] / sdd) @ wg; proj_n = (Mdc[np.ix_(lN1, val)] / sdd) @ wg
+            got['w_l'].append(bal_acc(Mte_c, val, sdt_c, wl, tl, lP2, lN2))
+            proj_p = (Mte_c[np.ix_(lP1, val)] / sdt_c) @ wg; proj_n = (Mte_c[np.ix_(lN1, val)] / sdt_c) @ wg
             b = 0.5 * (proj_p.mean() + proj_n.mean()); s = 1 if proj_p.mean() > proj_n.mean() else -1
-            got['g2l'].append(bal_acc(Mdc, val, sdd, wg, b, lP2, lN2, sign=s))
+            got['g2l'].append(bal_acc(Mte_c, val, sdt_c, wg, b, lP2, lN2, sign=s))
             proj_p = (Mmd[np.ix_(gP1, val)] / sdm) @ wl; proj_n = (Mmd[np.ix_(gN1, val)] / sdm) @ wl
             b = 0.5 * (proj_p.mean() + proj_n.mean()); s = 1 if proj_p.mean() > proj_n.mean() else -1
             got['l2g'].append(bal_acc(Mmd, val, sdm, wl, b, gP2, gN2, sign=s))
@@ -150,6 +168,7 @@ for stage in STAGES:
         #  same variables at different times than the matrices above them.)
         Mld, Mte = AW['delay'], AW['test']
         sdl, sdt = zscale(Mld, val, allc), zscale(Mte, val, allc)
+        rng = np.random.RandomState(13)            # own stream (see rng_c note above)
         VARS = {'sample': (Mld, sdl, lambda t: (sel(mo, stage, perf=1, task=t, samp=1),
                                                 sel(mo, stage, perf=1, task=t, samp=0))),
                 'choice': (Mte, sdt, lambda t: (sel(mo, stage, task=t, lick=True),
@@ -188,7 +207,7 @@ for stage in STAGES:
           f'{sum(1 for k in PM_GEN if k[1] == stage) // 3} with generalisation')
 
 for stage in STAGES:
-    v = [PM_COS[(m, stage)]['ad'] for m in MICE if (m, stage) in PM_COS]
+    v = [PM_COS[(m, stage)]['ad_raw'] for m in MICE if (m, stage) in PM_COS]   # raw: corrected is NaN below REL_FLOOR
     a = [PM_ACT[(m, stage)] for m in MICE if (m, stage) in PM_ACT]
     print(f'{stage}: |cos|(action,distractor) median {np.median(v):.2f} (n={len(v)}); '
           f'cross-decode g2l {np.nanmean([x["g2l"] for x in a]):.2f} '

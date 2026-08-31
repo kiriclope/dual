@@ -1,10 +1,16 @@
-"""THE decoder for Fig 2/3 — defined ONCE and imported everywhere, so panels cannot drift apart.
+"""THE shared decoder for Fig 3 (and the overlaps caches) — defined ONCE, so those panels cannot
+drift apart.
 
-Before 2026-08-12 the figure mixed methods: the geometry panels used difference-of-class-means
+SCOPE (corrected 2026-08-30): imported by the Fig 3 pipeline (fig_manifold_main, exp_axis_frame,
+exp_permouse_frame) and matching the overlaps caches. Fig 2's decode panels do NOT use this module —
+exp_dpca_count uses contrast axes + train-midpoint threshold and exp_cdec_support/exp_pceta_md use
+LDA (both deliberate; Methods must describe them separately, not cite this docstring for Fig 2).
+
+Before 2026-08-12 the Fig 3 figure mixed methods: the geometry panels used difference-of-class-means
 contrast axes while the pooled decoding panels used regularised logistic regression. Both are linear
 readouts, but a reviewer comparing a cosine from one panel with an accuracy from another was
-comparing quantities built by different estimators. This module makes every panel use the pipeline
-already used by the overlaps caches (`overlaps/fig_ccgp_matrices_pseudo.py:61`):
+comparing quantities built by different estimators. This module makes every Fig 3 panel use the
+pipeline already used by the overlaps caches (`overlaps/fig_ccgp_matrices_pseudo.py:61`):
 
     StandardScaler -> PCA(n) -> LogisticRegression(C=1, class_weight='balanced')
 

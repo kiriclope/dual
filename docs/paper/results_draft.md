@@ -1,5 +1,21 @@
 # Compositional learning by geometric editing — main paper (draft v4)
 
+> **⚠ STALE vs the 2026-08-31 "redistribute" RESTRUCTURE — re-verify every §2/§3/§4 panel letter
+> before submission.** The geometry mains were rebalanced: **Fig 2** gained panel E (cross-task
+> generalisation matrices, moved from Fig 3) AND panel F (per-mouse generalisation-stability
+> scatters: all Δ n.s. and bounded, |Δ| 95% CIs within ±0.05 — the foil for Fig 4), plus an
+> in-figure justified caption (source of caption truth = `CAP_PARAS` in the script); **Fig 3**
+> slimmed to the frame only (A traces ·
+> B state storyboard · C axis cosines — `fig_manifold_main.py`, canonical = no-PCA build); **Fig 4**
+> is now the LEARNING figure (A dist↔choice alignment: cross-decode + per-mouse raw-|cos| ∗ p=.008
+> and cross-decode ∗ p=.004 · B the push ∗ p=.046, per-animal trend p=.098 · C coupling ★ ·
+> D FA/CR · E choice-d′). CCGP + per-mouse generalisation → ED (`fig_manifold_supp.py`); CCGP values
+> stated in text. Also updated stats to carry: weak transfer now p=.031 (1000-draw permutation);
+> FA/CR tested on UNCLIPPED medians (canonical AD p=.265/BC p=.468; the antact-robust p=.045 ★ is
+> DEAD, now p=.056); Fig-4 windows: depth = bins 45–53 unsmoothed (closes AT test onset), action
+> axis = bins 57–62 incl. See `docs/pca/dimensionality.md` (2026-08-30/31 blocks) + memory
+> [[project_main_figs_review_2026-08-30]].
+
 > Methods paragraphs are staged per-figure in **`methods_notes.md`** (started 2026-08-10 with the Fig 2
 > dimensionality block: cvPCA incl. the repeated-2-fold-vs-k-fold justification, jackknife CIs, η²
 > decomposition, shattering).

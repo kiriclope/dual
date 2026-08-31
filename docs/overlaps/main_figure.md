@@ -18,9 +18,16 @@
 > 2026-07-18 it is **5 panels A–E**: A traces (sample / GNG-memory / test / DPA-action-lick), B
 > action-code d′ + shared-action cosine, C the no-lick push (**Sample A vs B**), D Δdepth↔Δaccuracy,
 > E FA/CR. It uses **ONE uniform normalisation everywhere = class-signed pooled evoked-std** (`--eqnorm`
-> for the all-trials-std variant), the DPA **action axis** (choice decoder @ bins 57–63; `--testwin` =
-> test window 54–60), and depth read at LD 45–53. Key settled results: the no-lick push is **sample-A-
-> specific**; and (2026-07-18) the earlier "irreducible push↔coupling tension" was resolved as a **panel-D
+> > **RESTRUCTURED 2026-08-31**: Fig 4 gained a top "alignment" row (dist↔choice cross-decode +
+> two starred per-mouse learning scatters) and its letters shifted A→B→C→D→E — see
+> `overview.md`'s restructure note; this guide's panel letters predate that.
+>
+for the all-trials-std variant), the DPA **action axis** (choice decoder @ bins 57–62 incl.; `--testwin` =
+> test window 54–60), and depth read at LD 45–53 (no temporal smoothing — `T_WINDOW=0.0`; see the
+> corrected BIN TIMING bullet in `overview.md`). Key settled results: ~~the no-lick push is sample-A-
+> specific~~ (**RETRACTED 2026-08-30**: paired A-vs-B is n.s. in all six axis×norm builds, p=.055–.203 —
+> see `overview.md` and memory); and (2026-07-18) the earlier "irreducible push↔coupling tension" was
+> resolved as a **panel-D
 > estimator artifact** — the coupling had been read with a differenced random-intercept LMM that removes
 > the between-mouse variance that is the claim. Panel D now uses the honest **per-mouse n=9 Spearman**, and
 > under it **pooled-evoked (the default) gives BOTH** the push (C, β≈−0.74 p≈.05 ★) and the coupling

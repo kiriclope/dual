@@ -5,13 +5,13 @@ variant), COMPOSED NATIVELY as one matplotlib gridspec, Nature-Neuroscience-styl
 Layout (5-row gridspec, print-scale typography ~7 pt) — panels A B C D E:
   A  1-D codes over the trial, Naive (top) vs Expert (bottom) — sample / GNG / test / choice.
      Titles: "sample code", "GNG code", "test code", "choice code". The choice column is the DPA lick
-     contrast on the DPA ACTION axis (choice decoder @ bins 57–63 = last 0.5 s TEST + first 0.5 s CHOICE).
-     GNG = Go/NoGo decoder @ bins_MD (33–38), own y-scale (col 1). (Titles renamed 2026-07-20:
-     "GNG (memory)"→"GNG", "DPA action"→"choice".)
-  B  the DPA action/lick code, two compact panels right of A: (B1) action-code d′ (lick vs no-lick @
-     57–63), Naive x vs Expert y — decodable and ~UNCHANGED with learning (near unity), so C's effect is
-     a POSITION shift not a decodability change; (B2) shared action code = cos(DPA-lick axis @57–63,
-     GNG-lick axis @39–45), above chance both stages ⇒ one shared lick direction.
+     contrast on the DPA ACTION axis (choice decoder @ bins 57–62 incl. = last 0.5 s TEST + first
+     0.5 s CHOICE; np.arange(57, 63)). GNG = Go/NoGo decoder @ bins_MD (33–38), own y-scale (col 1).
+     (Titles renamed 2026-07-20: "GNG (memory)"→"GNG", "DPA action"→"choice".)
+  B  the DPA action/lick code, two compact panels right of A: (B1) choice-code d′ (lick vs no-lick @
+     57–62), Naive x vs Expert y — decodable and ~UNCHANGED with learning (near unity), so C's effect is
+     a POSITION shift not a decodability change; (B2) shared action code = cos(DPA-lick axis @57–62,
+     GNG-lick axis @39–44), above chance both stages ⇒ one shared lick direction.
   C  the no-lick PUSH: DPA state Naive→Expert in the sample × lick plane (own full row) + KDE strips +
      a paired plot of per-mouse late-delay lick depth. Naive ≈ 0/positive → Expert deep no-lick;
      deepening mixed model depth ~ stage + C(sample) + (1|mouse) (β≈−0.74, p≈.05).
@@ -97,11 +97,13 @@ options = set_options(
     days=['first', 'last'],
 )
 BINS_BL      = options['bins_BL']
-# depth readout = the LD (late-delay) epoch, bins 48–53. NB each bin is a 0.5 s TRAILING average (T_WINDOW=0.5,
-# frame_rate=6), so bins are LABELLED at the END of their window: labels 8.00–8.83 s but the DATA spans
-# 7.50–8.83 s = essentially all of t_LD=[7.5, 9.0]. TEST ONSET IS 9.0 s (bin label 54) — NOT 9.5 s; bins_TEST
-# starts at 57 only because that is the first bin whose whole 0.5 s window is post-onset. The depth window
-# therefore closes 0.17 s before test onset (no test leakage). Unified with the opto figure.
+# depth readout = the LD (late-delay) epoch, bins 45–53 (t_LD = 7.5–9.0 s at frame_rate=6 with
+# T_WINDOW=0.0 — see set_options above; the pca/ scripts use T_WINDOW=0.5, whose bins_LD is 48–53,
+# a DIFFERENT convention). There is NO temporal smoothing anywhere in this pipeline (no trailing
+# average; smooth_and_bin2 is never called), so bin b covers [b/6, (b+1)/6) s and the window closes
+# exactly AT test onset (bin 53 = 8.83–9.0 s) — still strictly pre-test, pre-lick. A 2026-08 comment
+# here described a "0.5 s trailing average, bins 48–53, 0.17 s margin" that the code NEVER
+# implemented (commit cbfa068 inverted reality); every settled stat was always computed on 45–53.
 # (2026-07-15: ΔDPA stays ★ p=.026 under the C(sample) LMM — the old Spearman-driven n.s. is superseded.)
 BINS_LATE    = np.asarray(options['bins_LD'])
 # NB temporal defense: the readout ends at bin 53, BEFORE test onset (bin 54) and thus before any
@@ -151,16 +153,18 @@ EQNORM = '--eqnorm' in sys.argv[1:]
 # ── LICK / ACTION axis (2026-07-17): the "choice code" everywhere (panel-A lick column + the depth in
 # panels C/D/E = old B/C/D) is now defined by an ACTION-window axis, in two selectable versions:
 #   default `--dpaact` → DPA action axis = the DPA choice/lick decoder trained at the DPA lick moment
-#     (bins 57–63 = last 0.5 s TEST + first 0.5 s CHOICE), projected on the target=='choice' rows.
+#     (bins 57–62 incl. = last 0.5 s TEST + first 0.5 s CHOICE; np.arange(57, 63)), projected on the
+#     target=='choice' rows.
 #   `--gngact`        → GNG action axis = the Go/NoGo lick decoder trained at the GNG lick moment
-#     (bins 39–45 = CUE + gngRwd), projected on the target=='gng' rows (DPA trials are in that tensor too).
+#     (bins 39–44 incl. = CUE + gngRwd; np.arange(39, 45)), projected on the target=='gng' rows
+#     (DPA trials are in that tensor too).
 # So both versions read the DPA lick contrast on a LICK-COMMAND axis; the pair tests which action-window
 # definition best carries the no-lick push + its behavioural coupling. The two windows are _ACT_DPA /
 # _ACT_GNG defined with the tensors below.
 GNGACT = '--gngact' in sys.argv[1:]
 FILE_SUF += '_gngact' if GNGACT else '_dpaact'
 # --testwin: train the DPA lick/action axis on the TEST window (bins 54–60 = the match/nonmatch decision
-# resolving at test) instead of the action window (57–63). Lick is only decodable from ~bin 58, so 54–60
+# resolving at test) instead of the action window (57–62). Lick is only decodable from ~bin 58, so 54–60
 # is a weaker LICK axis (d′≈0.29 vs 0.87) but a stronger DECISION axis, and it gives a stronger no-lick
 # push (β≈−1.5, p≈.005 vs .048). Relabelled "DPA decision"; still sample-A-specific.
 TESTWIN = '--testwin' in sys.argv[1:]
@@ -185,7 +189,7 @@ if CV10:
 _BDUM = f'{DUM}_raw_targets_choice-gng-sample-test{_CVSUF}'
 BINS_DELAY   = options['bins_DELAY']
 TEST_ONSET   = options['bins_TEST'][0]
-TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); KDE already uses bins_DELAY (18–53), pre-test
+TRAJ_END     = TEST_ONSET                                               # stop B trajectories just before test onset (bins 0–53); the KDE strips use BINS_LATE (45–53), see _draw_hist_B
 xtime        = np.linspace(0, 14, 84)
 BL_A         = slice(0, 12)                                             # codes_1d baseline slice
 
@@ -203,7 +207,7 @@ print(f'  X {X.shape}  y {y.shape}')
 
 # ── per-code projections (each code read across time on its axis) ──────────────────────────────
 # sample/test on their generalisation best axes; the LICK code on the DPA ACTION axis (choice decoder
-# trained at the DPA lick moment, bins 57–63 = last 0.5 s TEST + first 0.5 s CHOICE); GNG below.
+# trained at the DPA lick moment, bins 57–62 incl. = last 0.5 s TEST + first 0.5 s CHOICE); GNG below.
 _sam_rows  = (y.target == 'sample').to_numpy(); _tst_rows = (y.target == 'test').to_numpy()
 _cho_rows  = (y.target == 'choice').to_numpy()
 _ACT_DPA   = np.arange(48, 63) if ANTACT else (np.arange(54, 60) if TESTWIN else np.arange(57, 63))  # antact = single anticipatory+action axis (48-62)
@@ -278,7 +282,8 @@ idx_correct = idx_laser & (y.performance == 1) & ((y.tasks == 'DPA') | (y.odr_pe
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PANEL D (drawn here; scatter block below) — Δdepth ↔ Δperf, A&B-independent
-#   (plot_scatter_perf.py --dpa-panel AB twin). depth deltas on idx_correct, per sample
+#   (plot_scatter_perf.py --dpa-panel AB twin). depth deltas on L_dpa = ALL laser-off DPA
+#   trials (deliberate under the pooled-evoked norm — NOT idx_correct), per sample
 #   class; perf deltas per sample class.
 #   Headline stat = BETWEEN-mouse per-mouse n=9 Spearman (A/B aggregated within mouse), see
 #   _panelC_coupling. The old differenced random-intercept LMM Δperf ~ Δdepth + (1|mouse) was
@@ -344,13 +349,15 @@ def _panelC_coupling(perf_dict):
 #   The clean test of the no-lick well ↔ behaviour link: on nonmatch (nonpaired)
 #   trials the animal should WITHHOLD; a deep well → correct rejection, a shallow well
 #   → the animal licks → false alarm. Depth read is identical to panel C (same
-#   TRAIN_LDTEST axis, BINS_LATE window); trials split by the y.response signal-
-#   detection label instead of collapsed to correct-only.
+#   _ACT_DPA action axis @57–62, BINS_LATE window); trials split by the y.response
+#   signal-detection label instead of collapsed to correct-only.
 #   NAIVE ONLY: false alarms are plentiful when naive (all 9 mice clear the ≥MIN_TR
 #   bar) whereas experts rarely err (4/9, uninterpretable). Sample split removes the
 #   sample→depth bias (the reason the main figure keeps A/B apart). Unit = mouse
-#   (paired-t). Effect is sample-A-specific and robust across training axes (AD p≈.006,
-#   false alarms in shallower wells); sample B is null (documented A/B asymmetry).
+#   (paired-t ON THE UNCLIPPED cr_raw/fa_raw — the 10–90% clip below is display-only).
+#   On the canonical action-axis build both pairs are n.s. (AD p≈.20, BC p≈.83); the
+#   older "AD p≈.006, sample-A-specific" result was the trainLD_TEST-axis build
+#   (axis-dependent — do not quote it for this figure).
 # ══════════════════════════════════════════════════════════════════════════════
 MIN_TR      = 3
 depth_trial = lick_depth                                               # (n_L,) per-trial depth on the action axis
@@ -380,9 +387,14 @@ for lab, samp, odor_pair, col in FA_CR_SPEC:
     facr[lab] = dict(cr=np.array(va), fa=np.array(vb), used=used)
 # winsorise the per-mouse values to the 10–90th percentile across ALL cr/fa cells: a couple of mice have a
 # tiny pooled-evoked denominator so their whole depth distribution is huge (±15) — clip to keep E readable.
+# DISPLAY-ONLY: the paired t-test must run on cr_raw/fa_raw (clipping before testing is silent
+# winsorisation of the statistic; the clip bounds even pool AD+BC, so one pair's outliers would
+# set the other's test).
 _Eall = np.concatenate([facr[l][k] for l in facr for k in ('cr', 'fa')])
 _Elo, _Ehi = np.nanpercentile(_Eall, [10, 90])
 for _l in facr:
+    facr[_l]['cr_raw'] = facr[_l]['cr'].copy()
+    facr[_l]['fa_raw'] = facr[_l]['fa'].copy()
     facr[_l]['cr'] = np.clip(facr[_l]['cr'], _Elo, _Ehi)
     facr[_l]['fa'] = np.clip(facr[_l]['fa'], _Elo, _Ehi)
 
@@ -552,7 +564,7 @@ def regression_band(ax, xs, ys, color='0.25', alpha=0.15):
 _ACT_GNG = np.arange(39, 45)
 
 
-def _lick_dprime(mouse, stage):                                       # d′(lick,no-lick) on the action axis @57–63
+def _lick_dprime(mouse, stage):                                       # d′(lick,no-lick) on the action axis @57–62
     base = ((Lm.mouse == mouse) & (Lm.stage == stage) & (Lm.tasks == 'DPA') & (Lm.laser == 0)).to_numpy()
     a = LICK_D[base & (Lm.choice.to_numpy() == 1)][:, _ACT_DPA].mean(1)
     b = LICK_D[base & (Lm.choice.to_numpy() == 0)][:, _ACT_DPA].mean(1)

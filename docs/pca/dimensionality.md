@@ -168,3 +168,100 @@ Everything ~stable Naive→Expert (the Naive grid shows the same one-variable-pe
 Paper Methods paragraphs: `docs/paper/methods_notes.md` (Fig-2 block, incl. the 2-fold-vs-k-fold
 justification). Memory: [[project_dimensionality]] (analysis) + [[project_main_figs_review_2026-08-10]] (the Fig-2
 replacement decision). Manuscript: `docs/paper/results_draft.md` §2 + ED 3.
+
+## 2026-08-30 review fixes (Figs 2 & 3 — see memory [[project_main_figs_review_2026-08-30]])
+
+- **Panel-C nulls at 1000 draws** (`exp_cdec_support.py`; was 100, where the Expert-md margin of
+  0.011 was seed-flippable). Verdict SURVIVES: dist-from-DPA-PCs Expert-md acc 0.61, permutation
+  **p=.031**; decision-Naive p=.029, decision-Expert p=.013; md-Naive p=.67. `DPA_GNG_C` now stores
+  `p` and the full `null` array; the "weak transfer" annotation is verdict-conditional.
+- **Each stage vs ITS OWN null** in panel C (Expert solid / Naive dashed tick) — the single Expert
+  line made one Naive dot (DPA-decision sample, sig vs own null) read as n.s.
+- **Reliable-rank rule replaced** (`_rank_b`): now cumulative-95%-of-reliable-variance with a
+  2×shuffle-floor guard, reproducing ranks 1/3/2/3; the old `jackknife lo > 1%` rule was knife-edge
+  (dual-md rank 2 by 0.002, and t8-vs-z flipped it).
+- **Jackknife CIs use t(8)=2.306** (n=9 mice), producer-side in `exp_cdec_support`, renderer-side for
+  the `--pr` PR bars. ~15% wider than the old z=1.96 bars.
+- **Canonical naming**: panel C/D display 'dist' (cache key stays 'gng'); cartoon values now read
+  from `SPEC_JK` (0.92/0.07, was hardcoded 0.93); GNG-cue box drawn at its true 6.5–7.0 s.
+- **η² caveat**: dual rows do NOT sum to 1 (4 of 7 centred contrasts displayed; dual-md PC2 leaks
+  ~6% to unshown interactions) — exact only for DPA. Never caption "rows sum to 1" unqualified.
+- **`decoders.py` scope corrected**: it is the Fig-3 (+overlaps caches) decoder; Fig 2's panels use
+  contrast axes (`exp_dpca_count`) and LDA (`exp_cdec_support`/`exp_pceta_md`) — Methods must not
+  claim one decoder across Fig 2/3.
+- **Fig 3 star policy**: title verdicts only for the whitelisted knob-robust test (per-mouse
+  dist↔choice cross-decode, p=.0078 pca20 / .0039 nopca after aligning PM_ACT windows/filters to the
+  pooled matrices: lick @ bins_TEST, GNG side all dual trials). CCGP titles carry no verdict (test-CCGP
+  flips .04/.73 with the PCA knob). **Per-mouse cosine scatter now plots RAW split-half cosines**
+  (attenuation correction is unusable per animal: rel down to 0.03–0.07 inflated |cos|~0.1 → ~0.9;
+  corrected values are NaN'd below REL_FLOOR=0.15 in `exp_permouse_frame.py`). NB the raw increase is
+  knob-robust (p=.008 both variants) but deliberately UNSTARRED pending an explicit decision.
+- Fig 3 renderer guards: `--npc N≠20` refuses to run (would mix caches and overwrite `_pca20` files);
+  `exp_axis_frame` seeded (panel-C pooled cosines no longer drift per rebuild); panel-E hatches any
+  ratio>1 cell; panel-A trace columns share y across Naive/Expert; x-axis cropped to 12 s.
+
+## 2026-08-31 RESTRUCTURE ("redistribute" — user decision; supersedes the panel lists above)
+
+The three geometry mains were REBALANCED so each carries one full message:
+- **Fig 2** (`fig_dimensionality_main.py`) **gained panel E** = the cross-task generalisation
+  matrices (from old Fig 3 E; canonical no-PCA cache `matrices_cache_acc_nopca.pkl`, hardcoded).
+  Message: few axes, one per variable, and the SAME axes in every task. 3 rows now (A-D + E).
+- **Fig 3** (`fig_manifold_main.py`) **slimmed to the frame only**: A traces (2×4), B the state
+  scatters as a HORIZONTAL storyboard (DPA·md → DPA·decision → dual·md → dual·late → dual·decision),
+  C axis-cosine matrices (Naive|Expert, centred). The learning panels left; panel_gen/panel_d/
+  _mouse_scatter etc. were DELETED from this file (new homes below).
+- **Fig 4** (`overlaps/fig_overlaps_main_native.py`) is now the LEARNING figure: new top row A =
+  dist↔choice cross-decode matrices + per-mouse raw-|cos| scatter ∗ + per-mouse cross-decode
+  scatter ∗ (both knob-robust; drawn from the CANONICAL no-PCA caches regardless of build flags);
+  B = the push (∗ kept per user decision, caption discloses per-animal p=.098); C coupling;
+  D FA/CR; E choice-d′. Letters shifted A→B→C→D→E.
+- **ED**: new `pca/fig_manifold_supp.py` = per-mouse CCGP (no title verdicts) + per-mouse
+  generalisation companions; plus the Fig 3 PCA-20 variant. CCGP stated in text.
+- **STAR REVERSAL (logged)**: the per-mouse raw-cosine increase is now STARRED in Fig 4-A
+  (p=.008/.008 across pipelines — meets the same whitelist criterion as the cross-decode star).
+  The old "never star the cosine test" verdict targeted the retired attenuation-corrected estimator.
+- Canonical pipeline everywhere = **no-PCA**; PCA-20 = ED robustness. NB `fig_manifold_main.py`'s
+  default CLI run still builds the _pca20 file; the canonical PNG needs `--nopca`.
+
+## 2026-08-31 (later): Fig 2 panel E — timeline order + the dist matrix
+
+- Panel E matrices now follow the TASK TIMELINE: **sample → dist → test → choice** (user request).
+- **New dist matrix** (`pca/exp_dist_task.py` → `DIST_TASK[(wn, stage)]` in results.pkl, wn='md'):
+  Go-vs-NoGo has no within-task training, so the matrix reads the dist code THROUGH each task's
+  state geometry — rows = source subspace (top-3 PCs of DPA/Go/NoGo condition means @ md, the
+  panel-C `DPA_GNG_C` construction generalized), LDA always fit on held-in dual pseudo-trials.
+  Columns = test set: **DPA†** = fraction of DPA trials classified to the NoGo side (descriptive,
+  no ground truth; train-DPA × test-DPA cell BLANK by design), **Go** = Go-class accuracy,
+  **NoGo** = NoGo-class accuracy (held-out halves). Cells are RAW accuracies (no ceiling → no
+  ratio normalisation; the in-figure key explains both constructions).
+- Expert values: src-DPA Go .61 / NoGo .58 (consistent with panel C's dist-cross bar 0.61 ✓);
+  src-Go .46/.76; src-NoGo .77/.64. DPA† fractions .45–.59 — DPA trials sit AMBIGUOUSLY on the
+  dist axis (they do not clearly fall on the NoGo side), an honest, quotable observation.
+- NREP=16, seeds RandomState(700+row); merge-dump (results.pkl safe).
+
+### 2026-08-31 follow-up: dist matrix OUT of the figure; panel F (stability scatters) IN
+The dist matrix was REMOVED from panel E after one render (user decision): with no within-task
+training possible for Go-vs-NoGo, every cell is a transfer through a geometry built without the
+contrast and none can reach 1 — it read as broken next to the ratio-normalised matrices. The
+analysis + cache survive (`exp_dist_task.py` / `DIST_TASK`) for ED/text use — notably the DPA†
+fractions (.45–.59): DPA trials sit AMBIGUOUSLY on the dist axis. Panel E is now sample → test →
+choice (timeline minus dist); the in-figure ratio key moved to the caption. Its cell hosts the new
+**panel F**: per-mouse mean cross-task accuracy Naive vs Expert (PM_GEN_nopca, raw off-diagonal
+mean; ratio unusable per animal) for sample/test/choice — **generalisation is STABLE across
+learning** (Δ≤.013, p=.91/.36/1.00; both pipelines agree, pooled bootstrap Δ n.s.) — the foil for
+Fig 4's learning effects. No verdicts drawn (star policy).
+
+### 2026-08-31 final Fig-2 state (aesthetics + caption + review fixes) — CURRENT
+- Layout: 4-row gridspec (row 1 = thin spacer separating the top row from D), outer wspace 1.5
+  (air between A|B|C), fig 10.6×7.9; panel-C task group labels at the axes' OUTER edges (centred
+  labels collide with D's title at any depth); E (matrices) and F (scatters) share a top line.
+- **In-figure JUSTIFIED caption** (panels A–F, drawn values): matplotlib has no native
+  justification, so the caption is typeset word-by-word from `CAP_PARAS` (measure word widths via
+  the Agg renderer, spread slack across gaps; paragraph-final lines flush-left). Edit `CAP_PARAS`
+  and re-render; NB the SVG carries caption words as separate text elements.
+- **figure-review verdict (2026-08-31): every drawn number reproduces; two caption fixes applied**:
+  F now states the equivalence bound (Δ 95% CIs sample [−.031,+.023] / test [−.009,+.035] /
+  choice [−.033,+.054] — all within ±0.05), and C's "only when in play" names its own † exception
+  (anticipatory Naive dual-choice 0.66* at mid-delay, gone with learning). Reviewer-pocket answer
+  for E's heavily-hatched test matrix: weak per-task ceiling; sample+choice matrices carry the
+  claim (or move test → ED).

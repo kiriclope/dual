@@ -37,18 +37,21 @@ HIDE_PROJECTS = {'root', 'figures'}    # stray repo-root PNGs + the tiny top-lev
 MAIN = [
     ('Fig 1 — task & behaviour (learning curves, DPA↔GNG balance)',
      'overlaps/figures/overlaps/behavior/png/behavior_main.png'),
-    ('Fig 2 — one axis per task variable (ADOPTED decode build: spectra+CI · decoding power · η²+gng×, DPA vs dual)',
+    # ── RESTRUCTURED 2026-08-31 ("redistribute"): Fig 2 += cross-task generalisation (E);
+    #    Fig 3 = frame only (traces + storyboard + cosines); Fig 4 = the LEARNING figure
+    #    (alignment ★★ + push ∗ + coupling ★ + controls). CCGP + per-mouse gen → ED supp.
+    ('Fig 2 — the geometry: spectra+CI · decoding power · η² · cross-task generalisation (E) · learning-stability (F) · captioned',
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
-    # Fig 3/4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
-    ('Fig 3 — ONE frame: trajectories + state maps + geometry  [ADOPTED 2026-08-30]',
+    ('Fig 3 — ONE manifold in a fixed frame: traces · state storyboard · axis cosines',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main.png'),
-    ('Fig 4 — push · ACTION axis · pooled-evoked  [canonical: push p=.046, coupling ρ=−0.83 p=.005]',
+    # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
+    ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
-    ('Fig 4 — push · ACTION axis · robust  [coupling ρ=−0.83 p=.005]',
+    ('Fig 4 — LEARNING · ACTION axis · robust  [coupling ρ=−0.83 p=.005]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_robust.png'),
-    ('Fig 4 — push · ANTACT axis · pooled-evoked  [strongest push β=−1.69 p=.003, coupling n.s.]',
+    ('Fig 4 — LEARNING · ANTACT axis · pooled-evoked  [strongest push β=−1.69 p=.003, coupling n.s.]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact.png'),
-    ('Fig 4 — push · ANTACT axis · robust  [push p=.032, coupling ρ=−0.68 p=.042, FA/CR p=.045]',
+    ('Fig 4 — LEARNING · ANTACT axis · robust  [push p=.032, coupling ρ=−0.68 p=.042, FA/CR p=.056 n.s. on raw]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust.png'),
     ('Fig 5 — opto · trainLD_TEST (45–59)  [canonical: trade-off r=+0.53 p=.016]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
@@ -62,10 +65,14 @@ MAIN = [
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact_robust.png'),
 ]
 SUPP = [
+    ('ED — per-mouse CCGP (abstraction unchanged) + per-mouse cross-task generalisation  [left the mains 2026-08-31]',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png'),
+    ('ED — Fig 3 PCA-20 robustness variant (canonical = no-PCA)',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
     # ── moved out of MAIN 2026-08-30: ED material + the Fig-4 cv10 (denoised-decoder) builds
     ('Fig 4 — push · ACTION axis · robust · cv10 ★MOST RIGOROUS  [coupling ρ=−0.833 p=.005; push n.s.]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_robust_cv10.png'),
-    ('Fig 4 — push · ANTACT axis · robust · cv10  [push p=.055, coupling p=.058, FA/CR p=.032]',
+    ('Fig 4 — push · ANTACT axis · robust · cv10  [push p=.055, coupling p=.058, FA/CR p=.021 (raw)]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust_cv10.png'),
     ('ED 9 (was Fig 2) — dPCA axes: trajectories, mixing, linking plane',
      'pca/figures/pseudo/story/png/fig_dpca_story_main.png'),

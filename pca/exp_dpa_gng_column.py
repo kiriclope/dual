@@ -1,6 +1,12 @@
 """(1) Restore the clean 3-column DPA PC-coding matrices (sample/test/choice within-fit eta^2) and
 (2) store a separate DPA_GNG entry = gng cross-DECODING above-chance per DPA PC (2*(bal-acc-0.5), clipped),
-which the render can optionally add as a 'gng' column. Idempotent, from the cache (no X)."""
+which the render can optionally add as a 'gng' column. Idempotent, from the cache (no X).
+
+RERUN ORDER (the FITDATA/DPA_GNG family has multiple producers that patch each other's keys; a stale
+partial rerun fails LOUDLY in the renderer, but the required order is):
+    exp_dimensionality_fits.py -> exp_dpa_gng_column.py -> exp_pceta_md.py -> exp_cdec_support.py
+This script MERGES its per-window entries into any existing DPA_GNG dict (it must not drop the
+('md', *) entries exp_pceta_md.py adds)."""
 import os, pickle
 os.chdir('/home/leon/dual/pca')
 import numpy as np
@@ -80,6 +86,10 @@ for wn in ['delay', 'decision', 'delay+dec']:
                 ac[k, b] = balanced_accuracy_score(GLAB[cte], clf.predict(Zte[:, [k]]))
         DPA_GNG[(wn, stage)] = np.clip(2 * (ac.mean(1) - 0.5), 0, 1)        # above-chance fraction per PC
         print(f'DPA {wn:9s} {stage:6s}: gng decode bal-acc {np.round(ac.mean(1),2)} -> col {np.round(DPA_GNG[(wn,stage)],2)}')
-d['DPA_GNG'] = DPA_GNG
+# MERGE, don't replace: exp_pceta_md.py adds the ('md', *) entries this script doesn't compute —
+# a plain assignment dropped them and left the renderer with a loud KeyError on the md matrices
+merged = dict(d.get('DPA_GNG', {})); merged.update(DPA_GNG)
+d['DPA_GNG'] = merged
 pickle.dump(d, open('figures/pseudo/dimensionality/results.pkl', 'wb'))
-print('restored clean DPA matrices + stored DPA_GNG (gng cross-decode column)')
+print('restored clean DPA matrices + merged DPA_GNG (gng cross-decode column):',
+      sorted(merged.keys()))

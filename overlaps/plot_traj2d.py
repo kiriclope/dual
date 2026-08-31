@@ -100,7 +100,8 @@ options = set_options(
 )
 BINS_BL    = options['bins_BL']
 BINS_DELAY = options['bins_DELAY']
-BINS_LATE  = BINS_DELAY[int(0.6 * len(BINS_DELAY)):]
+BINS_LATE  = options['bins_LD']     # 45-53, the canonical depth window (main_panels.BINS_LATE);
+                                    # the old 0.6*bins_DELAY slice gave 39-53 — a different window
 
 # Sample identity splits for histograms
 SAMPLE_SPLITS_HIST = [
@@ -214,7 +215,9 @@ def draw_traj(ax, stage, cond, traj, xlim, ylim):
 
 
 def draw_hist(ax_h, stage, cond, traj, ylim):
-    """Draw the choice-code (over BINS_DELAY) distribution strip; return legend handles."""
+    """Draw the choice-code (over BINS_LATE, late delay only) distribution strip; return legend
+    handles. Pooling BINS_DELAY here averaged the push away (27 of 36 bins pre-date the late
+    delay) — same display bug fixed in main_panels._draw_hist_B 2026-08."""
     y_grid = np.linspace(ylim[0], ylim[1], 300)
     hist_handles = []
     for label, pairs, color in SAMPLE_SPLITS_HIST:
@@ -222,7 +225,7 @@ def draw_hist(ax_h, stage, cond, traj, ylim):
         for pair_id in pairs:
             ys_list = traj[stage][cond][pair_id][1]
             for y_traj in ys_list:
-                vals.extend(y_traj[BINS_DELAY].tolist())
+                vals.extend(y_traj[BINS_LATE].tolist())
         if len(vals) < 2:
             continue
         kde  = gaussian_kde(vals, bw_method=0.4)
