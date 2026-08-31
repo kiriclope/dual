@@ -331,7 +331,7 @@ def panel_b(fig, gsB):
         ax.set_xticks(range(3)); ax.set_xticklabels(labs, fontsize=6.2, rotation=35, ha='right')
         ax.set_yticks(range(3))
         ax.set_yticklabels(labs if j == 0 else [], fontsize=6.2)
-        ax.set_anchor('NW')                             # top line shared with panel D
+        ax.set_anchor('C')                              # vertically centred with the scatters
         ax.set_title(stage, loc='left', fontsize=TITLE_FS)
         if j == 0:
             ax.set_ylabel('axis geometry\n|cos|', fontsize=7)
@@ -378,7 +378,7 @@ def panel_xstage(fig, gsX):
         ax.set_yticks([0, 1])
         ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=6.2)
         ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)
-        ax.set_anchor('NW')
+        ax.set_anchor('C')                              # vertically centred with the scatters
         if k == 0:
             ax.set_ylabel('train stage', fontsize=7)
         ax.set_xlabel('test stage', fontsize=7)
@@ -621,10 +621,12 @@ axC = panel_f_spaces(fig, gsC)
 gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.24, hspace=0.20)   # D = per-mouse 3x4
 axD = panel_e_plane(fig, gsD)
 # bottom row = E (2 matrices + 3 per-mouse scatters) · F (2 matrices + 2 per-mouse scatters);
-# 12 slots with spacer columns between the pooled and per-mouse halves of each block
+# 12 slots: EQUAL panel widths (all nine axes are aspect-locked squares of the same size,
+# anchored 'C' — matrices and scatters share a common vertical centre line), thin spacers
+# between the pooled and per-mouse halves, a wider one between the E and F blocks
 gsBot = outer[3, 0:12].subgridspec(
-    1, 12, wspace=0.55,
-    width_ratios=[1.05, 1.05, 0.10, 0.85, 0.85, 0.85, 0.28, 1.0, 1.0, 0.10, 0.85, 0.85])
+    1, 12, wspace=0.42,
+    width_ratios=[1, 1, 0.15, 1, 1, 1, 0.5, 1, 1, 0.15, 1, 1])
 gsE = gsBot[0, 0:2].subgridspec(1, 2, wspace=0.28)   # E = cosine matrices
 axE = panel_b(fig, gsE)
 gsE2 = gsBot[0, 3:6].subgridspec(1, 3, wspace=0.45)  # E right = per-mouse raw-|cos| scatters
