@@ -339,7 +339,9 @@ figure's one starred learning effect: plane-only dist accuracy 0.57→0.65 (p=.0
 mice) — per animal, learning pulls the distractor code into the manifold (independent echo of
 Fig 4A's alignment stars).** Whitelist updated accordingly.
 
-### 2026-08-31 FINAL Fig 3 structure (message review; supersedes panel lists above)
+### 2026-08-31 Fig 3 structure after the message review (supersedes panel lists above; ITSELF
+### PARTIALLY SUPERSEDED by the later same-day blocks below — panel A is now the TASK-SPLIT 2×6
+### row, B is the centred CCGD-replay storyboard, E/F gained per-mouse scatters; read to the end)
 **A codes · B frame (2×5) · C sufficiency bars (all stats) · D per-mouse 3×4 (dist-plane learning
 ∗) · E cosine matrices · F cross-stage decoding 2×2s (transfer/within 0.90/0.87 — one frame across
 learning, knob-robust).** Per-mouse cosine scatters → fig_manifold_supp.py panel C (duplicated
