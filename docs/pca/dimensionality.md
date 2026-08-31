@@ -470,7 +470,7 @@ Verified-stable: XSTAGE cross 0.880±0.046 (sample) / ±0.027 (choice) across 8 
 - `fig_manifold_supp.py` panel C REMOVED again (would duplicate main E); supp = A ccgp + B
   per-mouse generalisation, fig 9.4×5.2.
 
-### 2026-08-31 panel-A TASK-SPLIT variant (`fig_traj_tasksplit.py`) — pinned in gallery Main
+### 2026-08-31 panel-A TASK-SPLIT variant (`fig_traj_tasksplit.py` + `--tasksplit` full figure)
 2×6 companion to Fig 3 panel A (user request, built same day): **DPA | Go | NoGo × sample/choice
 code**, rows Naive/Expert, y shared per CODE across all task columns so amplitudes compare
 directly. Cache: `exp_traj_orig.py` now stores per-task trace keys — `sample@dual`/`lick@dual`
@@ -486,4 +486,14 @@ before rendering the `--pca` variant of this figure). WHAT IT SHOWS (display-lev
 - **NoGo·choice**: Expert traces dip below baseline through the late delay (withholding), then
   split at test; max class gaps at test ≈ DPA's (5.5–6.7 z).
 Same replayed CCGD projections and house style as panel A; sample/distractor/GNG-cue/test bands;
-staggered epoch labels. Output `fig_traj_tasksplit[_pca20].png`; NOT swapped into Fig 3.
+staggered epoch labels. Output `fig_traj_tasksplit[_pca20].png` (standalone preview, folder
+listing only).
+
+**FULL-FIGURE variant (same day, user):** `fig_manifold_main.py --nopca --tasksplit` →
+`fig_manifold_main_tasksplit.png` — the complete Fig 3 with panel A replaced by the 2×6
+task-split row (`panel_traj_tasksplit`; caption A swapped, states that the dist/test code
+columns are omitted); panels B–F identical to canonical. THIS is the build pinned in the
+gallery Main tab (5th Fig-3 card family member: canonical / pca20 / antact / task-split).
+If adopted as THE panel A: run `exp_traj_orig.py --pca` first (the @go/@nogo keys exist only
+in the canonical ORIG_TRACES so far), and find a home for the dist + test code traces (ED, or
+a wider merged row).
