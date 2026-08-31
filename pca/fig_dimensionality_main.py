@@ -606,44 +606,8 @@ if CDEC:
         '(sample [−.03, +.02], test [−.01, +.04], choice [−.03, +.05]). Generalisation is in place from '
         'the start — learning repositions the state (Fig. 4); it does not build the shared geometry.',
     ]
-    CAP_FS, CAP_X0, CAP_X1 = 7.2, 0.012, 0.988
-    fig.canvas.draw()                                     # Agg metrics for width measurement
-    _rend = fig.canvas.get_renderer()
-    _fw = fig.bbox.width
-    _wcache = {}
-
-    def _wordw(s):
-        if s not in _wcache:
-            t = fig.text(0, 2, s, fontsize=CAP_FS)
-            _wcache[s] = t.get_window_extent(renderer=_rend).width / _fw
-            t.remove()
-        return _wcache[s]
-
-    _SPW = _wordw('x x') - _wordw('xx')                   # width of one space
-    _LH = CAP_FS * 1.42 / 72.0 / fig.get_size_inches()[1]
-    _yc = -0.012
-    _TW = CAP_X1 - CAP_X0
-    for _para in CAP_PARAS:
-        _words = _para.split()
-        _lines, _cur, _curw = [], [], 0.0
-        for _wd in _words:
-            _add = _wordw(_wd) + (_SPW if _cur else 0.0)
-            if _cur and _curw + _add > _TW:
-                _lines.append(_cur); _cur, _curw = [_wd], _wordw(_wd)
-            else:
-                _cur.append(_wd); _curw += _add
-        _lines.append(_cur)
-        for _li, _lw in enumerate(_lines):
-            if _li == len(_lines) - 1 or len(_lw) == 1:   # paragraph-final line: flush left
-                fig.text(CAP_X0, _yc, ' '.join(_lw), ha='left', va='top', fontsize=CAP_FS, color='k')
-            else:                                         # justified: spread slack across the gaps
-                _ww = sum(_wordw(w) for w in _lw)
-                _gap = (_TW - _ww) / (len(_lw) - 1)
-                _x = CAP_X0
-                for _wd in _lw:
-                    fig.text(_x, _yc, _wd, ha='left', va='top', fontsize=CAP_FS, color='k')
-                    _x += _wordw(_wd) + _gap
-            _yc -= _LH
+    from figcaption import draw_justified              # shared with fig_manifold_main.py
+    draw_justified(fig, CAP_PARAS)
 
 OUT = 'figures/pseudo/dimensionality'
 STEM = 'fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr'

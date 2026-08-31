@@ -42,7 +42,7 @@ MAIN = [
     #    (alignment ★★ + push ∗ + coupling ★ + controls). CCGP + per-mouse gen → ED supp.
     ('Fig 2 — the geometry: spectra+CI · decoding power · η² · cross-task generalisation (E) · learning-stability (F) · captioned',
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
-    ('Fig 3 — ONE manifold in a fixed frame: traces · state storyboard · axis cosines',
+    ('Fig 3 — ONE manifold in a fixed frame: traces · state storyboard · axis cosines · captioned',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main.png'),
     # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
     ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',

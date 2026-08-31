@@ -11,12 +11,16 @@ no-PCA (--nopca, unsuffixed filenames); the PCA-20 build is the ED robustness va
   A  the four codes over time (Naive | Expert rows x sample/dist/test/choice), replayed from the
      overlaps CCGD projections (ORIG_TRACES).
   B  the frame itself — held-out pseudo-trials plotted IN the fixed axes (x = sample axis @ mid-delay,
-     y = behavioural lick axis @ decision, both trained on an independent trial half), one panel per
-     task x window, now a HORIZONTAL storyboard (DPA·md -> DPA·decision -> dual·md -> dual·late ->
-     dual·decision). Metric, unlike a t-SNE map: every offset is in z units.
+     y = behavioural lick axis @ decision, both trained on an independent trial half), a 2 (Naive |
+     Expert) x 5 storyboard (DPA·md -> DPA·decision -> dual·md -> dual·late -> dual·decision), each
+     row in that stage's OWN frame (axes re-fit per stage; added 2026-08-31 — the slimmed figure
+     read empty next to Figs 2/4). Metric, unlike a t-SNE map: every offset is in z units.
   C  axis geometry — attenuation-corrected |cos| between sample / choice / dist (AXIS_FRAME),
      Naive vs Expert; sample orthogonal to both, choice x dist modest and growing (the growth is
      QUANTIFIED per-mouse in Fig 4's panel A, not here; values live in the cache — don't hardcode).
+  D  per-mouse raw |cos| Naive-vs-Expert scatters, one per axis pair (PM_COS raw values):
+     orthogonality holds in EVERY animal at both stages; choice x dist higher, most mice above
+     unity (tested/starred in Fig 4A, deliberately no stats here).
 
 Reads caches only (no 20 GB X, no overlaps tensor): pca results.pkl + fits_inputs.pkl, and the
 overlaps ccgp caches by absolute path.
@@ -179,14 +183,21 @@ def cloud(sname, wn, sd, H, rng):
 TASKM = {'DPA': 'o', 'DualGo': '^', 'DualNoGo': 's'}
 
 
-def build_frame():
-    """The ONE frame used by both the trajectory row and the state scatters: neuron scale, the
-    trial-half split, the two axes with their decision boundaries, and the BASELINE origin.
+def build_frame(stage='Expert'):
+    """The frame FOR ONE STAGE: neuron scale, the trial-half split, the two axes, the BASELINE
+    origin. Axes are re-fit per stage on that stage's own independent trial half — the Naive row
+    shows Naive's OWN frame (per-stage units; the quantitative Naive→Expert push, on ONE fixed
+    axis, is Fig 4's job, not this panel's).
 
     Panels a and b must share BOTH the units and the zero, or the same axis name means two different
     coordinates. Both use the pooled whole-population projection with the pre-trial baseline as
     zero (the dashed lines in the state scatters mark that baseline, not the decision boundary —
-    boundary lines were removed: they invited being read as zero)."""
+    boundary lines were removed: they invited being read as zero).
+
+    NB sets the module-global STAGE (every helper — neuron_scale/make_halves/_pseudo/cloud — reads
+    it); call build_frame + frame_states for one stage before moving to the next."""
+    global STAGE
+    STAGE = stage
     sd = neuron_scale(AW['delay+dec'])
     H = make_halves(np.random.RandomState(7))
     (w_s, b_s), (w_l, b_l) = sample_axis(sd, H), lick_axis(sd, H)
@@ -202,73 +213,85 @@ def build_frame():
     return sd, H, (w_s, b_s), (w_l, b_l), BL
 
 
-def panel_a(fig, gsA, sd, H, w_s, b_s, w_l, b_l, BL):
-    """The frame states as a HORIZONTAL storyboard (task x window, left to right)."""
-    axes = []
-    # LATE DELAY is essential for the dual set: it is the only plotted window AFTER the Go/NoGo cue
-    # (6.5-7 s) and its lick, and it is where the Go state actually crosses into the action region
-    # (Go +2.8 vs NoGo -5.0). Mid-delay alone is PRE-cue, so Go is still short of the boundary there.
-    SPECS = [('DPA', 'md'), ('DPA', 'decision'),
-             ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
-    # PRECOMPUTE all five so they can share one x/y range. Autoscaling each panel would push the
-    # y=0 boundary off-screen at mid-delay (the states sit ~5 z below it) and hide the very thing
-    # the fixed origin exists to show.
-    DATA = []
-    for sname, wn in SPECS:
+# LATE DELAY is essential for the dual set: it is the only plotted window AFTER the Go/NoGo cue
+# (6.5-7 s) and its lick, and it is where the Go state actually crosses into the action region.
+# Mid-delay alone is PRE-cue, so Go is still short of the boundary there.
+B_SPECS = [('DPA', 'md'), ('DPA', 'decision'),
+           ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
+
+
+def frame_states(sd, H, w_s, w_l, BL):
+    """Held-out state clouds for the five storyboard windows of the CURRENT stage (call while the
+    module-global STAGE is set by build_frame — cloud() reads it)."""
+    out = []
+    for sname, wn in B_SPECS:
         X, crow, conds = cloud(sname, wn, sd, H, np.random.RandomState(2))
-        DATA.append((X @ w_s - BL['s'], X @ w_l - BL['l'], crow, conds))
-    ALLX = np.concatenate([d[0] for d in DATA]); ALLY = np.concatenate([d[1] for d in DATA])
+        out.append((X @ w_s - BL['s'], X @ w_l - BL['l'], crow, conds))
+    return out
+
+
+def panel_a(fig, gsA, STAGEDATA):
+    """The storyboard, 2 rows (Naive | Expert) x 5 windows — each row in that stage's OWN frame
+    (axes re-fit per stage; per-stage units — the fixed-axis quantitative push is Fig 4's).
+    All ten frames share one x/y range so positions are comparable at a glance; autoscaling
+    would push the baseline off-screen where states sit far from it."""
+    ALLX = np.concatenate([d[0] for _, DATA in STAGEDATA for d in DATA])
+    ALLY = np.concatenate([d[1] for _, DATA in STAGEDATA for d in DATA])
     pad = 0.06 * (ALLX.max() - ALLX.min())
     XL = (min(ALLX.min(), 0) - pad, max(ALLX.max(), 0) + pad)
     padY = 0.06 * (ALLY.max() - ALLY.min())
     YL = (min(ALLY.min(), 0) - padY, max(ALLY.max(), 0) + padY)
-    for j, (sname, wn) in enumerate(SPECS):
-        ax = fig.add_subplot(gsA[0, j]); axes.append(ax)     # one row, left-to-right storyboard
-        xs, ys, crow, conds = DATA[j]
-        # baseline only — the decision-boundary lines were removed (they invited being read as zero)
-        ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
-        ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
-        for ci, cd in enumerate(conds):
-            sel = crow == ci; col = SAMPC[cd[1]]; licks = cd[1] == cd[2]
-            ax.scatter(xs[sel], ys[sel], s=3, marker='.', color=col, lw=0, alpha=0.18, zorder=1)
-            C = np.cov(xs[sel], ys[sel]); ev, evec = np.linalg.eigh(C)
-            ang = np.degrees(np.arctan2(evec[1, -1], evec[0, -1]))
-            ax.add_patch(Ellipse((xs[sel].mean(), ys[sel].mean()), 2 * np.sqrt(ev[-1]),
-                                 2 * np.sqrt(ev[0]), angle=ang, fc=col, alpha=0.10, ec=col,
-                                 lw=0.9, ls='-' if licks else '--', zorder=2))
-            ax.scatter(xs[sel].mean(), ys[sel].mean(), marker=TASKM[cd[0]], s=30,
-                       facecolor=col if licks else 'w', edgecolor=col, linewidths=1.0, zorder=5)
-        ax.set_xlim(*XL); ax.set_ylim(*YL)
-        ax.set_xticks([]); ax.set_yticks([])
-        for sp in ax.spines.values():
-            sp.set_visible(False)
-        x0, x1 = ax.get_xlim(); y0, y1 = ax.get_ylim()
-        sx = x0 + 0.05 * (x1 - x0); sy = y0 + 0.06 * (y1 - y0)
-        ax.plot([sx, sx + 5], [sy, sy], '-', color='0.3', lw=1.1)
-        ax.text(sx + 2.5, sy + 0.015 * (y1 - y0), '5 z', ha='center', va='bottom',
-                fontsize=5.4, color='0.3')
-        WLAB = {'md': 'mid-delay (pre-cue)', 'delay': 'late delay (post-lick)', 'decision': 'decision'}
-        ax.set_title(f'{sname} · {WLAB[wn]}', loc='left', fontsize=TITLE_FS)
-        if j == 2:                                   # one shared x-label, centred under the row
-            ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
-        if j == 0:
-            ax.set_ylabel('choice axis\n← no-lick · lick →', fontsize=7)
-        if j == 0:                                   # colour/fill key once, on the top panel
-            hs = [mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[0], label='sample A'),
-                  mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[1], label='sample B'),
-                  mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='0.4', mec='0.4', label='lick'),
-                  mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='w', mec='0.4', label='no-lick')]
-            ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
-                      handletextpad=0.15, columnspacing=0.5, labelspacing=0.25, borderaxespad=0.0)
-        if j == 2:                                    # marker key on the first dual panel
-            hs = [mlines.Line2D([], [], marker='^', ls='', ms=4, mfc='none', mec='0.3', label='Go'),
-                  mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
-            ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
-                      handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
-        lk = np.array([conds[c][1] == conds[c][2] for c in crow])
-        print(f'a: {sname:4s} {wn:9s} action-axis mean {ys.mean():+6.2f} '
-              f'(lick {ys[lk].mean():+6.2f} / no-lick {ys[~lk].mean():+6.2f})  '
-              f'sample sep {xs[[conds[c][1] == 1 for c in crow]].mean() - xs[[conds[c][1] == 0 for c in crow]].mean():+.2f}')
+    WLAB = {'md': 'mid-delay (pre-cue)', 'delay': 'late delay (post-lick)', 'decision': 'decision'}
+    axes = []
+    for r, (stage, DATA) in enumerate(STAGEDATA):
+        for j, (sname, wn) in enumerate(B_SPECS):
+            ax = fig.add_subplot(gsA[r, j]); axes.append(ax)
+            xs, ys, crow, conds = DATA[j]
+            # baseline only — boundary lines were removed (they invited being read as zero)
+            ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
+            ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
+            for ci, cd in enumerate(conds):
+                sel = crow == ci; col = SAMPC[cd[1]]; licks = cd[1] == cd[2]
+                ax.scatter(xs[sel], ys[sel], s=3, marker='.', color=col, lw=0, alpha=0.18, zorder=1)
+                C = np.cov(xs[sel], ys[sel]); ev, evec = np.linalg.eigh(C)
+                ang = np.degrees(np.arctan2(evec[1, -1], evec[0, -1]))
+                ax.add_patch(Ellipse((xs[sel].mean(), ys[sel].mean()), 2 * np.sqrt(ev[-1]),
+                                     2 * np.sqrt(ev[0]), angle=ang, fc=col, alpha=0.10, ec=col,
+                                     lw=0.9, ls='-' if licks else '--', zorder=2))
+                ax.scatter(xs[sel].mean(), ys[sel].mean(), marker=TASKM[cd[0]], s=30,
+                           facecolor=col if licks else 'w', edgecolor=col, linewidths=1.0, zorder=5)
+            ax.set_xlim(*XL); ax.set_ylim(*YL)
+            ax.set_xticks([]); ax.set_yticks([])
+            for sp in ax.spines.values():
+                sp.set_visible(False)
+            if r == 0:
+                ax.set_title(f'{sname} · {WLAB[wn]}', loc='left', fontsize=TITLE_FS)
+            if r == 1:
+                x0, x1 = ax.get_xlim(); y0, y1 = ax.get_ylim()
+                sx = x0 + 0.05 * (x1 - x0); sy = y0 + 0.06 * (y1 - y0)
+                ax.plot([sx, sx + 5], [sy, sy], '-', color='0.3', lw=1.1)
+                ax.text(sx + 2.5, sy + 0.015 * (y1 - y0), '5 z', ha='center', va='bottom',
+                        fontsize=5.4, color='0.3')
+                if j == 2:                           # one shared x-label, centred under the grid
+                    ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
+            if j == 0:
+                ax.set_ylabel(f'{stage}\nchoice axis\n← no-lick · lick →', fontsize=7)
+            if r == 0 and j == 0:                    # colour/fill key once
+                hs = [mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[0], label='sample A'),
+                      mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[1], label='sample B'),
+                      mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='0.4', mec='0.4', label='lick'),
+                      mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='w', mec='0.4', label='no-lick')]
+                ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
+                          handletextpad=0.15, columnspacing=0.5, labelspacing=0.25, borderaxespad=0.0)
+            if r == 0 and j == 2:                    # marker key on the first dual panel
+                hs = [mlines.Line2D([], [], marker='^', ls='', ms=4, mfc='none', mec='0.3', label='Go'),
+                      mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
+                ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
+                          handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
+            lk = np.array([conds[c][1] == conds[c][2] for c in crow])
+            print(f'a: {stage:6s} {sname:4s} {wn:9s} action-axis mean {ys.mean():+6.2f} '
+                  f'(lick {ys[lk].mean():+6.2f} / no-lick {ys[~lk].mean():+6.2f})  '
+                  f'sample sep {xs[[conds[c][1] == 1 for c in crow]].mean() - xs[[conds[c][1] == 0 for c in crow]].mean():+.2f}')
     return axes[0]
 
 
@@ -346,11 +369,15 @@ def panel_traj(fig, gsT):
             ax.set_xlim(0, 12); ax.set_xticks([0, 2, 4.5, 6.5, 9, 12])
             if r == 1:
                 ax.set_xlabel('time (s)', fontsize=7)
+                if k == 0:                              # sample legend lives in the EXPERT panel:
+                    ax.legend(frameon=False, fontsize=5.4, handlelength=1.2, loc='lower right')
+                    # (the Naive panel's top band carries the epoch names and its lower-right is
+                    #  crossed by the Odor-A tail — both collide with a legend there)
             else:
                 ax.tick_params(labelbottom=False)
                 ax.set_title(f"{CODE_NAME[spec['code']]} code", loc='left', fontsize=TITLE_FS)
-                ax.legend(frameon=False, fontsize=5.4, handlelength=1.2,
-                          loc='lower right' if k == 0 else 'upper left')
+                if k > 0:
+                    ax.legend(frameon=False, fontsize=5.4, handlelength=1.2, loc='upper left')
             ax.set_ylabel(f'{stage}\ncode depth' if k == 0 else 'code depth', fontsize=7)
     return axes[0]
 
@@ -375,6 +402,7 @@ def panel_b(fig, gsB):
         ax.set_xticks(range(3)); ax.set_xticklabels(labs, fontsize=6.2, rotation=35, ha='right')
         ax.set_yticks(range(3))
         ax.set_yticklabels(labs if j == 0 else [], fontsize=6.2)
+        ax.set_anchor('NW')                             # top line shared with panel D
         ax.set_title(stage, loc='left', fontsize=TITLE_FS)
         if j == 0:
             ax.set_ylabel('axis geometry\n|cos|', fontsize=7)
@@ -385,24 +413,116 @@ def panel_b(fig, gsB):
     return axes[0]
 
 
+# ══ d — the same geometry in EVERY animal: per-mouse raw |cos|, Naive vs Expert scatters ══
+_pmpal = sns.color_palette('tab10', n_colors=len(MICE))
+PMCOL = {m: _pmpal[i] for i, m in enumerate(MICE)}                 # same mouse = same colour (Figs 2-4)
+PMGROUP = {**{m: 'Jaws' for m in MICE[:5]}, **{m: 'ChR' for m in MICE[5:7]},
+           **{m: 'ACC' for m in MICE[7:]}}
+PMMARK = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
+
+
+def panel_pm_cos(fig, gsD):
+    """Per-mouse RAW split-half |cos| for the three axis pairs, Naive (x) vs Expert (y) — the house
+    per-mouse scatter idiom (PC cache raw values; the attenuation correction is unusable at
+    per-animal reliabilities, see exp_permouse_frame.py). sample×choice and sample×dist hug the
+    floor in every animal at both stages; choice×dist sits higher with most mice above unity.
+    NO stats drawn — the choice×dist increase is the whitelisted, starred test in Fig 4A;
+    duplicating it here would double-report."""
+    PC = RES['PM_COS' + SUF]
+    PAIRS = [('sa', 'sample × choice'), ('sd', 'sample × dist'), ('ad', 'choice × dist')]
+    lo, hi = 0.0, 0.25
+    axes = []
+    for j, (key, lab) in enumerate(PAIRS):
+        ax = fig.add_subplot(gsD[0, j]); axes.append(ax)
+        ax.plot([lo, hi], [lo, hi], ls='--', color='0.6', lw=0.8, zorder=0)
+        nv, ev = [], []
+        for m in MICE:
+            if (m, 'Naive') not in PC or (m, 'Expert') not in PC:
+                continue
+            a = PC[(m, 'Naive')][key + '_raw']; b = PC[(m, 'Expert')][key + '_raw']
+            nv.append(a); ev.append(b)
+            ax.scatter(a, b, s=26, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+                       edgecolors='w', linewidths=0.5, zorder=3)
+        ax.scatter(np.mean(nv), np.mean(ev), s=60, color='k', marker='D', edgecolors='w',
+                   linewidths=0.6, zorder=5)
+        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
+        ax.set_anchor('NW')                             # top line shared with panel C
+        ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
+        if j:
+            ax.tick_params(labelleft=False)
+        ax.set_title(lab, loc='left', fontsize=6.5)
+        if j == 0:
+            ax.set_ylabel('raw |cos|\nExpert', fontsize=7)
+        if j == 1:
+            ax.set_xlabel('raw |cos| — Naive', fontsize=7)
+        print(f"d: {key} raw |cos| {np.mean(nv):.3f} -> {np.mean(ev):.3f}")
+    return axes[0]
+
+
 
 # ══ ASSEMBLE (paper figure: no suptitle, no footnotes — prose is caption+Methods) ══
-#  Three full-width rows (restructured 2026-08-30):
+#  Three full-width rows (filled back out 2026-08-31 — the slimmed figure read empty next to 2/4):
 #  row 0  A  the four codes over time (2 x 4 traces)
-#  row 1  B  the frame — 5 state scatters, a left-to-right storyboard
-#  row 2  C  axis-geometry |cos| matrices (Naive | Expert), centred
-fig = plt.figure(figsize=(12.4, 8.2))
-outer = fig.add_gridspec(3, 12, height_ratios=[1.45, 1.05, 0.70], hspace=0.30,
-                         left=0.062, right=0.982, top=0.965, bottom=0.045, wspace=0.9)
-SD_F, H_F, (WS_F, BS_F), (WL_F, BL_F), BLINE = build_frame()
+#  row 1  B  the frame — 2 (Naive | Expert) x 5 storyboard, each row in its stage's OWN frame
+#  row 2  C  axis-geometry |cos| matrices  +  D  per-mouse raw-|cos| strip
+# row 1 deliberately SHORTER than its content suggests: the shared y-range is set by the decision
+# licks (+9 z), so tall frames leave the mid-delay panels mostly empty — compressing the row fills
+# the data band. Row 2 taller so the aspect-locked matrices/scatters grow.
+fig = plt.figure(figsize=(12.4, 10.8))
+outer = fig.add_gridspec(3, 12, height_ratios=[1.45, 1.55, 1.0], hspace=0.28,
+                         left=0.062, right=0.982, top=0.972, bottom=0.035, wspace=0.9)
 gsT = outer[0, 0:12].subgridspec(2, 4, wspace=0.34, hspace=0.18)
 axT = panel_traj(fig, gsT)
-gsA = outer[1, 0:12].subgridspec(1, 5, wspace=0.16)
-axA = panel_a(fig, gsA, SD_F, H_F, WS_F, BS_F, WL_F, BL_F, BLINE)
-gsB = outer[2, 4:8].subgridspec(1, 2, wspace=0.25)   # centred pair; the row is deliberately short
+STAGEDATA = []
+for _st in ['Naive', 'Expert']:
+    _sd, _H, (_ws, _bs), (_wl, _bl), _BL = build_frame(_st)        # sets the module STAGE global
+    STAGEDATA.append((_st, frame_states(_sd, _H, _ws, _wl, _BL)))
+gsA = outer[1, 0:12].subgridspec(2, 5, wspace=0.16, hspace=0.10)
+axA = panel_a(fig, gsA, STAGEDATA)
+gsB = outer[2, 0:6].subgridspec(1, 2, wspace=0.28)   # left-aligned: C's letter lines up with A/B
 axB = panel_b(fig, gsB)
+gsD = outer[2, 7:12].subgridspec(1, 3, wspace=0.28)
+axD = panel_pm_cos(fig, gsD)
 
-plabel(axT, 'A', dx=-0.05); plabel(axA, 'B', dx=-0.10); plabel(axB, 'C', dx=-0.42)
+plabel(axT, 'A', dx=-0.05); plabel(axA, 'B', dx=-0.10)
+plabel(axB, 'C', dx=-0.30); plabel(axD, 'D', dx=-0.16)
+
+# ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
+CAP_PARAS = [
+    'Figure 3 | One manifold: the states of both tasks live in a single fixed sample × choice frame.',
+    'A. The four codes over time (sample / dist / test / choice; Naive top, Expert bottom): per-mouse '
+    'cross-validated decoder projections (CCGD), mean ± SEM across mice (n = 9), correct laser-off '
+    'trials, one shared per-mouse unit so amplitudes are comparable across codes; y-axes shared '
+    'within each code column. Shaded bands: sample, distractor, GNG cue and test epochs. The sample '
+    'code is maintained throughout the delay in both stages; the dist and choice codes rise at their '
+    'own epochs.',
+    'B. The frame itself, Naive (top) and Expert (bottom): held-out pseudo-trials projected onto '
+    'ONE sample axis (trained at mid-delay) and ONE behavioural choice axis (trained at the '
+    'decision epoch), both fit on an independent trial half — no self-inclusion; axes are re-fit '
+    'per stage (per-stage units — the quantitative fixed-axis Naive→Expert push is Fig. 4B). '
+    'Dashed lines = the pre-trial baseline (zero); ellipses = 1 SD of the pseudo-trial cloud; '
+    'fill = lick, open = no-lick; circle / triangle / square = DPA / Go / NoGo; colour = sample '
+    'A / B; scale bar 5 z. Read left to right along the trial: DPA states separate along the '
+    'sample axis only (mid-delay) and split along the choice axis at decision; the dual Go and '
+    'NoGo states sit apart along the choice axis already at mid-delay (weakly in Naive, strongly '
+    'in Expert — the distractor precedes this window), and after the cue the Go state crosses '
+    'toward lick (late delay) — in both stages, every separation in every task is carried by the '
+    'same two axes. Note the Expert DPA delay states sit below the choice-axis baseline where the '
+    'Naive ones do not — the repositioning quantified on a fixed axis in Fig. 4B.',
+    'C. Axis geometry: attenuation-corrected split-half |cos| between the three axes '
+    '(pseudo-population). The sample axis is orthogonal to both action codes (|cos| ≈ 0.07–0.09, '
+    'both stages); the choice × dist overlap is partial and grows with learning '
+    f'({np.asarray(AXF["Naive"]["cos"])[1, 2]:.2f} → {np.asarray(AXF["Expert"]["cos"])[1, 2]:.2f}) — '
+    'quantified per animal in Fig. 4A.',
+    'D. The same geometry in every animal: per-mouse raw split-half |cos|, Naive (x) vs Expert '
+    '(y), one panel per axis pair (colour = mouse, marker = opsin line, diamond = mean; raw '
+    'values — the attenuation correction is unusable at per-animal reliabilities). sample × '
+    'choice and sample × dist hug the floor in all 9 mice at both stages; choice × dist sits '
+    'higher with most mice above the unity line — that increase is tested (and starred) in '
+    'Fig. 4A, not here.',
+]
+from figcaption import draw_justified                  # shared with fig_dimensionality_main.py
+draw_justified(fig, CAP_PARAS)
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

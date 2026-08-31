@@ -265,3 +265,46 @@ Fig 4's learning effects. No verdicts drawn (star policy).
   (anticipatory Naive dual-choice 0.66* at mid-delay, gone with learning). Reviewer-pocket answer
   for E's heavily-hatched test matrix: weak per-task ceiling; sample+choice matrices carry the
   claim (or move test → ED).
+
+### 2026-08-31: Fig 3 finishing pass (same treatment as Fig 2) — CURRENT
+- **Justified caption added** (panels A/B/C, drawn values; the choice×dist numbers are DYNAMIC from
+  `AXIS_FRAME` so the `_pca20` ED variant captions its own matrices). Justification code extracted
+  to the shared **`pca/figcaption.py`** (`draw_justified`) — Fig 2 now uses it too (identical
+  output, one implementation).
+- Layout: row C enlarged (cols 3:9, row ratio 0.85, fig 12.4×8.6) — the two cosine matrices no
+  longer float in an empty band. Panel-A sample legend moved to the EXPERT panel's lower-right
+  (in the Naive panel it collided with the epoch-name band up top and the Odor-A tail below).
+- Caption's panel-B sentence records the storyboard reading, incl. the honest pre-cue point: the
+  dual Go/NoGo states already sit apart along the choice axis at mid-delay because the DISTRACTOR
+  precedes that window.
+
+### 2026-08-31: Fig 3 FILLED BACK OUT (user: "seems empty next to Figs 2/4") — CURRENT
+Two additions, both chosen by the user from proposals:
+- **Panel B is now a 2×5 storyboard (Naive | Expert)** — `build_frame(stage)` parameterised (sets
+  the module STAGE global; helpers read it; per-stage axes re-fit on that stage's own independent
+  trial half → per-stage units; the fixed-axis quantitative push stays Fig 4's). New `frame_states`
+  precomputes the clouds per stage; all TEN frames share one x/y range. RENDER-CONFIRMED and now
+  in the caption: (i) the Expert DPA delay states sit below the choice-axis baseline where the
+  Naive ones do not (geometric preview of the Fig-4 push); (ii) the dual Go/NoGo mid-delay split
+  is weak in Naive, strong in Expert.
+- **New panel D** — per-mouse raw |cos| strip (PM_COS raw values; open=Naive, filled=Expert,
+  per-mouse tab10, black mean bars): sample×choice and sample×dist hug the floor in ALL 9 mice at
+  both stages (~0.05); choice×dist higher and growing (0.073→0.114) — deliberately NO stats drawn
+  (the increase is tested/starred in Fig 4A; drawing it here would double-report).
+Layout: fig 12.4×11.2, rows [1.45, 2.0, 0.85]; row 2 = C matrices (cols 1:7) + D strip (8:12).
+Letters A–D; caption updated (B per-stage caveat + the two confirmed observations; D paragraph).
+Both variants re-rendered. Fig 3 now reads at comparable density to Figs 2/4.
+
+### 2026-08-31 Fig 3 FINAL STATE (supersedes the two blocks above where they differ)
+- Panels: **A** traces 2×4 · **B** storyboard 2×5 (Naive|Expert, per-stage axes) · **C** cosine
+  matrices (left-aligned, col 0) · **D** per-mouse raw-|cos| **Naive-vs-Expert SCATTERS** (one per
+  axis pair — replaced the paired-dot strip at user preference; house idiom: mouse colours, opsin
+  markers, diamond mean, unity line, shared 0–0.25 limits; NO stats — choice×dist is starred in
+  Fig 4A) · justified caption (figcaption.draw_justified).
+- Layout: fig 12.4×10.8, rows [1.45, 1.55, 1.0]. Row B deliberately SHORT — its shared y-range is
+  set by the +9 z decision licks, so tall frames read empty at mid-delay; compressing fills the
+  data band. Row C/D taller (aspect-locked panels size by row height); C and D NW-anchored to
+  share a top line.
+- Render-confirmed caption claims: Expert DPA delay states below the choice baseline where Naive's
+  are not (push preview → Fig 4B); dual Go/NoGo mid-delay split weak in Naive / strong in Expert;
+  choice×dist above unity in 8/9 mice (D).
