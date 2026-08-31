@@ -469,3 +469,21 @@ Verified-stable: XSTAGE cross 0.880±0.046 (sample) / ±0.027 (choice) across 8 
   style) after two collision iterations (below-matrix hit the caption; title-line overlapped).
 - `fig_manifold_supp.py` panel C REMOVED again (would duplicate main E); supp = A ccgp + B
   per-mouse generalisation, fig 9.4×5.2.
+
+### 2026-08-31 panel-A TASK-SPLIT variant (`fig_traj_tasksplit.py`) — pinned in gallery Main
+2×6 companion to Fig 3 panel A (user request, built same day): **DPA | Go | NoGo × sample/choice
+code**, rows Naive/Expert, y shared per CODE across all task columns so amplitudes compare
+directly. Cache: `exp_traj_orig.py` now stores per-task trace keys — `sample@dual`/`lick@dual`
+(pooled) plus `sample@go`/`lick@go`/`sample@nogo`/`lick@nogo` — alongside the untouched canonical
+panel-A keys (n=9 everywhere; canonical rebuilt, pca20 NOT yet — run `exp_traj_orig.py --pca`
+before rendering the `--pca` variant of this figure). WHAT IT SHOWS (display-level, no stats):
+- **dual sample code DECAYS post-distractor in BOTH Go and NoGo** (B: +2.5 at the distractor →
+  ~0 by test Naive / −1.5 to −2 Expert; deepest NoGo·A −4.4) where DPA sample holds its plateau
+  — the distractor odor, not the cue response, erodes the readout;
+- **Go·choice**: BOTH classes ride up together at the GNG cue (~7 s, to +6–7 z Expert — every
+  correct Go trial licks the cue: motor/reward transient, not choice coding); the lick/no-lick
+  split opens only at test;
+- **NoGo·choice**: Expert traces dip below baseline through the late delay (withholding), then
+  split at test; max class gaps at test ≈ DPA's (5.5–6.7 z).
+Same replayed CCGD projections and house style as panel A; sample/distractor/GNG-cue/test bands;
+staggered epoch labels. Output `fig_traj_tasksplit[_pca20].png`; NOT swapped into Fig 3.
