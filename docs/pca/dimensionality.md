@@ -452,3 +452,20 @@ FINDINGS + FIXES (all applied):
    "read windows chosen for display — no statistics drawn"; title drops "of both tasks" (choice
    sufficiency is DPA-tested; the dual evidence is B/F/Fig 4A).
 Verified-stable: XSTAGE cross 0.880±0.046 (sample) / ±0.027 (choice) across 8 reps.
+
+### 2026-08-31 E/F gain PER-MOUSE scatters (user request); supp back to A+B
+- **E right** = 3 per-mouse raw-|cos| Naive-vs-Expert scatters (PM_COS; sa .05→.06, sd .05→.05,
+  ad .07→.11 nopca) — RETURNED to the main from the supp (user reversal of the earlier
+  "duplicates Fig 4A" call); no tests drawn, caption sources the ad increase to Fig 4A's star.
+- **F right** = 2 per-mouse cross-stage transfer scatters from the NEW cache
+  `exp_permouse_xstage.py` → `PM_XSTAGE`+SUF (per mouse: own decoder trained on one stage's
+  trial half, tested held-out on BOTH stages; registered neurons asserted per mouse; per-stage
+  feature sd; NREP=10, rng 500). Within-vs-cross unity scatters; annotation = mean
+  chance-referenced T/W (ratio only for mice with within>0.52): **sample 0.86/0.92, choice
+  0.73/0.67 (nopca/pca20)** — lower than the pooled 0.90/0.87 as expected (within-mouse decoders
+  noisier); descriptive only, no verdicts. JawsM06 choice sits at chance (0.49) — honest.
+- Layout: bottom row = 12-slot gsBot with width_ratios + spacers (E mats | E scatters | F mats |
+  F scatters); rel annotation moved above the stage-title line ('rel .24/.24/.52' superscript
+  style) after two collision iterations (below-matrix hit the caption; title-line overlapped).
+- `fig_manifold_supp.py` panel C REMOVED again (would duplicate main E); supp = A ccgp + B
+  per-mouse generalisation, fig 9.4×5.2.

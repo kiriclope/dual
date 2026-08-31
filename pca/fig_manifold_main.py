@@ -89,6 +89,11 @@ assert 'XSTAGE_DEC' + SUF in RES, ('missing XSTAGE_DEC' + SUF +
                                    ' — run: python exp_plane_frame.py' +
                                    (' --nopca' if NOPCA else ''))
 XSD = RES['XSTAGE_DEC' + SUF]                      # cross-stage decoding (train x test stage)
+PMC = RES['PM_COS' + SUF]                          # per-mouse raw |cos| (E scatters; exp_permouse_frame.py)
+assert 'PM_XSTAGE' + SUF in RES, ('missing PM_XSTAGE' + SUF +
+                                  ' — run: python exp_permouse_xstage.py' +
+                                  (' --nopca' if NOPCA else ''))
+PMX = RES['PM_XSTAGE' + SUF]                       # per-mouse cross-stage decoding (F scatters)
 # (fits_inputs.pkl is no longer read here — the storyboard replays FRAME_STATES, and every other
 #  panel reads a results.pkl cache; the raw-tensor machinery lives in the exp_* scripts)
 
@@ -332,9 +337,9 @@ def panel_b(fig, gsB):
             ax.set_ylabel('axis geometry\n|cos|', fontsize=7)
         # the attenuation correction divides by sqrt(rel_i*rel_j) — disclose the reliabilities
         # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
-        ax.text(1.0, 1.02, 'rel ' +
-                '/'.join(f'{r:.2f}' for r in np.asarray(AXF[stage]['rel'])),
-                transform=ax.transAxes, fontsize=6.0, color='0.3', ha='right', va='bottom')
+        ax.text(1.0, 1.135, 'rel ' +                     # above the stage title line
+                '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])),
+                transform=ax.transAxes, fontsize=5.8, color='0.3', ha='right', va='bottom')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'b: {stage} sample-action {C[0,1]:.2f}  sample-distr {C[0,2]:.2f}  '
@@ -382,6 +387,79 @@ def panel_xstage(fig, gsX):
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'f-xstage: {vn} within {dia:.2f} cross {off:.2f} ratio {(off - .5) / (dia - .5):.2f}')
+    return axes[0]
+
+
+# ══ E right — the same geometry PER ANIMAL: raw |cos| Naive-vs-Expert scatters (PM_COS).
+#   RAW (uncorrected) within-mouse cosines — magnitudes attenuated, ordering honest. NO stats
+#   drawn: the choice x dist increase is starred in Fig 4A (drawing it here would double-report).
+#   (Returned to the main 2026-08-31 at user request; the ED copies were removed.) ══
+def panel_e_pm(fig, gs):
+    PAIRS = [('sa', 'sample × choice'), ('sd', 'sample × dist'), ('ad', 'choice × dist')]
+    lo, hi = 0.0, 0.25
+    axes = []
+    for j, (key, lab) in enumerate(PAIRS):
+        ax = fig.add_subplot(gs[0, j]); axes.append(ax)
+        ax.plot([lo, hi], [lo, hi], ls='--', color='0.6', lw=0.8, zorder=0)
+        nv, ev = [], []
+        for m in MICE:
+            if (m, 'Naive') not in PMC or (m, 'Expert') not in PMC:
+                continue
+            a = PMC[(m, 'Naive')][key + '_raw']; b = PMC[(m, 'Expert')][key + '_raw']
+            nv.append(a); ev.append(b)
+            ax.scatter(a, b, s=22, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+                       edgecolors='w', linewidths=0.5, zorder=3)
+        ax.scatter(np.mean(nv), np.mean(ev), s=52, color='k', marker='D', edgecolors='w',
+                   linewidths=0.6, zorder=5)
+        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
+        ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
+        if j:
+            ax.tick_params(labelleft=False)
+        ax.set_title(lab, loc='left', fontsize=6.5)
+        if j == 0:
+            ax.set_ylabel('raw |cos|\nExpert', fontsize=6.8)
+        if j == 1:
+            ax.set_xlabel('raw |cos| — Naive', fontsize=7)
+        print(f'e-pm: {key} raw |cos| {np.mean(nv):.3f} -> {np.mean(ev):.3f}')
+    return axes[0]
+
+
+# ══ F right — cross-stage transfer PER ANIMAL (PM_XSTAGE, exp_permouse_xstage.py): each mouse's
+#   own decoder trained in one stage, tested held-out in the other (registered neurons); x =
+#   within-stage, y = cross-stage accuracy. Points on the unity line = perfect transfer. NO
+#   verdicts — the annotation is the mean chance-referenced transfer/within ratio. ══
+def panel_f_pm(fig, gs):
+    lo, hi = 0.45, 0.95
+    axes = []
+    for k, vn in enumerate(['sample', 'choice']):
+        ax = fig.add_subplot(gs[0, k]); axes.append(ax)
+        ax.plot([lo, hi], [lo, hi], ls='--', color='0.6', lw=0.8, zorder=0)
+        ax.axhline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
+        ax.axvline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
+        wi, cr, rat = [], [], []
+        for m in MICE:
+            if vn not in PMX.get(m, {}):
+                continue
+            w, c = PMX[m][vn]['within'], PMX[m][vn]['cross']
+            wi.append(w); cr.append(c)
+            if w > 0.52:                            # ratio undefined at the chance floor
+                rat.append((c - 0.5) / (w - 0.5))
+            ax.scatter(w, c, s=22, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+                       edgecolors='w', linewidths=0.5, zorder=3)
+        ax.scatter(np.mean(wi), np.mean(cr), s=52, color='k', marker='D', edgecolors='w',
+                   linewidths=0.6, zorder=5)
+        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
+        ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
+        if k:
+            ax.tick_params(labelleft=False)
+        ax.set_title(vn, loc='left', fontsize=6.5)
+        ax.text(0.05, 0.96, f'T/W {np.mean(rat):.2f}', transform=ax.transAxes, va='top',
+                ha='left', fontsize=6.0, color='0.3')
+        if k == 0:
+            ax.set_ylabel('cross-stage\naccuracy', fontsize=6.8)
+            ax.set_xlabel('within-stage accuracy', fontsize=7, loc='left')
+        print(f'f-pm: {vn} within {np.mean(wi):.2f} cross {np.mean(cr):.2f} '
+              f'T/W {np.mean(rat):.2f} (n={len(wi)})')
     return axes[0]
 
 
@@ -542,10 +620,19 @@ gsC = outer[2, 0:4].subgridspec(1, 1)                # C = the proof: summary ba
 axC = panel_f_spaces(fig, gsC)
 gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.24, hspace=0.20)   # D = per-mouse 3x4
 axD = panel_e_plane(fig, gsD)
-gsE = outer[3, 0:5].subgridspec(1, 2, wspace=0.28)   # E = cosine matrices
+# bottom row = E (2 matrices + 3 per-mouse scatters) · F (2 matrices + 2 per-mouse scatters);
+# 12 slots with spacer columns between the pooled and per-mouse halves of each block
+gsBot = outer[3, 0:12].subgridspec(
+    1, 12, wspace=0.55,
+    width_ratios=[1.05, 1.05, 0.10, 0.85, 0.85, 0.85, 0.28, 1.0, 1.0, 0.10, 0.85, 0.85])
+gsE = gsBot[0, 0:2].subgridspec(1, 2, wspace=0.28)   # E = cosine matrices
 axE = panel_b(fig, gsE)
-gsF = outer[3, 6:10].subgridspec(1, 2, wspace=0.30)  # F = cross-stage identity 2x2s
+gsE2 = gsBot[0, 3:6].subgridspec(1, 3, wspace=0.45)  # E right = per-mouse raw-|cos| scatters
+panel_e_pm(fig, gsE2)
+gsF = gsBot[0, 7:9].subgridspec(1, 2, wspace=0.30)   # F = cross-stage identity 2x2s
 axF = panel_xstage(fig, gsF)
+gsF2 = gsBot[0, 10:12].subgridspec(1, 2, wspace=0.45)  # F right = per-mouse transfer scatters
+panel_f_pm(fig, gsF2)
 
 plabel(axT, 'A', dx=-0.05); plabel(axA, 'B', dx=-0.10)
 plabel(axC, 'C', dx=-0.14); plabel(axD, 'D', dx=-0.34)
@@ -608,14 +695,20 @@ CAP_PARAS = [
     'printed under each matrix — sample and choice sit at 0.23–0.39, so the pooled values are '
     'estimates, not tests). The sample axis is orthogonal to both action codes (|cos| ≈ '
     '0.07–0.09, both stages); the choice × dist overlap is partial '
-    f'({np.asarray(AXF["Naive"]["cos"])[1, 2]:.2f} → {np.asarray(AXF["Expert"]["cos"])[1, 2]:.2f}); '
-    'its increase with learning is established per animal on RAW cosines in Fig. 4A (∗ p = .008 '
-    'in both pipelines; per-mouse cosine companions in the ED supplement).',
+    f'({np.asarray(AXF["Naive"]["cos"])[1, 2]:.2f} → {np.asarray(AXF["Expert"]["cos"])[1, 2]:.2f}). '
+    'Right: the same geometry per animal — RAW (uncorrected) within-mouse |cos|, Naive (x) vs '
+    'Expert (y); magnitudes are attenuation-limited but the ordering is honest: sample pairs hug '
+    'the floor in every mouse at both stages, choice × dist sits above them and above unity in '
+    '8/9 mice. No tests drawn here — the choice × dist increase is starred in Fig. 4A (∗ p = '
+    '.008 in both pipelines).',
     'F. The frame is the SAME frame across learning: decoders trained in one stage read the other '
     'stage’s activity (registered neurons; held-out trials) at ~90% of the within-stage ceiling — '
     'transfer/within 0.90 (sample) and 0.87 (choice); cross-stage accuracy 0.88 ± 0.03–0.05 '
-    'across resamples, robust across both decoder pipelines. Learning moves the state within the '
-    'frame (Fig. 4B); it does not rotate the frame.',
+    'across resamples, robust across both decoder pipelines. Right: the same test inside each '
+    'animal — each mouse’s own decoder trained in one stage and read in the other (within-stage '
+    'accuracy, x, vs cross-stage, y; both directions and stages averaged): the points track the '
+    'unity line (annotation = mean chance-referenced transfer/within; no tests drawn). Learning '
+    'moves the state within the frame (Fig. 4B); it does not rotate the frame.',
 ]
 if ANTACT:
     CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in A (choice trace) and B (y-axis) is '

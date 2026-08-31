@@ -45,7 +45,6 @@ MOUSE_COLOR = {m: _pal[i] for i, m in enumerate(ALL_MICE)}
 CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache.pkl'   # no-PCA build
 RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
 PG = RES['PM_GEN_nopca']                                                # canonical no-PCA
-PC = RES['PM_COS_nopca']                                                # raw per-mouse cosines
 
 
 def plabel(ax, s, dx=-0.10):
@@ -109,49 +108,17 @@ def panel_gen_mouse(fig, gsB):
     return axes[0]
 
 
-# ══ C — per-mouse raw |cos| scatters (MOVED FROM main Fig 3, 2026-08-31 restructure: the
-#     choice×dist subpanel duplicates Fig 4A's starred scatter point-for-point; orthogonality per
-#     animal is implied more strongly by Fig 3 C/D's double dissociation) ══
-def panel_pm_cos(fig, gsC):
-    PAIRS = [('sa', 'sample × choice'), ('sd', 'sample × dist'), ('ad', 'choice × dist')]
-    lo, hi = 0.0, 0.25
-    axes = []
-    for j, (key, lab) in enumerate(PAIRS):
-        ax = fig.add_subplot(gsC[0, j]); axes.append(ax)
-        ax.plot([lo, hi], [lo, hi], ls='--', color='0.6', lw=0.8, zorder=0)
-        nv, ev = [], []
-        for m in ALL_MICE:
-            if (m, 'Naive') not in PC or (m, 'Expert') not in PC:
-                continue
-            a = PC[(m, 'Naive')][key + '_raw']; b = PC[(m, 'Expert')][key + '_raw']
-            nv.append(a); ev.append(b)
-            ax.scatter(a, b, s=26, color=MOUSE_COLOR[m], marker=GMARKER[GROUP[m]],
-                       edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(nv), np.mean(ev), s=60, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
-        ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
-        ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
-        if j:
-            ax.tick_params(labelleft=False)
-        ax.set_title(lab, loc='left', fontsize=6.5)
-        if j == 0:
-            ax.set_ylabel('raw |cos|\nExpert', fontsize=7)
-        if j == 1:
-            ax.set_xlabel('raw |cos| — Naive', fontsize=7)
-        print(f'C: {key} raw |cos| {np.mean(nv):.3f} -> {np.mean(ev):.3f}')
-    return axes[0]
+# (the per-mouse raw-|cos| scatters that briefly lived here as panel C moved BACK into main
+#  Fig 3 panel E, 2026-08-31 user request — see fig_manifold_main.panel_e_pm)
 
-
-fig = plt.figure(figsize=(9.4, 7.6))
-gs = fig.add_gridspec(3, 12, height_ratios=[1.0, 1.0, 1.0], hspace=0.55,
-                      left=0.08, right=0.975, top=0.955, bottom=0.06)
+fig = plt.figure(figsize=(9.4, 5.2))
+gs = fig.add_gridspec(2, 12, height_ratios=[1.0, 1.0], hspace=0.55,
+                      left=0.08, right=0.975, top=0.935, bottom=0.09)
 gsA = gs[0, 0:12].subgridspec(1, 4, wspace=0.45)
 axA = panel_ccgp(fig, gsA)
 gsB = gs[1, 0:9].subgridspec(1, 3, wspace=0.45)
 axB = panel_gen_mouse(fig, gsB)
-gsC = gs[2, 0:9].subgridspec(1, 3, wspace=0.45)
-axC = panel_pm_cos(fig, gsC)
-plabel(axA, 'A'); plabel(axB, 'B'); plabel(axC, 'C')
+plabel(axA, 'A'); plabel(axB, 'B')
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
