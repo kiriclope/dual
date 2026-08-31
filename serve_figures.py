@@ -42,10 +42,12 @@ MAIN = [
     #    (alignment ★★ + push ∗ + coupling ★ + controls). CCGP + per-mouse gen → ED supp.
     ('Fig 2 — the geometry: spectra+CI · decoding power · η² · cross-task generalisation (E) · learning-stability (F) · captioned',
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
-    ('Fig 3 — ONE manifold: traces · storyboard (per-window geometry, SEM, baseline=push in pre-cue) · sufficiency C/D · cosines · cross-stage F',
+    ('Fig 3 — ONE manifold  [canonical no-PCA: traces · storyboard (per-window geometry, SEM, decision read 10–11 s) · sufficiency C/D · cosines · cross-stage F]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main.png'),
-    # antact axis variant retired from Main 2026-08-31: the centred storyboard is axis-invariant
-    # (a robustness finding, logged in docs/pca/dimensionality.md); PNG + --antact flag remain.
+    ('Fig 3 — PCA-20 pipeline variant  [decoder-knob robustness companion]',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
+    ('Fig 3 — ANTACT axis variant  [choice axis trained 48–62 in A+B; centred storyboard near axis-invariant; C–F unchanged]',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_main_antact.png'),
     # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
     ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
