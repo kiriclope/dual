@@ -474,3 +474,6 @@ one-line footnote was folded into the caption title. Fig 5 keeps its row banners
 carries the header's exact stats (trade-off r=+0.48 p=.034 with the mixed-model caveat printed;
 K/L LMM p=.34/.74) and appends a [BUILD VARIANT] tag on the axis/norm variant builds (as does
 Fig 4). The poster build skips the caption.
+- 2026-08-31 (later): both captions rewritten to the house caption standard (claim+roadmap
+  title; per panel what/how/shows/stats; shared vocabulary; see memory feedback_caption_style)
+  — numbers unchanged.

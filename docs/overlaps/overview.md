@@ -905,3 +905,6 @@ off/within 0.33→0.57, raw-cos ∗ .008 / cross-dec ∗ .004; B push LMM β=−
 per-animal trend disclosed (A Δ=−1.42 p=.098, A-vs-B p=.055 n.s.); C coupling DPA ρ=−0.83
 p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchanged. Variant builds
 (--robust/--antact) append a [BUILD VARIANT] tag stating the quoted numbers are canonical.
+- 2026-08-31 (later): Fig 4 caption rewritten to the house caption standard (claim+roadmap
+  title; per panel what/how/shows/stats; CODE DEPTH defined in the title; cross-refs to Fig 5
+  K/L "position not fidelity"; see memory feedback_caption_style) — numbers unchanged.
