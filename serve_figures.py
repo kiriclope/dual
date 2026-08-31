@@ -42,8 +42,10 @@ MAIN = [
     #    (alignment ★★ + push ∗ + coupling ★ + controls). CCGP + per-mouse gen → ED supp.
     ('Fig 2 — the geometry: spectra+CI · decoding power · η² · cross-task generalisation (E) · learning-stability (F) · captioned',
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
-    ('Fig 3 — ONE manifold in a fixed frame: traces · state storyboard · axis cosines · captioned',
+    ('Fig 3 — ONE manifold: traces · storyboard (per-window geometry) · plane sufficiency C/D · cosines · cross-stage F  [canonical: CHOICE axis 57–62]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main.png'),
+    ('Fig 3 — ANTACT axis variant  [choice axis = anticipatory action 48–62 in A+B; Expert delay dip visible, decision split smaller; C–F unchanged]',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_main_antact.png'),
     # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
     ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
