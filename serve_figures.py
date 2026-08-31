@@ -48,6 +48,8 @@ MAIN = [
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
     ('Fig 3 — ANTACT axis variant  [choice axis trained 48–62 in A+B; centred storyboard near axis-invariant; C–F unchanged]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_antact.png'),
+    ('Fig 3 — panel-A task-split variant  [DPA vs dual reads of sample & choice codes; dual sample decays through the delay, dual choice carries the cue-lick bump]',
+     'pca/figures/pseudo/dimensionality/png/fig_traj_tasksplit.png'),
     # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
     ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
