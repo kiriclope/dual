@@ -339,31 +339,42 @@ if __name__ == '__main__':
 
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
-        'Figure 4 | What learning does on the manifold: the distractor code aligns onto the '
-        'choice axis, the memory state is pushed along it, and the push predicts behaviour — '
-        'while code fidelity is unchanged.',
-        'A. Learning couples the dist and choice codes. Left: dist ↔ choice cross-decoding '
-        'matrices (balanced accuracy, Naive | Expert; chance-referenced off/within summary with '
-        'bootstrap CI under each — 0.33 [−0.03, 0.60] → 0.57 [0.36, 0.75]). Right: the '
-        'per-animal tests, Naive (x) vs Expert (y): the raw |cos|(choice, dist) grows '
-        '(0.073 → 0.114, ∗ p = .008) and so does the cross-decode accuracy (0.53 → 0.61, '
-        '∗ p = .004) — both starred tests are robust across decoder pipelines and are drawn '
-        'from the fixed canonical no-PCA caches in every build variant of this figure.',
-        'B. The no-lick push: sample × choice trajectory planes (Naive | Expert) with the '
-        'late-delay choice-code distributions (strips), and the per-mouse late-delay depth: '
-        'with learning the DPA delay state deepens along the choice axis into the no-lick '
-        'region (LMM β = −0.74, p = .046 ∗). Per-animal, the deepening is a trend carried by '
-        'sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the A-vs-B difference is itself n.s., '
-        'p = .055).',
-        'C. The deepening predicts behaviour BETWEEN animals (per-mouse n = 9 Spearman): '
-        'Δdepth ↔ ΔDPA accuracy ρ = −0.83, p = .005 ∗; the ΔGNG arm is null (ρ = +0.20, '
-        'p = .61) — the coupling is specific to the memory task.',
-        'D. Control — Naive nonpaired trials, correct rejections vs false alarms on the no-lick '
-        'well depth: n.s. on this axis for both samples (A: Δ(CR−FA) = −1.16, p = .27; '
-        'B: +0.73, p = .47).',
-        'E. Fidelity control: the choice-code d′ is unchanged with learning (0.80 → 1.07, '
-        'p = .25) — learning moves the state’s position along the axis, not the readability of '
-        'the code.',
+        'Figure 4 | What learning changes on the manifold: the distractor code rotates onto the '
+        'choice axis (A), the delay memory state is pushed along that axis into no-lick '
+        'territory (B), the size of each animal’s push predicts its memory improvement (C) — '
+        'and the code itself stays equally readable (D, E). CODE DEPTH throughout = the '
+        'projection of population activity on the choice (lick) decoder axis, per mouse, '
+        'baseline-zeroed, in units of that mouse’s evoked SD; negative = toward the no-lick '
+        'side.',
+        'A. Learning couples the distractor and choice codes. Left matrices: cross-decoding '
+        'between the two codes — a decoder trained on one variable reads the other (balanced '
+        'accuracy; diagonal = within-code, off-diagonal = transfer). The chance-referenced '
+        'transfer, off/within, grows from 0.33 [−0.03, 0.60] in Naive to 0.57 [0.36, 0.75] in '
+        'Expert. Right scatters: the same convergence inside each animal, Naive (x) vs Expert '
+        '(y) — the |cos| between each mouse’s own choice and dist axes grows (0.073 → 0.114, '
+        '∗ p = .008), and so does the per-mouse cross-decode (0.53 → 0.61, ∗ p = .004). Both '
+        'starred tests are robust across decoder pipelines, and this panel is drawn from fixed '
+        'canonical caches in every build variant of the figure.',
+        'B. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
+        '| Expert; strips = the late-delay distribution of choice-code depth). With learning, '
+        'the delay states sink along the choice axis — the memory is parked deeper in the '
+        'region whose readout is “do not lick”. Right: per-mouse late-delay depth, Naive → '
+        'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
+        'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
+        'A-vs-B difference is itself n.s., p = .055).',
+        'C. The push predicts behaviour — across animals. Each mouse’s learning-related change '
+        'in depth (Δdepth, x) against its change in accuracy (Δaccuracy, y; per-mouse n = 9 '
+        'Spearman): the deeper a mouse pushes its memory state, the more its DPA accuracy '
+        'improves (ρ = −0.83, p = .005 ∗), while the SAME depth change predicts nothing for '
+        'GNG (ρ = +0.20, p = .61) — the coupling is specific to the memory task.',
+        'D. Trial-level control (Naive nonpaired trials): within a stage, does the well depth '
+        'on single trials separate correct rejections from false alarms? Not on this axis '
+        '(sample A: Δ(CR−FA) = −1.16, p = .27; B: +0.73, p = .47) — the push is a '
+        'between-animal learning effect, not a trial-by-trial accuracy readout here.',
+        'E. Fidelity control: the choice code’s discriminability (d′ between lick and no-lick '
+        'trials) does not change with learning (0.80 → 1.07, p = .25). Learning moves WHERE the '
+        'memory state sits on the axis (B), not how well the axis reads out (E) — position, not '
+        'fidelity, is what learning tunes.',
     ]
     if FILE_SUF != '_dpaact':
         CAP_PARAS[0] += (f' [BUILD VARIANT {FILE_SUF}: panel annotations carry this build’s own '

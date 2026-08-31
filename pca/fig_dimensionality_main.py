@@ -575,36 +575,55 @@ plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 #    across the gaps; the last line of each paragraph stays flush-left (print convention). ──
 if CDEC:
     CAP_PARAS = [
-        'Figure 2 | A minimal, factorised population geometry: one dedicated axis per task variable, '
-        'shared across tasks.',
-        'A. Trial timeline and the two read-out states: memory/delay (mid-delay window, 5.5–6.3 s of '
-        'data — post-distractor, pre-cue, pre-lick) and decision (test onset onward). Pseudo-population: '
-        '3,319 neurons × 12 conditions. cvPCA: repeated 2-fold cross-validation (30 random half-splits, '
-        'both directions averaged) — only variance that replicates across trial halves counts.',
-        'B. Reliable-variance spectra (fraction per cvPCA component; error bars = leave-one-mouse-out '
-        'jackknife 95% CI, t(8); dashed grey = within-mouse label-shuffle null). At mid-delay DPA has a '
-        'single reliable axis (the sample line); dual adds exactly one more — distractor (0.92) × sample '
-        '(0.07). At decision ≈3 reliable axes in both sets. Naive and Expert spectra are near-identical.',
-        'C. Held-out decoding accuracy along each variable’s axis, each stage against its own '
-        'within-mouse shuffle null (Expert solid, Naive dashed 95th pct); † = significant in Naive only. '
-        'Hatched: dist (Go vs NoGo) cross-decoded from the DPA-state subspace (top-3 PCs) — weak but '
-        'reliable transfer at mid-delay (permutation p = .031, 1000 draws) vs 1.0 decoded within dual. '
-        'A variable decodes only when it is in play (†: the one exception, an anticipatory Naive choice '
-        'signal at mid-delay, 0.66 vs its shuffle null — gone with learning).',
-        'D. PC-coding matrices (Expert): η² of each condition-mean PC on the factor contrasts (row % = '
-        'condition-mean variance). Each PC codes one variable — the axes ARE the variables. Rows beyond '
-        'the reliable rank of B are faded (rank = leading components reaching 95% of reliable variance); '
-        'orange box = dist cross-decode per DPA PC (above-chance fraction). Dual rows show 4 of the 7 '
-        'centred contrasts (rows need not sum to 1).',
-        'E. Cross-task generalisation (Expert): decoders trained in one task, tested in the others. '
-        'Cells = transferred fraction (cross − 0.5)/(within − 0.5); column labels carry each test task’s '
-        'own within-task accuracy (the ceiling); hatched = ceiling ≈ chance or ratio > 1 (unreliable). '
-        'The same axes serve every task.',
-        'F. The shared frame is stable across learning: per-mouse mean cross-task accuracy, Naive vs '
-        'Expert (colour = mouse, marker = opsin line, diamond = mean); all Δ n.s. (Wilcoxon, n = 9; '
-        'robust across decoder pipelines) and bounded — the Δ 95% CIs all fall within ±0.05 accuracy '
-        '(sample [−.03, +.02], test [−.01, +.04], choice [−.03, +.05]). Generalisation is in place from '
-        'the start — learning repositions the state (Fig. 4); it does not build the shared geometry.',
+        'Figure 2 | A minimal, factorised population geometry: each task variable has one dedicated '
+        'coding axis, and the same axes serve every task. The panels build the claim in order: B '
+        'counts the reliable dimensions, C shows each axis carries its variable exactly when the '
+        'task needs it, D identifies the principal components with the variables, E shows the same '
+        'axes generalise across tasks, and F shows the whole frame is in place before learning.',
+        'A. Design. Trial timeline of the three interleaved tasks, and the two population states '
+        'analysed throughout: the MEMORY state (mid-delay window, 5.5–6.3 s — after the distractor, '
+        'before the Go/NoGo cue and before any licking) and the DECISION state (test onset onward). '
+        'All panels use the pseudo-population of 3,319 neurons pooled over the 9 mice (12 task '
+        'conditions). Dimensionality is measured with cross-validated PCA (cvPCA): condition means '
+        'are estimated on one half of the trials and evaluated against the other half (30 random '
+        'half-splits, both directions averaged), so only structure that REPLICATES across '
+        'independent trial halves counts — noise and overfit dimensions cancel out.',
+        'B. How many reliable dimensions? Fraction of replicating condition-mean variance per cvPCA '
+        'component (error bars = leave-one-mouse-out jackknife 95% CI, t(8); dashed grey = '
+        'within-mouse label-shuffle null floor). At mid-delay the DPA state occupies a SINGLE '
+        'reliable axis — the working memory is a line separating sample A from B; the dual tasks '
+        'add exactly one more axis (distractor 0.92 vs sample 0.07 of the reliable variance); at '
+        'decision both task sets need ≈3 axes. Naive and Expert spectra are near-identical: '
+        'learning does not change the dimensionality.',
+        'C. Does each axis carry its variable when the task needs it? Decoding accuracy for each '
+        'variable along its own demixed axis, on held-out pseudo-trials, each stage tested against '
+        'its own within-mouse label-shuffle null (95th percentile; Expert solid, Naive dashed). The '
+        'rule that emerges: a variable decodes exactly when it is in play — sample throughout the '
+        'delay, distractor and choice at their own epochs. † marks the single exception: an '
+        'anticipatory choice signal in Naive at mid-delay (0.66 vs its null) that DISAPPEARS with '
+        'learning. Hatched bar: the distractor decoded not from its own axis but from the DPA-state '
+        'subspace (top-3 PCs) — a weak but reliable transfer at mid-delay (permutation p = .031, '
+        '1,000 draws), against 1.0 when decoded within the dual tasks.',
+        'D. The principal components ARE the task variables: η² of each condition-mean PC against '
+        'the design contrasts (rows = PCs, labelled with their % of condition-mean variance; a cell '
+        'near 1 means that PC codes that single variable). Each reliable PC loads on one variable — '
+        'the geometry is factorised, not mixed. Rows beyond panel B’s reliable rank are faded '
+        '(rank = leading components reaching 95% of reliable variance); the orange box carries '
+        'panel C’s dist cross-decode per DPA PC. Dual rows show 4 of the 7 centred contrasts '
+        '(rows need not sum to 1).',
+        'E. The same axes serve every task: decoders trained on one task, tested on the others '
+        '(Expert). Cells = the transferred fraction of the decodable signal, (cross − 0.5) / '
+        '(within − 0.5), so 1 means the training task’s axis works fully in the test task; each '
+        'column label prints the test task’s own within-task accuracy (the ceiling); hatched '
+        'cells = ceiling ≈ chance or ratio > 1, i.e. not interpretable. High off-diagonal '
+        'fractions mean ONE shared axis per variable rather than a private axis per task.',
+        'F. And the shared frame precedes learning: per-mouse mean cross-task accuracy, Naive (x) '
+        'vs Expert (y); colour = mouse, marker = opsin line, black diamond = mean; points on the '
+        'unity line = no change. All changes are n.s. (Wilcoxon, n = 9; robust across decoder '
+        'pipelines) AND bounded: the Δ 95% CIs fall entirely within ±0.05 accuracy (sample '
+        '[−.03, +.02], test [−.01, +.04], choice [−.03, +.05]) — an equivalence statement, not '
+        'mere absence of evidence. Learning repositions the state within this frame (Fig. 4); it '
+        'does not build the frame.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     draw_justified(fig, CAP_PARAS)

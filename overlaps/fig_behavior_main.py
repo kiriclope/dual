@@ -377,29 +377,41 @@ for _ax, _L in [(axAm, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
 
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
 CAP_PARAS = [
-    'Figure 1 | The dual task: DPA working memory learned alongside a Go/NoGo distractor — with '
-    'structured interference between the two. Recorded cohort, 9 mice, laser-off trials; '
-    'mean ± SEM; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < .001.',
-    'A. Task scheme: every trial poses a DPA working-memory problem (sample odor A/B → delay → '
-    'test odor C/D; lick on the paired match); on dual trials a Go/NoGo distractor odor and '
-    'response cue are interleaved into the delay. DPA / DualGo / DualNoGo trials are interleaved '
-    'within sessions.',
-    'B–E. Learning curves (per-mouse/day accuracy; per-day stars are uncorrected per-day LMMs): '
-    'GNG is acquired quickly and saturates while DPA improves gradually and stays below it (B); '
-    'the GNG curves split by distractor identity, Go vs NoGo (C); the DPA deficit is carried by '
-    'the unpaired (no-lick) trials (D), and the unpaired deficit depends on task context — '
-    'pure DPA vs Go vs NoGo context (E).',
-    'F. Effect-size summary (LMM on per-mouse/day proportions, condition ● and condition × day □ '
-    'fixed effects ± 95% CI, random intercept per mouse): GNG > DPA (∗) with the gap narrowing '
-    'over days (∗∗∗); NoGo > Go (∗); unpaired < paired (∗∗∗) with the unpaired gap narrowing '
-    'over days (∗∗∗); Go-context DPA < pure DPA (∗).',
-    'G. The interference is behavioural and early: on dual DPA trials, an intrusive lick at the '
-    'distractor/cue predicts DPA errors in Naive (GEE, OR = 0.56, p = .006) but no longer in '
-    'Expert (OR = 0.76, p = .50) — thin lines = single mice.',
-    'H. Experts settle at a suboptimal balance: per-animal DPA vs GNG performance (Expert; '
-    'marker = opsin group, colour = mouse). No animal reaches the both-optimal corner (mean gap '
-    '0.18), and the two accuracies are uncorrelated across mice (r = +0.10, p = .80; ρ = +0.35, '
-    'p = .36, n = 9).',
+    'Figure 1 | The dual task: an odour working-memory problem (DPA) is learned alongside an '
+    'embedded Go/NoGo distractor task — and the two interfere in a structured, learnable way. '
+    'Recorded cohort, 9 mice, laser-off trials; mean ± SEM; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < .001.',
+    'A. The task. Every trial is a delayed paired-association (DPA) problem: a sample odour '
+    '(A or B), a delay, then a test odour (C or D); the mouse licks if the pair matches '
+    '(A→C, B→D) and withholds otherwise — so the sample must be held in working memory across '
+    'the delay. On two thirds of trials a Go/NoGo distractor task is embedded INSIDE that '
+    'delay: a distractor odour followed by a response cue — lick on Go, withhold on NoGo '
+    '(DualGo / DualNoGo trials); the rest are pure DPA. All three trial types are interleaved '
+    'within every session, so the memory must survive both the distractor odour and the act of '
+    'responding to it.',
+    'B–E. Learning the two tasks (per-mouse/day accuracy; stars above sessions = per-day LMMs, '
+    'uncorrected). The Go/NoGo task is acquired within the first sessions and saturates near '
+    'ceiling, while DPA improves gradually and never quite catches up (B; GNG split by '
+    'distractor identity in C). The DPA deficit is not uniform: it is carried almost entirely '
+    'by the UNPAIRED trials — the ones that require withholding (D) — and its size depends on '
+    'which task surrounds the trial (pure DPA vs Go vs NoGo context, E). Together B–E say: what '
+    'is hard is not licking to the right odour, but NOT licking while a lick-demanding task '
+    'runs in the middle of the memory period.',
+    'F. Panels B–E as one model: linear mixed model on the per-mouse/day accuracies (fixed '
+    'effects ± 95% CI; ● = condition offset, □ = condition × day slope; random intercept per '
+    'mouse). GNG > DPA (∗) with the gap narrowing over days (∗∗∗); NoGo > Go (∗); unpaired < '
+    'paired (∗∗∗), also narrowing over days (∗∗∗); and DPA is worse in Go context than in pure '
+    'DPA (∗).',
+    'G. Where the interference acts: dual-trial DPA accuracy split by what the animal did at the '
+    'distractor cue (thin lines = single mice). In Naive mice, trials with an INTRUSIVE lick at '
+    'the cue end in DPA errors far more often (trial-level GEE, OR = 0.56, p = .006); in Expert '
+    'mice the effect is gone (OR = 0.76, p = .50). The distractor damages the memory through '
+    'the action it evokes — and learning removes exactly that coupling.',
+    'H. Learned, but not jointly optimal: each Expert animal’s DPA accuracy against its GNG '
+    'accuracy (colour = mouse, marker = opsin group; star = the both-optimal corner). No animal '
+    'reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across mice '
+    '(r = +0.10, p = .80; ρ = +0.35, p = .36, n = 9): the good memory mice are not '
+    'systematically the good distractor mice — each animal settles its own balance between the '
+    'two demands.',
 ]
 sys.path.insert(0, '/home/leon/dual/pca')
 from figcaption import draw_justified                  # shared with Figs 2/3
