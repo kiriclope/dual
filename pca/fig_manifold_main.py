@@ -117,26 +117,45 @@ assert FS_KEY in RES, (f'missing {FS_KEY} — run: cd /home/leon/dual/pca && pyt
 # FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (n_mice, 2) per-mouse [x, y] means}
 
 
+def _centered(ENT):
+    """Per-mouse re-centring of one storyboard window: subtract each mouse's cross-condition
+    mean state, so the panel shows the CONDITION GEOMETRY — which codes separate, along which
+    axis — free of the common ramp and of between-mouse offsets (both of which swamped the
+    clouds in the raw replay). The removed absolute displacement lives in panel A's traces and
+    is quantified on a fixed axis in Fig 4B."""
+    per = {}
+    for cd, (mice, P) in ENT.items():
+        for mo, p in zip(mice, P):
+            per.setdefault(mo, []).append(p)
+    off = {mo: np.mean(v, 0) for mo, v in per.items() if len(v) >= 2}
+    out = {}
+    for cd, (mice, P) in ENT.items():
+        pts = np.array([p - off[mo] for mo, p in zip(mice, P) if mo in off])
+        if len(pts) >= 3:
+            out[cd] = pts
+    return out
+
+
 def panel_a(fig, gsA):
-    """The storyboard, 2 rows (Naive | Expert) x 5 windows, replayed from FRAME_STATES: faint
-    dots = per-mouse condition means (>=3 trials), ellipse = 1 SD across mice, marker = the grand
-    mean. Crosshair = the pre-trial baseline — the SAME zero as the panel-A traces (per-mouse
-    CCGD units; the fixed-axis quantitative push is Fig 4's). All ten frames share one x/y range
-    so positions are comparable at a glance."""
+    """The storyboard, 2 rows (Naive | Expert) x 5 windows, replayed from FRAME_STATES (the
+    panel-A CCGD projections) and re-centred per mouse per window (_centered): faint dots =
+    per-mouse condition means (>=3 trials), ellipse = 1 SD across mice, marker = the grand mean,
+    crosshair = the window's mean state. All ten frames share one x/y range."""
     FS = RES[FS_KEY]
-    ALL = np.vstack([v for st in ['Naive', 'Expert'] for sp in B_SPECS
-                     for v in FS[(st,) + sp].values()])
-    pad = 0.06 * (ALL[:, 0].max() - ALL[:, 0].min())
-    XL = (min(ALL[:, 0].min(), 0) - pad, max(ALL[:, 0].max(), 0) + pad)
-    padY = 0.06 * (ALL[:, 1].max() - ALL[:, 1].min())
-    YL = (min(ALL[:, 1].min(), 0) - padY, max(ALL[:, 1].max(), 0) + padY)
+    CEN = {(st,) + sp: _centered(FS[(st,) + sp]) for st in ['Naive', 'Expert'] for sp in B_SPECS}
+    ALL = np.vstack([pts for ent in CEN.values() for pts in ent.values()])
+    # shared range from the 2-98 percentiles of the per-mouse dots (a few outlier dots clip;
+    # the raw min/max left the row mostly empty around a thin data band)
+    x0, x1 = np.percentile(ALL[:, 0], [2, 98]); y0, y1 = np.percentile(ALL[:, 1], [2, 98])
+    XL = (x0 - 0.08 * (x1 - x0), x1 + 0.08 * (x1 - x0))
+    YL = (y0 - 0.08 * (y1 - y0), y1 + 0.08 * (y1 - y0))
     WLAB = {'md': 'mid-delay (pre-cue)', 'delay': 'late delay (post-lick)', 'decision': 'decision'}
     axes = []
     for r, stage in enumerate(['Naive', 'Expert']):
         for j, (sname, wn) in enumerate(B_SPECS):
             ax = fig.add_subplot(gsA[r, j]); axes.append(ax)
-            ENT = FS[(stage, sname, wn)]
-            # crosshair = the pre-trial baseline (zero), exactly as in the panel-A traces
+            ENT = CEN[(stage, sname, wn)]
+            # crosshair = this window's cross-condition mean state (per mouse)
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
             ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
             for cd, P in ENT.items():
@@ -159,8 +178,8 @@ def panel_a(fig, gsA):
             if r == 1:
                 x0, x1 = ax.get_xlim(); y0, y1 = ax.get_ylim()
                 sx = x0 + 0.05 * (x1 - x0); sy = y0 + 0.06 * (y1 - y0)
-                ax.plot([sx, sx + 5], [sy, sy], '-', color='0.3', lw=1.1)
-                ax.text(sx + 2.5, sy + 0.015 * (y1 - y0), '5 z', ha='center', va='bottom',
+                ax.plot([sx, sx + 2], [sy, sy], '-', color='0.3', lw=1.1)
+                ax.text(sx + 1.0, sy + 0.015 * (y1 - y0), '2 z', ha='center', va='bottom',
                         fontsize=5.4, color='0.3')
                 if j == 2:                           # one shared x-label, centred under the grid
                     ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
@@ -183,15 +202,21 @@ def panel_a(fig, gsA):
             ynl = np.mean([g[1] for cd, g in gm.items() if not cd[2]])
             ssep = (np.mean([g[0] for cd, g in gm.items() if cd[1] == 1])
                     - np.mean([g[0] for cd, g in gm.items() if cd[1] == 0]))
+            gng = ''
+            if sname == 'dual':
+                gsplit = (np.mean([g[1] for cd, g in gm.items() if cd[0] == 'DualGo'])
+                          - np.mean([g[1] for cd, g in gm.items() if cd[0] == 'DualNoGo']))
+                gng = f'  Go-NoGo y {gsplit:+.2f}'
             print(f'a: {stage:6s} {sname:4s} {wn:9s} action-axis '
-                  f'lick {ylk:+6.2f} / no-lick {ynl:+6.2f}  sample sep {ssep:+.2f}')
+                  f'lick {ylk:+6.2f} / no-lick {ynl:+6.2f}  sample sep {ssep:+.2f}{gng}')
     return axes[0]
 
 
 # ══ a — TRAJECTORIES (top row): replayed CCGD projections (ORIG_TRACES) ═══════
-#   Same convention as the storyboard below (per-mouse CCGD projections, baseline zero) — since
-#   the FRAME_STATES replay (2026-08-31) the trace zero IS the storyboard crosshair, and a trace's
-#   value at a window matches the storyboard cloud's position there. t = bin/6 - 0.5 s (exact).
+#   Same projections and units as the storyboard below; the traces carry the ABSOLUTE positions
+#   (baseline zero, ramp included) while each storyboard window is re-centred on its own mean
+#   state — so trace SEPARATIONS match cloud separations window by window, but the trace value
+#   is not the cloud's crosshair offset. t = bin/6 - 0.5 s (exact).
 TBIN = lambda b: np.asarray(b) / 6.0 - 0.5
 EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
           ('GNG cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
@@ -524,20 +549,20 @@ CAP_PARAS = [
     'within each code column. Shaded bands: sample, distractor, GNG cue and test epochs. The sample '
     'code is maintained throughout the delay in both stages; the dist and choice codes rise at their '
     'own epochs.',
-    'B. The frame itself, Naive (top) and Expert (bottom), in EXACTLY the coordinates of A: each '
-    'state is the same cross-validated per-mouse CCGD projections read at one window — sample '
-    'axis (x) and choice axis (y), per-mouse baseline = 0 (dashed crosshair, the same zero as '
-    'A’s dashed line), one shared per-mouse unit. Dots = per-mouse condition means (correct '
-    'trials, ≥3 per mouse), ellipse = 1 SD across mice, marker = grand mean; fill = lick, open = '
-    'no-lick; circle / triangle / square = DPA / Go / NoGo; colour = sample A / B; scale bar 5 z. '
-    'Read left to right along the trial: DPA states separate along the sample axis only at '
-    'mid-delay — the choice axis is silent (at baseline) — and split along the choice axis at '
-    'decision; the dual Go and NoGo states already differ along the choice axis at mid-delay '
-    '(weakly in Naive, strongly in Expert — the distractor precedes this window), and after the '
-    'cue the Go state moves toward lick (late delay) — in both stages, every separation in every '
-    'task is carried by the same two axes. Note the Expert DPA delay states sit slightly below '
-    'the choice-axis baseline where the Naive ones do not (−0.4 vs +0.0 z) — the no-lick push, '
-    'quantified on a fixed axis in Fig. 4B.',
+    'B. The frame itself, Naive (top) and Expert (bottom): the same cross-validated per-mouse '
+    'CCGD projections as A — sample axis (x), choice axis (y) — read at one window per panel '
+    'and re-centred, per mouse, on that window’s mean state, so each panel shows the condition '
+    'GEOMETRY at that moment: which codes are separated, and along which axis. (The common ramp '
+    'and the absolute displacement along the trial are carried by the traces in A and quantified '
+    'on a fixed axis in Fig. 4B.) Dots = per-mouse condition means (correct trials, ≥3 per '
+    'mouse), ellipse = 1 SD across mice, marker = grand mean; fill = lick, open = no-lick; '
+    'circle / triangle / square = DPA / Go / NoGo; colour = sample A / B; scale bar 2 z. Read '
+    'left to right along the trial: at mid-delay the DPA states separate along the sample axis '
+    'only — the choice axis carries nothing; at decision they split along the choice axis; the '
+    'dual Go and NoGo states already differ along the choice axis at mid-delay (weakly in '
+    'Naive, strongly in Expert — the distractor precedes this window), and after the cue the Go '
+    'state sits toward lick (late delay) — in both stages, every separation in every task is '
+    'carried by the same two axes.',
     'C. The plane is necessary and sufficient for the memory and choice codes: each variable '
     'decoded from only the 2 coordinates of each mouse’s own sample × choice plane, from the '
     'out-of-plane residual (plane component removed) and from the full population (mean ± SEM, '

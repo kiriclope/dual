@@ -346,7 +346,7 @@ learning, knob-robust).** Per-mouse cosine scatters → fig_manifold_supp.py pan
 Fig 4A's data). Caption title = the proven claim (necessary & sufficient + dist pulled in).
 Reading order: frame → proof → geometry/identity. exp_plane_frame.py now run for BOTH pipelines.
 
-### 2026-08-31 storyboard REPLACED by a CCGD REPLAY (user: "B is not consistent with A") — FINAL
+### 2026-08-31 storyboard REPLACED by a CCGD REPLAY (user: "B is not consistent with A")
 Two fresh-axis origin conventions failed in one day, and the failure is structural: the
 storyboard's freshly-fit single-window axes carry the trial's condition-independent ramp (the
 documented 29–45% contamination), so NO single origin works — **baseline-zero** dragged every
@@ -362,8 +362,21 @@ independently per table (means don't need trial pairing). Storyboard glyphs: fai
 per-mouse means, ellipse = 1 SD across mice, marker = grand mean; **crosshair = per-mouse
 baseline zero = exactly A's dashed line** — A and B are literally the same coordinates and units
 (shared across stages too). All fresh-axis machinery (build_frame/sample_axis/lick_axis/cloud/
-pseudo-trials, the fits_inputs.pkl load) is deleted from `fig_manifold_main.py`. Settled numbers
-(canonical): DPA·md choice-axis Naive +0.03 vs **Expert −0.44 z** (the honest baseline-referenced
-push preview, caption "−0.4 vs +0.0"); DPA·decision lick +4.15/+3.79, no-lick +0.93/−0.76
-(both classes ride the ramp up — no-lick is NOT symmetric-negative); dual·decision lick +5.6/+5.0;
-sample sep at md ≈ 4.8 both stages.
+pseudo-trials, the fits_inputs.pkl load) is deleted from `fig_manifold_main.py`.
+
+### 2026-08-31 storyboard FINAL: per-window per-mouse RE-CENTRING (user: "worse than ever — just
+### readout the mid delay clouds and decision clouds correctly")
+The raw replay was consistent with A but unreadable: between-mouse offsets + the shared ramp
+inflated the 1-SD-across-mice ellipses into an overlapping soup, and the absolute positions
+(both decision classes riding the ramp up) hid the splits. FINAL design: `_centered()` in
+`fig_manifold_main.py` subtracts, per mouse per window, that mouse's cross-condition mean state
+(cache now keeps mouse ids), so each panel shows ONLY the condition geometry at that moment —
+which codes are separated and along which axis. Crosshair = the window-mean state; the absolute
+displacement (ramp, no-lick push) belongs to panel A's traces and Fig 4B, and B's caption makes
+no absolute-position claims anymore. Shared axes limits from the 2–98 percentiles of the
+per-mouse dots (outliers clip); scale bar 2 z. Settled per-window numbers (canonical): sample
+sep at md ≈ 4.8/4.8 (Naive/Expert); DPA·decision lick−no-lick split 3.2/4.6 (= A's trace gaps
+exactly); **dual Go−NoGo choice-axis split md +1.2 → +4.2, late delay +1.5 → +6.2 with
+learning** — the "weak in Naive, strong in Expert" caption claim, now printed by the script.
+Consistency with A holds at the level of SEPARATIONS (identical projections ⇒ identical gaps);
+trace values are not the cloud offsets (those are centred away).

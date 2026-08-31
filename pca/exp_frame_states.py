@@ -18,7 +18,8 @@ Windows (overlaps T_WINDOW=0 bins): md = bins_MD 33-38 · delay = BINS_LATE 45-5
 decision = 57-62 incl. (the DPA action window).
 
 Output: merges {'FRAME_STATES' (plain) / 'FRAME_STATES_pca20' (--pca)} into results.pkl:
-FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (n_mice, 2) per-mouse [x, y] means}.
+FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (mice, (n_mice, 2) [x, y] means)} —
+mouse ids kept so the figure can re-centre each window per mouse (condition geometry only).
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python exp_frame_states.py [--pca]
 """
 import sys, os, warnings, pickle
@@ -69,17 +70,17 @@ for stage in MP.STAGES:
         for tk in tset:
             for sv in (0, 1):
                 for lv in (0, 1):
-                    pm = []
+                    mice, pm = [], []
                     for mo in MP.ALL_MICE:
                         sx = cell(CS, stage, tk, sv, lv, mo) & np.isfinite(x)
                         sy = cell(CL, stage, tk, sv, lv, mo) & np.isfinite(y)
                         assert sx.sum() == sy.sum(), (stage, tk, sv, lv, mo)
                         if sx.sum() >= 3:
-                            pm.append([x[sx].mean(), y[sy].mean()])
+                            mice.append(mo); pm.append([x[sx].mean(), y[sy].mean()])
                     if len(pm) >= 3:
-                        ent[(tk, sv, bool(lv))] = np.asarray(pm)
+                        ent[(tk, sv, bool(lv))] = (mice, np.asarray(pm))
         OUT[(stage, sname, wn)] = ent
-        gm = {cd: v.mean(0) for cd, v in ent.items()}
+        gm = {cd: v.mean(0) for cd, (_, v) in ent.items()}
         ymn = np.array([g[1] for g in gm.values()])
         ylk = np.array([g[1] for cd, g in gm.items() if cd[2]])
         ynl = np.array([g[1] for cd, g in gm.items() if not cd[2]])
