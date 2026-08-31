@@ -136,8 +136,8 @@ def _centered(ENT):
         pts = np.array([p - off[mo] for mo, p in zip(mice, P) if mo in off])
         if len(pts) >= 3:
             out[cd] = pts
-    # the grand-mean removed offset: where this window's mean state sits relative to baseline —
-    # the pre-cue panels draw its inverse as a grey "baseline" line (the push made visible)
+    # the grand-mean removed offset (where this window's mean state sits relative to baseline)
+    # is returned for the console print only — baseline lines were tried and removed (user)
     return out, np.mean(list(off.values()), 0)
 
 
@@ -165,16 +165,6 @@ def panel_a(fig, gsA):
             # crosshair = this window's cross-condition mean state (per mouse)
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
             ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
-            if wn == 'md':
-                # PRE-CUE panels only: the pre-trial baseline (grey) — here the common ramp is
-                # negligible, so baseline-vs-crosshair IS the mean displacement (the Expert DPA
-                # no-lick push shows as the baseline sitting ABOVE the window mean). Post-cue
-                # windows omit it: the shared lick ramp dominates the offset there.
-                bl = -OFF[(stage, sname, wn)][1]
-                ax.axhline(bl, ls='-', color='0.55', lw=0.7, zorder=0)
-                if j in (0, 2):
-                    ax.text(0.99, bl, 'baseline', ha='right', va='bottom', fontsize=5,
-                            color='0.45', transform=ax.get_yaxis_transform())
             for cd, P in ENT.items():
                 col = SAMPC[int(cd[1])]; licks = cd[2]
                 ax.scatter(P[:, 0], P[:, 1], s=6, marker='.', color=col, lw=0, alpha=0.5, zorder=1)
@@ -577,11 +567,11 @@ CAP_PARAS = [
     'and re-centred, per mouse, on that window’s mean state, so each panel shows the condition '
     'GEOMETRY at that moment: which codes are separated, and along which axis. (The common ramp '
     'and the absolute displacement along the trial are carried by the traces in A and quantified '
-    'on a fixed axis in Fig. 4B.) In the PRE-CUE panels — where the common ramp is negligible — '
-    'the grey line marks the pre-trial baseline: in Expert DPA it sits ABOVE the window mean '
-    '(the delay states sit 0.4 z on the no-lick side — the push) where in Naive it coincides; '
-    'post-cue windows omit it because the shared movement toward lick dominates the offset '
-    'there. Dots = per-mouse condition means (correct trials, ≥3 per mouse), ellipse = SEM '
+    'on a fixed axis in Fig. 4B.) Windows: mid-delay 5.5–6.3 s (pre-cue), late delay 7.5–8.8 s '
+    '(post-cue), decision 10–11 s — the first second of the response window (the choice axis '
+    'itself is trained at the lick moment, 9.5–10.5 s, and read here). Dots = per-mouse '
+    'condition means (correct trials, ≥3 per '
+    'mouse), ellipse = SEM '
     'across mice, marker = grand mean; fill = lick, open = no-lick; '
     'circle / triangle / square = DPA / Go / NoGo; colour = sample A / B; scale bar 2 z. Read '
     'left to right along the trial: at mid-delay the DPA states separate along the sample axis '

@@ -414,3 +414,16 @@ summary, n=9) is standard — CI-component removal is the dPCA/Mante/Panichello 
 the nested-data unit). Caveats to keep disclosed: balanced (unweighted-cell) common-mean
 estimation with occasional missing cells; centring forfeits absolute claims (A + Fig 4B carry
 them).
+
+### 2026-08-31 (amendments to the polish block above, user)
+- **Baseline lines REMOVED** from the pre-cue panels ("what is the point... remove them") — the
+  push story stays with panel A + Fig 4B; the removed offsets still print as "mean-vs-BL".
+- **Decision READ window moved 57–62 → 60–66** (10.0–11.0 s, the first second of the response
+  window; the choice AXIS is still trained at the 57–62 lick moment). Motivated by "dual Expert
+  decision is bad": at 57–62 the learned Go/NoGo cue-history (+3.2 z) rivals the lick split
+  (+4.7) on the same axis and the 8 conditions interleave. A window scan (57–62/57–68/60–66/
+  63–69/66–72/60–72) picked 60–66: lick split +4.7→+6.0 (dual E) and +4.6→+6.0 (DPA E),
+  Go/NoGo superposition +3.2→+2.5, at a small sample-sep cost (2.0→1.7). The JawsM12 Go-B-lick
+  outlier (+25 z raw, 15 trials — real per-mouse lick-amplitude heterogeneity, the known
+  0.1–43× tensor scale spread) is window-invariant; SEM ellipses absorb it. All THREE caches
+  rebuilt (canonical/_pca20/_antact); caption B now defines all three windows.

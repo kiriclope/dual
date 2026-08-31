@@ -43,7 +43,11 @@ assert len(YS) == len(YL), f'{len(YS)} vs {len(YL)} rows'
 
 WINS = {'md': np.asarray(MP.options['bins_MD']),           # 33-38 mid-delay (pre-cue)
         'delay': np.asarray(MP.BINS_LATE),                 # 45-53 late delay (post-cue/lick)
-        'decision': np.arange(57, 63)}                     # 57-62 incl., DPA action window
+        'decision': np.arange(60, 67)}                     # 60-66 incl. = 10.0-11.0 s, first
+# second of the RESPONSE window (read window moved from the 57-62 lick moment 2026-08-31: a
+# window scan showed the lick split grows +4.7->+6.0 (dual Expert) and +4.6->+6.0 (DPA Expert)
+# while the Go/NoGo cue-history superposition shrinks +3.2->+2.5; the choice AXIS itself is
+# still the canonical action axis trained at 57-62 — only the read moment moved).
 B_SPECS = [('DPA', 'md'), ('DPA', 'decision'),
            ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
 
