@@ -258,6 +258,9 @@ but weakens D-DPA to n.s. — it trades D-significance for a cleaner C.
   rebuild §3)
 - Output: `overlaps/figures/overlaps/main/{png,svg}/fig_overlaps_main[_TAG][_ab].{png,svg}`
   (`--ab` = A&B-independent D/E twins, §5a)
-- Caption: `figure_captions.org` ("Figure X (Overlaps / CCGD)")
+- Caption: since 2026-08-31 the caption is IN-FIGURE (justified; `CAP_PARAS` block in
+  `fig_overlaps_main_native.py`, drawn via `pca/figcaption.draw_justified`; variant builds append
+  a [BUILD VARIANT] tag). `figure_captions.org` ("Figure X (Overlaps / CCGD)") is the older
+  standalone text — treat the in-figure caption as authoritative.
 - Sibling docs: `overview.md` (arc + caveats), `routines.md` (run commands),
   `laser_onoff.md` (the causal analog).
