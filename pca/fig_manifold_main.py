@@ -10,11 +10,11 @@ no-PCA (--nopca, unsuffixed filenames); the PCA-20 build is the ED robustness va
 
   A  the four codes over time (Naive | Expert rows x sample/dist/test/choice), replayed from the
      overlaps CCGD projections (ORIG_TRACES).
-  B  the frame itself — held-out pseudo-trials plotted IN the fixed axes (x = sample axis @ mid-delay,
-     y = behavioural lick axis @ decision, both trained on an independent trial half), a 2 (Naive |
-     Expert) x 5 storyboard (DPA·md -> DPA·decision -> dual·md -> dual·late -> dual·decision), each
-     row in that stage's OWN frame (axes re-fit per stage; added 2026-08-31 — the slimmed figure
-     read empty next to Figs 2/4). Metric, unlike a t-SNE map: every offset is in z units.
+  B  the frame itself — the SAME per-mouse CCGD projections as A (FRAME_STATES /
+     exp_frame_states.py), read at one window per panel and re-centred per mouse on that window's
+     cross-condition mean: a 2 (Naive | Expert) x 5 storyboard (DPA·md -> DPA·decision -> dual·md
+     -> dual·late -> dual·decision) of condition GEOMETRY only — dots = per-mouse condition means,
+     SEM ellipses; the absolute ramp/push lives in A and Fig 4B. Metric: offsets are in z units.
   C  (RESTRUCTURED 2026-08-31: the PROOF row moved up, directly answering B's plotted-in-a-plane
      objection) SUFFICIENCY summary bars: mean ± SEM of the per-mouse plane / out-of-plane / full
      accuracies (PM_PLANE / exp_permouse_plane.py), canonical timeline sample/dist/test/choice,
@@ -32,8 +32,8 @@ no-PCA (--nopca, unsuffixed filenames); the PCA-20 build is the ED robustness va
      — train the sample/choice decoders in one stage, test held-out in the other (registered
      neurons); transfer/within 0.90 / 0.87, knob-robust. Learning moves the state, not the frame.
 
-Reads caches only (no 20 GB X, no overlaps tensor): pca results.pkl + fits_inputs.pkl, and the
-overlaps ccgp caches by absolute path.
+Reads caches only (no 20 GB X, no overlaps tensor): everything comes from pca results.pkl
+(FRAME_STATES / ORIG_TRACES / PM_PLANE / AXIS_FRAME / XSTAGE_DEC).
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python fig_manifold_main.py
 Output: figures/pseudo/dimensionality/{png,svg}/fig_manifold_main.{png,svg}
 """
@@ -144,7 +144,7 @@ def _centered(ENT):
 def panel_a(fig, gsA):
     """The storyboard, 2 rows (Naive | Expert) x 5 windows, replayed from FRAME_STATES (the
     panel-A CCGD projections) and re-centred per mouse per window (_centered): faint dots =
-    per-mouse condition means (>=3 trials), ellipse = 1 SD across mice, marker = the grand mean,
+    per-mouse condition means (>=3 trials), SEM ellipse across mice, marker = the grand mean,
     crosshair = the window's mean state. All ten frames share one x/y range."""
     FS = RES[FS_KEY]
     BOTH = {(st,) + sp: _centered(FS[(st,) + sp]) for st in ['Naive', 'Expert'] for sp in B_SPECS}
@@ -188,7 +188,7 @@ def panel_a(fig, gsA):
                 sx = x0 + 0.05 * (x1 - x0); sy = y0 + 0.06 * (y1 - y0)
                 ax.plot([sx, sx + 2], [sy, sy], '-', color='0.3', lw=1.1)
                 ax.text(sx + 1.0, sy + 0.015 * (y1 - y0), '2 z', ha='center', va='bottom',
-                        fontsize=5.4, color='0.3')
+                        fontsize=6.0, color='0.3')
                 if j == 2:                           # one shared x-label, centred under the grid
                     ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
             if j == 0:
@@ -199,12 +199,12 @@ def panel_a(fig, gsA):
                       mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[1], label='sample B'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='0.4', mec='0.4', label='lick'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='w', mec='0.4', label='no-lick')]
-                ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
+                ax.legend(handles=hs, frameon=False, fontsize=6.0, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, labelspacing=0.25, borderaxespad=0.0)
             if r == 0 and j == 2:                    # marker key on the first dual panel
                 hs = [mlines.Line2D([], [], marker='^', ls='', ms=4, mfc='none', mec='0.3', label='Go'),
                       mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
-                ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
+                ax.legend(handles=hs, frameon=False, fontsize=6.0, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
             gm = {cd: P.mean(0) for cd, P in ENT.items()}
             ylk = np.mean([g[1] for cd, g in gm.items() if cd[2]])
@@ -249,17 +249,11 @@ def panel_traj(fig, gsT):
     but they are NOT the pseudo-population z of panel b, which answers a different question
     (position in the frame, not code depth).
     """
-    # panel a must come from the SAME decoder variant as the rest of the figure: the default
-    # figure uses PCA(20) everywhere, so it reads the traces from the _pca20 overlaps tensor
-    # (run_overlaps.py --pca 20); --nopca reads the un-denoised one.
+    # panel a must come from the SAME decoder variant as the rest of the figure (canonical = no-PCA)
     TKEY = ('ORIG_TRACES' if NOPCA else 'ORIG_TRACES_pca20') + ASUF
     assert TKEY in RES, (f'missing {TKEY} — run: cd /home/leon/dual/pca && python '
                          f'exp_traj_orig.py' + ('' if NOPCA else ' --pca')
                          + (' --antact' if ANTACT else ''))
-    assert TKEY in RES, (f'missing {TKEY} — build it with:\n'
-                         '  cd ../overlaps && python run_overlaps.py --scaler none --save-weights '
-                         '--targets sample choice gng test --pca 20\n'
-                         '  cd ../pca && python exp_traj_orig.py --pca')
     TR = RES[TKEY]; xt = np.asarray(RES['ORIG_XTIME'])
     SP = sorted(RES['ORIG_SPECS'], key=lambda sp: CODE_ORDER.index(CODE_NAME[sp['code']]))
     # SHARED y-limits per code COLUMN (across Naive and Expert): the panel's point is the
@@ -284,7 +278,7 @@ def panel_traj(fig, gsT):
                 ax.axvspan(lo, hi, color=col, alpha=0.10, lw=0)
                 if r == 0 and k == 0:
                     ax.text((lo + hi) / 2, 0.98, nm, transform=ax.get_xaxis_transform(),
-                            ha='center', va='top', fontsize=5.2, color=col)
+                            ha='center', va='top', fontsize=5.8, color=col)
             for lv, lab, col in zip(spec['levels'], spec['labels'], spec['colors']):
                 M = np.asarray(TR[(stage, spec['code'], int(lv))], dtype=float)
                 if not len(M):
@@ -300,14 +294,14 @@ def panel_traj(fig, gsT):
             if r == 1:
                 ax.set_xlabel('time (s)', fontsize=7)
                 if k == 0:                              # sample legend lives in the EXPERT panel:
-                    ax.legend(frameon=False, fontsize=5.4, handlelength=1.2, loc='lower right')
+                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='lower right')
                     # (the Naive panel's top band carries the epoch names and its lower-right is
                     #  crossed by the Odor-A tail — both collide with a legend there)
             else:
                 ax.tick_params(labelbottom=False)
                 ax.set_title(f"{CODE_NAME[spec['code']]} code", loc='left', fontsize=TITLE_FS)
                 if k > 0:
-                    ax.legend(frameon=False, fontsize=5.4, handlelength=1.2, loc='upper left')
+                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='upper left')
             ax.set_ylabel(f'{stage}\ncode depth' if k == 0 else 'code depth', fontsize=7)
     return axes[0]
 
@@ -336,6 +330,11 @@ def panel_b(fig, gsB):
         ax.set_title(stage, loc='left', fontsize=TITLE_FS)
         if j == 0:
             ax.set_ylabel('axis geometry\n|cos|', fontsize=7)
+        # the attenuation correction divides by sqrt(rel_i*rel_j) — disclose the reliabilities
+        # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
+        ax.text(1.0, 1.02, 'rel ' +
+                '/'.join(f'{r:.2f}' for r in np.asarray(AXF[stage]['rel'])),
+                transform=ax.transAxes, fontsize=6.0, color='0.3', ha='right', va='bottom')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'b: {stage} sample-action {C[0,1]:.2f}  sample-distr {C[0,2]:.2f}  '
@@ -370,16 +369,16 @@ def panel_xstage(fig, gsX):
                 ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=6.6,
                         color='w' if M[i, j] > 0.82 else 'k')
         off = np.mean([M[0, 1], M[1, 0]]); dia = np.mean([M[0, 0], M[1, 1]])
-        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=5.8)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=6.2)
         ax.set_yticks([0, 1])
-        ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=5.8)
+        ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=6.2)
         ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)
         ax.set_anchor('NW')
         if k == 0:
             ax.set_ylabel('train stage', fontsize=7)
         ax.set_xlabel('test stage', fontsize=7)
         ax.text(0.5, -0.44, f'transfer/within {(off - .5) / (dia - .5):.2f}',
-                transform=ax.transAxes, ha='center', va='top', fontsize=5.8, color='0.3')
+                transform=ax.transAxes, ha='center', va='top', fontsize=6.2, color='0.3')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'f-xstage: {vn} within {dia:.2f} cross {off:.2f} ratio {(off - .5) / (dia - .5):.2f}')
@@ -437,7 +436,7 @@ def panel_e_plane(fig, gsE):
             star = '  ∗' if (vn == 'dist' and key == 0 and p < 0.05) else ''
             ax.text(0.05, 0.96, f'Δ={ev.mean() - nv.mean():+.02f}\np={p:.2f}{star}',
                     transform=ax.transAxes, va='top', ha='left',
-                    fontsize=5.4 if not star else 6.2, color='0.3' if not star else 'k',
+                    fontsize=6.0 if not star else 6.5, color='0.3' if not star else 'k',
                     fontweight='normal' if not star else 'bold')
             print(f'f: {rowlab:16s} {vn:7s} {nv.mean():.2f} -> {ev.mean():.2f}  p={p:.2f}{star}')
     return axes[0]
@@ -489,7 +488,7 @@ def panel_f_spaces(fig, gsF):
             return
         sig = p < 0.05
         ax.text((x1 + x2) / 2, y + 0.001, '∗' if sig else 'n.s.', ha='center', va='bottom',
-                fontsize=11 if sig else 6.5, fontweight='bold',
+                fontsize=12 if sig else 8, fontweight='bold',
                 color='k' if sig else '0.55')
         print(f'e-bars: {E_VARS[gi]:7s} {s1}-vs-{s2} p={p:.4f} {"*" if sig else "n.s."}')
 
@@ -555,7 +554,7 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 # ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
 CAP_PARAS = [
     'Figure 3 | One manifold: a single sample × choice plane is necessary and sufficient for the '
-    'memory and choice codes of both tasks — and learning pulls the distractor code into it.',
+    'memory and choice codes — and learning pulls the distractor code into it.',
     'A. The four codes over time (sample / dist / test / choice; Naive top, Expert bottom): per-mouse '
     'cross-validated decoder projections (CCGD), mean ± SEM across mice (n = 9), correct laser-off '
     'trials, one shared per-mouse unit so amplitudes are comparable across codes; y-axes shared '
@@ -569,7 +568,8 @@ CAP_PARAS = [
     'and the absolute displacement along the trial are carried by the traces in A and quantified '
     'on a fixed axis in Fig. 4B.) Windows: mid-delay 5.5–6.3 s (pre-cue), late delay 7.5–8.8 s '
     '(post-cue), decision 10–11 s — the first second of the response window (the choice axis '
-    'itself is trained at the lick moment, 9.5–10.5 s, and read here). Dots = per-mouse '
+    'itself is trained at the lick moment, 9.5–10.5 s, and read here; read windows chosen for '
+    'display — no statistics are drawn in this panel). Dots = per-mouse '
     'condition means (correct trials, ≥3 per '
     'mouse), ellipse = SEM '
     'across mice, marker = grand mean; fill = lick, open = no-lick; '
@@ -588,27 +588,34 @@ CAP_PARAS = [
     'collapses (both p = .004); dist — the mirror pattern at partial strength: out-of-plane = '
     'full (n.s.) and the plane carries a real but smaller share (plane-vs-out and plane-vs-full '
     'p = .004); test — plane at chance (both p = .004), out-of-plane = full (n.s.); choice — '
-    'plane-vs-out and out-vs-full p = .020. Every ∗ / n.s. is robust across both decoder '
-    'pipelines; † marks the one pipeline-dependent comparison (choice plane-vs-full: '
-    'p = .94 / .012 — no verdict drawn).',
+    'plane-vs-out and out-vs-full p = .020. The out-of-plane collapse of sample and choice is '
+    'expected by construction (the plane is built from those two axes); the informative results '
+    'are plane = full (sufficiency) and the test / dist contrasts. Every ∗ / n.s. is robust '
+    'across both decoder pipelines; † marks the one pipeline-dependent comparison (choice '
+    'plane-vs-full: p = .94 / .012 — no verdict drawn). p values uncorrected.',
     'D. The same, per animal: Naive (x) vs Expert (y), rows = plane / out-of-plane / full space, '
     'columns = variables. sample and choice decode as well from the plane as from the full space '
     'and collapse when the plane is removed; test is at chance from the plane yet keeps its full '
     'accuracy without it. Learning changes are n.s. in both decoder pipelines (annotations) with '
     'one robust exception, starred: the dist code’s PLANE-only accuracy grows with learning '
-    '(0.57 → 0.65, p = .020 / .027 across pipelines, 8/9 and 7/9 mice up) — per animal, learning '
-    'pulls the distractor code into the manifold (cf. Fig. 4A). Residual above-chance decoding '
-    'out-of-plane is expected (only the estimated plane is removed; population codes are '
-    'redundant).',
+    '(0.57 → 0.65, p = .020 / .027 across pipelines, 8/9 and 7/9 mice up) — the per-animal test '
+    'predicted by Fig. 4A’s starred alignment increase (a directional confirmation, not a '
+    'discovery; p uncorrected): learning pulls the distractor code into the manifold. Residual '
+    'above-chance decoding out-of-plane is expected (only the estimated plane is removed; '
+    'population codes are redundant).',
     'E. Axis geometry: attenuation-corrected split-half |cos| between the three axes '
-    '(pseudo-population). The sample axis is orthogonal to both action codes (|cos| ≈ 0.07–0.09, '
-    'both stages); the choice × dist overlap is partial and grows with learning '
-    f'({np.asarray(AXF["Naive"]["cos"])[1, 2]:.2f} → {np.asarray(AXF["Expert"]["cos"])[1, 2]:.2f}) — '
-    'quantified per animal in Fig. 4A (per-mouse cosine companions in the ED supplement).',
+    '(pseudo-population; the correction divides by √(rel·rel) of the split-half reliabilities '
+    'printed under each matrix — sample and choice sit at 0.23–0.39, so the pooled values are '
+    'estimates, not tests). The sample axis is orthogonal to both action codes (|cos| ≈ '
+    '0.07–0.09, both stages); the choice × dist overlap is partial '
+    f'({np.asarray(AXF["Naive"]["cos"])[1, 2]:.2f} → {np.asarray(AXF["Expert"]["cos"])[1, 2]:.2f}); '
+    'its increase with learning is established per animal on RAW cosines in Fig. 4A (∗ p = .008 '
+    'in both pipelines; per-mouse cosine companions in the ED supplement).',
     'F. The frame is the SAME frame across learning: decoders trained in one stage read the other '
     'stage’s activity (registered neurons; held-out trials) at ~90% of the within-stage ceiling — '
-    'transfer/within 0.90 (sample) and 0.87 (choice), robust across both decoder pipelines. '
-    'Learning moves the state within the frame (Fig. 4B); it does not rotate the frame.',
+    'transfer/within 0.90 (sample) and 0.87 (choice); cross-stage accuracy 0.88 ± 0.03–0.05 '
+    'across resamples, robust across both decoder pipelines. Learning moves the state within the '
+    'frame (Fig. 4B); it does not rotate the frame.',
 ]
 if ANTACT:
     CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in A (choice trace) and B (y-axis) is '

@@ -427,3 +427,28 @@ them).
   outlier (+25 z raw, 15 trials — real per-mouse lick-amplitude heterogeneity, the known
   0.1–43× tensor scale spread) is window-invariant; SEM ellipses absorb it. All THREE caches
   rebuilt (canonical/_pca20/_antact); caption B now defines all three windows.
+
+### 2026-08-31 code/analysis review of Fig 3 — verdict + fixes applied
+Deep review (all 5 scripts read, both pipelines re-run, every drawn stat re-verified): NO blocking
+rigor issue — no train/test leakage anywhere (PM_PLANE fits axes+classifiers on half 1, tests
+half 2, out-of-plane uses the train-estimated Q; XSTAGE trains part-0 / tests disjoint part-2);
+"registered neurons" literally true (VALIDIX identical across stages, all 9 mice); 9/9 mice
+complete for every variable; Wilcoxon floor .0039 = all-9-one-direction; (plane,full,out) index
+mapping consistent; caption numbers reproduce in BOTH pipelines; seeds fixed (bit-reproducible).
+FINDINGS + FIXES (all applied):
+1. **Panel E attenuation correction runs at low rel** — sample .23–.24, choice .24 (Naive)/.39
+   (Expert); only dist healthy (.52–.61); denominators for the 0.32→0.47 growth differ 2×
+   between stages. FIX: rel now printed top-right of each matrix; caption says the pooled values
+   are "estimates, not tests" and sources the growth to Fig 4A's RAW-cosine per-animal star.
+2. **No multiple-comparison correction** (C: 12 brackets, D: 12 tests; the dist-plane star
+   .020/.027 would not survive Holm×12). FIX: caption D reframes it as "the per-animal test
+   predicted by Fig 4A's starred alignment increase (a directional confirmation, not a
+   discovery; p uncorrected)"; caption C adds "p values uncorrected".
+3. **Sample/choice out-of-plane collapse is by construction** (the plane is built FROM those
+   axes). FIX: caption C states it; informative results = plane=full + the test/dist contrasts.
+4. Docstring rot fixed (header B description, fits_inputs claim, "1 SD"→SEM, stale PCA-20
+   comment, duplicate assert); C sig markers to house 12/8; sub-floor fonts bumped (5.2–5.8 →
+   5.8–6.2); caption F adds cross-stage 0.88 ± 0.03–0.05 across resamples; caption B disclosés
+   "read windows chosen for display — no statistics drawn"; title drops "of both tasks" (choice
+   sufficiency is DPA-tested; the dual evidence is B/F/Fig 4A).
+Verified-stable: XSTAGE cross 0.880±0.046 (sample) / ±0.027 (choice) across 8 reps.
