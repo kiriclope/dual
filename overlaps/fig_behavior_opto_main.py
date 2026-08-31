@@ -853,6 +853,44 @@ if not POSTER:                                     # banners describe the full-f
     row_banner(axL, 'overlaps · laser ON−OFF: depth drives a DPA↑/GNG↓ trade-off (G) with its two arms — ΔDPA (H) & ΔGNG (I); 5 Jaws · Naive▲+Expert● × A&B')
     row_banner(axBal, 'Laser-ON DPA–GNG balance (J) · code discriminability d′ ON≈OFF (on unity) — DPA memory (K) & GNG (L)')
 
+# ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
+if not POSTER:
+    CAP_PARAS = [
+        'Figure 5 | The ACC→mPFC(Prl) projection: chronic silencing impairs DPA memory; transient '
+        'delay silencing moves the choice code and trades DPA against GNG accuracy — while code '
+        'fidelity is spared.',
+        'A. Recorded-cohort design: hSyn-GCaMP6s imaging in mPFC + CaMKII-Jaws-tdTomato in ACC; '
+        '635 nm laser on 50% of trials (pseudo-random), delay-only.',
+        'B, C. Training batch — chronic every-trial ACC→Prl silencing, BETWEEN-group (opto vs '
+        'control, 9v9, different animals from the recorded cohort): DPA performance is impaired '
+        'across days (B); the LMM forest (C) summarises the group (○) and group × day (□) fixed '
+        'effects (95% CI) for DPA / GNG / DPA-unpaired — the deficit is carried by DPA, GNG is '
+        'spared.',
+        'D–F. Recorded cohort — transient delay-only laser, WITHIN-mouse ON vs OFF (n = 5 Jaws '
+        'inhibition): gross DPA (D) and GNG (E) performance are spared, but the manipulation '
+        'demonstrably moves each animal’s choice-code position (F: per-mouse depth, laser OFF vs '
+        'ON, samples pooled; the per-animal shift is the x-axis of G–I; the group mean is flat).',
+        'G–I. The causal coupling (laser ON−OFF, depth on the trainLD_TEST axis, read at late '
+        'delay): Δdepth predicts a DPA↑ / GNG↓ accuracy TRADE-OFF — G: Δdepth vs (ΔDPA − ΔGNG), '
+        '20 points (5 Jaws × Naive▲/Expert● × sample A/B), Pearson r = +0.48, p = .034; its two '
+        'arms are H (ΔDPA, n.s. trend) and I (ΔGNG, r = −0.61, p = .004; ρ = −0.56, p = .011). '
+        'Honest caveat (printed, not drawn): under a mouse-respecting mixed model the ΔGNG arm '
+        'survives (β = −0.014, p = .023) but the 20-point trade-off correlation drops to n.s. '
+        '(β = +0.021, p = .145) — the raw p is anti-conservative (points cluster within 5 mice).',
+        'J–L. Controls: laser-ON DPA–GNG balance stays near the optimal corner (J; r = +0.44, '
+        'p = .20, descriptive); code DISCRIMINABILITY is spared — d′ ON vs OFF on the unity line '
+        'for the DPA memory code (K: sample-axis d′ at late delay; LMM laser p = .34) and the '
+        'GNG code (L: choice-axis d′ at mid-delay; p = .74). Silencing moves the code’s '
+        'POSITION (F) without degrading its readability (K, L).',
+    ]
+    if _SUF:
+        CAP_PARAS[0] += (f' [BUILD VARIANT {_SUF}: panel annotations carry this build’s own '
+                         'statistics; the numbers quoted here are the canonical trainLD_TEST '
+                         'build.]')
+    sys.path.insert(0, '/home/leon/dual/pca')
+    from figcaption import draw_justified              # shared with Figs 2/3
+    draw_justified(fig, CAP_PARAS, fontsize=7.6)
+
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main{_SUF}{"_poster" if POSTER else ""}.{ext}'
     fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))

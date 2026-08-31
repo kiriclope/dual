@@ -466,3 +466,11 @@ per mouse: `perf ~ C(condition)*day_centred + (1|mouse)`. Per-day stars = per-da
 per-day Wilcoxon (multiplicity), binomial GEE (too conservative with 9 clusters),
 `BinomialBayesMixedGLM` (VB posterior overconfident, p≈1e-12). LMM RE variance sits near the
 boundary → treat as mildly anti-conservative.
+
+## 2026-08-31 in-figure captions (Figs 1 & 5)
+Both behaviour figures now draw a justified caption below the panels (same mechanism as Figs 2/3:
+`pca/figcaption.draw_justified`; caption text lives in each script's `CAP_PARAS`). Fig 1's old
+one-line footnote was folded into the caption title. Fig 5 keeps its row banners; its caption
+carries the header's exact stats (trade-off r=+0.48 p=.034 with the mixed-model caveat printed;
+K/L LMM p=.34/.74) and appends a [BUILD VARIANT] tag on the axis/norm variant builds (as does
+Fig 4). The poster build skips the caption.

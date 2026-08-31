@@ -375,9 +375,35 @@ for _ax, _L in [(axAm, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
                 (axE, 'E'), (axF, 'F'), (axG, 'G'), (axH, 'H')]:
     panel_letter(_ax, _L)
 
-fig.text(0.5, 0.004, 'Recorded cohort, 9 mice, laser OFF · mean ± SEM · '
-         '* p<.05  ** p<.01  *** p<.001',
-         ha='center', va='bottom', fontsize=7.5, color='0.45')
+# ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
+CAP_PARAS = [
+    'Figure 1 | The dual task: DPA working memory learned alongside a Go/NoGo distractor — with '
+    'structured interference between the two. Recorded cohort, 9 mice, laser-off trials; '
+    'mean ± SEM; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < .001.',
+    'A. Task scheme: every trial poses a DPA working-memory problem (sample odor A/B → delay → '
+    'test odor C/D; lick on the paired match); on dual trials a Go/NoGo distractor odor and '
+    'response cue are interleaved into the delay. DPA / DualGo / DualNoGo trials are interleaved '
+    'within sessions.',
+    'B–E. Learning curves (per-mouse/day accuracy; per-day stars are uncorrected per-day LMMs): '
+    'GNG is acquired quickly and saturates while DPA improves gradually and stays below it (B); '
+    'the GNG curves split by distractor identity, Go vs NoGo (C); the DPA deficit is carried by '
+    'the unpaired (no-lick) trials (D), and the unpaired deficit depends on task context — '
+    'pure DPA vs Go vs NoGo context (E).',
+    'F. Effect-size summary (LMM on per-mouse/day proportions, condition ● and condition × day □ '
+    'fixed effects ± 95% CI, random intercept per mouse): GNG > DPA (∗) with the gap narrowing '
+    'over days (∗∗∗); NoGo > Go (∗); unpaired < paired (∗∗∗) with the unpaired gap narrowing '
+    'over days (∗∗∗); Go-context DPA < pure DPA (∗).',
+    'G. The interference is behavioural and early: on dual DPA trials, an intrusive lick at the '
+    'distractor/cue predicts DPA errors in Naive (GEE, OR = 0.56, p = .006) but no longer in '
+    'Expert (OR = 0.76, p = .50) — thin lines = single mice.',
+    'H. Experts settle at a suboptimal balance: per-animal DPA vs GNG performance (Expert; '
+    'marker = opsin group, colour = mouse). No animal reaches the both-optimal corner (mean gap '
+    '0.18), and the two accuracies are uncorrelated across mice (r = +0.10, p = .80; ρ = +0.35, '
+    'p = .36, n = 9).',
+]
+sys.path.insert(0, '/home/leon/dual/pca')
+from figcaption import draw_justified                  # shared with Figs 2/3
+draw_justified(fig, CAP_PARAS, fontsize=9.0)
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_main.{ext}'

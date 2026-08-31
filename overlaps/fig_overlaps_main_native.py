@@ -337,6 +337,42 @@ if __name__ == '__main__':
     panel_letter(axD, 'D', x=0.5)
     panel_letter(axDp, 'E', x=0.72)
 
+    # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
+    CAP_PARAS = [
+        'Figure 4 | What learning does on the manifold: the distractor code aligns onto the '
+        'choice axis, the memory state is pushed along it, and the push predicts behaviour — '
+        'while code fidelity is unchanged.',
+        'A. Learning couples the dist and choice codes. Left: dist ↔ choice cross-decoding '
+        'matrices (balanced accuracy, Naive | Expert; chance-referenced off/within summary with '
+        'bootstrap CI under each — 0.33 [−0.03, 0.60] → 0.57 [0.36, 0.75]). Right: the '
+        'per-animal tests, Naive (x) vs Expert (y): the raw |cos|(choice, dist) grows '
+        '(0.073 → 0.114, ∗ p = .008) and so does the cross-decode accuracy (0.53 → 0.61, '
+        '∗ p = .004) — both starred tests are robust across decoder pipelines and are drawn '
+        'from the fixed canonical no-PCA caches in every build variant of this figure.',
+        'B. The no-lick push: sample × choice trajectory planes (Naive | Expert) with the '
+        'late-delay choice-code distributions (strips), and the per-mouse late-delay depth: '
+        'with learning the DPA delay state deepens along the choice axis into the no-lick '
+        'region (LMM β = −0.74, p = .046 ∗). Per-animal, the deepening is a trend carried by '
+        'sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the A-vs-B difference is itself n.s., '
+        'p = .055).',
+        'C. The deepening predicts behaviour BETWEEN animals (per-mouse n = 9 Spearman): '
+        'Δdepth ↔ ΔDPA accuracy ρ = −0.83, p = .005 ∗; the ΔGNG arm is null (ρ = +0.20, '
+        'p = .61) — the coupling is specific to the memory task.',
+        'D. Control — Naive nonpaired trials, correct rejections vs false alarms on the no-lick '
+        'well depth: n.s. on this axis for both samples (A: Δ(CR−FA) = −1.16, p = .27; '
+        'B: +0.73, p = .47).',
+        'E. Fidelity control: the choice-code d′ is unchanged with learning (0.80 → 1.07, '
+        'p = .25) — learning moves the state’s position along the axis, not the readability of '
+        'the code.',
+    ]
+    if FILE_SUF != '_dpaact':
+        CAP_PARAS[0] += (f' [BUILD VARIANT {FILE_SUF}: panel annotations carry this build’s own '
+                         'statistics; the numbers quoted here are the canonical action-axis '
+                         'pooled-evoked build.]')
+    sys.path.insert(0, '/home/leon/dual/pca')
+    from figcaption import draw_justified              # shared with Figs 2/3
+    draw_justified(fig, CAP_PARAS)
+
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
     for ext in ('png', 'svg'):

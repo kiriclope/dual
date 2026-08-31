@@ -897,3 +897,11 @@ method section above (`fig_overlaps_flow_empirical.py`).
 - **Fixed points**: mean of grand_mean_traj over BINS_LATE (NOT speed minimum)
 - **Flow field heatmap**: magma colormap, hybrid speed (BINS_LATE at fixed points, all-delay elsewhere)
 - **Condition naming**: `cond.replace('DualGo','Go').replace('DualNoGo','NoGo')`
+
+## 2026-08-31 Fig 4 in-figure caption
+`fig_overlaps_main_native.py` now draws a justified caption (pca/figcaption.draw_justified;
+CAP_PARAS in the script) with the canonical stats verified against the render prints: A align
+off/within 0.33→0.57, raw-cos ∗ .008 / cross-dec ∗ .004; B push LMM β=−0.74 p=.046 ∗ with the
+per-animal trend disclosed (A Δ=−1.42 p=.098, A-vs-B p=.055 n.s.); C coupling DPA ρ=−0.83
+p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchanged. Variant builds
+(--robust/--antact) append a [BUILD VARIANT] tag stating the quoted numbers are canonical.
