@@ -38,15 +38,20 @@ assert TKEY in RES and ('Naive', 'sample@dual', 0) in RES[TKEY], \
     f'missing {TKEY} @dual keys — run exp_traj_orig.py' + (' --pca' if PCA else '')
 TR = RES[TKEY]; xt = np.asarray(RES['ORIG_XTIME'])
 
-# columns: (title, trace key, class labels, class colours)
-COLS = [('DPA · sample code',  'sample',      ['Odor A', 'Odor B'],   [SAMPC[0], SAMPC[1]]),
-        ('DPA · choice code',  'lick',        ['No lick', 'Lick'],    ['#377eb8', '#4daf4a']),
-        ('dual · sample code', 'sample@dual', ['Odor A', 'Odor B'],   [SAMPC[0], SAMPC[1]]),
-        ('dual · choice code', 'lick@dual',   ['No lick', 'Lick'],    ['#377eb8', '#4daf4a'])]
+# columns: (title, trace key, class labels, class colours) — Go and NoGo SEPARATED (2026-08-31)
+SCL = (['Odor A', 'Odor B'], [SAMPC[0], SAMPC[1]])
+LCL = (['No lick', 'Lick'], ['#377eb8', '#4daf4a'])
+COLS = [('DPA · sample code',  'sample',       *SCL),
+        ('DPA · choice code',  'lick',         *LCL),
+        ('Go · sample code',   'sample@go',    *SCL),
+        ('Go · choice code',   'lick@go',      *LCL),
+        ('NoGo · sample code', 'sample@nogo',  *SCL),
+        ('NoGo · choice code', 'lick@nogo',    *LCL)]
 
-# y-limits shared per CODE (both task columns, both stages) — the DPA-vs-dual comparison IS the point
+# y-limits shared per CODE (all task columns, both stages) — the cross-task comparison IS the point
 YL = {}
-for code_group, keys in [('sample', ['sample', 'sample@dual']), ('choice', ['lick', 'lick@dual'])]:
+for code_group, keys in [('sample', ['sample', 'sample@go', 'sample@nogo']),
+                         ('choice', ['lick', 'lick@go', 'lick@nogo'])]:
     lo, hi = 0.0, 0.0
     for key in keys:
         for stage in ['Naive', 'Expert']:
@@ -57,15 +62,15 @@ for code_group, keys in [('sample', ['sample', 'sample@dual']), ('choice', ['lic
     pad = 0.05 * (hi - lo)
     YL[code_group] = (lo - pad, hi + pad)
 
-fig, axs = plt.subplots(2, 4, figsize=(12.4, 4.6), sharex=True)
-fig.subplots_adjust(left=0.055, right=0.985, top=0.92, bottom=0.11, wspace=0.32, hspace=0.16)
+fig, axs = plt.subplots(2, 6, figsize=(12.4, 4.2), sharex=True)
+fig.subplots_adjust(left=0.055, right=0.985, top=0.90, bottom=0.12, wspace=0.42, hspace=0.16)
 for r, stage in enumerate(['Naive', 'Expert']):
     for k, (ttl, key, labs, cols) in enumerate(COLS):
         ax = axs[r, k]
         for ei, (nm, lo, hi, col) in enumerate(EVENTS):
             ax.axvspan(lo, hi, color=col, alpha=0.10, lw=0)
             if r == 0 and k == 0:
-                yl = 0.905 if nm == 'GNG cue' else 0.98      # stagger: it abuts 'distractor'
+                yl = 0.905 if nm == 'distractor' else 0.98   # stagger the wide middle label
                 ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
                         ha='center', va='top', fontsize=5.8, color=col)
         for lv, lab, col in zip((0, 1), labs, cols):
@@ -78,7 +83,7 @@ for r, stage in enumerate(['Naive', 'Expert']):
         ax.set_xlim(0, 12); ax.set_xticks([0, 2, 4.5, 6.5, 9, 12])
         if r == 0:
             ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
-            if k > 0:
+            if k == 1:                              # ONE legend per code type (cols repeat them)
                 ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='upper left')
         else:
             ax.set_xlabel('time (s)', fontsize=7)

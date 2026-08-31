@@ -29,18 +29,21 @@ for ttl, D, YY, col, levels, labs, cols, task in SPECS:
     META.append(dict(code=code, title=ttl, levels=list(levels), labels=list(labs),
                      colors=list(cols), task=task, column=col))
     # the canonical panel-A trace keeps its historical task filter under the plain key; sample
-    # and lick ALSO get the OTHER task set under a '@dual'/'@DPA' key (2026-08-31, for the
-    # task-split panel-A variant: DPA sample/choice | dual sample/choice)
+    # and lick ALSO get per-task-set keys (2026-08-31, for the task-split panel-A variant):
+    # '@dual' = pooled DualGo+DualNoGo, '@go' / '@nogo' = the two dual tasks separately
     variants = [(task, '')]
     if code in ('sample', 'lick'):
-        variants.append(('Dual' if task == 'DPA' else 'DPA',
-                         '@dual' if task == 'DPA' else '@DPA'))
+        variants += [('Dual', '@dual'), ('DualGo', '@go'), ('DualNoGo', '@nogo')]
     for tsk_v, ksuf in variants:
         for stage in MP.STAGES:
             base = ((YY.laser == 0).to_numpy() & (YY.learning == stage).to_numpy()
                     & (YY.performance == 1).to_numpy())
-            base = base & ((YY.tasks == 'DPA').to_numpy() if tsk_v == 'DPA'
-                           else (YY.tasks != 'DPA').to_numpy())
+            if tsk_v == 'DPA':
+                base = base & (YY.tasks == 'DPA').to_numpy()
+            elif tsk_v == 'Dual':
+                base = base & (YY.tasks != 'DPA').to_numpy()
+            else:
+                base = base & (YY.tasks == tsk_v).to_numpy()
             for lv, lab in zip(levels, labs):
                 per_mouse = []
                 for mo in MP.ALL_MICE:
