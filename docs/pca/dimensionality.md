@@ -308,3 +308,53 @@ Both variants re-rendered. Fig 3 now reads at comparable density to Figs 2/4.
 - Render-confirmed caption claims: Expert DPA delay states below the choice baseline where Naive's
   are not (push preview → Fig 4B); dual Go/NoGo mid-delay split weak in Naive / strong in Expert;
   choice×dist above unity in 8/9 mice (D).
+
+### 2026-08-31 (later): Fig 3 gains panels E/F — plane sufficiency WITH stats (user decision)
+- **E** = per-mouse 3×3 block (`exp_permouse_plane.py` → `PM_PLANE`+SUF): each variable decoded
+  from the mouse's own 2-D plane / the out-of-plane residual / the full space (held-out halves,
+  canonical windows; (plane, full, out) triples). Double dissociation per animal: sample & choice
+  in-plane ≡ full and collapse out-of-plane; test at chance in-plane, untouched out-of-plane.
+  Learning Δs n.s. everywhere in BOTH pipelines → annotations only.
+- **F** = the E averages ± SEM with paired Wilcoxons DRAWN. Verdicts (knob-robust, nopca/pca20):
+  sample out-vs-full ∗ (.0039/.0039) · test plane-vs-full ∗ (.0039/.0039) · choice out-vs-full ∗
+  (.0195/.0078); robust n.s.: sample plane-vs-full (.22/.50), test out-vs-full (.36/.82).
+  **choice plane-vs-full flips with the knob (.94/.012) → not drawn; caption discloses.**
+- Fig 3 = 4 rows (12.4×14.6): A traces · B storyboard · C+D geometry · E+F sufficiency; caption
+  paragraphs E/F added. Companion analyses still pending a home: XSTAGE_DEC (cross-stage frame
+  identity, transfer/within 0.90/0.87), AXIS_TIME (axes stable while live), PLANE_TRAJ (traces
+  through the plane) — in `fig_manifold_addons_preview.py` / tmp gallery.
+- DEAD-ENDS logged in memory: PLANE_VAR variance fractions (axis-noise-attenuated) and corrected
+  cross-stage cosines (explode at rel~0.15) — decode, don't cosine.
+
+### 2026-08-31 (final): Fig 3 E/F swapped; E carries the COMPLETE bracket set
+E = summary bars first (user), with all nine pairwise Wilcoxons drawn: plane-vs-out ∗∗∗ (all
+variables, knob-robust), out-vs-full ∗/n.s./∗ (sample/test/choice), plane-vs-full n.s./∗/†
+(† = the choice pair, pipeline-dependent .94/.012 — bracket drawn, no verdict, caption defines).
+F = the per-mouse 3×3 block (annotations only; learning Δs n.s. both pipelines).
+
+### 2026-08-31 (last): dist added to Fig 3 E/F — completes the timeline + a new starred result
+E bars = 4 groups (sample/dist/test/choice), adaptive bracket heights. dist: plane 0.61 < out
+0.82 ≡ full — partial in-plane share (all verdicts knob-robust). **F dist/plane cell carries the
+figure's one starred learning effect: plane-only dist accuracy 0.57→0.65 (p=.020/.027, 8/9 & 7/9
+mice) — per animal, learning pulls the distractor code into the manifold (independent echo of
+Fig 4A's alignment stars).** Whitelist updated accordingly.
+
+### 2026-08-31 FINAL Fig 3 structure (message review; supersedes panel lists above)
+**A codes · B frame (2×5) · C sufficiency bars (all stats) · D per-mouse 3×4 (dist-plane learning
+∗) · E cosine matrices · F cross-stage decoding 2×2s (transfer/within 0.90/0.87 — one frame across
+learning, knob-robust).** Per-mouse cosine scatters → fig_manifold_supp.py panel C (duplicated
+Fig 4A's data). Caption title = the proven claim (necessary & sufficient + dist pulled in).
+Reading order: frame → proof → geometry/identity. exp_plane_frame.py now run for BOTH pipelines.
+
+### 2026-08-31 storyboard RE-ORIGINED (user: "dots should be centered across the axes")
+Panel B's crosshair is now the **decision boundaries** — the training-half class midpoints b_s
+(A|B) and b_l (lick|no-lick) subtracted in `frame_states` — NOT the pre-trial baseline. Reason:
+the freshly-fit single-window frame axes carry the trial's condition-independent ramp (the
+documented 29–45% contamination), so a baseline zero sat off to one side of both classes.
+Boundary-centred, a state's sign = its decoded class side (matches Fig 4's "no-lick region"
+semantics). The earlier "Expert DPA delay states below the choice baseline where Naive's are not"
+caption claim is superseded by the boundary version: DPA·md action-axis mean **Naive −3.5 vs
+Expert −4.9 z** — deeper on the no-lick side in Expert (push preview, direction preserved).
+`build_frame` no longer computes the baseline (BL/BINS_BL removed). Panel-A traces keep the CCGD
+baseline-zero convention — different origins BY DESIGN; the trace zero is not the storyboard
+crosshair.
