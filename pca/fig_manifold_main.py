@@ -52,7 +52,9 @@ from decoders import SUF, NOPCA, NPC               # the shared decoder config (
 # files — refuse loudly instead.
 assert NOPCA or NPC == 20, (f'--npc {NPC}: no matching overlaps caches (they are PCA-20 only); '
                             'build matrices/ccgp/ORIG_TRACES at that NPC first')
-FIGSUF = '' if NOPCA else f'_pca{NPC}'             # filename: plain = no denoising
+ANTACT = '--antact' in sys.argv[1:]                # variant: choice axis = ANTICIPATORY action
+ASUF = '_antact' if ANTACT else ''                 #   axis (overlaps train bins 48-62, vs 57-62)
+FIGSUF = ('' if NOPCA else f'_pca{NPC}') + ASUF    # filename: plain = no denoising
 
 sns.set_context('notebook'); sns.set_style('ticks')
 plt.rcParams.update({
@@ -111,9 +113,10 @@ TASKM = {'DPA': 'o', 'DualGo': '^', 'DualNoGo': 's'}
 B_SPECS = [('DPA', 'md'), ('DPA', 'decision'),
            ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
 
-FS_KEY = 'FRAME_STATES' if NOPCA else 'FRAME_STATES_pca20'
+FS_KEY = ('FRAME_STATES' if NOPCA else 'FRAME_STATES_pca20') + ASUF
 assert FS_KEY in RES, (f'missing {FS_KEY} — run: cd /home/leon/dual/pca && python '
-                       f'exp_frame_states.py' + ('' if NOPCA else ' --pca'))
+                       f'exp_frame_states.py' + ('' if NOPCA else ' --pca')
+                       + (' --antact' if ANTACT else ''))
 # FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (n_mice, 2) per-mouse [x, y] means}
 
 
@@ -184,7 +187,8 @@ def panel_a(fig, gsA):
                 if j == 2:                           # one shared x-label, centred under the grid
                     ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
             if j == 0:
-                ax.set_ylabel(f'{stage}\nchoice axis\n← no-lick · lick →', fontsize=7)
+                yax = 'antic. action axis' if ANTACT else 'choice axis'
+                ax.set_ylabel(f'{stage}\n{yax}\n← no-lick · lick →', fontsize=7)
             if r == 0 and j == 0:                    # colour/fill key once
                 hs = [mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[0], label='sample A'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[1], label='sample B'),
@@ -242,7 +246,10 @@ def panel_traj(fig, gsT):
     # panel a must come from the SAME decoder variant as the rest of the figure: the default
     # figure uses PCA(20) everywhere, so it reads the traces from the _pca20 overlaps tensor
     # (run_overlaps.py --pca 20); --nopca reads the un-denoised one.
-    TKEY = 'ORIG_TRACES' if NOPCA else 'ORIG_TRACES_pca20'
+    TKEY = ('ORIG_TRACES' if NOPCA else 'ORIG_TRACES_pca20') + ASUF
+    assert TKEY in RES, (f'missing {TKEY} — run: cd /home/leon/dual/pca && python '
+                         f'exp_traj_orig.py' + ('' if NOPCA else ' --pca')
+                         + (' --antact' if ANTACT else ''))
     assert TKEY in RES, (f'missing {TKEY} — build it with:\n'
                          '  cd ../overlaps && python run_overlaps.py --scaler none --save-weights '
                          '--targets sample choice gng test --pca 20\n'
@@ -593,6 +600,12 @@ CAP_PARAS = [
     'transfer/within 0.90 (sample) and 0.87 (choice), robust across both decoder pipelines. '
     'Learning moves the state within the frame (Fig. 4B); it does not rotate the frame.',
 ]
+if ANTACT:
+    CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in A (choice trace) and B (y-axis) is '
+                      'the ANTICIPATORY action axis — decoders trained over overlaps bins 48–62 '
+                      '(anticipatory + action) instead of the action window 57–62. Panels C–F '
+                      'are unchanged (pca-side decision-window axis).]'
+                      if p.startswith('B. ') else '') for p in CAP_PARAS]
 from figcaption import draw_justified                  # shared with fig_dimensionality_main.py
 draw_justified(fig, CAP_PARAS)
 

@@ -380,3 +380,17 @@ exactly); **dual Go−NoGo choice-axis split md +1.2 → +4.2, late delay +1.5 �
 learning** — the "weak in Naive, strong in Expert" caption claim, now printed by the script.
 Consistency with A holds at the level of SEPARATIONS (identical projections ⇒ identical gaps);
 trace values are not the cloud offsets (those are centred away).
+
+### 2026-08-31 ANTACT axis variant (`--antact`, user request)
+`fig_manifold_main.py --nopca --antact` → `fig_manifold_main_antact.png`: the choice axis in A
+(choice trace) and B (y-axis, relabelled "antic. action axis") is the ANTICIPATORY action axis —
+main_panels' `--antact` (decoders trained over overlaps bins 48–62) passed through
+`exp_traj_orig.py --antact` / `exp_frame_states.py --antact` (cache keys `ORIG_TRACES_antact` /
+`FRAME_STATES_antact`; the composed `--pca --antact` suffixes exist in the scripts but only the
+canonical antact caches are built). Panels C–F unchanged (pca-side axis); caption carries an
+[AXIS VARIANT] note. What it shows vs the action axis: the Expert choice trace DIPS below
+baseline through the delay (the anticipatory push signature, cf. Fig 5's antact preference);
+DPA·decision lick−no-lick split SMALLER (±1.5 both stages vs ±1.6/±2.3 action) and the Expert
+DPA·md micro-split inverts (lick −0.18 vs no-lick +0.18, a wash) — antact trades decision
+discriminability for the anticipatory signal, same trade-off as the Fig 4/5 axis grid; dual
+Go−NoGo splits unchanged-strong (md +1.4→+4.3, late +1.3→+6.6).

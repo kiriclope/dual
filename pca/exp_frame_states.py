@@ -29,7 +29,9 @@ sys.path.insert(0, '/home/leon/dual/overlaps')             # ...and is not a pac
 import numpy as np
 import main_panels as MP                                    # loads the ~1.9 GB overlaps tensor
 
-TSUF = '_pca20' if '--pca' in sys.argv[1:] else ''
+TSUF = ('_pca20' if '--pca' in sys.argv[1:] else '') + \
+       ('_antact' if '--antact' in sys.argv[1:] else '')   # --antact → main_panels' choice axis
+                                                           #   = anticipatory+action, bins 48-62
 
 # SAMPLE_D rows and LICK_D rows are the SAME trial set but NOT row-aligned (each target's rows
 # come out of the CV pipeline in its own order; verified: identical per-(mouse, stage, task)

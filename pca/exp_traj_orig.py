@@ -19,7 +19,9 @@ sys.path.insert(0, '/home/leon/dual/overlaps')             # ...and is not a pac
 import numpy as np
 import main_panels as MP                                    # loads the ~1.9 GB overlaps tensor
 
-TSUF = '_pca20' if '--pca' in sys.argv[1:] else ''
+TSUF = ('_pca20' if '--pca' in sys.argv[1:] else '') + \
+       ('_antact' if '--antact' in sys.argv[1:] else '')   # --antact → main_panels' choice axis
+                                                           #   = anticipatory+action, bins 48-62
 SPECS = list(MP.VARS_A) + [MP.VAR_GNG]                       # sample, lick, test, GNG
 OUT, META = {}, []
 for ttl, D, YY, col, levels, labs, cols, task in SPECS:
