@@ -28,21 +28,29 @@ for ttl, D, YY, col, levels, labs, cols, task in SPECS:
     code = 'lick' if ttl == MP.LICK_TITLE else ttl
     META.append(dict(code=code, title=ttl, levels=list(levels), labels=list(labs),
                      colors=list(cols), task=task, column=col))
-    for stage in MP.STAGES:
-        base = ((YY.laser == 0).to_numpy() & (YY.learning == stage).to_numpy()
-                & (YY.performance == 1).to_numpy())
-        base = base & ((YY.tasks == 'DPA').to_numpy() if task == 'DPA'
-                       else (YY.tasks != 'DPA').to_numpy())
-        for lv, lab in zip(levels, labs):
-            per_mouse = []
-            for mo in MP.ALL_MICE:
-                s = base & (YY.mouse == mo).to_numpy() & (YY[col].to_numpy() == lv)
-                if s.sum() >= 3:
-                    per_mouse.append(np.nanmean(D[s], 0))
-            OUT[(stage, code, int(lv))] = np.asarray(per_mouse)
-            print(f'{stage:6s} {code:7s} {lab:8s} n={len(per_mouse)} '
-                  f'range {np.asarray(per_mouse).mean(0).min():+.2f}..'
-                  f'{np.asarray(per_mouse).mean(0).max():+.2f}', flush=True)
+    # the canonical panel-A trace keeps its historical task filter under the plain key; sample
+    # and lick ALSO get the OTHER task set under a '@dual'/'@DPA' key (2026-08-31, for the
+    # task-split panel-A variant: DPA sample/choice | dual sample/choice)
+    variants = [(task, '')]
+    if code in ('sample', 'lick'):
+        variants.append(('Dual' if task == 'DPA' else 'DPA',
+                         '@dual' if task == 'DPA' else '@DPA'))
+    for tsk_v, ksuf in variants:
+        for stage in MP.STAGES:
+            base = ((YY.laser == 0).to_numpy() & (YY.learning == stage).to_numpy()
+                    & (YY.performance == 1).to_numpy())
+            base = base & ((YY.tasks == 'DPA').to_numpy() if tsk_v == 'DPA'
+                           else (YY.tasks != 'DPA').to_numpy())
+            for lv, lab in zip(levels, labs):
+                per_mouse = []
+                for mo in MP.ALL_MICE:
+                    s = base & (YY.mouse == mo).to_numpy() & (YY[col].to_numpy() == lv)
+                    if s.sum() >= 3:
+                        per_mouse.append(np.nanmean(D[s], 0))
+                OUT[(stage, code + ksuf, int(lv))] = np.asarray(per_mouse)
+                print(f'{stage:6s} {code + ksuf:12s} {lab:8s} n={len(per_mouse)} '
+                      f'range {np.asarray(per_mouse).mean(0).min():+.2f}..'
+                      f'{np.asarray(per_mouse).mean(0).max():+.2f}', flush=True)
 
 RES = '/home/leon/dual/pca/figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
