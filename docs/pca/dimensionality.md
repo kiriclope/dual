@@ -346,15 +346,24 @@ learning, knob-robust).** Per-mouse cosine scatters → fig_manifold_supp.py pan
 Fig 4A's data). Caption title = the proven claim (necessary & sufficient + dist pulled in).
 Reading order: frame → proof → geometry/identity. exp_plane_frame.py now run for BOTH pipelines.
 
-### 2026-08-31 storyboard RE-ORIGINED (user: "dots should be centered across the axes")
-Panel B's crosshair is now the **decision boundaries** — the training-half class midpoints b_s
-(A|B) and b_l (lick|no-lick) subtracted in `frame_states` — NOT the pre-trial baseline. Reason:
-the freshly-fit single-window frame axes carry the trial's condition-independent ramp (the
-documented 29–45% contamination), so a baseline zero sat off to one side of both classes.
-Boundary-centred, a state's sign = its decoded class side (matches Fig 4's "no-lick region"
-semantics). The earlier "Expert DPA delay states below the choice baseline where Naive's are not"
-caption claim is superseded by the boundary version: DPA·md action-axis mean **Naive −3.5 vs
-Expert −4.9 z** — deeper on the no-lick side in Expert (push preview, direction preserved).
-`build_frame` no longer computes the baseline (BL/BINS_BL removed). Panel-A traces keep the CCGD
-baseline-zero convention — different origins BY DESIGN; the trace zero is not the storyboard
-crosshair.
+### 2026-08-31 storyboard REPLACED by a CCGD REPLAY (user: "B is not consistent with A") — FINAL
+Two fresh-axis origin conventions failed in one day, and the failure is structural: the
+storyboard's freshly-fit single-window axes carry the trial's condition-independent ramp (the
+documented 29–45% contamination), so NO single origin works — **baseline-zero** dragged every
+window to one side of the crosshair ("dots not centered"), and the **boundary-zero** fix (b_s/b_l
+class midpoints) put the mid-delay states 3–5 z below the lick line while panel A's traces showed
+them AT baseline ("B not consistent with A"). The fix is the same one panel A already uses: panel
+B now REPLAYS `overlaps/main_panels`' validated per-mouse CCGD projections — new cache
+`exp_frame_states.py` → `FRAME_STATES`/`_pca20` in results.pkl: per-trial window means of
+SAMPLE_D (x) and LICK_D (y), laser-off correct trials, reduced to per-mouse condition means
+(≥3 trials/mouse, ≥3 mice per cell; windows = overlaps bins md 33–38 / late 45–53 / decision
+57–62). NB Y_SAM and Y_LCK are the same trials but NOT row-aligned — cells are selected
+independently per table (means don't need trial pairing). Storyboard glyphs: faint dots =
+per-mouse means, ellipse = 1 SD across mice, marker = grand mean; **crosshair = per-mouse
+baseline zero = exactly A's dashed line** — A and B are literally the same coordinates and units
+(shared across stages too). All fresh-axis machinery (build_frame/sample_axis/lick_axis/cloud/
+pseudo-trials, the fits_inputs.pkl load) is deleted from `fig_manifold_main.py`. Settled numbers
+(canonical): DPA·md choice-axis Naive +0.03 vs **Expert −0.44 z** (the honest baseline-referenced
+push preview, caption "−0.4 vs +0.0"); DPA·decision lick +4.15/+3.79, no-lick +0.93/−0.76
+(both classes ride the ramp up — no-lick is NOT symmetric-negative); dual·decision lick +5.6/+5.0;
+sample sep at md ≈ 4.8 both stages.

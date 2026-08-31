@@ -46,7 +46,7 @@ import seaborn as sns, matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.patches import Ellipse, Rectangle, Patch
 from scipy.stats import wilcoxon
-from decoders import fit_axis, SUF, NOPCA, NPC     # THE shared decoder (see decoders.py)
+from decoders import SUF, NOPCA, NPC               # the shared decoder config (see decoders.py)
 # the overlaps caches (matrices, ccgp, ORIG_TRACES) exist only for PCA-20 and no-PCA; an --npc N!=20
 # run would silently mix npc-N pca-side caches with PCA-20 overlaps caches AND overwrite the _pca20
 # files — refuse loudly instead.
@@ -75,10 +75,6 @@ CODE_ORDER = ['sample', 'dist', 'test', 'choice']
 CODE_NAME = {'sample': 'sample', 'GNG': 'dist', 'gng': 'dist', 'distractor': 'dist',
              'test': 'test', 'lick': 'choice', 'action': 'choice', 'choice': 'choice'}
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
-ALL12 = [(t, s, te) for t in ['DPA', 'DualGo', 'DualNoGo'] for s in (0, 1) for te in (0, 1)]
-SETS = {'DPA': [c for c in ALL12 if c[0] == 'DPA'], 'dual': [c for c in ALL12 if c[0] != 'DPA']}
-STAGE = 'Expert'
-KP = 30
 # (the overlaps matrices/ccgp caches are no longer read here — the cross-decode panel lives in
 #  Fig 4, the generalisation matrices in Fig 2, and CCGP in fig_manifold_supp.py)
 RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
@@ -91,133 +87,23 @@ assert 'XSTAGE_DEC' + SUF in RES, ('missing XSTAGE_DEC' + SUF +
                                    ' — run: python exp_plane_frame.py' +
                                    (' --nopca' if NOPCA else ''))
 XSD = RES['XSTAGE_DEC' + SUF]                      # cross-stage decoding (train x test stage)
-_c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
-AW = _c['AW']; VALIDIX = _c['VALIDIX']; N = _c['N']
-MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
-                                             ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
-MATCH = (SAMP == TESTO)
-LICK = np.where(PERF == 1, MATCH, ~MATCH)          # BEHAVIOURAL lick (error trials included)
+# (fits_inputs.pkl is no longer read here — the storyboard replays FRAME_STATES, and every other
+#  panel reads a results.pkl cache; the raw-tensor machinery lives in the exp_* scripts)
 
 
 def plabel(ax, s, dx=-0.06):
     ax.text(dx, 1.05, s, transform=ax.transAxes, fontsize=11, fontweight='bold', va='bottom', ha='right')
 
 
-# ══ a — the frame: held-out trials plotted IN the fixed axes ══════════════════
-def neuron_scale(M):
-    sd = np.ones(N)
-    for m in MICE:
-        val = VALIDIX[(m, STAGE)]
-        tr = np.where((MOUSE == m) & (LEARN == STAGE) & (LAS == 0) & (PERF == 1))[0]
-        if len(tr):
-            s = np.nanstd(M[np.ix_(tr, val)], axis=0)
-            sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
-    return sd
-
-
-def make_halves(rng):
-    """half 0 trains the axes, half 1 is plotted — no self-inclusion leakage."""
-    H = {}
-    for m in MICE:
-        for ci, (t, s, te) in enumerate(ALL12):
-            for pf in (0, 1):
-                idx = np.where((MOUSE == m) & (LEARN == STAGE) & (LAS == 0) & (PERF == pf)
-                               & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-                p = rng.permutation(idx); h = len(p) // 2
-                H[(m, ci, pf)] = (p[:h], p[h:])
-    return H
-
-
-def _pseudo(M, sd, pools, K, rng):
-    """Composite pseudo-trials: one random trial per mouse per pseudo-trial, each mouse filling its
-    own neurons. `pools` maps mouse -> trial indices. Returns (K, N) in sd-scaled units."""
-    X = np.zeros((K, N))
-    for m, idx in pools.items():
-        if not len(idx):
-            continue
-        val = VALIDIX[(m, STAGE)]
-        cm = np.nanmean(M[np.ix_(idx, val)], 0)
-        blk = M[np.ix_(rng.choice(idx, K, replace=True), val)]
-        bad = ~np.isfinite(blk)
-        if bad.any():
-            blk[bad] = np.broadcast_to(cm, blk.shape)[bad]
-        X[:, val] = blk
-    return X / sd[None, :]
-
-
-def _axis_and_origin(Xpos, Xneg):
-    """Fit the shared decoder on two class blocks and return (unit axis, boundary midpoint).
-
-    The midpoint (training-half decision boundary along the axis) IS the plotted origin of the
-    storyboard since 2026-08-31 (see frame_states): baseline-referencing left both classes on one
-    side of the crosshair because these single-window axes carry the trial's condition-independent
-    ramp. Per-PANEL centring is still avoided — one shared origin per stage."""
-    w, _ = fit_axis(np.vstack([Xpos, Xneg]), np.r_[np.ones(len(Xpos), int), np.zeros(len(Xneg), int)])
-    return w, 0.5 * ((Xpos @ w).mean() + (Xneg @ w).mean())
-
-
-def sample_axis(sd, H, K=60):
-    """ONE sample axis for the whole figure (all 12 conditions), fit on half-0 pseudo-trials @ md."""
-    M = AW['md']; rng = np.random.RandomState(3)
-    blocks = {0: [], 1: []}
-    for ci, cd in enumerate(ALL12):
-        pools = {m: H[(m, ci, 1)][0] for m in MICE}
-        blocks[cd[1]].append(_pseudo(M, sd, pools, K, rng))
-    return _axis_and_origin(np.vstack(blocks[1]), np.vstack(blocks[0]))
-
-
-def lick_axis(sd, H, K=60):
-    """ONE action axis for the whole figure: BEHAVIOURAL lick split (error trials included),
-    all tasks, fit on half-0 trials @ decision."""
-    M = AW['decision']; rng = np.random.RandomState(4)
-    out = []
-    for lickval in (True, False):
-        pools = {}
-        for m in MICE:
-            pool = [H[(m, ci, pf)][0] for ci in range(len(ALL12)) for pf in (0, 1)]
-            idx = np.concatenate(pool) if pool else np.array([], int)
-            pools[m] = idx[LICK[idx] == lickval]
-        out.append(_pseudo(M, sd, pools, K, rng))
-    return _axis_and_origin(out[0], out[1])
-
-
-def cloud(sname, wn, sd, H, rng):
-    conds = SETS[sname]; M = AW[wn]
-    X = np.zeros((len(conds) * KP, N)); crow = np.repeat(np.arange(len(conds)), KP)
-    for ci_l, cd in enumerate(conds):
-        ci = ALL12.index(cd)
-        for m in MICE:
-            val = VALIDIX[(m, STAGE)]; idx = H[(m, ci, 1)][1]
-            if not len(idx):
-                continue
-            cm = np.nanmean(M[np.ix_(idx, val)], 0)
-            block = M[np.ix_(rng.choice(idx, KP, replace=True), val)]
-            bad = ~np.isfinite(block)
-            if bad.any():
-                block[bad] = np.broadcast_to(cm, block.shape)[bad]
-            X[ci_l * KP:(ci_l + 1) * KP, val] = block
-    return X / sd[None, :], crow, conds
-
-
+# ══ a — the frame: REPLAYED per-mouse CCGD states (exp_frame_states.py) ═══════
+# The storyboard uses the SAME projections as the panel-A traces — SAMPLE_D (x) and LICK_D (y)
+# from overlaps/main_panels: cross-validated CCGD decision functions, per-mouse baseline zero,
+# one shared per-mouse unit. Two earlier fresh-axis builds FAILED the A↔B consistency check
+# (user 2026-08-31): a freshly-fit single-window axis carries the trial's condition-independent
+# ramp (29-45% of the code), so NO single origin worked — baseline-zero dragged every window to
+# one side, boundary-zero put mid-delay 3-5 z below the lick line while A's traces sat AT
+# baseline. Replaying the CCGD projections makes A and B literally the same coordinates.
 TASKM = {'DPA': 'o', 'DualGo': '^', 'DualNoGo': 's'}
-
-
-def build_frame(stage='Expert'):
-    """The frame FOR ONE STAGE: neuron scale, the trial-half split, the two axes with their
-    training-half boundary intercepts (b_s, b_l — the plotted origins, see frame_states). Axes are
-    re-fit per stage on that stage's own independent trial half — the Naive row shows Naive's OWN
-    frame (per-stage units; the quantitative Naive→Expert push, on ONE fixed axis, is Fig 4's job,
-    not this panel's).
-
-    NB sets the module-global STAGE (every helper — neuron_scale/make_halves/_pseudo/cloud — reads
-    it); call build_frame + frame_states for one stage before moving to the next."""
-    global STAGE
-    STAGE = stage
-    sd = neuron_scale(AW['delay+dec'])
-    H = make_halves(np.random.RandomState(7))
-    (w_s, b_s), (w_l, b_l) = sample_axis(sd, H), lick_axis(sd, H)
-    return sd, H, (w_s, b_s), (w_l, b_l)
-
 
 # LATE DELAY is essential for the dual set: it is the only plotted window AFTER the Go/NoGo cue
 # (6.5-7 s) and its lick, and it is where the Go state actually crosses into the action region.
@@ -225,54 +111,44 @@ def build_frame(stage='Expert'):
 B_SPECS = [('DPA', 'md'), ('DPA', 'decision'),
            ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
 
-
-def frame_states(sd, H, w_s, b_s, w_l, b_l):
-    """Held-out state clouds for the five storyboard windows of the CURRENT stage (call while the
-    module-global STAGE is set by build_frame — cloud() reads it).
-
-    ORIGIN = the training-half CLASS MIDPOINTS (b_s = A|B boundary, b_l = lick|no-lick boundary),
-    NOT the pre-trial baseline (changed 2026-08-31, user): these freshly-fit single-window axes
-    carry the trial's condition-independent ramp (the documented 29-45% contamination), which,
-    referenced to baseline, dragged BOTH classes to one side of the crosshair. Boundary-centred,
-    a state's sign says WHICH SIDE of the decision boundary it sits on — the Fig-4 'no-lick
-    region' semantics — and the ramp offset is absorbed into the origin."""
-    out = []
-    for sname, wn in B_SPECS:
-        X, crow, conds = cloud(sname, wn, sd, H, np.random.RandomState(2))
-        out.append((X @ w_s - b_s, X @ w_l - b_l, crow, conds))
-    return out
+FS_KEY = 'FRAME_STATES' if NOPCA else 'FRAME_STATES_pca20'
+assert FS_KEY in RES, (f'missing {FS_KEY} — run: cd /home/leon/dual/pca && python '
+                       f'exp_frame_states.py' + ('' if NOPCA else ' --pca'))
+# FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (n_mice, 2) per-mouse [x, y] means}
 
 
-def panel_a(fig, gsA, STAGEDATA):
-    """The storyboard, 2 rows (Naive | Expert) x 5 windows — each row in that stage's OWN frame
-    (axes re-fit per stage; per-stage units — the fixed-axis quantitative push is Fig 4's).
-    All ten frames share one x/y range so positions are comparable at a glance; autoscaling
-    would push the baseline off-screen where states sit far from it."""
-    ALLX = np.concatenate([d[0] for _, DATA in STAGEDATA for d in DATA])
-    ALLY = np.concatenate([d[1] for _, DATA in STAGEDATA for d in DATA])
-    pad = 0.06 * (ALLX.max() - ALLX.min())
-    XL = (min(ALLX.min(), 0) - pad, max(ALLX.max(), 0) + pad)
-    padY = 0.06 * (ALLY.max() - ALLY.min())
-    YL = (min(ALLY.min(), 0) - padY, max(ALLY.max(), 0) + padY)
+def panel_a(fig, gsA):
+    """The storyboard, 2 rows (Naive | Expert) x 5 windows, replayed from FRAME_STATES: faint
+    dots = per-mouse condition means (>=3 trials), ellipse = 1 SD across mice, marker = the grand
+    mean. Crosshair = the pre-trial baseline — the SAME zero as the panel-A traces (per-mouse
+    CCGD units; the fixed-axis quantitative push is Fig 4's). All ten frames share one x/y range
+    so positions are comparable at a glance."""
+    FS = RES[FS_KEY]
+    ALL = np.vstack([v for st in ['Naive', 'Expert'] for sp in B_SPECS
+                     for v in FS[(st,) + sp].values()])
+    pad = 0.06 * (ALL[:, 0].max() - ALL[:, 0].min())
+    XL = (min(ALL[:, 0].min(), 0) - pad, max(ALL[:, 0].max(), 0) + pad)
+    padY = 0.06 * (ALL[:, 1].max() - ALL[:, 1].min())
+    YL = (min(ALL[:, 1].min(), 0) - padY, max(ALL[:, 1].max(), 0) + padY)
     WLAB = {'md': 'mid-delay (pre-cue)', 'delay': 'late delay (post-lick)', 'decision': 'decision'}
     axes = []
-    for r, (stage, DATA) in enumerate(STAGEDATA):
+    for r, stage in enumerate(['Naive', 'Expert']):
         for j, (sname, wn) in enumerate(B_SPECS):
             ax = fig.add_subplot(gsA[r, j]); axes.append(ax)
-            xs, ys, crow, conds = DATA[j]
-            # crosshair = the DECISION BOUNDARIES (A|B midpoint, lick|no-lick midpoint) — see
-            # frame_states: baseline-referencing left both classes on one side (ramp offset)
+            ENT = FS[(stage, sname, wn)]
+            # crosshair = the pre-trial baseline (zero), exactly as in the panel-A traces
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
             ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
-            for ci, cd in enumerate(conds):
-                sel = crow == ci; col = SAMPC[cd[1]]; licks = cd[1] == cd[2]
-                ax.scatter(xs[sel], ys[sel], s=3, marker='.', color=col, lw=0, alpha=0.18, zorder=1)
-                C = np.cov(xs[sel], ys[sel]); ev, evec = np.linalg.eigh(C)
-                ang = np.degrees(np.arctan2(evec[1, -1], evec[0, -1]))
-                ax.add_patch(Ellipse((xs[sel].mean(), ys[sel].mean()), 2 * np.sqrt(ev[-1]),
-                                     2 * np.sqrt(ev[0]), angle=ang, fc=col, alpha=0.10, ec=col,
-                                     lw=0.9, ls='-' if licks else '--', zorder=2))
-                ax.scatter(xs[sel].mean(), ys[sel].mean(), marker=TASKM[cd[0]], s=30,
+            for cd, P in ENT.items():
+                col = SAMPC[int(cd[1])]; licks = cd[2]
+                ax.scatter(P[:, 0], P[:, 1], s=6, marker='.', color=col, lw=0, alpha=0.5, zorder=1)
+                if len(P) >= 3:
+                    C = np.cov(P.T); ev, evec = np.linalg.eigh(C)
+                    ang = np.degrees(np.arctan2(evec[1, -1], evec[0, -1]))
+                    ax.add_patch(Ellipse(P.mean(0), 2 * np.sqrt(ev[-1]), 2 * np.sqrt(ev[0]),
+                                         angle=ang, fc=col, alpha=0.10, ec=col,
+                                         lw=0.9, ls='-' if licks else '--', zorder=2))
+                ax.scatter(*P.mean(0), marker=TASKM[cd[0]], s=30,
                            facecolor=col if licks else 'w', edgecolor=col, linewidths=1.0, zorder=5)
             ax.set_xlim(*XL); ax.set_ylim(*YL)
             ax.set_xticks([]); ax.set_yticks([])
@@ -302,17 +178,20 @@ def panel_a(fig, gsA, STAGEDATA):
                       mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
                 ax.legend(handles=hs, frameon=False, fontsize=5.4, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
-            lk = np.array([conds[c][1] == conds[c][2] for c in crow])
-            print(f'a: {stage:6s} {sname:4s} {wn:9s} action-axis mean {ys.mean():+6.2f} '
-                  f'(lick {ys[lk].mean():+6.2f} / no-lick {ys[~lk].mean():+6.2f})  '
-                  f'sample sep {xs[[conds[c][1] == 1 for c in crow]].mean() - xs[[conds[c][1] == 0 for c in crow]].mean():+.2f}')
+            gm = {cd: P.mean(0) for cd, P in ENT.items()}
+            ylk = np.mean([g[1] for cd, g in gm.items() if cd[2]])
+            ynl = np.mean([g[1] for cd, g in gm.items() if not cd[2]])
+            ssep = (np.mean([g[0] for cd, g in gm.items() if cd[1] == 1])
+                    - np.mean([g[0] for cd, g in gm.items() if cd[1] == 0]))
+            print(f'a: {stage:6s} {sname:4s} {wn:9s} action-axis '
+                  f'lick {ylk:+6.2f} / no-lick {ynl:+6.2f}  sample sep {ssep:+.2f}')
     return axes[0]
 
 
 # ══ a — TRAJECTORIES (top row): replayed CCGD projections (ORIG_TRACES) ═══════
-#   These traces keep the overlaps convention (per-mouse CCGD, baseline-zero dashed line); the
-#   storyboard below is boundary-centred (frame_states) — different origins by design, so the
-#   trace zero must NOT be read as the storyboard crosshair. t = bin/6 - 0.5 s (exact).
+#   Same convention as the storyboard below (per-mouse CCGD projections, baseline zero) — since
+#   the FRAME_STATES replay (2026-08-31) the trace zero IS the storyboard crosshair, and a trace's
+#   value at a window matches the storyboard cloud's position there. t = bin/6 - 0.5 s (exact).
 TBIN = lambda b: np.asarray(b) / 6.0 - 0.5
 EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
           ('GNG cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
@@ -620,12 +499,8 @@ outer = fig.add_gridspec(4, 12, height_ratios=[1.45, 1.55, 1.65, 0.95], hspace=0
                          left=0.062, right=0.982, top=0.978, bottom=0.028, wspace=0.9)
 gsT = outer[0, 0:12].subgridspec(2, 4, wspace=0.34, hspace=0.18)
 axT = panel_traj(fig, gsT)
-STAGEDATA = []
-for _st in ['Naive', 'Expert']:
-    _sd, _H, (_ws, _bs), (_wl, _bl) = build_frame(_st)             # sets the module STAGE global
-    STAGEDATA.append((_st, frame_states(_sd, _H, _ws, _bs, _wl, _bl)))
 gsA = outer[1, 0:12].subgridspec(2, 5, wspace=0.16, hspace=0.10)
-axA = panel_a(fig, gsA, STAGEDATA)
+axA = panel_a(fig, gsA)
 gsC = outer[2, 0:4].subgridspec(1, 1)                # C = the proof: summary bars
 axC = panel_f_spaces(fig, gsC)
 gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.24, hspace=0.20)   # D = per-mouse 3x4
@@ -649,21 +524,20 @@ CAP_PARAS = [
     'within each code column. Shaded bands: sample, distractor, GNG cue and test epochs. The sample '
     'code is maintained throughout the delay in both stages; the dist and choice codes rise at their '
     'own epochs.',
-    'B. The frame itself, Naive (top) and Expert (bottom): held-out pseudo-trials projected onto '
-    'ONE sample axis (trained at mid-delay) and ONE behavioural choice axis (trained at the '
-    'decision epoch), both fit on an independent trial half — no self-inclusion; axes are re-fit '
-    'per stage (per-stage units — the quantitative fixed-axis Naive→Expert push is Fig. 4B). '
-    'Dashed lines = the decision boundaries (the training-half A|B and lick|no-lick midpoints), '
-    'so a state’s side of each line is its decoded class; ellipses = 1 SD of the pseudo-trial '
-    'cloud; fill = lick, open = no-lick; circle / triangle / square = DPA / Go / NoGo; colour = '
-    'sample A / B; scale bar 5 z. Read left to right along the trial: DPA states separate along '
-    'the sample axis only (mid-delay) and split across the choice boundary at decision; the dual '
-    'Go and NoGo states sit apart along the choice axis already at mid-delay (weakly in Naive, '
-    'strongly in Expert — the distractor precedes this window), and after the cue the Go state '
-    'crosses toward lick (late delay) — in both stages, every separation in every task is carried '
-    'by the same two axes. Note the Expert DPA delay states sit deeper on the no-lick side of the '
-    'choice boundary than the Naive ones (−4.9 vs −3.5 z) — the repositioning quantified on a '
-    'fixed axis in Fig. 4B.',
+    'B. The frame itself, Naive (top) and Expert (bottom), in EXACTLY the coordinates of A: each '
+    'state is the same cross-validated per-mouse CCGD projections read at one window — sample '
+    'axis (x) and choice axis (y), per-mouse baseline = 0 (dashed crosshair, the same zero as '
+    'A’s dashed line), one shared per-mouse unit. Dots = per-mouse condition means (correct '
+    'trials, ≥3 per mouse), ellipse = 1 SD across mice, marker = grand mean; fill = lick, open = '
+    'no-lick; circle / triangle / square = DPA / Go / NoGo; colour = sample A / B; scale bar 5 z. '
+    'Read left to right along the trial: DPA states separate along the sample axis only at '
+    'mid-delay — the choice axis is silent (at baseline) — and split along the choice axis at '
+    'decision; the dual Go and NoGo states already differ along the choice axis at mid-delay '
+    '(weakly in Naive, strongly in Expert — the distractor precedes this window), and after the '
+    'cue the Go state moves toward lick (late delay) — in both stages, every separation in every '
+    'task is carried by the same two axes. Note the Expert DPA delay states sit slightly below '
+    'the choice-axis baseline where the Naive ones do not (−0.4 vs +0.0 z) — the no-lick push, '
+    'quantified on a fixed axis in Fig. 4B.',
     'C. The plane is necessary and sufficient for the memory and choice codes: each variable '
     'decoded from only the 2 coordinates of each mouse’s own sample × choice plane, from the '
     'out-of-plane residual (plane component removed) and from the full population (mean ± SEM, '
