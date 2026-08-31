@@ -136,7 +136,9 @@ def _centered(ENT):
         pts = np.array([p - off[mo] for mo, p in zip(mice, P) if mo in off])
         if len(pts) >= 3:
             out[cd] = pts
-    return out
+    # the grand-mean removed offset: where this window's mean state sits relative to baseline —
+    # the pre-cue panels draw its inverse as a grey "baseline" line (the push made visible)
+    return out, np.mean(list(off.values()), 0)
 
 
 def panel_a(fig, gsA):
@@ -145,7 +147,9 @@ def panel_a(fig, gsA):
     per-mouse condition means (>=3 trials), ellipse = 1 SD across mice, marker = the grand mean,
     crosshair = the window's mean state. All ten frames share one x/y range."""
     FS = RES[FS_KEY]
-    CEN = {(st,) + sp: _centered(FS[(st,) + sp]) for st in ['Naive', 'Expert'] for sp in B_SPECS}
+    BOTH = {(st,) + sp: _centered(FS[(st,) + sp]) for st in ['Naive', 'Expert'] for sp in B_SPECS}
+    CEN = {k: v[0] for k, v in BOTH.items()}
+    OFF = {k: v[1] for k, v in BOTH.items()}
     ALL = np.vstack([pts for ent in CEN.values() for pts in ent.values()])
     # shared range from the 2-98 percentiles of the per-mouse dots (a few outlier dots clip;
     # the raw min/max left the row mostly empty around a thin data band)
@@ -161,11 +165,22 @@ def panel_a(fig, gsA):
             # crosshair = this window's cross-condition mean state (per mouse)
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=0)
             ax.axvline(0, ls='--', color='k', lw=0.4, zorder=0)
+            if wn == 'md':
+                # PRE-CUE panels only: the pre-trial baseline (grey) — here the common ramp is
+                # negligible, so baseline-vs-crosshair IS the mean displacement (the Expert DPA
+                # no-lick push shows as the baseline sitting ABOVE the window mean). Post-cue
+                # windows omit it: the shared lick ramp dominates the offset there.
+                bl = -OFF[(stage, sname, wn)][1]
+                ax.axhline(bl, ls='-', color='0.55', lw=0.7, zorder=0)
+                if j in (0, 2):
+                    ax.text(0.99, bl, 'baseline', ha='right', va='bottom', fontsize=5,
+                            color='0.45', transform=ax.get_yaxis_transform())
             for cd, P in ENT.items():
                 col = SAMPC[int(cd[1])]; licks = cd[2]
                 ax.scatter(P[:, 0], P[:, 1], s=6, marker='.', color=col, lw=0, alpha=0.5, zorder=1)
                 if len(P) >= 3:
-                    C = np.cov(P.T); ev, evec = np.linalg.eigh(C)
+                    C = np.cov(P.T) / len(P)             # SEM ellipse (mean uncertainty; animal
+                    ev, evec = np.linalg.eigh(C)         #   spread is panel D's job)
                     ang = np.degrees(np.arctan2(evec[1, -1], evec[0, -1]))
                     ax.add_patch(Ellipse(P.mean(0), 2 * np.sqrt(ev[-1]), 2 * np.sqrt(ev[0]),
                                          angle=ang, fc=col, alpha=0.10, ec=col,
@@ -212,7 +227,8 @@ def panel_a(fig, gsA):
                           - np.mean([g[1] for cd, g in gm.items() if cd[0] == 'DualNoGo']))
                 gng = f'  Go-NoGo y {gsplit:+.2f}'
             print(f'a: {stage:6s} {sname:4s} {wn:9s} action-axis '
-                  f'lick {ylk:+6.2f} / no-lick {ynl:+6.2f}  sample sep {ssep:+.2f}{gng}')
+                  f'lick {ylk:+6.2f} / no-lick {ynl:+6.2f}  sample sep {ssep:+.2f}{gng}  '
+                  f'mean-vs-BL y {OFF[(stage, sname, wn)][1]:+.2f}')
     return axes[0]
 
 
@@ -561,8 +577,12 @@ CAP_PARAS = [
     'and re-centred, per mouse, on that window’s mean state, so each panel shows the condition '
     'GEOMETRY at that moment: which codes are separated, and along which axis. (The common ramp '
     'and the absolute displacement along the trial are carried by the traces in A and quantified '
-    'on a fixed axis in Fig. 4B.) Dots = per-mouse condition means (correct trials, ≥3 per '
-    'mouse), ellipse = 1 SD across mice, marker = grand mean; fill = lick, open = no-lick; '
+    'on a fixed axis in Fig. 4B.) In the PRE-CUE panels — where the common ramp is negligible — '
+    'the grey line marks the pre-trial baseline: in Expert DPA it sits ABOVE the window mean '
+    '(the delay states sit 0.4 z on the no-lick side — the push) where in Naive it coincides; '
+    'post-cue windows omit it because the shared movement toward lick dominates the offset '
+    'there. Dots = per-mouse condition means (correct trials, ≥3 per mouse), ellipse = SEM '
+    'across mice, marker = grand mean; fill = lick, open = no-lick; '
     'circle / triangle / square = DPA / Go / NoGo; colour = sample A / B; scale bar 2 z. Read '
     'left to right along the trial: at mid-delay the DPA states separate along the sample axis '
     'only — the choice axis carries nothing; at decision they split along the choice axis; the '

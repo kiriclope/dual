@@ -394,3 +394,23 @@ DPA·decision lick−no-lick split SMALLER (±1.5 both stages vs ±1.6/±2.3 act
 DPA·md micro-split inverts (lick −0.18 vs no-lick +0.18, a wash) — antact trades decision
 discriminability for the anticipatory signal, same trade-off as the Fig 4/5 axis grid; dual
 Go−NoGo splits unchanged-strong (md +1.4→+4.3, late +1.3→+6.6).
+
+### 2026-08-31 storyboard polish (user: "best course of action" after the dispersion/push questions)
+Three decisions, all applied:
+1. **Ellipses SD → SEM across mice** (cov/n): the storyboard's question is "where do the condition
+   means sit"; animal-to-animal spread is panel D's job. Ellipses ~3× tighter; caption updated.
+2. **The push is back in B, honestly**: the PRE-CUE (md) panels draw the pre-trial baseline as a
+   grey line at −offset (the removed window mean, printed as "mean-vs-BL"). There the common ramp
+   is negligible (offsets: Naive DPA +0.03, Expert DPA −0.44, dual +0.40/−0.06), so
+   baseline-vs-crosshair IS the mean displacement — in Expert DPA the baseline sits visibly ABOVE
+   the window mean (delay states 0.4 z on the no-lick side = the push), in Naive it coincides.
+   Post-cue windows omit the line (the shared lick ramp dominates: +1.7–3.2) — caption discloses.
+3. **Antact full-figure card retired from the gallery Main tab** (the centred storyboard is
+   axis-invariant — a robustness finding; the `--antact` flag, caches and PNG remain).
+Literature review (2026-08-31 session): the whole preprocessing chain (CV decoder projections →
+per-mouse baseline+evoked normalisation → per-window cross-condition mean removal → per-animal
+summary, n=9) is standard — CI-component removal is the dPCA/Mante/Panichello canonical move
+(Kobak 2016 eLife; Kaufman 2016 eNeuro "largest component = timing"; Aarts 2014 Nat Neurosci for
+the nested-data unit). Caveats to keep disclosed: balanced (unweighted-cell) common-mean
+estimation with occasional missing cells; centring forfeits absolute claims (A + Fig 4B carry
+them).
