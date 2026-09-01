@@ -15,7 +15,7 @@ Per (stage, set, window): per-trial window means of SAMPLE_D / LICK_D over the S
 condition means (>=3 trials per mouse per cell; cells kept with >=3 mice).
 
 Windows (overlaps T_WINDOW=0 bins): md = bins_MD 33-38 · delay = BINS_LATE 45-53 (post-cue) ·
-decision = 57-62 incl. (the DPA action window).
+decision READ = 60-66 incl. (see the window-scan note below; the choice AXIS stays trained at 57-62).
 
 Output: merges {'FRAME_STATES' (plain) / 'FRAME_STATES_pca20' (--pca)} into results.pkl:
 FRAME_STATES[(stage, set, window)] = {(task, samp, lick): (mice, (n_mice, 2) [x, y] means)} —

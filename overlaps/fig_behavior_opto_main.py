@@ -30,8 +30,9 @@ fig_behavior_main.py). One unified story about the ACC→mPFC(Prl) projection:
      costs I its star (p=.023→.052). See `_gi_lmm`.
   Depth read on the trainLD_TEST axis (bins 45-59, main-overlaps-fig convention); readout window
   = LD epoch bins_LD 45-53 (pre-test late delay, narrowed from the broad 27-53 per user 2026-07-15
-  — the coupling is readout-robust and end-of-delay is slightly cleaner; NB the main non-opto fig
-  still reads 27-53, so the two figures' depth windows now differ); G–I square, all trials.
+  — the coupling is readout-robust and end-of-delay is slightly cleaner; NB the main overlaps fig
+  ALSO reads 45-53 — the two figures differ in the TRAIN axis (45-59 here vs 57-62 there) and the
+  per-mouse unit (baseline-SD here vs pooled-evoked there), not the readout); G–I square, all trials.
   ── Last row: behavioural balance under silencing + code discriminability (recorded, 5 Jaws) ──
   J  DPA vs GNG performance in laser-ON trials (balance plane of the non-opto main figure),
      5 Jaws × {Naive○, Expert●} = 10 pts; optimal corner starred (r=+0.44 p=0.20, descriptive).

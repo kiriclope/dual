@@ -476,8 +476,8 @@ def _draw_hist_B(ax_h, stage, ylim):
     for label, pairs, color in SAMPLE_SPLITS_HIST:
         vals = []
         for y_traj in trajB[stage][label][1]:
-            # LATE delay only (bins_LD 48-53), i.e. the SAME window as the depth panel and the push
-            # statistic. This used to pool BINS_DELAY (21-53, 33 bins): 27 of those sit before the
+            # LATE delay only (bins_LD 45-53 under T_WINDOW=0.0), i.e. the SAME window as the depth panel and the push
+            # statistic. This used to pool BINS_DELAY (18-53, 36 bins): most of those sit before the
             # late delay, where the choice code is still at baseline, so the push was averaged away
             # and the Naive/Expert strips came out near-identical and symmetric.
             vals.extend(y_traj[BINS_LATE].tolist())
