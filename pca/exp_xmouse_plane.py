@@ -1,4 +1,15 @@
-"""exp_xmouse_plane.py — is the sample x choice plane a CONSERVED, cross-animal solution?
+"""exp_xmouse_plane.py — RETRACTED 2026-09-01 (user caught it): the cross-mouse result is
+CIRCULAR AS DESIGNED. Coordinate 1 IS each mouse's own supervised sample axis, and per-mouse
+standardisation with balanced classes forces every mouse's training geometry to the same +/-1
+dumbbell with the boundary at 0 — so the cross-mouse classifier can only learn "sign of coord
+1", which is identical to the within-mouse rule (verified: 98.6% prediction agreement; weights
+(+3.10,+0.02) vs (+5.94,+0.00)). Cross = within is then guaranteed for any mouse whose own axis
+generalises. DO NOT use this as evidence of cross-animal conservation. A non-circular version
+needs alignment that is unsupervised w.r.t. the decoded variable for the target mouse (hard
+here: sample is determined by test x choice on correct trials, so condition-structure alignment
+leaks). Kept for the record.
+
+ORIGINAL HEADER: is the sample x choice plane a CONSERVED, cross-animal solution?
 (idea #2, 2026-09-01 analysis menu; cf. Safaie et al. 2023 preserved dynamics across animals.)
 
 Each mouse's plane is defined functionally (coord 1 = its own sample axis, coord 2 = its own
