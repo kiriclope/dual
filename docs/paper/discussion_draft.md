@@ -43,7 +43,8 @@ conceptually adjacent to, but distinct from, the output-null principle in motor 
 [Kaufman 2014]: preparation there is held where it *cannot* drive output; the memory here is held
 where it actively *opposes* output — a displacement along the potent axis, not a retreat into
 null space. Consistent with a protective function, the behavioural cost of the distractor is
-precisely an evoked lick (Fig. 1g), the animals that push deeper improve more (Fig. 4c), and the
+precisely an evoked lick that propagates to the test response — the false-alarm route
+(Fig. 1g) — the animals that push deeper improve more (Fig. 4c), and the
 interference disappears over the same learning period in which the push deepens. The dual-trial
 decay of the sample readout (Fig. 3a) is the code-morphing phenomenon described after distractors
 in primate PFC [Parthasarathy 2017]; our cross-task transfer (Fig. 2e) adds that the morphed code

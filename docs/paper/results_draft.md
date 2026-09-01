@@ -34,8 +34,8 @@
 ## Abstract
 
 Flexible behaviour routinely demands that the brain do two things at once — hold a memory while
-acting on an unrelated cue — yet an action executed mid-memory is precisely the kind of event that
-can overwrite the memory. Here we ask how mouse medial prefrontal cortex (mPFC) learns this
+acting on an unrelated cue — yet an action evoked mid-memory tends to propagate,
+capturing the response the memory should control. Here we ask how mouse medial prefrontal cortex (mPFC) learns this
 composition. Imaging 3,319 prelimbic neurons across learning of an olfactory working-memory task
 with an embedded Go/NoGo distractor, we find that the population solves the problem geometrically.
 The maintained memory is one-dimensional — a line — held nearly orthogonal to the axes that code
@@ -100,7 +100,7 @@ predicts memory performance animal by animal, and whose positional signal is sup
 input from anterior cingulate cortex (ACC). The code's geometry is a fixed constraint; learning
 and top-down input both act on the state's position within it.
 
-## 1. Composing the two tasks is costly: the intruding action corrupts the working memory (Fig. 1)
+## 1. Composing the two tasks is costly: the intruding action propagates to false alarms (Fig. 1)
 
 Mice learned the two component tasks under a fixed curriculum (task structure and training schedule
 in Fig. 1a). Across six dual-task sessions DPA and GNG accuracy both rose and converged (Fig. 1b;
@@ -111,23 +111,20 @@ which began far below the paired trials and improved fastest (Fig. 1d; unpaired�
 p < 10⁻⁴; condition × day β = +0.088, p < 10⁻⁴). The full set of condition and condition × day
 effect sizes is summarised in Fig. 1f.
 
-The cost of composition has a specific signature: it is the action itself that interferes. Unpaired
-DPA accuracy was selectively depressed when the distractor required a Go response (Fig. 1e; Go−DPA
-β = −0.073, p = 0.038) but not a NoGo response (NoGo−DPA p = 0.78) — the *intrusive lick*, not the
-distractor stimulus, is the source of interference. Accordingly, on NoGo trials a spurious
-delay-period lick predicted a subsequent DPA error, strongly in naïve animals and not once expert
-(Fig. 1g; GEE logistic on NoGo trials, naïve odds ratio = 0.56, p = 0.006; expert OR = 0.76,
-p = 0.50): the cost of an intruding action on the memory is largest before the composition is
-consolidated, and learning removes it. _(caveat: Fig. 1g is a within-trial lick↔accuracy
-association, correlational rather than causal. **FLAGGED BY THE 2026-09-01 CODE AUDIT — under
-re-analysis:** the implemented predictor is "any recorded lick on the trial", which on these
-NoGo trials coincides with the DPA test lick 96.5% of the time — i.e. largely the
-outcome-generating response, making the OR near-circular. Re-fit with the pure GNG-cue lick
-(the genuine intrusive delay lick), the association is null at both stages (naïve OR = 0.93,
-p = 0.81; expert OR = 0.72, p = 0.40). What does survive is the cue-lick rate itself falling
-with learning (0.24 → 0.08). Until re-analysed, do not lean on Fig. 1g for the
-interference-and-its-removal claim — Fig. 1e (the Go-specific DPA depression) is the
-unconfounded evidence that the action interferes; see the to-reconcile list.)_
+The cost of composition has a specific signature: it is the action itself that interferes, and it
+does so by propagating to the response. Unpaired DPA accuracy was selectively depressed when the
+distractor required a Go response (Fig. 1e; Go−DPA β = −0.073, p = 0.038) but not a NoGo response
+(NoGo−DPA p = 0.78) — the *intrusive lick*, not the distractor stimulus, is the source of
+interference. And the route is a lick chain: a naïve animal that intruded a lick at the NoGo
+distractor cue was three times as likely to lick again at the test (Fig. 1g; trial-level GEE,
+OR = 3.10, p = 0.006) — on unpaired trials that second lick *is* the false alarm (OR toward
+FA = 2.7, p = 0.09), and on paired trials it lands on a hit (OR = 9.9, p = 0.001), so the
+coupling is response propagation, not memory loss. In expert animals the propagation is gone
+(OR = 1.50, p = 0.42) and the intrusive licks themselves largely disappear (cue-lick rate
+0.24 → 0.08): learning removes both the intruding action and its grip on the subsequent
+response. _(caveat: Fig. 1g is a within-trial correlational association, not causal; the panel
+was rebuilt 2026-09-01 after a predictor audit — the original build's "any lick" predictor
+conflated the cue and test licks.)_
 
 Even at expertise the composition was imperfect. Across animals, expert DPA and GNG performance
 were decoupled (Fig. 1h; Pearson r = +0.10, p = 0.80; Spearman ρ = +0.35, p = 0.36; n = 9), with
@@ -187,8 +184,9 @@ per-neuron sample and decision d′ are uncorrelated (r = −0.03), and the frac
 double-selective neurons matches the independence expectation (6.2% vs 6.4%; Fig. 2g; per-neuron
 permutation tuning in ED 6b — sample ≈ 10%, GNG ≈ 39%, cross-variable co-tuning at chance). A
 factorised, shared subspace of this kind is exactly the geometry a memory needs to survive an
-embedded action task — variables coded on separate axes cannot overwrite one another (the
-interference of Fig. 1g) — and it is in place before the composition is learned; what learning
+embedded action task — variables coded on separate axes cannot overwrite one another, and an
+action can be expressed without dragging the memory's response with it (cf. the lick propagation
+of Fig. 1g) — and it is in place before the composition is learned; what learning
 changes is where the state sits within it (Figs. 3, 4). The one delay-period signal learning does
 remove is a premature choice signal in the naïve dual-task delay — in naïve mice the upcoming
 choice is decodable from the delay state well before the test (0.64–0.66 from early through late
@@ -287,8 +285,8 @@ Second, learning repositioned the working-memory state along that same axis, to 
 output-suppressing set-point. The expert DPA delay state sat further into the no-lick half of the
 choice axis than the naïve state (Fig. 4b; sample × choice planes for naïve and expert, and the
 per-mouse late-delay depth; mixed model 9 mice/36 obs, β = −0.744, p = 0.046; per-animal Wilcoxon
-p = 0.098) — a set-point shift that parks the memory away from the lick boundary, buffering it
-against precisely the distractor-evoked lick interference that learning removes behaviourally
+p = 0.098) — a set-point shift that parks the delay state away from the lick boundary,
+suppressing precisely the intrusive-lick → false-alarm chain that learning removes behaviourally
 (Fig. 1g). The shift was numerically larger for sample A than for sample B (ΔA ≈ −1.42, p = 0.098;
 ΔB ≈ −0.07, p = 0.91), but the direct paired A-vs-B comparison across the same 9 mice is not
 significant in the canonical build (p = 0.055) or in any of the six axis × normalisation builds
@@ -414,10 +412,14 @@ intercept per mouse (REML); per-day markers are uncorrected Wald/Welch tests req
 per group. Random-effect variances near the boundary make per-day p-values mildly
 anti-conservative, as noted in the text. Trial-level associations (Fig. 1g; history effects,
 ED 2) used logistic GEEs clustered by mouse (exchangeable working correlation), fit separately
-per stage. The Fig. 1g predictor as implemented is "any recorded lick on the trial" (cue lick
-OR test lick); see the to-reconcile note — with the pure cue lick the association is null, so
-this panel is under re-analysis. Across-animal relationships are Pearson/Spearman correlations
-over n = 9 mice. All tests two-sided; p-values uncorrected and reported exactly.
+per stage. Fig. 1g models the probability of licking at the DPA test on NoGo trials as a
+function of the intrusive cue lick (the pure delay-period lick variable); the false-alarm arm
+restricts the same model to unpaired trials, where the test lick is the false alarm, and the
+paired arm is the propagation control (a cue lick there predicts a hit — incompatible with
+memory corruption, diagnostic of response propagation). The panel was rebuilt 2026-09-01: the
+original build's predictor pooled cue and test licks, which is near-circular with performance.
+Across-animal relationships are Pearson/Spearman correlations over n = 9 mice. All tests
+two-sided; p-values uncorrected and reported exactly.
 
 ### Two-photon imaging and pseudo-population
 
@@ -728,17 +730,16 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 ---
 
 ### To reconcile before submission (figure ↔ text integrity)
-- **⚠ Fig. 1g PREDICTOR (2026-09-01 code audit — the one result-level finding):** the GEE's
-  `licked` = `(odr_choice + choice) > 0` (any lick, cue OR test; `run_overlaps.py:305`), which on
-  the DualNoGo subset equals the DPA test lick 96.5% of the time — near-circular with DPA
-  performance. Re-fit with the pure cue lick `odr_choice`: naïve OR = 0.93 p = 0.81, expert
-  OR = 0.72 p = 0.40 — **the panel's naïve star does not survive the clean predictor.** Decide:
-  re-analyse the panel around `odr_choice` (e.g. cue-lick rate falls 0.24 → 0.08 with learning —
-  a real intrusive-lick learning effect), or drop it. Downstream text leaning on Fig. 1g:
-  §2 ("the interference of Fig. 1g"), §4 ("the distractor-evoked lick interference that learning
-  removes behaviourally"), Discussion ("the behavioural cost of the distractor is precisely an
-  evoked lick"), the abstract-adjacent framing. Fig. 1e (Go-specific DPA depression) carries the
-  interference claim independently and is unaffected.
+- **✓ Fig. 1g REBUILT (2026-09-01, resolving the predictor audit; user decision — "the delay
+  lick leads to more false alarms, not memory corruption; the push prevents these false
+  alarms"):** the old build's `licked` predictor pooled cue and test licks (= the test lick on
+  96.5% of NoGo trials, near-circular with performance; its OR = 0.56 was carried entirely by
+  the test lick — cue-only OR = 0.93 n.s.). The panel now shows the clean propagation:
+  predictor = the cue lick (`odr_choice`), outcome = P(lick at test); naïve OR = 3.10
+  p = .006 ∗∗, expert OR = 1.50 p = .42 n.s.; FA arm (unpaired) OR = 2.73 p = .090, paired arm
+  OR = 9.9 p = .001 toward a hit (the anti-corruption control); cue-lick rate 0.24 → 0.08.
+  §1 header, §2/§4/abstract clauses, caption, Methods and behavior.md all recast to
+  "propagates to false alarms". Downstream Discussion clause updated.
 - **Fig. 2a mid-delay bracket label (audit):** the panel/caption say "5.5–6.3 s" but the sampled
   bins 36–38 map to ≈6.0–6.5 s under the code's own bin→time convention (the 5.5 is the epoch
   onset before the +0.5-s index offset; no trailing-integration code exists). Either relabel the

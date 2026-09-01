@@ -12,7 +12,7 @@ Combines the full behaviour_learning panel set with the new mechanistic panels.
   F  LMM fixed-effect coefficients (condition + condition×day, 95% CI).
   ── new panels ──
   G  Interference: DPA accuracy by condition (pure → NoGo → Go, ordered by lick
-     rate); intrusive NoGo lick → DPA↓ (GEE, Naive).
+     rate); intrusive NoGo CUE lick propagates to the test lick (GEE, Naive ∗; FA route; rebuilt 2026-09-01).
   H  Suboptimal balance: per-animal DPA vs GNG (Expert); none reaches both-optimal.
 
 Panels B–F reproduce fig_behavior_learning.py (helpers copied per repo convention,
@@ -291,21 +291,28 @@ axF.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                     mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=5, label='condition×day')],
            frameon=False, fontsize=6.5, loc='upper right')
 
-# ── G: intrusive licks impair DPA — NoGo trials, no-lick vs lick (Naive+Expert) ─
-#   On NoGo trials a lick is always an unwanted intrusion (not task-required, unlike
-#   Go), so no-lick vs lick isolates the motor interference. DPA drops when the mouse
-#   intrudes a lick — significant in Naive, washes out once expert.
+# ── G: the intrusive CUE lick propagates to the test lick — NoGo trials ─────────
+#   REBUILT 2026-09-01 (predictor audit): the old build split DPA performance by
+#   `licks` = (cue OR test lick), which coincides with the test lick on 96.5% of
+#   NoGo trials — near-circular with performance. The intended claim (the delay
+#   lick leads to FALSE ALARMS, the chain the Fig-4 push suppresses) is carried by
+#   the clean variables: predictor = the CUE lick (odr_choice, the genuine
+#   intrusive delay lick), outcome = P(lick at test). Naive: cue lick triples the
+#   odds of licking again at test (propagation -> FA on unpaired trials); Expert:
+#   propagation gone, and the cue licks themselves largely vanish.
 axG = fig.add_subplot(gs[2, 4:8])
-ng = d[d.tasks == 'DualNoGo'].copy(); ng['licked'] = ng.licks.astype(int)
+ng = d[d.tasks == 'DualNoGo'].copy()
+ng['licked'] = (pd.to_numeric(ng.odr_choice, errors='coerce') > 0).astype(float)
+ng['testlick'] = (pd.to_numeric(ng.choice, errors='coerce') > 0).astype(float)
 NOLICK_C, LICK_C = '#888888', '#1f77b4'
 STAGE_X = {'Naive': (0.0, 1.0), 'Expert': (2.4, 3.4)}
 for stage, (x0, x1) in STAGE_X.items():
-    s = ng[ng.stage == stage]
+    s = ng[ng.stage == stage].dropna(subset=['licked', 'testlick'])
     nl, lk = [], []
     for m in ALL_MICE:
-        a = s[(s.mouse == m) & (s.licked == 0)].performance
-        b = s[(s.mouse == m) & (s.licked == 1)].performance
-        av, bv = (a.mean() if len(a) else np.nan), (b.mean() if len(b) else np.nan)
+        a = s[(s.mouse == m) & (s.licked == 0)].testlick
+        b = s[(s.mouse == m) & (s.licked == 1)].testlick
+        av, bv = (a.mean() if len(a) else np.nan), (b.mean() if len(b) >= 3 else np.nan)
         nl.append(av); lk.append(bv)
         if np.isfinite(av) and np.isfinite(bv):
             axG.plot([x0, x1], [av, bv], '-', color=MOUSE_COLOR[m], lw=0.8, alpha=0.45, zorder=2)
@@ -315,29 +322,33 @@ for stage, (x0, x1) in STAGE_X.items():
         axG.errorbar(xx, mn, yerr=se, fmt='o', color=col, ms=6, capsize=2.5, lw=1.3,
                      zorder=5, mec='k', mew=0.8)
     axG.plot([x0, x1], [np.nanmean(nl), np.nanmean(lk)], '-', color='0.3', lw=1.6, zorder=4)
-    ds = s.dropna(subset=['performance', 'licked'])
-    g = smf.gee('performance ~ licked', groups=ds['mouse'], data=ds,
+    g = smf.gee('testlick ~ licked', groups=s['mouse'], data=s,
                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
     orr, pv = np.exp(g.params['licked']), g.pvalues['licked']
-    # significance bracket + star / ns (kept below performance = 1)
-    ybr = 0.96
+    # FA arm (unpaired trials only: the second lick IS the false alarm) -> stdout/caption
+    su = s[s.odor_pair.isin([1, 3])]
+    gf = smf.gee('testlick ~ licked', groups=su['mouse'], data=su,
+                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
+    print(f'G {stage}: propagation OR={orr:.2f} p={pv:.4f} | FA arm (unpaired) '
+          f'OR={np.exp(gf.params["licked"]):.2f} p={gf.pvalues["licked"]:.4f} | '
+          f'cue-lick rate={s.licked.mean():.2f}')
+    # significance bracket + star / ns
+    ybr = 0.99
     axG.plot([x0, x0, x1, x1], [ybr - 0.012, ybr, ybr, ybr - 0.012], color='k', lw=1.3, zorder=6)
     st = star(pv) or 'ns'
     axG.text((x0 + x1) / 2, ybr + 0.003, st, ha='center', va='bottom',
              fontsize=12 if star(pv) else 8, fontweight='bold', color='k')
-    # stage labels in axes-fraction just above the frame (nothing drawn above perf = 1)
     axG.text((x0 + x1) / 2, 1.02, stage, ha='center', va='bottom',
              transform=axG.get_xaxis_transform(), clip_on=False, fontsize=8,
              fontweight='bold', color=STAGE_SHADE if stage == 'Expert' else '0.4')
-    axG.text((x0 + x1) / 2, 0.565, f'OR={orr:.2f}\np={pv:.3f}',
+    axG.text((x0 + x1) / 2, 0.04, f'OR={orr:.2f}\np={pv:.3f}',
              ha='center', va='bottom', fontsize=8, color='0.3')
-axG.axhline(0.5, ls=':', color='0.5', lw=1)
-axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no\nlick', 'lick', 'no\nlick', 'lick'])
-axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.55, 1.0); axG.set_ylabel('DPA performance')
-axG.legend(handles=[mlines.Line2D([0], [0], marker='o', color=NOLICK_C, ls='none', ms=5, label='withhold (no lick)'),
-                    mlines.Line2D([0], [0], marker='o', color=LICK_C, ls='none', ms=8, label='intrusive lick')],
-           frameon=False, fontsize=6.5, loc='lower center', ncol=1)
-axG.set_title('Intrusive licks impair DPA early', loc='left',
+axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no cue\nlick', 'cue\nlick', 'no cue\nlick', 'cue\nlick'])
+axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.0, 1.03); axG.set_ylabel('P(lick at test)')
+axG.legend(handles=[mlines.Line2D([0], [0], marker='o', color=NOLICK_C, ls='none', ms=5, label='withheld at cue'),
+                    mlines.Line2D([0], [0], marker='o', color=LICK_C, ls='none', ms=5, label='intrusive cue lick')],
+           frameon=False, fontsize=6.5, loc='lower left', ncol=1)
+axG.set_title('The intrusive lick propagates to the test', loc='left',
               fontsize=TITLE_FS, pad=24)   # raised above the Naive/Expert stage headers
 
 # ── H: suboptimal expert balance — DPA vs GNG per animal ──────────────────────
@@ -399,11 +410,16 @@ CAP_PARAS = [
     'mouse). GNG > DPA (∗) with the gap narrowing over days (∗∗∗); NoGo > Go (∗); unpaired < '
     'paired (∗∗∗), also narrowing over days (∗∗∗); and DPA is worse in Go context than in pure '
     'DPA (∗).',
-    'G. Where the interference acts: dual-trial DPA accuracy split by what the animal did at the '
-    'distractor cue (thin lines = single mice). In Naive mice, trials with an INTRUSIVE lick at '
-    'the cue end in DPA errors far more often (trial-level GEE, OR = 0.56, p = .006); in Expert '
-    'mice the effect is gone (OR = 0.76, p = .50). The distractor damages the memory through '
-    'the action it evokes — and learning removes exactly that coupling.',
+    'G. Where the interference acts — the intrusive lick propagates to the response: on NoGo '
+    'trials, the probability of licking at the DPA test split by whether the animal intruded a '
+    'lick at the distractor cue (thin lines = single mice). In Naive mice a cue lick TRIPLES '
+    'the odds of licking again at test (trial-level GEE, OR = 3.10, p = .006) — and on '
+    'unpaired trials that second lick IS the false alarm (OR toward FA = 2.7, p = .09), while '
+    'on paired trials it lands on a hit (OR = 9.9, p = .001): the chain is response '
+    'propagation, not memory loss. In Expert mice the propagation is gone (OR = 1.50, p = .42) '
+    'and the intrusive licks themselves largely disappear (cue-lick rate 0.24 → 0.08). The '
+    'distractor costs performance through the action it evokes — the false-alarm route the '
+    'no-lick repositioning of Fig. 4 suppresses.',
     'H. Learned, but not jointly optimal: each Expert animal’s DPA accuracy against its GNG '
     'accuracy (colour = mouse, marker = opsin group; star = the both-optimal corner). No animal '
     'reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across mice '

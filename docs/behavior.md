@@ -243,9 +243,15 @@ Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-la
 - **B–E** — the five learning curves from `fig_behavior_learning.py` (helpers copied per repo
   convention): B DPA-vs-GNG, C Go-vs-NoGo, D paired-vs-unpaired, E unpaired-by-task; per-day LMM stars.
 - **F** — LMM effect-size forest (condition + condition×day βs).
-- **G** — **intrusive licks impair DPA early**: NoGo trials, no-lick vs intrusive-lick DPA accuracy,
-  Naive vs Expert, per-mouse lines + mean±SEM, GEE(DPA-correct ~ lick, clustered by mouse) OR/p with
-  significance brackets (Naive OR=0.56 **p=.006 `**`**; Expert OR=0.76 p=.50 `ns`).
+- **G** — **the intrusive lick propagates to the test** (REBUILT 2026-09-01 after the predictor
+  audit; user framing: the delay lick leads to FALSE ALARMS — the chain the Fig-4 push suppresses):
+  NoGo trials, P(lick at test) split by the CUE lick (`odr_choice`, the pure delay lick), Naive vs
+  Expert, per-mouse lines + mean±SEM, GEE(test-lick ~ cue-lick, clustered by mouse):
+  Naive OR=3.10 **p=.006 `**`**, Expert OR=1.50 p=.42 `ns`; FA arm (unpaired) OR=2.73 p=.090,
+  paired arm OR=9.9 p=.001 toward a HIT (anti-corruption control); cue-lick rate 0.24→0.08.
+  [Historical: the pre-2026-09-01 build split DPA accuracy by `licks` = (cue OR test lick) —
+  near-circular (the test lick = 96.5% of the predictor); its Naive OR=0.56 p=.006 was carried
+  by the test lick and is RETIRED. Do not quote it.]
 - **H** — **experts reach a suboptimal balance**: per-mouse DPA-vs-GNG scatter (Naive→Expert), y=x,
   Pearson/Spearman + mean gap-to-optimal.
 
