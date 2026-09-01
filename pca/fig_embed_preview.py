@@ -75,7 +75,7 @@ for r, stage in enumerate(['Naive', 'Expert']):
                 i0 = conds.index((t, 0, te)); i1 = conds.index((t, 1, te))
                 ax.plot(*zip(P[i0], P[i1]), color=TASKE[t], lw=1.2, alpha=0.8)
         for ci, (t, s, te) in enumerate(conds):
-            ax.scatter(*P[ci], s=55, c=SAMPC[s], edgecolors=TASKE[t], linewidths=1.6,
+            ax.scatter(*P[ci], s=34, c=SAMPC[s], edgecolors=TASKE[t], linewidths=1.0,
                        marker='o' if t == 'DPA' else ('^' if t == 'DualGo' else 's'),
                        depthshade=False)
         RELRANK = {('DPA', 'md'): 1, ('dual', 'md'): 2,

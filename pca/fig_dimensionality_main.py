@@ -95,21 +95,21 @@ def schematic(ax):
                             ('test', 9.0, 10.0, VAR_COL['test']),    #  7.0-7.5 is the reward window)
                             ('lick', 10.0, 11.5, VAR_COL['choice'])]:
         ax.add_patch(Rectangle((lo, y0), hi - lo, h, fc=col, alpha=0.75, lw=0))
-        ax.text((lo + hi) / 2, y0 + h + 0.025, nm, ha='center', va='bottom', fontsize=5.8, color=col)
-    ax.text(0.1, y0 + h + 0.025, 'trial', ha='left', va='bottom', fontsize=5.8, color='0.4')
+        ax.text((lo + hi) / 2, y0 + h + 0.025, nm, ha='center', va='bottom', fontsize=6.0, color=col)
+    ax.text(0.1, y0 + h + 0.025, 'trial', ha='left', va='bottom', fontsize=6.0, color='0.4')
     brackets = ([(5.6, 6.4, 'memory / delay state (5.5–6.3 s)', 'right', 5.5),   # bins_MD 36–38
                  (9.5, 10.8, 'decision state', 'left', 9.6)] if CDEC else       # keep SHORT: a longer
                 [(8.0, 8.9, 'memory / delay state', 'right', 7.9),      # legacy: late delay
                  (9.5, 11.0, 'decision state', 'left', 10.0)])
     for lo, hi, lab, hal, xt in brackets:
         ax.plot([lo, lo, hi, hi], [y0 - 0.015, y0 - 0.045, y0 - 0.045, y0 - 0.015], color='0.25', lw=0.9)
-        ax.text(xt, y0 - 0.065, lab, ha=hal, va='top', fontsize=5.8, color='0.25')
+        ax.text(xt, y0 - 0.065, lab, ha=hal, va='top', fontsize=6.0, color='0.25')
     ax.text(0.1, 0.56, 'pseudo-population: 3,319 neurons\n× 12 conditions', ha='left', va='center', fontsize=6.0)
     for yb, lab, res in [(0.36, 'trial half 1', 'PCA basis'), (0.20, 'trial half 2', 'cross-projected variance')]:
         ax.add_patch(Rectangle((0.6, yb - 0.06), 3.1, 0.12, fc='#e8e6f0', ec='0.5', lw=0.7))
-        ax.text(2.15, yb, lab, ha='center', va='center', fontsize=5.8)
+        ax.text(2.15, yb, lab, ha='center', va='center', fontsize=6.0)
         ax.annotate('', xy=(6.0, yb), xytext=(3.9, yb), arrowprops=dict(arrowstyle='-|>', lw=1.0, color='k'))
-        ax.text(6.3, yb, res, ha='left', va='center', fontsize=5.8)
+        ax.text(6.3, yb, res, ha='left', va='center', fontsize=6.0)
     ax.text(0.6, 0.05, 'repeated 2-fold CV (30 random half-splits,\nboth directions averaged): only variance\n'
             'that REPLICATES across halves counts (cvPCA)',
             ha='left', va='center', fontsize=6.0, style='italic', color='0.35')
@@ -141,7 +141,7 @@ def panelB(fig, gsB):
         if c == 1:
             ax.set_xlabel('cvPCA component')
         if c == 2:
-            ax.legend(frameon=False, fontsize=5.5, handlelength=1.2, loc='upper right')
+            ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='upper right')
     return axes[0]
 
 
@@ -173,7 +173,7 @@ def panelC(ax, show_title=True):
         ax.set_title('one dimension per variable in play', loc='left', fontsize=TITLE_FS)
     ax.legend(frameon=False, fontsize=6.5, loc='upper left')
     ax.text(0.03, 0.76, 'error bars: 95% CI,\njackknife across mice (n=9)', transform=ax.transAxes,
-            ha='left', va='top', fontsize=5.8, color='0.35')
+            ha='left', va='top', fontsize=6.0, color='0.35')
     for ts, wn, _ in groups:
         for st in STAGES:
             P = PJ[(ts, wn, st)]
@@ -217,19 +217,19 @@ def panelB_sets(fig, gsB2):
             # geometry callouts + cartoons (the point of evidence, not the caption)
             if r == 0 and c == 0:                    # DPA mid-delay: ONE axis — a sample line
                 ax.text(0.97, 0.95, '1 reliable axis —\nthe sample line', transform=ax.transAxes,
-                        ha='right', va='top', fontsize=5.8, color='0.25')
+                        ha='right', va='top', fontsize=6.0, color='0.25')
                 ax.plot([0.62, 0.93], [0.60, 0.70], '-', color='0.45', lw=1.0, transform=ax.transAxes)
                 ax.plot([0.62], [0.60], 'o', ms=3.2, color='#332288', transform=ax.transAxes, clip_on=False)
                 ax.plot([0.93], [0.70], 'o', ms=3.2, color='#44AA99', transform=ax.transAxes, clip_on=False)
-                ax.text(0.62, 0.53, 'A', transform=ax.transAxes, fontsize=5, color='#332288', ha='center', va='top')
-                ax.text(0.93, 0.63, 'B', transform=ax.transAxes, fontsize=5, color='#44AA99', ha='center', va='top')
+                ax.text(0.62, 0.53, 'A', transform=ax.transAxes, fontsize=6.0, color='#332288', ha='center', va='top')
+                ax.text(0.93, 0.63, 'B', transform=ax.transAxes, fontsize=6.0, color='#44AA99', ha='center', va='top')
             if r == 0 and c == 1:                    # dual mid-delay: 2 axes = distractor × sample.
                 # VERIFIED by projecting held-out cond means on the cvPCA basis (2026-08-12): comp1
                 # (0.93) carries gng η²=0.99, comp2 (0.07) carries sample η²=0.78 — the DISTRACTOR
                 # dominates and the memory line survives as the small axis. Do NOT swap these.
                 _fd = np.asarray(SJ[('dual', 'md', 'Expert')]['frac'])   # drawn values, not hardcoded
                 ax.text(0.96, 0.84, f'2 axes: distractor ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
-                        transform=ax.transAxes, ha='right', va='top', fontsize=5.8, color='0.25')
+                        transform=ax.transAxes, ha='right', va='top', fontsize=6.0, color='0.25')
                 ax.add_patch(Polygon([(0.54, 0.50), (0.86, 0.57), (0.96, 0.72), (0.64, 0.65)],
                                      closed=True, fc='0.93', ec='0.6', lw=0.6,
                                      transform=ax.transAxes, zorder=1))
@@ -239,13 +239,13 @@ def panelB_sets(fig, gsB2):
                 ax.annotate('', xy=(0.71, 0.705), xytext=(0.65, 0.555),
                             arrowprops=dict(arrowstyle='-|>', lw=0.9, color=VAR_COL['gng']),
                             xycoords=ax.transAxes, textcoords=ax.transAxes)
-                ax.text(0.725, 0.70, 'dist', transform=ax.transAxes, fontsize=5,
+                ax.text(0.725, 0.70, 'dist', transform=ax.transAxes, fontsize=6.0,
                         color=VAR_COL['gng'], ha='left', va='center')
             if r == 1:                               # decision: ~3 reliable axes
                 ax.text(0.96, 0.94 if c == 0 else 0.84, '≈3 reliable axes', transform=ax.transAxes,
-                        ha='right', va='top', fontsize=5.8, color='0.25')
+                        ha='right', va='top', fontsize=6.0, color='0.25')
             if r == 1 and c == 0:
-                ax.legend(frameon=False, fontsize=5.2, handlelength=1.3, loc='center right')
+                ax.legend(frameon=False, fontsize=6.0, handlelength=1.3, loc='center right')
     p0, p3 = axes[0].get_position(), axes[2].get_position()
     fig.text(p0.x0 - 0.028, (p3.y0 + p0.y1) / 2, 'reliable variance (fraction)',
              rotation=90, va='center', ha='center', fontsize=8)
@@ -297,7 +297,7 @@ def panelC_decode(fig, gsC):
                      else 'no reliable transfer\n(dual dist = 1.0)')   # verdict follows the 1000-draw null
             ax.annotate(_wlab, xy=(xpos[('DPA', 'gng')] + 0.30,
                         _gmd['acc']), xytext=(xpos[('DPA', 'gng')] + 1.05, 0.80),
-                        fontsize=5.2, color=VAR_COL['gng'], ha='left', va='center',
+                        fontsize=6.0, color=VAR_COL['gng'], ha='left', va='center',
                         arrowprops=dict(arrowstyle='-', lw=0.6, color=VAR_COL['gng'],
                                         shrinkA=0, shrinkB=1))
             print(f"C-dec: weak-transfer verdict sig={_gmd['sig']} p={_gmd.get('p', float('nan')):.3f}")
@@ -315,7 +315,7 @@ def panelC_decode(fig, gsC):
             # canonical code names (sample/dist/test/choice, as in Figs 3-4): 'gng' displays as 'dist'
             ax.set_xticklabels(['dist cross' if k == ('DPA', 'gng') else
                                 ('dist' if k[1] == 'gng' else k[1]) for k in xpos],
-                               fontsize=5.8, rotation=35, ha='right')   # NOT '×': rotated it reads '+'
+                               fontsize=6.0, rotation=35, ha='right')   # NOT '×': rotated it reads '+'
                                                                         # (35°/5.8: shorter drop — the
                                                                         # group labels below must clear D)
             # group labels at the OUTER EDGES (not group centres): centred labels at any depth
@@ -332,7 +332,7 @@ def panelC_decode(fig, gsC):
           Patch(fc='none', ec=VAR_COL['gng'], hatch='/////', label='dist cross-dec ← DPA PCs'),
           mlines.Line2D([], [], marker='$†$', ls='', ms=4, color='0.25', label='Naive-only sig.')]
     # legend ABOVE the axes: 6 entries inside collided with the dual bars / the Naive dot at 1.0
-    axs[0].legend(handles=hs, frameon=False, fontsize=5.2, loc='lower left', ncols=3,
+    axs[0].legend(handles=hs, frameon=False, fontsize=6.0, loc='lower left', ncols=3,
                   bbox_to_anchor=(0.0, 1.01), handlelength=1.1, handletextpad=0.4,
                   labelspacing=0.3, columnspacing=0.7, borderaxespad=0.0)
     p0, p1 = axs[0].get_position(), axs[1].get_position()
@@ -448,9 +448,9 @@ def panelE_gen(fig, gsE):
             for k in range(M.shape[1]):
                 if i == k:
                     ax.add_patch(Rectangle((k - .5, i - .5), 1, 1, fc='0.93', ec='none'))
-                    ax.text(k, i, '1', ha='center', va='center', fontsize=5.8, color='0.45')
+                    ax.text(k, i, '1', ha='center', va='center', fontsize=6.0, color='0.45')
                 else:
-                    ax.text(k, i, f'{Nn[i, k]:.2f}', ha='center', va='center', fontsize=5.8,
+                    ax.text(k, i, f'{Nn[i, k]:.2f}', ha='center', va='center', fontsize=6.0,
                             color='w' if Nn[i, k] > 0.6 else 'k')
         weak = (np.diag(M) - 0.5) < 0.10
         for i in range(M.shape[0]):
@@ -460,7 +460,7 @@ def panelE_gen(fig, gsE):
                                            edgecolor='0.45', lw=0.0, zorder=3))
         ax.set_xticks(range(len(TL)))
         ax.set_xticklabels([f'{t}\n{d:.2f}' for t, d in zip(TL, np.diag(M))],
-                           fontsize=5.6, rotation=35, ha='right')
+                           fontsize=6.0, rotation=35, ha='right')
         ax.set_yticks(range(len(TL)))
         ax.set_yticklabels(TL if j == 0 else [], fontsize=6.0)
         ax.set_title(var, loc='left', fontsize=7)
@@ -474,7 +474,7 @@ def panelE_gen(fig, gsE):
         _ps = RES['PS_nopca'][('Expert', var)]
         ax.text(0.5, -0.52, f"PS {_ps['raw']:.2f} (null {_ps['null95']:.2f})\n"
                 f"rel-corrected {_ps['corrected']:.2f}",
-                transform=ax.transAxes, ha='center', va='top', fontsize=5.6, color='0.3')
+                transform=ax.transAxes, ha='center', va='top', fontsize=6.0, color='0.3')
         EYE = np.eye(len(M), dtype=bool)
         print(f'E-gen: {var:7s} Expert within {np.round(np.diag(M),2)}  transferred frac '
               f'{np.round(Nn[~EYE], 2)}  mean {Nn[~EYE].mean():.2f}  PS {_ps["raw"]:.2f} '
@@ -545,10 +545,10 @@ def panelF_gen_learning(fig, gsF):
             xn = float(PG[(m, 'Naive', var)][~E3].mean())
             ye = float(PG[(m, 'Expert', var)][~E3].mean())
             nv.append(xn); ev.append(ye)
-            ax.scatter(xn, ye, s=26, color=F_MCOL[m], marker=F_GMARK[F_GROUP[m]],
+            ax.scatter(xn, ye, s=34, color=F_MCOL[m], marker=F_GMARK[F_GROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
         nv, ev = np.array(nv), np.array(ev)
-        ax.scatter(nv.mean(), ev.mean(), s=60, color='k', marker='D', edgecolors='w',
+        ax.scatter(nv.mean(), ev.mean(), s=80, color='k', marker='D', edgecolors='w',
                    linewidths=0.6, zorder=5)
         p = float(wilcoxon(ev, nv).pvalue)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
@@ -562,7 +562,7 @@ def panelF_gen_learning(fig, gsF):
         if j == 1:
             ax.set_xlabel('cross-task acc. — Naive', fontsize=7)
         ax.text(0.05, 0.96, f'Δ={ev.mean() - nv.mean():+.2f}\np={p:.2f}', transform=ax.transAxes,
-                va='top', ha='left', fontsize=5.8, color='0.3')
+                va='top', ha='left', fontsize=6.0, color='0.3')
         print(f'F: {var:7s} per-mouse cross {nv.mean():.3f} -> {ev.mean():.3f}  p={p:.3f} '
               f'({int((ev > nv).sum())}/{len(nv)} up)')
     return axes[0]

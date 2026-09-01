@@ -5,7 +5,7 @@
 > truth): Fig 2 A–F (incl. E cross-task generalisation, F equivalence-bounded stability); Fig 3
 > A–F (task-split traces · storyboard · plane sufficiency C/D · axis angles E · cross-stage F);
 > Fig 4 A–E (A alignment · B push · C coupling · D FA/CR · E d′); Fig 5 A–L stat-refreshed
-> (trade-off r=+0.48 p=.034; ΔGNG arm r=−0.61 p=.004, mixed-model survivor β=−0.014 p=.023).
+> (trade-off r=+0.53 p=.016; ΔGNG arm r=−0.65 p=.002, mixed-model survivor β=−0.013 p=.018).
 > Literature positioning + vocabulary in memory `reference_literature_positioning`; the Discussion
 > draft lives in `discussion_draft.md`.
 
@@ -288,9 +288,9 @@ ON vs OFF, Jaws, n = 5), and projected both trial types through the fixed, laser
 axis to read the state's *position* on the learned geometry. Transient silencing produced no gross
 behavioural change (Fig. 5d, DPA spared, p = 0.40; Fig. 5e, GNG spared, p = 0.24) but moved the delay
 choice code, per mouse (Fig. 5f; DPA choice-code depth OFF vs ON, 5 Jaws mice). Across animals this
-displacement traded the two tasks off against one another (Fig. 5g; Δdepth vs ΔDPA−ΔGNG, r = +0.48,
-p = 0.034, n = 20), an effect carried by the Go/NoGo arm (Fig. 5i; Δdepth vs ΔGNG, r = −0.61, p = 0.004;
-ρ = −0.56, p = 0.011) rather than the DPA arm (Fig. 5h; n.s. trend). In laser-ON trials the mice
+displacement traded the two tasks off against one another (Fig. 5g; Δdepth vs ΔDPA−ΔGNG, r = +0.53,
+p = 0.016, n = 20), an effect carried by the Go/NoGo arm (Fig. 5i; Δdepth vs ΔGNG, r = −0.65, p = 0.002;
+ρ = −0.62, p = 0.003) rather than the DPA arm (Fig. 5h; n.s. trend). In laser-ON trials the mice
 still occupied the same suboptimal DPA–GNG balance as at baseline (Fig. 5j; r = +0.44, p = 0.20). Critically,
 the input moved the state without altering the subspace's content: the discriminability (d′) of both the
 sample-memory axis (Fig. 5k; A vs B, late delay) and the Go/NoGo choice axis (Fig. 5l; Go vs NoGo,
@@ -306,7 +306,7 @@ and a within-mouse transient-silencing cohort (Fig. 5d–l; Jaws, n = 5) — jus
 target the same ACC→mPFC projection; state this explicitly. The trade-off in Fig. 5g–i is a between-animal
 coupling; the n = 20 points are 5 mice × stage × sample and thus pseudoreplicated, so the raw r is
 anti-conservative — under a mouse-clustered model the joint trade-off (g) drops to n.s.
-(β = +0.021, p = 0.145) and only the ΔGNG arm (i) survives (β = −0.014, p = 0.023); frame i as the
+(β = +0.019, p = 0.108) and only the ΔGNG arm (i) survives (β = −0.013, p = 0.018); frame i as the
 robust arm and g as the raw-level trend. The axis
 and window are pre-committed (the locked main-overlaps axis), with the window sweep reported to avoid
 cherry-picking. Do not headline the trial-level signal × laser interaction (pseudoreplicated); the

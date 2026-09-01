@@ -74,15 +74,15 @@ if __name__ == '__main__':
             for _k in range(2):
                 _ax.text(_k, _i, f'{_M[_i, _k]:.2f}', ha='center', va='center', fontsize=6.6,
                          color='w' if _M[_i, _k] > 0.82 else 'k')
-        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['dist', 'choice'], fontsize=5.8)
+        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['dist', 'choice'], fontsize=6.0)
         _ax.set_yticks([0, 1])
-        _ax.set_yticklabels(['dist', 'choice'] if _j == 0 else [], fontsize=5.8)
+        _ax.set_yticklabels(['dist', 'choice'] if _j == 0 else [], fontsize=6.0)
         _ax.set_title(_stage, loc='left', fontsize=TITLE_FS)
         if _j == 0:
             _ax.set_ylabel('dist ↔ choice\ncross-dec. (bal. acc.)', fontsize=7)
         _S = _MATC['ACT_SUMM'][_stage]
         _ax.text(0.5, -0.30, f"off/within {_S['offdiag']:.2f}\n[{_S['offdiag_lo']:.2f}, {_S['offdiag_hi']:.2f}]",
-                 transform=_ax.transAxes, ha='center', va='top', fontsize=5.6, color='0.3')
+                 transform=_ax.transAxes, ha='center', va='top', fontsize=6.0, color='0.3')
         for _sp in _ax.spines.values():
             _sp.set_visible(True)
         print(f"A[align] {_stage} off/within {_S['offdiag']:.2f} [{_S['offdiag_lo']:.2f},{_S['offdiag_hi']:.2f}]")
@@ -155,7 +155,7 @@ if __name__ == '__main__':
             at.set_ylabel('Choice code\n← no lick            lick →')
         _draw_hist_B(ah, stage, ylimB)
         axB_traj.append(at); axB_hist.append(ah)
-    pair_handles = [Line2D([0], [0], color=_c, lw=2.0, label=f'Sample {_l}') for _l, _p, _c in SAMPLE_TRAJ]
+    pair_handles = [Line2D([0], [0], color=_c, lw=1.3, label=f'Sample {_l}') for _l, _p, _c in SAMPLE_TRAJ]
     axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
                         handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=8)
 
@@ -167,8 +167,8 @@ if __name__ == '__main__':
         for mo, xn, ye in zip(P['mice'], P['naive'], P['expert']):
             _mc = MOUSE_COLOR[mo]
             axB_sc.plot(GX_B, [xn, ye], '-', color=_mc, lw=0.7, alpha=0.5, zorder=2)
-            axB_sc.scatter(GX_B[0], xn, s=30, zorder=3, linewidths=1.0, facecolors=_mc if _fill else 'w', edgecolors=_mc)
-            axB_sc.scatter(GX_B[1], ye, s=30, zorder=3, linewidths=1.0, facecolors=_mc if _fill else 'w', edgecolors=_mc)
+            axB_sc.scatter(GX_B[0], xn, s=34, zorder=3, linewidths=1.0, facecolors=_mc if _fill else 'w', edgecolors=_mc)
+            axB_sc.scatter(GX_B[1], ye, s=34, zorder=3, linewidths=1.0, facecolors=_mc if _fill else 'w', edgecolors=_mc)
     # group mean/SEM at the MOUSE level (A/B averaged within mouse, n=9) — concatenating A+B gave
     # an n=18 SEM with every mouse counted twice (anti-conservative; display-only, stat is the LMM)
     _bym = {'naive': {}, 'expert': {}}
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     _expert_all = np.array([np.mean(v) for v in _bym['expert'].values()])
     for _xx, _vals in ((GX_B[0], _naive_all), (GX_B[1], _expert_all)):
         _mu = _vals.mean(); _se = _vals.std(ddof=1) / np.sqrt(len(_vals))
-        axB_sc.plot([_xx - 0.14, _xx + 0.14], [_mu, _mu], color='k', lw=1.8, zorder=4)
+        axB_sc.plot([_xx - 0.14, _xx + 0.14], [_mu, _mu], color='k', lw=1.3, zorder=4)
         axB_sc.errorbar(_xx, _mu, yerr=_se, color='k', capsize=2.5, lw=1.2, zorder=4)
     axB_sc.axhline(0, ls=':', color='0.6', lw=0.7)
     _dfp = pd.DataFrame([dict(mouse=mo, sample=_s, st=_st, depth=_v)
@@ -251,11 +251,11 @@ if __name__ == '__main__':
                 if not (np.isnan(xx) or np.isnan(yy)):
                     face = MOUSE_COLOR[mouse] if cls == 0 else 'w'
                     ax.scatter(xx, yy, facecolors=face, edgecolors=MOUSE_COLOR[mouse],
-                               marker='o', s=42, linewidths=1.0, zorder=5)
+                               marker='o', s=34, linewidths=1.0, zorder=5)
             ax.plot(px, py, '-', color=MOUSE_COLOR[mouse], lw=0.7, alpha=0.5, zorder=3)
             # the MOUSE MEAN — the unit the Spearman and the band are computed on (Codex review
             # 2026-09-01: visual unit must match inferential unit; the A/B dots stay as texture)
-            ax.scatter(np.nanmean(px), np.nanmean(py), marker='D', s=52,
+            ax.scatter(np.nanmean(px), np.nanmean(py), marker='D', s=80,
                        facecolors=MOUSE_COLOR[mouse], edgecolors='k', linewidths=0.8, zorder=6)
         regression_band(ax, mx, my)
         ax.axhline(0, ls=':', color='k', lw=0.7); ax.axvline(0, ls=':', color='k', lw=0.7)
@@ -282,12 +282,12 @@ if __name__ == '__main__':
         for ya, yb, mouse in zip(r['cr'], r['fa'], r['used']):
             mc = MOUSE_COLOR[mouse]
             axD.plot([xc, xe], [ya, yb], '-', color=mc, lw=0.7, alpha=0.5, zorder=2)
-            axD.scatter(xc, ya, s=30, facecolors=mc, edgecolors=mc, linewidths=1.0, zorder=3)
-            axD.scatter(xe, yb, s=30, facecolors='w', edgecolors=mc, linewidths=1.1, zorder=3)
+            axD.scatter(xc, ya, s=34, facecolors=mc, edgecolors=mc, linewidths=1.0, zorder=3)
+            axD.scatter(xe, yb, s=34, facecolors='w', edgecolors=mc, linewidths=1.1, zorder=3)
         for xx, vals in ((xc, r['cr']), (xe, r['fa'])):
             if len(vals):
                 mu = vals.mean(); se = vals.std(ddof=1) / np.sqrt(len(vals)) if len(vals) > 1 else 0
-                axD.plot([xx - 0.18, xx + 0.18], [mu, mu], color='k', lw=1.8, zorder=4)
+                axD.plot([xx - 0.18, xx + 0.18], [mu, mu], color='k', lw=1.3, zorder=4)
                 axD.errorbar(xx, mu, yerr=se, color='k', capsize=2.5, lw=1.2, zorder=4)
         # stat on the UNCLIPPED per-mouse medians: the 10-90% clip in main_panels is display-only
         # (testing the clipped values would be silent winsorisation, with clip bounds pooled
@@ -321,7 +321,7 @@ if __name__ == '__main__':
     axDp.plot(_lim, _lim, ls='--', color='0.6', lw=0.8, zorder=1)
     axDp.axhline(0, ls=':', color='0.8', lw=0.6); axDp.axvline(0, ls=':', color='0.8', lw=0.6)
     for _m, _xn, _ye in zip(np.array(ALL_MICE)[_ok], _dN[_ok], _dE[_ok]):
-        axDp.scatter(_xn, _ye, s=28, facecolors=MOUSE_COLOR[_m], edgecolors=MOUSE_COLOR[_m], linewidths=0.6, zorder=4)
+        axDp.scatter(_xn, _ye, s=34, facecolors=MOUSE_COLOR[_m], edgecolors=MOUSE_COLOR[_m], linewidths=0.6, zorder=4)
     _dp_t = float(ttest_rel(_dE[_ok], _dN[_ok]).pvalue); _dp_d = float((_dE[_ok] - _dN[_ok]).mean()); _dp_sig = _dp_t < 0.05
     axDp.set_xlim(_lim); axDp.set_ylim(_lim); axDp.set_box_aspect(1)
     # canonical code name ("choice", as in Fig 3); the verdict lives in the n.s./Δ/p annotations,

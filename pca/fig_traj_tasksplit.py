@@ -73,11 +73,11 @@ for r, stage in enumerate(['Naive', 'Expert']):
             if r == 0 and k == 0:
                 yl = 0.905 if nm == 'distractor' else 0.98   # stagger the wide middle label
                 ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
-                        ha='center', va='top', fontsize=5.8, color=col)
+                        ha='center', va='top', fontsize=6.0, color=col)
         for lv, lab, col in zip((0, 1), labs, cols):
             M = np.asarray(TR[(stage, key, lv)], dtype=float)
             mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
-            ax.plot(xt, mu, color=col, lw=1.5, label=f'{lab} (n={len(M)})', zorder=3)
+            ax.plot(xt, mu, color=col, lw=1.3, label=f'{lab} (n={len(M)})', zorder=3)
             ax.fill_between(xt, mu - se, mu + se, color=col, alpha=0.20, lw=0, zorder=2)
         ax.axhline(0, ls='--', color='k', lw=0.5, zorder=1)
         ax.set_ylim(*YL['sample' if 'sample' in key else 'choice'])

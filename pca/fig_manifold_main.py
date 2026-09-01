@@ -182,7 +182,7 @@ def panel_a(fig, gsA):
                     ax.add_patch(Ellipse(P.mean(0), 2 * np.sqrt(ev[-1]), 2 * np.sqrt(ev[0]),
                                          angle=ang, fc=col, alpha=0.10, ec=col,
                                          lw=0.9, ls='-' if licks else '--', zorder=2))
-                ax.scatter(*P.mean(0), marker=TASKM[cd[0]], s=30,
+                ax.scatter(*P.mean(0), marker=TASKM[cd[0]], s=34,
                            facecolor=col if licks else 'w', edgecolor=col, linewidths=1.0, zorder=5)
             ax.set_xlim(*XL); ax.set_ylim(*YL)
             ax.set_xticks([]); ax.set_yticks([])
@@ -282,11 +282,11 @@ def panel_traj(fig, gsT):
                 if r == 0 and k == 0:
                     yl = 0.905 if nm == 'distractor' else 0.98
                     ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
-                            ha='center', va='top', fontsize=5.8, color=col)
+                            ha='center', va='top', fontsize=6.0, color=col)
             for lv, lab, col in zip((0, 1), labs, cols):
                 M = np.asarray(TR[(stage, key, lv)], dtype=float)
                 mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
-                ax.plot(xt, mu, color=col, lw=1.5, label=f'{lab} (n={len(M)})', zorder=3)
+                ax.plot(xt, mu, color=col, lw=1.3, label=f'{lab} (n={len(M)})', zorder=3)
                 ax.fill_between(xt, mu - se, mu + se, color=col, alpha=0.20, lw=0, zorder=2)
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=1)
             ax.set_ylim(*YLg['sample' if 'sample' in key else 'choice'])
@@ -332,7 +332,7 @@ def panel_b(fig, gsB):
         # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
         ax.text(1.0, 1.135, 'rel ' +                     # above the stage title line
                 '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])),
-                transform=ax.transAxes, fontsize=5.8, color='0.3', ha='right', va='bottom')
+                transform=ax.transAxes, fontsize=6.0, color='0.3', ha='right', va='bottom')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'b: {stage} sample-action {C[0,1]:.2f}  sample-distr {C[0,2]:.2f}  '
@@ -400,9 +400,9 @@ def panel_e_pm(fig, gs):
                 continue
             a = PMC[(m, 'Naive')][key + '_raw']; b = PMC[(m, 'Expert')][key + '_raw']
             nv.append(a); ev.append(b)
-            ax.scatter(a, b, s=22, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+            ax.scatter(a, b, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(nv), np.mean(ev), s=52, color='k', marker='D', edgecolors='w',
+        ax.scatter(np.mean(nv), np.mean(ev), s=80, color='k', marker='D', edgecolors='w',
                    linewidths=0.6, zorder=5)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
@@ -437,9 +437,9 @@ def panel_f_pm(fig, gs):
             wi.append(w); cr.append(c)
             if w > 0.52:                            # ratio undefined at the chance floor
                 rat.append((c - 0.5) / (w - 0.5))
-            ax.scatter(w, c, s=22, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+            ax.scatter(w, c, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(wi), np.mean(cr), s=52, color='k', marker='D', edgecolors='w',
+        ax.scatter(np.mean(wi), np.mean(cr), s=80, color='k', marker='D', edgecolors='w',
                    linewidths=0.6, zorder=5)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
@@ -485,10 +485,10 @@ def panel_e_plane(fig, gsE):
                     continue
                 a = PMPL[(m, 'Naive')][vn][key]; b = PMPL[(m, 'Expert')][vn][key]
                 nv.append(a); ev.append(b)
-                ax.scatter(a, b, s=26, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
+                ax.scatter(a, b, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                            edgecolors='w', linewidths=0.5, zorder=3)
             nv, ev = np.array(nv), np.array(ev)
-            ax.scatter(nv.mean(), ev.mean(), s=56, color='k', marker='D', edgecolors='w',
+            ax.scatter(nv.mean(), ev.mean(), s=80, color='k', marker='D', edgecolors='w',
                        linewidths=0.6, zorder=5)
             p = float(wilcoxon(ev, nv).pvalue)
             ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
@@ -583,7 +583,7 @@ def panel_f_spaces(fig, gsF):
     ax.legend(handles=[Patch(fc='0.35', ec='0.35', label='plane (2-D)'),
                        Patch(fc='w', ec='0.35', hatch='///', label='out-of-plane'),
                        Patch(fc='0.35', alpha=0.35, ec='0.35', label='full space')],
-              frameon=False, fontsize=5.6, loc='lower right', bbox_to_anchor=(1.0, 1.01),
+              frameon=False, fontsize=6.0, loc='lower right', bbox_to_anchor=(1.0, 1.01),
               ncols=3, handlelength=1.1, handletextpad=0.4, labelspacing=0.3,
               columnspacing=0.8, borderaxespad=0.0)
     return ax

@@ -92,13 +92,13 @@ def panel_traj(fig, gsT):
                 if r == 0 and k == 0:
                     yl = 0.905 if nm == 'distractor' else 0.98
                     ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
-                            ha='center', va='top', fontsize=5.8, color=col)
+                            ha='center', va='top', fontsize=6.0, color=col)
             for lv, lab, col in zip(spec['levels'], spec['labels'], spec['colors']):
                 M = np.asarray(TR[(stage, spec['code'], int(lv))], dtype=float)
                 if not len(M):
                     continue
                 mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
-                ax.plot(xt, mu, color=col, lw=1.5, label=f'{lab} (n={len(M)})', zorder=3)
+                ax.plot(xt, mu, color=col, lw=1.3, label=f'{lab} (n={len(M)})', zorder=3)
                 ax.fill_between(xt, mu - se, mu + se, color=col, alpha=0.20, lw=0, zorder=2)
             ax.axhline(0, ls='--', color='k', lw=0.5, zorder=1)
             ax.set_ylim(*YLK[k])
@@ -128,9 +128,9 @@ def panel_ccgp(fig, gsA):
         ax.axhline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
         ax.axvline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
         for m, rr in piv.iterrows():
-            ax.scatter(rr['Naive'], rr['Expert'], s=42, color=MOUSE_COLOR.get(m, '0.5'),
+            ax.scatter(rr['Naive'], rr['Expert'], s=34, color=MOUSE_COLOR.get(m, '0.5'),
                        marker=GMARKER[GROUP.get(m, 'Jaws')], edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(piv['Naive'].mean(), piv['Expert'].mean(), s=95, color='k', marker='D',
+        ax.scatter(piv['Naive'].mean(), piv['Expert'].mean(), s=80, color='k', marker='D',
                    edgecolors='w', linewidths=0.6, zorder=5)
         p = float(wilcoxon(piv['Expert'], piv['Naive']).pvalue)
         ax.set_xlim(0.42, 1.0); ax.set_ylim(0.42, 1.0); ax.set_aspect('equal', adjustable='box')
