@@ -329,8 +329,13 @@ for stage, (x0, x1) in STAGE_X.items():
     su = s[s.odor_pair.isin([1, 3])]
     gf = smf.gee('testlick ~ licked', groups=su['mouse'], data=su,
                  family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
+    # pairing-independence: propagation x pairing interaction (n.s. -> pooled OR covers the FA arm)
+    si = s.assign(unp=s.odor_pair.isin([1, 3]).astype(int))
+    gi = smf.gee('testlick ~ licked * unp', groups=si['mouse'], data=si,
+                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
     print(f'G {stage}: propagation OR={orr:.2f} p={pv:.4f} | FA arm (unpaired) '
           f'OR={np.exp(gf.params["licked"]):.2f} p={gf.pvalues["licked"]:.4f} | '
+          f'interaction lick x pairing p={gi.pvalues["licked:unp"]:.3f} | '
           f'cue-lick rate={s.licked.mean():.2f}')
     # significance bracket + star / ns
     ybr = 0.99
@@ -414,9 +419,10 @@ CAP_PARAS = [
     'trials, the probability of licking at the DPA test split by whether the animal intruded a '
     'lick at the distractor cue (thin lines = single mice). In Naive mice a cue lick TRIPLES '
     'the odds of licking again at test (trial-level GEE, OR = 3.10, p = .006) — and on '
-    'unpaired trials that second lick IS the false alarm (OR toward FA = 2.7, p = .09), while '
-    'on paired trials it lands on a hit (OR = 9.9, p = .001): the chain is response '
-    'propagation, not memory loss. In Expert mice the propagation is gone (OR = 1.50, p = .42) '
+    'unpaired trials that second lick IS the false alarm (direct estimate OR = 2.7, p = .09), '
+    'while on paired trials it lands on a hit (OR = 9.9, p = .001): the chain is '
+    'pairing-independent response propagation (lick × pairing interaction p = .61), not memory '
+    'loss. In Expert mice the propagation is gone (OR = 1.50, p = .42) '
     'and the intrusive licks themselves largely disappear (cue-lick rate 0.24 → 0.08). The '
     'distractor costs performance through the action it evokes — the false-alarm route the '
     'no-lick repositioning of Fig. 4 suppresses.',

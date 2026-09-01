@@ -11,12 +11,13 @@ We set out to ask how prefrontal cortex composes a new task from computations th
 performs. Three results answer it. First, decode ablation shows that a single two-dimensional
 sample × choice subspace is *necessary and sufficient* for the memory and choice codes of every
 task variant — sample and choice decode as well from the plane's two coordinates as from the full
-population and collapse without them, while the test code lives entirely outside it (Fig. 3c,d).
-Second, learning acts *within* this fixed subspace: it rotates the distractor code onto the choice
-axis and repositions the working-memory state along it, and the size of each animal's
-repositioning predicts its memory improvement (Fig. 4). Third, a defined top-down input — the
-ACC→mPFC projection — causally sets the state's position on the subspace while sparing the code's
-discriminability (Fig. 6). Together they support a simple account: the code's geometry is a fixed
+population (bounded equivalence, |Δ| ≤ 0.012 in every mouse and stage) and collapse without
+them, while the test code lives outside it (Fig. 3c,d). Second, learning acts *within* this
+fixed subspace: it rotates the distractor code onto the choice axis and repositions the
+working-memory state along it, and the size of each animal's repositioning predicts its memory
+improvement (Fig. 4). Third, a defined top-down input — the ACC→mPFC projection — causally
+shifts the state's position on the subspace while sparing the code's discriminability, and is
+required for the memory task to be acquired (Fig. 6). Together they support a simple account: the code's geometry is a fixed
 constraint, and both learning and top-down control operate on the state's position within it.
 
 **Relation to abstract representational geometry.** The format we find — one dedicated,

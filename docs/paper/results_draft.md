@@ -1,4 +1,15 @@
-# Compositional learning by geometric editing — main paper (draft v6)
+# Compositional learning by geometric editing — main paper (draft v6.1)
+
+> **v6.1 (2026-09-01): CODEX-REVIEW CALIBRATION PASS** (adjudicated — see the to-reconcile log).
+> Claims recalibrated to evidence (no *detectable* added dimensions; predicts/associated-with for
+> Fig 4; shifts + is-required-during-learning for Fig 6; scaffold-vs-refinement sentence in §2);
+> §5 emphasis flipped to the mouse-clustered ΔGNG arm; abstract carries n = 9 and n = 5. TWO NEW
+> STATISTICS strengthen contested claims rather than softening them: Fig 1g's lick × pairing
+> interaction (p = .61 — the propagation is pairing-independent, so the pooled OR = 3.10 covers
+> the false-alarm arm; now printed by the script and in the caption) and the plane-vs-full
+> BOUNDED EQUIVALENCE (|Δ| ≤ 0.012 accuracy in every mouse × stage; sample ≤ 0.003 — §3 keeps
+> "sufficient" with formal backing). ED count fixed 8→9. Rejected: days-4–6 wording (day counts
+> vary), push-star re-litigation (settled policy), Fig 5 placeholder removal (model in prep).
 
 > **v6 (2026-09-01): HIGH-IMPACT REWRITE.** Abstract added; Introduction rebuilt (stakes →
 > construction-vs-editing dichotomy → task lineage → here-we-show); every Results section re-led
@@ -36,18 +47,20 @@
 Flexible behaviour routinely demands that the brain do two things at once — hold a memory while
 acting on an unrelated cue — yet an action evoked mid-memory tends to propagate,
 capturing the response the memory should control. Here we ask how mouse medial prefrontal cortex (mPFC) learns this
-composition. Imaging 3,319 prelimbic neurons across learning of an olfactory working-memory task
-with an embedded Go/NoGo distractor, we find that the population solves the problem geometrically.
-The maintained memory is one-dimensional — a line — held nearly orthogonal to the axes that code
-the distractor and the lick decision, within a low-dimensional subspace whose axes are shared
-across all task variants and already present, with the same geometry, before learning. Learning
-builds no new coding dimensions. Instead it edits state within the fixed subspace: the distractor
-code rotates onto the choice axis, and the memory state is repositioned along that axis to an
-increasingly output-suppressing, no-lick set-point — and the deeper an animal parks its memory, the
-more its memory performance improves (ρ = −0.83). Optogenetic silencing shows that input from
-anterior cingulate cortex sets the state's position on this axis while leaving the code's content
-and discriminability intact. Composition, in this system, is not construction: the code's geometry
-is a fixed constraint, and learning and top-down input both act on the state's position within it.
+composition. Imaging 3,319 prelimbic neurons in nine mice across learning of an olfactory
+working-memory task with an embedded Go/NoGo distractor, we find that the population solves the
+problem geometrically. The maintained memory is one-dimensional — a line — held nearly orthogonal
+to the axes that code the distractor and the lick decision, within a low-dimensional subspace
+whose axes are shared across all task variants and already in place before learning. Learning
+adds no detectable coding dimensions. Instead it edits state within the fixed subspace: the
+distractor code rotates onto the choice axis, and the memory state is repositioned along that
+axis to an increasingly output-suppressing, no-lick set-point — and the deeper an animal parks
+its memory, the more its memory performance improves (ρ = −0.83). Silencing the input from
+anterior cingulate cortex chronically prevents the memory task from being acquired; silencing it
+acutely (five mice) shifts the state's position along the axis while leaving the code's content
+and discriminability intact. Composition, in this system, is not construction: the code's
+geometry is a fixed constraint, and learning and top-down input both act on the state's position
+within it.
 
 ---
 
@@ -93,11 +106,12 @@ learned change.
 
 We find that mPFC does not construct a new representation for the dual task. The memory and the
 action are carried on near-orthogonal axes of a low-dimensional subspace that is already present,
-with the same axes, in naïve animals; learning leaves this factorised geometry untouched and
-instead repositions the working-memory state along a pre-existing action axis into its
-output-suppressing, no-lick half — an edit that shields the memory from the intruding action,
-predicts memory performance animal by animal, and whose positional signal is supplied by top-down
-input from anterior cingulate cortex (ACC). The code's geometry is a fixed constraint; learning
+with the same axes, in naïve animals; learning leaves this factorised scaffold in place —
+refining axis alignments without adding detectable dimensions — and repositions the
+working-memory state along a pre-existing action axis into its output-suppressing, no-lick half:
+an edit that tracks the removal of the lick interference, predicts memory performance animal by
+animal, and whose position is shifted by top-down input from anterior cingulate cortex (ACC), a
+projection required while the composition is learned. The code's geometry is a fixed constraint; learning
 and top-down input both act on the state's position within it.
 
 ## 1. Composing the two tasks is costly: the intruding action propagates to false alarms (Fig. 1)
@@ -117,9 +131,11 @@ distractor required a Go response (Fig. 1e; Go−DPA β = −0.073, p = 0.038) b
 (NoGo−DPA p = 0.78) — the *intrusive lick*, not the distractor stimulus, is the source of
 interference. And the route is a lick chain: a naïve animal that intruded a lick at the NoGo
 distractor cue was three times as likely to lick again at the test (Fig. 1g; trial-level GEE,
-OR = 3.10, p = 0.006) — on unpaired trials that second lick *is* the false alarm (OR toward
-FA = 2.7, p = 0.09), and on paired trials it lands on a hit (OR = 9.9, p = 0.001), so the
-coupling is response propagation, not memory loss. In expert animals the propagation is gone
+OR = 3.10, p = 0.006), and this propagation is pairing-independent (lick × pairing interaction
+p = 0.61) — so it applies equally to unpaired trials, where the second lick is, by definition,
+the false alarm (direct unpaired estimate OR = 2.7, p = 0.09, consistent), and to paired trials,
+where it lands on a hit (OR = 9.9, p = 0.001). The coupling is response propagation, not memory
+loss. In expert animals the propagation is gone
 (OR = 1.50, p = 0.42) and the intrusive licks themselves largely disappear (cue-lick rate
 0.24 → 0.08): learning removes both the intruding action and its grip on the subsequent
 response. _(caveat: Fig. 1g is a within-trial correlational association, not causal; the panel
@@ -164,11 +180,12 @@ choice, 0.99) — one dedicated axis per engaged variable. The distractor code, 
 enters the memory geometry: Go-vs-NoGo cross-decoded from the DPA-state subspace ("gng ×")
 reaches only 0.61 at mid-delay (Naïve n.s.; per-PC values in Fig. 2d). The sample-memory axis is
 thus compact but reliable — little variance, cleanly decoded — and close to orthogonal to the
-larger distractor/action dimensions it must resist. None of these measures changed with learning
-(Naïve ≈ Expert throughout Fig. 2b–d, spectra, decodability and coding pattern alike;
+larger distractor/action dimensions it must resist. None of these measures showed a detectable change with
+learning (Naïve ≈ Expert throughout Fig. 2b–d, spectra, decodability and coding pattern alike;
 leave-one-mouse-out jackknife Δ(Naïve − Expert) CIs span zero for every spectrum component and
-every decodable variable — Methods): learning neither adds nor removes representational
-dimensions.
+every decodable variable — Methods): we find no evidence that learning adds or removes
+representational dimensions. Throughout, the claim is a stable *scaffold* — the dimensions and
+their identities — while learning tunes alignments within it, quantified below and in Fig. 4.
 
 The axes are not only dedicated — the memory and choice axes are *shared across the three tasks*,
 and the sharing precedes learning. Decoders trained on one task transferred most of their
@@ -241,9 +258,10 @@ That the plane is genuinely the code's home — and not an artefact of plotting 
 decode ablation (Fig. 3c,d): for each mouse we decoded each variable from only the two coordinates
 of its own sample × choice plane, from the residual after removing the plane, and from the full
 population (held-out halves; paired Wilcoxons, n = 9). The result is a double dissociation. For
-sample and choice the 2-D plane does as well as the whole population (plane = full, n.s.) and
-removing it collapses decoding (p = .004; the collapse is expected by construction — the
-informative half is plane = full). The test code is the mirror image — at chance from the plane,
+sample and choice the 2-D plane does as well as the whole population — not merely "not
+significantly different" but bounded: per mouse × stage, |Δ(plane − full)| ≤ 0.012 accuracy in
+every cell (sample ≤ 0.003) — and removing it collapses decoding (p = .004; the collapse is
+expected by construction — the informative half is the plane-full equivalence). The test code is the mirror image — at chance from the plane,
 untouched without it (p = .004): that code lives elsewhere. The distractor sits in between, its
 plane share real but partial (p = .004). The dissociation holds animal by animal (Fig. 3d), and
 carries the section's one learning effect: the distractor's *plane-only* accuracy grows with
@@ -263,7 +281,9 @@ new dimensions — the repositioning we quantify next (Fig. 4).
 
 The abstraction of this format — its cross-condition generalisation in the sense of Bernardi et
 al. [Bernardi 2020] — was already present in naïve animals and preserved across learning:
-per-mouse CCGP sat on the Naïve = Expert unity line for the sample and choice codes, with only the
+per-mouse cross-condition generalisation performance (CCGP — the accuracy of a decoder trained
+on one subset of conditions and tested on held-out conditions) sat on the Naïve = Expert unity
+line for the sample and choice codes, with only the
 test code nudging up (knob-dependent, p = .04/.73 across pipelines — reported without a verdict)
 (Extended Data). The same signature appears in the geometry's expressivity: decoding all 462
 balanced dichotomies of the 12 conditions (the shattering dimension) gives 0.69–0.70 against a
@@ -295,11 +315,11 @@ orthogonal (per-mouse |cos| = 0.04), and axis leakage would displace A and B in 
 directions, which only 3/9 mice show. We therefore report the repositioning itself and make no
 claim of sample specificity.
 
-The size of this repositioning was behaviourally meaningful across animals: the more a mouse
+The size of this repositioning predicted behaviour across animals: the more a mouse
 pushed its delay state toward no-lick, the more its DPA accuracy improved (Fig. 4c left;
 between-mouse per-mouse Spearman ρ = −0.83, p = 0.005, n = 9), with no relationship to Go/NoGo
-accuracy (Fig. 4c right; ρ = +0.20, p = 0.61) — repositioning specifically buys memory
-performance, at no distractor-task cost. The coupling held across every normalisation
+accuracy (Fig. 4c right; ρ = +0.20, p = 0.61) — the repositioning is associated specifically
+with memory performance, at no detectable distractor-task cost. The coupling held across every normalisation
 (ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and a resampling battery (jackknife; bootstrap CI excluding
 0; permutation p = 0.008). Two controls close the section. Within naïve nonpaired trials, the
 trial-by-trial well depth did not separate correct rejections from false alarms on this axis
@@ -317,7 +337,7 @@ FA/CR panel (Fig. 4d) is a null control, not evidence.)_
 _(The mechanistic circuit model of this gated no-lick edit is in preparation as Fig. 5 and is not
 part of this draft.)_
 
-## 5. ACC→mPFC input sets the state's position on the subspace without changing its content (Fig. 6)
+## 5. ACC→mPFC input shifts the state's position on the subspace without changing its content (Fig. 6)
 
 If composition is implemented as an edit to this geometry, some input must supply the edit. We
 tested the projection from ACC to the recorded prelimbic mPFC (viral/optogenetic strategy and
@@ -335,20 +355,23 @@ laser ON vs OFF, Jaws, n = 5), and projected both trial types through the fixed,
 laser-OFF-trained choice(lick) axis to read the state's *position* on the learned geometry.
 Transient silencing produced no gross behavioural change (Fig. 6d, DPA spared, p = 0.40; Fig. 6e,
 GNG spared, p = 0.24) but moved the delay choice code, per mouse (Fig. 6f; DPA choice-code depth
-OFF vs ON, 5 Jaws mice). Across animals this displacement traded the two tasks off against one
-another (Fig. 6g; Δdepth vs ΔDPA−ΔGNG, r = +0.53, p = 0.016, n = 20), an effect carried by the
-Go/NoGo arm (Fig. 6i; Δdepth vs ΔGNG, r = −0.65, p = 0.002; ρ = −0.62, p = 0.003) rather than the
-DPA arm (Fig. 6h; n.s. trend). In laser-ON trials the mice still occupied the same suboptimal
-DPA–GNG balance as at baseline (Fig. 6j; r = +0.44, p = 0.20). Critically, the input moved the
-state without altering the subspace's content: the discriminability (d′) of both the
-sample-memory axis (Fig. 6k; A vs B, late delay) and the Go/NoGo choice axis (Fig. 6l; Go vs
-NoGo, mid-delay) was spared under laser (LMM laser effect sample p = 0.34, GNG p = 0.74; n = 10).
-ACC→mPFC input therefore acts as the knob that sets *where* the delay state sits along the shared
-action axis — the very edit that composes memory with action — while leaving the coded content
-intact. Note the mirror with learning: learning's repositioning couples to the DPA arm with no
-GNG cost (Fig. 4c), whereas the acute displacement couples to the GNG arm and trades the two
-tasks — the fixed subspace permits a factorised, memory-specific improvement that a momentary
-perturbation cannot mimic.
+OFF vs ON, 5 Jaws mice). Across animals the displacement's robust behavioural coupling is on the
+distractor side: Δdepth predicted ΔGNG accuracy (Fig. 6i; r = −0.65, p = 0.002; ρ = −0.62,
+p = 0.003 — the one arm that survives a mouse-clustered model, β = −0.013, p = 0.018), whereas
+the joint DPA−GNG trade-off is a raw-level trend only (Fig. 6g; r = +0.53, p = 0.016 over n = 20
+pseudoreplicated points; clustered p = 0.108, descriptive) and the DPA arm is n.s. (Fig. 6h). In
+laser-ON trials the mice still occupied the same suboptimal DPA–GNG balance as at baseline
+(Fig. 6j; r = +0.44, p = 0.20). Critically, the input moved the state without altering the
+subspace's content: the discriminability (d′) of both the sample-memory axis (Fig. 6k; A vs B,
+late delay) and the Go/NoGo choice axis (Fig. 6l; Go vs NoGo, mid-delay) was spared under laser
+(LMM over 20 mouse × stage × laser observations from the 5 mice: laser effect sample p = 0.34,
+GNG p = 0.74). Acute ACC→mPFC input therefore shifts *where* the delay state sits along the
+shared action axis — the same variable that learning acts on — while leaving the coded content
+intact; and the chronic experiment shows the projection is required for the composition to be
+learned (Fig. 6b,c). Note the mirror with learning: learning's repositioning couples to the DPA arm with no
+GNG cost (Fig. 4c), whereas the acute displacement couples to the GNG arm — the fixed subspace
+permits a factorised, memory-specific improvement that a momentary perturbation does not
+reproduce.
 
 _(caveats to carry: this figure combines two designs — a chronic between-group cohort (Fig. 6b,c;
 9 vs 9) and a within-mouse transient-silencing cohort (Fig. 6d–l; Jaws, n = 5) — justified only
@@ -367,14 +390,14 @@ not mix the two n's in one sentence.)_
 
 Together these results describe compositional learning as **geometric editing**. mPFC represents
 the memory and the action on near-orthogonal, reusable axes of a low-dimensional subspace that
-predates expertise (Figs. 2, 3); learning does not add representational dimensions but
+predates expertise (Figs. 2, 3); learning adds no detectable representational dimensions but
 *reassociates* states within the fixed subspace — rotating the distractor code onto the choice
 axis and repositioning the working-memory state along it to an output-suppressing, no-lick
-set-point (Fig. 4) — an edit that shields the memory and, animal by animal, predicts how well the
-two tasks are composed; and top-down ACC→mPFC input supplies the positional signal — setting the
-state's place on the subspace without changing what the population encodes (Fig. 6). The code's
-geometry is a fixed constraint; learning and top-down input both act on the state's position
-within it.
+set-point (Fig. 4) — an edit that tracks the removal of the lick interference and predicts,
+animal by animal, how well the two tasks are composed; and top-down ACC→mPFC input acts on the
+same variable — shifting the state's place on the subspace without changing what the population
+encodes, and being required while the composition is learned (Fig. 6). The code's geometry is a
+fixed constraint; learning and top-down input both act on the state's position within it.
 
 ---
 
@@ -397,7 +420,7 @@ a lick response in the 10–11-s window rewarded on matching sample–test pairs
 delay: a distractor odour at 4.5–5.5 s, a response cue at 6.5–7.0 s, lick-for-reward on Go.
 DualGo, DualNoGo and distractor-free DPA trials were interleaved within sessions. Mice progressed
 through a fixed curriculum (DPA → GNG → Dual, six dual-task sessions); days 1–3 are analysed as
-"naïve" and day 4 to the last day as "expert". Trials are analysed in 84 bins over 14 s
+"naïve" and day 4 to the last day as "expert" (mice contribute 4–6 recorded days). Trials are analysed in 84 bins over 14 s
 (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). Two window conventions coexist in the codebase and are
 stated per analysis below: the single-trial (overlaps) pipeline indexes epochs directly
 (baseline bins 0–11; mid-delay 33–38; late delay 45–53; test 54–59; DPA lick window 57–62),
@@ -413,10 +436,11 @@ per group. Random-effect variances near the boundary make per-day p-values mildl
 anti-conservative, as noted in the text. Trial-level associations (Fig. 1g; history effects,
 ED 2) used logistic GEEs clustered by mouse (exchangeable working correlation), fit separately
 per stage. Fig. 1g models the probability of licking at the DPA test on NoGo trials as a
-function of the intrusive cue lick (the pure delay-period lick variable); the false-alarm arm
-restricts the same model to unpaired trials, where the test lick is the false alarm, and the
-paired arm is the propagation control (a cue lick there predicts a hit — incompatible with
-memory corruption, diagnostic of response propagation). The panel was rebuilt 2026-09-01: the
+function of the intrusive cue lick (the pure delay-period lick variable); a lick × pairing
+interaction term tests whether the propagation differs between paired and unpaired trials (it
+does not, p = 0.61, so the pooled estimate applies to the unpaired arm, where the test lick is
+the false alarm), and the paired arm is the propagation control (a cue lick there predicts a
+hit — incompatible with memory corruption, diagnostic of response propagation). The panel was rebuilt 2026-09-01: the
 original build's predictor pooled cue and test licks, which is near-circular with performance.
 Across-animal relationships are Pearson/Spearman correlations over n = 9 mice. All tests
 two-sided; p-values uncorrected and reported exactly.
@@ -477,10 +501,10 @@ delay (bins 45–53, pre-test), on all laser-OFF DPA trials (correct and error).
 
 The pseudo-population and per-mouse geometry analyses — plane ablation (full-population and
 residual arms), cross-task generalisation, cross-stage transfer, axis cosines — use one shared
-estimator: standardisation, PCA to min(20, n_features, n_samples − 1) components, then
-L2-regularised logistic regression (C = 1, class-balanced), defined once and imported by every
-script. The canonical build runs without the PCA step (no-PCA); the PCA-20 build is the
-robustness companion, and every starred result is required to hold in both. Where a decision
+estimator, defined once and imported by every script: standardisation, an *optional* PCA
+compression to min(20, n_features, n_samples − 1) components, then L2-regularised logistic
+regression (C = 1, class-balanced). The canonical build omits the PCA step (no-PCA); the PCA-20
+build is the robustness companion, and every starred result is required to hold in both. Where a decision
 direction is used as a geometric axis it is the pipeline's own decision vector mapped back to
 neuron space (undoing PCA and standardisation) and unit-normalised, so decoder and axis are the
 same vector and cannot disagree. (The one deliberate exception: the plane arm of the ablation
@@ -575,7 +599,10 @@ mouse, the plane is the QR-orthonormalised span of that mouse's sample axis (mid
 behavioural choice axis (decision window, lick vs no-lick including errors), fit on one half of
 the trials; each variable was then decoded from (i) only the two plane coordinates, (ii) the
 residual after projecting the plane out, and (iii) the full population — training on the same
-half and scoring the held-out half, 10 random half-splits, paired Wilcoxon across mice (n = 9).
+half and scoring the held-out half, 10 random half-splits, paired Wilcoxon across mice (n = 9);
+the plane-vs-full equivalence is additionally bounded per cell (|Δ| ≤ 0.012 accuracy in every
+mouse × stage for sample and choice; the plane arm decodes from two coordinates with a bare
+logistic regression).
 Axis-angle matrices (Fig. 3e) report attenuation-corrected cosines with the split-half
 reliabilities disclosed alongside; the per-animal statistics use the raw (uncorrected)
 per-mouse |cos| (Fig. 4a). Cross-stage transfer (Fig. 3f) trains the pipeline in one stage and
@@ -626,7 +653,7 @@ bit-exact tensor reproduction requires seeding, flagged for the deposition.)
 
 ## Extended Data Figures
 
-> Consolidated from the granular supplement set into **8 multi-panel Extended Data (ED) figures** (Nature
+> Consolidated from the granular supplement set into **9 multi-panel Extended Data (ED) figures** (Nature
 > Neuroscience caps ED at 10); the trial-count reporting figure → Supplementary Information. Each ED figure
 > backs specific main-figure claims/_(caveats)_; all panels are in the shared house style (gallery Supp
 > tab). Stats are current run values (verified 2026-08-03). **Trims applied 2026-08-03:** former S5
@@ -730,6 +757,19 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 ---
 
 ### To reconcile before submission (figure ↔ text integrity)
+- **✓ CODEX DRAFT REVIEW APPLIED (2026-09-01, adjudicated):** applied = claims calibration
+  (abstract/§2/§4/§5/Synthesis/Discussion verbs + "no detectable"), §5 clustered-ΔGNG-first
+  reorder, ED count 8→9, estimator-paragraph rewording, expert-day parenthetical, CCGP
+  spelled out, n = 9/n = 5 in abstract, 6k,l LMM n stated as 20 obs; upgraded (beyond Codex's
+  ask) = Fig 1g pairing-interaction test (p = .61, in script/caption/Methods) and plane-vs-full
+  bounded equivalence (|Δ| ≤ 0.012 every cell — "sufficient" retained with formal backing).
+  REJECTED with reasons = "days 4–6" (day counts vary 4–6 per mouse; "day 4 to last" is
+  correct), push reframing beyond verb level (star = settled decision; full evidential balance
+  already led), multiplicity adjustment (stated policy: uncorrected + disclosure + two-pipeline
+  replication), Fig 5 placeholder removal (model in preparation — a SUBMISSION blocker only).
+  STILL OPEN from the review: §2 density reduction (deferred — restructuring risks stat drift;
+  revisit at submission), the pooling-defense sentence (candidate: the cross-animal alignment
+  analysis would upgrade it to a panel).
 - **✓ Fig. 1g REBUILT (2026-09-01, resolving the predictor audit; user decision — "the delay
   lick leads to more false alarms, not memory corruption; the push prevents these false
   alarms"):** the old build's `licked` predictor pooled cue and test licks (= the test lick on
