@@ -251,10 +251,9 @@ if __name__ == '__main__':
                     ax.scatter(xx, yy, facecolors=face, edgecolors=MOUSE_COLOR[mouse],
                                marker='o', s=34, linewidths=1.0, zorder=5)
             ax.plot(px, py, '-', color=MOUSE_COLOR[mouse], lw=0.7, alpha=0.5, zorder=3)
-            # the MOUSE MEAN — the unit the Spearman and the band are computed on (Codex review
-            # 2026-09-01: visual unit must match inferential unit; the A/B dots stay as texture)
-            ax.scatter(np.nanmean(px), np.nanmean(py), marker='D', s=80,
-                       facecolors=MOUSE_COLOR[mouse], edgecolors='k', linewidths=0.8, zorder=6)
+        # (the per-mouse mean diamonds were removed 2026-09-01, user: they hid the points; the
+        #  band, ρ and p are still computed on the 9 per-mouse means — the caption states the
+        #  inferential unit instead of drawing it)
         regression_band(ax, mx, my)
         ax.axhline(0, ls=':', color='k', lw=0.7); ax.axvline(0, ls=':', color='k', lw=0.7)
         ax.set_ylim(ylimC)
@@ -367,10 +366,11 @@ if __name__ == '__main__':
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',
         'C. The push predicts behaviour — across animals. Each mouse’s learning-related change '
-        'in depth (Δdepth, x) against its change in accuracy (Δaccuracy, y). Small circles = '
-        'the two sample classes per mouse (A filled, B open, joined); diamonds = the MOUSE '
-        'means — the regression band, ρ and p are computed on the 9 diamonds (per-mouse '
-        'Spearman). The deeper a mouse pushes its memory state, the more its DPA accuracy '
+        'in depth (Δdepth, x) against its change in accuracy (Δaccuracy, y). Circles = the two '
+        'sample classes per mouse (A filled, B open, joined per mouse); the regression band, '
+        'ρ and p are computed on the nine PER-MOUSE MEANS of those pairs (per-mouse Spearman — '
+        'the fitted unit is the animal, not the 18 points). The deeper a mouse pushes its '
+        'memory state, the more its DPA accuracy '
         'improves (ρ = −0.83, p = .005 ∗), while the SAME depth change predicts nothing for '
         'GNG (ρ = +0.20, p = .61) — the coupling is specific to the memory task.',
         'D. Trial-level control (Naive nonpaired trials): within a stage, does the well depth '
