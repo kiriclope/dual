@@ -65,7 +65,8 @@ across independent trial halves counts.
   (DPA PC4 = degenerate ~0% row, shown for symmetry) + boxed gng × column (DPA_GNG).
   **Impact pass (2026-08-12, from the external content review):** A brackets carry window labels
   (5.5–6.3 s / post-test); B adds the SPEC_NULL grey-dashed null floor + in-panel geometry callouts
-  with cartoons ("1 reliable axis — the sample line" A–B line glyph; "+ 1 distractor axis (0.07)"
+  with cartoons (the line/plane cartoon glyphs were REMOVED 2026-09-01, text callouts kept)
+  ("1 reliable axis — the sample line" A–B line glyph; "+ 1 distractor axis (0.07)"
   plane glyph with orange gng arrow; "≈3 reliable axes" on the decision row; legend moved to
   DPA-decision, center right); C gets an in-panel 2×2 legend (Expert bar / Naive circle / null 95% /
   gng× ← DPA PCs) + the orange "weak transfer (dual gng = 1.0)" annotation on the md gng× bar;
@@ -299,7 +300,8 @@ Both variants re-rendered. Fig 3 now reads at comparable density to Figs 2/4.
 - Panels: **A** traces 2×4 · **B** storyboard 2×5 (Naive|Expert, per-stage axes) · **C** cosine
   matrices (left-aligned, col 0) · **D** per-mouse raw-|cos| **Naive-vs-Expert SCATTERS** (one per
   axis pair — replaced the paired-dot strip at user preference; house idiom: mouse colours, opsin
-  markers, diamond mean, unity line, shared 0–0.25 limits; NO stats — choice×dist is starred in
+  markers, unity line (the mean diamonds were removed 2026-09-01 figure-wide), shared 0–0.25
+  limits; NO stats — choice×dist is starred in
   Fig 4A) · justified caption (figcaption.draw_justified).
 - Layout: fig 12.4×10.8, rows [1.45, 1.55, 1.0]. Row B deliberately SHORT — its shared y-range is
   set by the +9 z decision licks, so tall frames read empty at mid-delay; compressing fills the
@@ -525,7 +527,8 @@ statistical-unit errors in any cache producer; five propositions. Outcomes:
   Cache `XSTAGE_SCALECHK_nopca`; caption F now states the robustness.
 - **Applied**: Fig 2 title narrowed ("the memory and choice axes are shared across tasks") + E
   lead reworded (test matrix = the honest boundary; kept, not demoted); Fig 3B in-panel
-  'window-centred' label; Fig 4C mouse-mean diamonds (band/ρ visibly on the n=9 unit; A/B
+  'window-centred' label; Fig 4C mouse-mean diamonds — REVERSED 2026-09-01 (user: diamonds
+  hide the points; removed figure-wide, the caption states the animal unit in words) (A/B
   circles stay) + caption glyph clause.
 - **Rejected with reasons**: Fig 3D→ED (carries the only starred learning effect + explicit
   user preference for per-mouse mains; fallback = slim to 2×4); "Fig 2 caption too long"
@@ -580,3 +583,21 @@ DESIGN LESSON (log with the real-data-panels rule): schematic explainers either 
 schematic slot at full panel size (the Fig 2a precedent) or they don't go in — corner insets at
 inset scale do not work. The set-point/rotation ideas remain available as full-size schematic
 candidates if a slot ever opens.
+
+### 2026-09-01 (late): polish batch + style coherence + gallery Variants tab
+- **Style-coherence canon** enforced across ALL figure scripts (one rc block; letters-only
+  bold; sig stars 12/8; per-mouse dots s=34; lines 1.3; savefig 400) — the pass also caught
+  Fig 5's stale caption/header stats (corrected to the rendered truth; see `docs/behavior.md`).
+- **Fig 2**: B's cartoon glyphs OUT (text callouts kept — same lesson as the Fig 4 insets:
+  no micro-drawings inside panels); bottom row rebuilt as equal-width slots (gsE/gsF internal
+  `wspace=0.28` both) with E/F/G on ONE shared centre line (panel F's stale `set_anchor('NW')`
+  → `'C'`). Fig 1's banner sentence removed; Fig 3 D grid tightened (wspace 0.24→0.08).
+- **Mean diamonds removed from every per-mouse scatter in the paper set** (5 mains +
+  `fig_manifold_supp`; user: they hide the points) — including Fig 4C's mouse-coloured ones
+  from the Codex round: the caption now states the fitted unit in words ("the fitted unit is
+  the animal, not the 18 points"). Diamonds survive only in non-paper scripts (standalone
+  `fig_ccgp.py`, superseded `fig_overlaps_manifold.py`, `fig_manifold_addons_preview.py`).
+- **Gallery**: new pinned **Variants** tab — Main = one canonical card per figure (+ the
+  embed-preview DECIDE card); the 9 alternative builds (Fig 3 pca20/antact, Fig 4 + Fig 5
+  axis×norm grids) moved there. Curated tabs are module-level lists in `serve_figures.py`:
+  restart the server after editing them.
