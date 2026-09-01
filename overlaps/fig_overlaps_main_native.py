@@ -341,37 +341,6 @@ if __name__ == '__main__':
     panel_letter(axD, 'D', x=0.5)
     panel_letter(axDp, 'E', x=0.72)
 
-    # ── schematic insets (craft review 2026-09-01; PROMOTED to the canonical build same day,
-    #    user: "draw the polish variant figures into main"): data untouched. ──
-    if True:
-        # (8) the set-point well: memory parked in an output-suppressing minimum, deeper in Expert
-        for _at, _x0 in ((axB_traj[0], -0.45), (axB_traj[1], -0.95)):
-            _ia = _at.inset_axes([0.02, 0.70, 0.30, 0.27])
-            _xx = np.linspace(-1.7, 1.7, 200)
-            _ia.plot(_xx, 0.9 * (_xx - _x0) ** 2, color='0.35', lw=1.0)
-            _ia.scatter([_x0], [0.04], s=16, color='#332288', zorder=5)
-            _ia.axvline(1.0, ls='--', color='#4daf4a', lw=0.8)
-            _ia.text(1.0, 2.55, 'lick', ha='center', va='bottom', fontsize=5, color='#4daf4a')
-            _ia.text(_x0, -0.45, 'memory', ha='center', va='top', fontsize=5, color='#332288')
-            _ia.set_xlim(-1.8, 1.8); _ia.set_ylim(-0.7, 3.1); _ia.axis('off')
-        # (9) the axis-rotation glyph: the dist axis closing on the choice axis with learning
-        _AXF = _RESP['AXIS_FRAME_nopca']
-        _cN = float(np.asarray(_AXF['Naive']['cos'])[1, 2])
-        _cE = float(np.asarray(_AXF['Expert']['cos'])[1, 2])
-        _ig = _axc.inset_axes([0.54, 0.05, 0.44, 0.44])
-        _ig.annotate('', xy=(1.0, 0.0), xytext=(0, 0),
-                     arrowprops=dict(arrowstyle='-|>', color='#4daf4a', lw=1.2))
-        for _cv, _st, _al in ((_cN, 'N', 0.45), (_cE, 'E', 1.0)):
-            _th = np.arccos(_cv)
-            _ig.annotate('', xy=(np.cos(_th), np.sin(_th)), xytext=(0, 0),
-                         arrowprops=dict(arrowstyle='-|>', color='#ee7733', lw=1.2, alpha=_al))
-            _ig.text(1.06 * np.cos(_th), 1.10 * np.sin(_th), _st, fontsize=5,
-                     color='#ee7733', alpha=_al, ha='center')
-        _ig.text(1.02, -0.16, 'choice', fontsize=5, color='#4daf4a', ha='right')
-        _ig.text(0.30, 1.02, 'dist axis', fontsize=5, color='#ee7733')
-        _ig.set_xlim(-0.08, 1.18); _ig.set_ylim(-0.22, 1.18)
-        _ig.set_aspect('equal'); _ig.axis('off')
-
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
         'Figure 4 | What learning changes on the manifold: the distractor code rotates onto the '
@@ -389,17 +358,13 @@ if __name__ == '__main__':
         '(y) — the |cos| between each mouse’s own choice and dist axes grows (0.073 → 0.114, '
         '∗ p = .008), and so does the per-mouse cross-decode (0.53 → 0.61, ∗ p = .004). Both '
         'starred tests are robust across decoder pipelines, and this panel is drawn from fixed '
-        'canonical caches in every build variant of the figure. Inset (schematic): the two axes '
-        'as arrows — the dist axis stands 71° from the choice axis in Naive and closes to 62° '
-        'in Expert (angles from the corrected cosines of Fig. 3E).',
+        'canonical caches in every build variant of the figure.',
         'B. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
         '| Expert; strips = the late-delay distribution of choice-code depth). With learning, '
         'the delay states sink along the choice axis — the memory is parked deeper in the '
         'region whose readout is “do not lick”, a position that buffers it against the '
         'distractor-evoked lick transient — exactly the interference that learning removes '
-        'behaviourally (Fig. 1G; inset schematics: the memory as a ball in a well on the '
-        'no-lick side of the lick boundary, deeper after learning). Right: per-mouse '
-        'late-delay depth, Naive → '
+        'behaviourally (Fig. 1G). Right: per-mouse late-delay depth, Naive → '
         'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',

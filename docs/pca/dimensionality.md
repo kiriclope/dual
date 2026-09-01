@@ -571,3 +571,12 @@ statistical-unit errors in any cache producer; five propositions. Outcomes:
 - Fig 4's two schematic insets (set-point well in B, axis-rotation glyph in A) are now part of
   the CANONICAL build in all four variants — the --polish flag and the _polish PNG are gone;
   caption A/B carry the inset descriptions inline.
+
+### 2026-09-01 (final): Fig 4 schematic insets REMOVED (user: "catastrophic, unreadable")
+The well and rotation-glyph insets were reverted the same day they were promoted — at inset
+scale (~0.3 of a small panel, 5 pt text) they were illegible. Canonical Fig 4 is back to the
+pre-inset build (all four variants re-rendered; caption clauses removed; gallery card reverted).
+DESIGN LESSON (log with the real-data-panels rule): schematic explainers either get a DEDICATED
+schematic slot at full panel size (the Fig 2a precedent) or they don't go in — corner insets at
+inset scale do not work. The set-point/rotation ideas remain available as full-size schematic
+candidates if a slot ever opens.
