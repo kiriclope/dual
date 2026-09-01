@@ -858,7 +858,7 @@ if not POSTER:                                     # banners describe the full-f
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
 if not POSTER:
     CAP_PARAS = [
-        'Figure 5 | A causal test of the ACC→mPFC(Prl) projection. Silencing it chronically '
+        'Figure 6 | A causal test of the ACC→mPFC(Prl) projection. Silencing it chronically '
         'during learning impairs the memory task (B, C); silencing it briefly in the delay '
         'leaves behaviour intact (D, E) but moves the choice code (F) — and how far it moves '
         'predicts a memory-versus-distractor accuracy trade-off across animals (G–I) — while '

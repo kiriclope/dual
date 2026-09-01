@@ -393,7 +393,8 @@ main_panels' `--antact` (decoders trained over overlaps bins 48–62) passed thr
 `FRAME_STATES_antact`; the composed `--pca --antact` suffixes exist in the scripts but only the
 canonical antact caches are built). Panels C–F unchanged (pca-side axis); caption carries an
 [AXIS VARIANT] note. What it shows vs the action axis: the Expert choice trace DIPS below
-baseline through the delay (the anticipatory push signature, cf. Fig 5's antact preference);
+baseline through the delay (the anticipatory push signature, cf. the opto figure's antact
+preference — Fig 6 since the 2026-09-01 renumbering);
 DPA·decision lick−no-lick split SMALLER (±1.5 both stages vs ±1.6/±2.3 action) and the Expert
 DPA·md micro-split inverts (lick −0.18 vs no-lick +0.18, a wash) — antact trades decision
 discriminability for the anticipatory signal, same trade-off as the Fig 4/5 axis grid; dual
@@ -587,7 +588,7 @@ candidates if a slot ever opens.
 ### 2026-09-01 (late): polish batch + style coherence + gallery Variants tab
 - **Style-coherence canon** enforced across ALL figure scripts (one rc block; letters-only
   bold; sig stars 12/8; per-mouse dots s=34; lines 1.3; savefig 400) — the pass also caught
-  Fig 5's stale caption/header stats (corrected to the rendered truth; see `docs/behavior.md`).
+  the opto figure's stale caption/header stats (corrected to the rendered truth; see `docs/behavior.md`).
 - **Fig 2**: B's cartoon glyphs OUT (text callouts kept — same lesson as the Fig 4 insets:
   no micro-drawings inside panels); bottom row rebuilt as equal-width slots (gsE/gsF internal
   `wspace=0.28` both) with E/F/G on ONE shared centre line (panel F's stale `set_anchor('NW')`
@@ -598,6 +599,6 @@ candidates if a slot ever opens.
   the animal, not the 18 points"). Diamonds survive only in non-paper scripts (standalone
   `fig_ccgp.py`, superseded `fig_overlaps_manifold.py`, `fig_manifold_addons_preview.py`).
 - **Gallery**: new pinned **Variants** tab — Main = one canonical card per figure (+ the
-  embed-preview DECIDE card); the 9 alternative builds (Fig 3 pca20/antact, Fig 4 + Fig 5
+  embed-preview DECIDE card); the 9 alternative builds (Fig 3 pca20/antact, Fig 4 + opto (Fig 6)
   axis×norm grids) moved there. Curated tabs are module-level lists in `serve_figures.py`:
   restart the server after editing them.

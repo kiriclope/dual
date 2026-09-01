@@ -282,7 +282,9 @@ dual-DPA `#ff7f0e` orange (compare figure only).
 
 ### The behavioural OPTO figure — `fig_behavior_opto_main.py`
 
-Companion to the main figure; one unified story about the **ACC→mPFC(Prl)** projection across
+**Main Fig 6 since 2026-09-01** (was Fig 5 — Fig 5 is reserved for the upcoming modelling figure;
+older entries below saying "Fig 5" mean THIS figure). Companion to the main figure; one unified
+story about the **ACC→mPFC(Prl)** projection across
 manipulation regimes. `figures/overlaps/behavior/{png,svg}/behavior_opto_main.*`. Layout =
 a single **4 equal-height row** gridspec: **first row = scheme A (left, cols 0:6) + batch B (DPA
 curve, cols 6:9) + E (LMM forest, cols 9:12), B & E `set_box_aspect(1)` → square**; then F–H (row 2),
@@ -467,7 +469,7 @@ per-day Wilcoxon (multiplicity), binomial GEE (too conservative with 9 clusters)
 `BinomialBayesMixedGLM` (VB posterior overconfident, p≈1e-12). LMM RE variance sits near the
 boundary → treat as mildly anti-conservative.
 
-## 2026-08-31 in-figure captions (Figs 1 & 5)
+## 2026-08-31 in-figure captions (Figs 1 & 6 — the opto figure, numbered Fig 5 at the time)
 Both behaviour figures now draw a justified caption below the panels (same mechanism as Figs 2/3:
 `pca/figcaption.draw_justified`; caption text lives in each script's `CAP_PARAS`). Fig 1's old
 one-line footnote was folded into the caption title. Fig 5 keeps its row banners; its caption

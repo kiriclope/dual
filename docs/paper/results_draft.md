@@ -4,7 +4,7 @@
 > against the rendered builds (which carry their own in-figure captions, `CAP_PARAS` = caption
 > truth): Fig 2 A–F (incl. E cross-task generalisation, F equivalence-bounded stability); Fig 3
 > A–F (task-split traces · storyboard · plane sufficiency C/D · axis angles E · cross-stage F);
-> Fig 4 A–E (A alignment · B push · C coupling · D FA/CR · E d′); Fig 5 A–L stat-refreshed
+> Fig 4 A–E (A alignment · B push · C coupling · D FA/CR · E d′); Fig 6 (opto; was Fig 5 until 2026-09-01) A–L stat-refreshed
 > (trade-off r=+0.53 p=.016; ΔGNG arm r=−0.65 p=.002, mixed-model survivor β=−0.013 p=.018).
 > Literature positioning + vocabulary in memory `reference_literature_positioning`; the Discussion
 > draft lives in `discussion_draft.md`.
@@ -31,7 +31,7 @@
 > 5 Opto (causal).** Publication-ready standard: **every panel is referenced and described.**
 > Panel letters/stats verified against the RENDERED figures (Fig 1 `behavior_main.png`; Fig 2
 > `fig_dimensionality_main.png`; Fig 3 `fig_manifold_main.png` — canonical no-PCA build;
-> Fig 4 `fig_overlaps_main_ab_dpaact.png`; Fig 5 `behavior_opto_main.png`). Caveats to carry are
+> Fig 4 `fig_overlaps_main_ab_dpaact.png`; Fig 6 `behavior_opto_main.png`). Caveats to carry are
 > flagged inline as _(caveat: …)_; guardrails and to-reconcile items at the bottom.
 
 ---
@@ -272,28 +272,28 @@ FA/CR panel (Fig. 4d) is a null control, not evidence.)_
 _(A mechanistic low-rank circuit model of this gated no-lick edit is deferred to future work; no modelling
 figure is included here.)_
 
-## 5. ACC→mPFC input sets the state's position on the manifold without changing its content (Fig. 5)
+## 5. ACC→mPFC input sets the state's position on the manifold without changing its content (Fig. 6)
 
 If composition is implemented as an edit to this geometry, some input must supply the edit. We tested the
 projection from ACC to the recorded prelimbic mPFC (viral/optogenetic strategy and trial timeline,
-Fig. 5a; hSyn-GCaMP6s in mPFC, CaMKII-Jaws-tdTomato in ACC, 635 nm on a pseudo-random 50% of delay
+Fig. 6a; hSyn-GCaMP6s in mPFC, CaMKII-Jaws-tdTomato in ACC, 635 nm on a pseudo-random 50% of delay
 periods). Chronic, every-trial silencing during training (between-group, opto vs control, 9 vs 9 mice)
-impaired DPA learning (Fig. 5b; learning curves), an effect that a mixed model localised to DPA and, most
-strongly, to its unpaired trials, sparing Go/NoGo (Fig. 5c; group and group × day contrasts: DPA
+impaired DPA learning (Fig. 6b; learning curves), an effect that a mixed model localised to DPA and, most
+strongly, to its unpaired trials, sparing Go/NoGo (Fig. 6c; group and group × day contrasts: DPA
 β = −0.06, p = 0.009; DPA-unpaired β = −0.12, p = 0.014; GNG n.s.) — the same DPA-selective vulnerability
 seen behaviourally in Fig. 1.
 
 In the imaged cohort we silenced ACC→mPFC transiently, on half of the delay periods (within-mouse laser
 ON vs OFF, Jaws, n = 5), and projected both trial types through the fixed, laser-OFF-trained choice(lick)
 axis to read the state's *position* on the learned geometry. Transient silencing produced no gross
-behavioural change (Fig. 5d, DPA spared, p = 0.40; Fig. 5e, GNG spared, p = 0.24) but moved the delay
-choice code, per mouse (Fig. 5f; DPA choice-code depth OFF vs ON, 5 Jaws mice). Across animals this
-displacement traded the two tasks off against one another (Fig. 5g; Δdepth vs ΔDPA−ΔGNG, r = +0.53,
-p = 0.016, n = 20), an effect carried by the Go/NoGo arm (Fig. 5i; Δdepth vs ΔGNG, r = −0.65, p = 0.002;
-ρ = −0.62, p = 0.003) rather than the DPA arm (Fig. 5h; n.s. trend). In laser-ON trials the mice
-still occupied the same suboptimal DPA–GNG balance as at baseline (Fig. 5j; r = +0.44, p = 0.20). Critically,
+behavioural change (Fig. 6d, DPA spared, p = 0.40; Fig. 6e, GNG spared, p = 0.24) but moved the delay
+choice code, per mouse (Fig. 6f; DPA choice-code depth OFF vs ON, 5 Jaws mice). Across animals this
+displacement traded the two tasks off against one another (Fig. 6g; Δdepth vs ΔDPA−ΔGNG, r = +0.53,
+p = 0.016, n = 20), an effect carried by the Go/NoGo arm (Fig. 6i; Δdepth vs ΔGNG, r = −0.65, p = 0.002;
+ρ = −0.62, p = 0.003) rather than the DPA arm (Fig. 6h; n.s. trend). In laser-ON trials the mice
+still occupied the same suboptimal DPA–GNG balance as at baseline (Fig. 6j; r = +0.44, p = 0.20). Critically,
 the input moved the state without altering the subspace's content: the discriminability (d′) of both the
-sample-memory axis (Fig. 5k; A vs B, late delay) and the Go/NoGo choice axis (Fig. 5l; Go vs NoGo,
+sample-memory axis (Fig. 6k; A vs B, late delay) and the Go/NoGo choice axis (Fig. 6l; Go vs NoGo,
 mid-delay) was spared under laser (LMM laser effect sample p = 0.34, GNG p = 0.74; n = 10). ACC→mPFC input
 therefore acts as the knob that sets *where* the delay state sits along the shared action axis — the very
 edit that composes memory with action — while leaving the coded content intact. Note the mirror with
@@ -301,16 +301,16 @@ learning: learning's repositioning couples to the DPA arm with no GNG cost (Fig.
 displacement couples to the GNG arm and trades the two tasks — the fixed subspace permits a factorised,
 memory-specific improvement that a momentary perturbation cannot mimic.
 
-_(caveats to carry: this figure combines two designs — a chronic between-group cohort (Fig. 5b,c; 9 vs 9)
-and a within-mouse transient-silencing cohort (Fig. 5d–l; Jaws, n = 5) — justified only because both
-target the same ACC→mPFC projection; state this explicitly. The trade-off in Fig. 5g–i is a between-animal
+_(caveats to carry: this figure combines two designs — a chronic between-group cohort (Fig. 6b,c; 9 vs 9)
+and a within-mouse transient-silencing cohort (Fig. 6d–l; Jaws, n = 5) — justified only because both
+target the same ACC→mPFC projection; state this explicitly. The trade-off in Fig. 6g–i is a between-animal
 coupling; the n = 20 points are 5 mice × stage × sample and thus pseudoreplicated, so the raw r is
 anti-conservative — under a mouse-clustered model the joint trade-off (g) drops to n.s.
 (β = +0.019, p = 0.108) and only the ΔGNG arm (i) survives (β = −0.013, p = 0.018); frame i as the
 robust arm and g as the raw-level trend. The axis
 and window are pre-committed (the locked main-overlaps axis), with the window sweep reported to avoid
 cherry-picking. Do not headline the trial-level signal × laser interaction (pseudoreplicated); the
-mouse-level d′ result (Fig. 5k,l) is the honest read. An alternative build of the coupling over all 7 laser
+mouse-level d′ result (Fig. 6k,l) is the honest read. An alternative build of the coupling over all 7 laser
 mice (5 Jaws + 2 ChR, Spearman) gives GNG ρ ≈ −0.90, p ≈ 0.007, DPA null — do not mix the two n's in one
 sentence.)_
 
@@ -323,7 +323,7 @@ subspace — rotating the distractor code onto the choice axis and repositioning
 along it into the output-suppressing, no-lick region (Fig. 4) — an edit that shields the memory and,
 animal by animal, predicts how well the two tasks are composed; and top-down ACC→mPFC input supplies the
 positional signal — setting the state's place on the subspace without changing what the population encodes
-(Fig. 5). The code's geometry is a fixed constraint; learning and top-down input both act on the state's
+(Fig. 6). The code's geometry is a fixed constraint; learning and top-down input both act on the state's
 position within it.
 
 ---
@@ -403,12 +403,12 @@ robustness — the main figure under L1 and LDA decoders (geometry/orthogonality
 push/coupling clearest under logistic); (d) codes robust to the Go/NoGo distractor — panel-A codes split by
 Go vs NoGo (sample/test unperturbed; the action code carries the distractor lick).
 
-**ED Fig. 7 | Opto: chronic silencing + transient behaviour (Fig. 5b–e).** (a–c) control-vs-opto learning
+**ED Fig. 7 | Opto: chronic silencing + transient behaviour (Fig. 6b–e).** (a–c) control-vs-opto learning
 curves for the ACC, ACC→Prl and Prl→ACC batches — ACC null; ACC→Prl impairs DPA (β=−0.06 p=0.009) and its
 unpaired trials (β=−0.12 p=0.014); Prl→ACC impairs GNG; (d–e) transient within-mouse laser OFF-vs-ON curves
 (Jaws n=5): DPA p=0.40, GNG p=0.24 — geometric, not a behavioural knock-down.
 
-**ED Fig. 8 | Opto: laser ON−OFF coupling, 7 mice (Fig. 5g–i).** The acute causal analog of the learning
+**ED Fig. 8 | Opto: laser ON−OFF coupling, 7 mice (Fig. 6g–i).** The acute causal analog of the learning
 coupling over all 7 laser mice (5 Jaws + 2 ChR): GNG ρ≈−0.90 (p≈0.007), DPA null. Backs the axis choice and
 the alternative-n disclosure.
 
@@ -427,7 +427,7 @@ axis — the bridge cited in §3).
 
 **Omitted:** retracted dPCA choice-polarization figures (`dpca_flow_learning_ingain*`,
 `dpca_flow_autonomous_choice`, `dpca_choice_ci_qsweep`); the flow-field / bistability analysis (former S7 →
-"extra"); the standalone d′ figure (former S17 → already main Fig. 5k,l); demixed-axes loadings/mixing
+"extra"); the standalone d′ figure (former S17 → already main Fig. 6k,l); demixed-axes loadings/mixing
 (former S5 → covered by Fig. 2g + ED 6). **Author-supplied gaps still needed:** histology / viral
 expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 
@@ -487,9 +487,10 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
   + the pre-existing no-lick well; phrased as "factorised scaffold retained; state re-sculpted", NOT
   "identical manifold, pure translation" (decoder-axis reorganisation is part of the push).
 - **Supplementary Fig. X** (single-neuron selectivity) number to be assigned.
-- **Fig. 4/5 numbering (resolved 2026-08-04):** the deferred low-rank circuit model is cut; Fig. 4 is now
-  the overlaps push/repositioning figure and the opto figure stays Fig. 5. If a modelling figure is added
-  later it takes a new number rather than reclaiming 4.
+- **Figure numbering (UPDATED 2026-09-01, supersedes the 2026-08-04 resolution):** the modelling figure
+  IS coming and takes **Fig. 5**; the opto figure is renumbered **Fig. 6** (all refs in this draft, the
+  in-figure caption, and the gallery cards updated). Fig. 4 stays the overlaps push/repositioning figure.
+  Order: Behaviour (1) → Geometry (2) → One manifold (3) → Learning (4) → Modelling (5, TBD) → Opto (6).
 
 ### Framing guardrails (keep the thesis defensible)
 - "low-dimensional **geometry** / rank-2 portrait", never "the dynamics are rank-2". Flow-field /

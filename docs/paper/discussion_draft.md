@@ -15,7 +15,7 @@ Second, learning acts *within* this fixed subspace: it rotates the distractor co
 axis and repositions the working-memory state along it, and the size of each animal's
 repositioning predicts its memory improvement (Fig. 4). Third, a defined top-down input — the
 ACC→mPFC projection — causally sets the state's position on the subspace while sparing the code's
-discriminability (Fig. 5). Together they support a simple account: the code's geometry is a fixed
+discriminability (Fig. 6). Together they support a simple account: the code's geometry is a fixed
 constraint, and both learning and top-down control operate on the state's position within it.
 
 **Relation to abstract representational geometry.** The format we find — one dedicated,
@@ -59,12 +59,12 @@ geometry — an economical strategy if the geometry is shared infrastructure for
 **Top-down input as a positional signal.** The mPFC delay activity our task depends on is known to
 matter most during learning [Liu 2014]; our chronic-versus-acute dissociation refines this:
 removing the ACC input throughout training prevents the memory task from being acquired
-(Fig. 5b,c), whereas removing it acutely in a trained animal leaves behaviour and code fidelity
-intact but shifts the code's position (Fig. 5d–f, k, l). The projection behaves less like a
+(Fig. 6b,c), whereas removing it acutely in a trained animal leaves behaviour and code fidelity
+intact but shifts the code's position (Fig. 6d–f, k, l). The projection behaves less like a
 content channel than like a *bias* input that places the population state on the learned
 geometry. The contrast between the two couplings is informative: learning's repositioning buys
 memory accuracy at no distractor-task cost (Fig. 4c), while the acute displacement trades the two
-tasks (Fig. 5g–i) — the slow process finds the factorised solution the fast perturbation cannot.
+tasks (Fig. 6g–i) — the slow process finds the factorised solution the fast perturbation cannot.
 
 **Limitations.** (i) Our geometry is measured on a pseudo-population pooled across mice; every
 pooled claim carries an n = 9 per-animal companion, but simultaneous large-scale recordings would

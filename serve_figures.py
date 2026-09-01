@@ -48,7 +48,7 @@ MAIN = [
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
     ('Fig 2/3 — 3-D condition-means embedding PREVIEW  [per TASK SET (DPA | dual) × window; parallel A–B edges = the PS≈1 result; reliable-rank guard per panel; DECIDE: main or supp]',
      'pca/figures/pseudo/dimensionality/png/fig_embed_preview.png'),
-    ('Fig 5 — opto · trainLD_TEST (45–59)  [canonical: trade-off r=+0.53 p=.016]',
+    ('Fig 6 — opto · trainLD_TEST (45–59)  [canonical: trade-off r=+0.53 p=.016]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
 ]
 
@@ -66,13 +66,13 @@ VARIANTS = [
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact.png'),
     ('Fig 4 — LEARNING · ANTACT axis · robust  [push p=.032, coupling ρ=−0.68 p=.042, FA/CR p=.056 n.s. on raw]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust.png'),
-    ('Fig 5 — opto · ACTION axis · pooled-evoked  [ΔGNG r=−0.38 p=.100]',
+    ('Fig 6 — opto · ACTION axis · pooled-evoked  [ΔGNG r=−0.38 p=.100]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_action.png'),
-    ('Fig 5 — opto · ACTION axis · robust  [ΔGNG LMM p=.040]',
+    ('Fig 6 — opto · ACTION axis · robust  [ΔGNG LMM p=.040]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_action_robust.png'),
-    ('Fig 5 — opto · ANTACT axis · pooled-evoked  [ΔGNG r=−0.59 p=.006]',
+    ('Fig 6 — opto · ANTACT axis · pooled-evoked  [ΔGNG r=−0.59 p=.006]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact.png'),
-    ('Fig 5 — opto · ANTACT axis · robust  [ΔGNG r=−0.54 p=.014]',
+    ('Fig 6 — opto · ANTACT axis · robust  [ΔGNG r=−0.54 p=.014]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact_robust.png'),
 ]
 SUPP = [
@@ -193,7 +193,7 @@ SUPP = [
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_lda.png'),
     ('S13 · Codes robust to Go/NoGo distractor',
      'overlaps/figures/overlaps/controls/png/overlaps_codes_gng_trials.png'),
-    # ── Fig 5 (Opto) ───────────────────────────────────────────────────────────
+    # ── Fig 6 (Opto) ───────────────────────────────────────────────────────────
     ('S14 · Batch ACC→Prl controls',
      'overlaps/figures/overlaps/behavior/batch/png/behavior_learning_batch_ACCPrl_ctrlopto.png'),
     ('S14 · Batch ACC (null)',
@@ -204,7 +204,7 @@ SUPP = [
      'overlaps/figures/overlaps/behavior/png/behavior_learning_offon.png'),
     ('S16 · Laser ON−OFF coupling — 7 mice',
      'overlaps/figures/overlaps/scatter_laser/png/log_generalizing_overlaps_none_l1_ratio_0.0_laser_targets_choice_onoff_ld_test_expert_ab.png'),
-    # (S17 d′-spared standalone — CUT 2026-08-03: already shown as main Fig 5k,l.)
+    # (S17 d′-spared standalone — CUT 2026-08-03: already shown as main Fig 6k,l.)
 ]
 
 # ── "Extra" — parked, not in the paper ─────────────────────────────────────────
