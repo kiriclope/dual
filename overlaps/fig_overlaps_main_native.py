@@ -341,10 +341,9 @@ if __name__ == '__main__':
     panel_letter(axD, 'D', x=0.5)
     panel_letter(axDp, 'E', x=0.72)
 
-    # ── POLISH VARIANT (--polish; craft review 2026-09-01, user: "try a version with this
-    #    polishing, keep the older version too"): two schematic insets, data untouched. ──
-    POLISH = '--polish' in sys.argv[1:]
-    if POLISH:
+    # ── schematic insets (craft review 2026-09-01; PROMOTED to the canonical build same day,
+    #    user: "draw the polish variant figures into main"): data untouched. ──
+    if True:
         # (8) the set-point well: memory parked in an output-suppressing minimum, deeper in Expert
         for _at, _x0 in ((axB_traj[0], -0.45), (axB_traj[1], -0.95)):
             _ia = _at.inset_axes([0.02, 0.70, 0.30, 0.27])
@@ -390,13 +389,17 @@ if __name__ == '__main__':
         '(y) — the |cos| between each mouse’s own choice and dist axes grows (0.073 → 0.114, '
         '∗ p = .008), and so does the per-mouse cross-decode (0.53 → 0.61, ∗ p = .004). Both '
         'starred tests are robust across decoder pipelines, and this panel is drawn from fixed '
-        'canonical caches in every build variant of the figure.',
+        'canonical caches in every build variant of the figure. Inset (schematic): the two axes '
+        'as arrows — the dist axis stands 71° from the choice axis in Naive and closes to 62° '
+        'in Expert (angles from the corrected cosines of Fig. 3E).',
         'B. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
         '| Expert; strips = the late-delay distribution of choice-code depth). With learning, '
         'the delay states sink along the choice axis — the memory is parked deeper in the '
         'region whose readout is “do not lick”, a position that buffers it against the '
         'distractor-evoked lick transient — exactly the interference that learning removes '
-        'behaviourally (Fig. 1G). Right: per-mouse late-delay depth, Naive → '
+        'behaviourally (Fig. 1G; inset schematics: the memory as a ball in a well on the '
+        'no-lick side of the lick boundary, deeper after learning). Right: per-mouse '
+        'late-delay depth, Naive → '
         'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',
@@ -420,12 +423,6 @@ if __name__ == '__main__':
         CAP_PARAS[0] += (f' [BUILD VARIANT {FILE_SUF}: panel annotations carry this build’s own '
                          'statistics; the numbers quoted here are the canonical action-axis '
                          'pooled-evoked build.]')
-    if POLISH:
-        CAP_PARAS[0] += (' [POLISH VARIANT: two schematic insets added — the set-point well in B '
-                         '(the memory parked in an output-suppressing minimum, deeper in Expert; '
-                         'green dashes = the lick boundary) and the axis-rotation glyph in A '
-                         '(the dist axis closing on the choice axis with learning, angles from '
-                         'the corrected Fig. 3E cosines). Data identical to the canonical build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
     draw_justified(fig, CAP_PARAS)
@@ -433,7 +430,7 @@ if __name__ == '__main__':
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
     for ext in ('png', 'svg'):
-        p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}{"_polish" if POLISH else ""}.{ext}'
+        p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}.{ext}'
         fig.savefig(p, bbox_inches='tight')
         print('saved', os.path.abspath(p))
     plt.close(fig)

@@ -562,3 +562,12 @@ statistical-unit errors in any cache producer; five propositions. Outcomes:
   the choice axis, angles from the corrected Fig 3E cosines); caption [POLISH VARIANT] tag.
 - TODO (user: "not now"): orofacial motion-energy regression if video exists (ED 5d lick
   covariate already in place).
+
+### 2026-09-01 (later): embedding split per task set; Fig 4 insets PROMOTED to canonical
+- `fig_embed_preview.py` now 2×4: stage × (DPA·md | DPA·decision | dual·md | dual·decision),
+  each panel its OWN per-set PCA. Titles carry the Fig-2b RELIABLE RANK and the suptitle warns
+  that PCs beyond it are noise (with 4 DPA conditions, PC2/3 are unreliable — do not read the
+  offset between the two A–B edges). Still a DECIDE card in gallery Main.
+- Fig 4's two schematic insets (set-point well in B, axis-rotation glyph in A) are now part of
+  the CANONICAL build in all four variants — the --polish flag and the _polish PNG are gone;
+  caption A/B carry the inset descriptions inline.

@@ -52,32 +52,46 @@ def cond_means(stage, wn):
     return R / np.where(sd > 1e-9, sd, 1.0)
 
 
-fig = plt.figure(figsize=(10.5, 9.5))
+# PER TASK SET (user 2026-09-01: "the embedding should have these plots for dpa and for dual
+# separated"): each panel runs its OWN PCA on its set's centred condition means, so DPA·md shows
+# the memory line and dual·md the sample × dist plane on their own terms.
+SETS = {'DPA': [c for c in ALL12 if c[0] == 'DPA'],
+        'dual': [c for c in ALL12 if c[0] != 'DPA']}
+COLS = [('DPA', 'md'), ('DPA', 'decision'), ('dual', 'md'), ('dual', 'decision')]
+
+fig = plt.figure(figsize=(13.2, 7.2))
 for r, stage in enumerate(['Naive', 'Expert']):
-    for k, wn in enumerate(['md', 'decision']):
-        R = cond_means(stage, wn)
+    for k, (sname, wn) in enumerate(COLS):
+        conds = SETS[sname]
+        Rall = cond_means(stage, wn)
+        idx = [ALL12.index(c) for c in conds]
+        R = Rall[idx] - Rall[idx].mean(0, keepdims=True)
         U, S, Vt = np.linalg.svd(R, full_matrices=False)
         P = R @ Vt[:3].T
         ve = (S ** 2 / (S ** 2).sum())[:3]
-        ax = fig.add_subplot(2, 2, r * 2 + k + 1, projection='3d')
-        for t in ['DPA', 'DualGo', 'DualNoGo']:
+        ax = fig.add_subplot(2, 4, r * 4 + k + 1, projection='3d')
+        for t in (['DPA'] if sname == 'DPA' else ['DualGo', 'DualNoGo']):
             for te in (0, 1):
-                i0 = ALL12.index((t, 0, te)); i1 = ALL12.index((t, 1, te))
+                i0 = conds.index((t, 0, te)); i1 = conds.index((t, 1, te))
                 ax.plot(*zip(P[i0], P[i1]), color=TASKE[t], lw=1.2, alpha=0.8)
-        for ci, (t, s, te) in enumerate(ALL12):
+        for ci, (t, s, te) in enumerate(conds):
             ax.scatter(*P[ci], s=55, c=SAMPC[s], edgecolors=TASKE[t], linewidths=1.6,
                        marker='o' if t == 'DPA' else ('^' if t == 'DualGo' else 's'),
                        depthshade=False)
-        ax.set_title(f'{stage} · {"mid-delay" if wn == "md" else "decision"}   '
-                     f'(var {100 * ve[0]:.0f}/{100 * ve[1]:.0f}/{100 * ve[2]:.0f}%)',
-                     loc='left', fontsize=TITLE_FS)
-        ax.set_xlabel('PC1', fontsize=7, labelpad=-4); ax.set_ylabel('PC2', fontsize=7, labelpad=-4)
-        ax.set_zlabel('PC3', fontsize=7, labelpad=-4)
-        ax.tick_params(labelsize=5, pad=-2)
+        RELRANK = {('DPA', 'md'): 1, ('dual', 'md'): 2,
+                   ('DPA', 'decision'): 3, ('dual', 'decision'): 3}   # Fig 2b reliable ranks
+        ax.set_title(f'{stage} · {sname} · {"mid-delay" if wn == "md" else "decision"}\n'
+                     f'(var {100 * ve[0]:.0f}/{100 * ve[1]:.0f}/{100 * ve[2]:.0f}% · '
+                     f'reliable rank {RELRANK[(sname, wn)]})',
+                     loc='left', fontsize=7)
+        ax.set_xlabel('PC1', fontsize=6.5, labelpad=-5); ax.set_ylabel('PC2', fontsize=6.5, labelpad=-5)
+        ax.set_zlabel('PC3', fontsize=6.5, labelpad=-5)
+        ax.tick_params(labelsize=4.5, pad=-2)
         ax.view_init(elev=18, azim=-60)
-        print(f'{stage:6s} {wn:9s} var3 {np.round(ve, 2)}')
-fig.suptitle('12 condition means, per-neuron z-scaled, PCA-3D — colour=sample, edge/marker=task; '
-             'edges join A–B within task (parallel edges = parallel sample codes)', fontsize=8, y=0.99)
+        print(f'{stage:6s} {sname:4s} {wn:9s} var3 {np.round(ve, 2)}')
+fig.suptitle('Condition means per TASK SET, per-neuron z-scaled, own PCA-3D per panel — '
+             'colour=sample, edge/marker=task; edges join A–B within (task, test) '
+             '(parallel edges = parallel sample codes). CAUTION: PCs beyond each panel’s reliable rank (Fig 2b) are noise — do not read offsets along them.', fontsize=8, y=0.995)
 OUT = 'figures/pseudo/dimensionality'
 fig.savefig(f'{OUT}/png/fig_embed_preview.png', bbox_inches='tight')
 print('saved', os.path.abspath(f'{OUT}/png/fig_embed_preview.png'))
