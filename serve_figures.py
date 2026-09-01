@@ -44,23 +44,28 @@ MAIN = [
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main.png'),
     ('Fig 3 — ONE manifold  [canonical no-PCA; panel A = task-split traces DPA | Go | NoGo (ADOPTED 2026-08-31, same data as B) · storyboard · sufficiency C/D · cosines · cross-stage F]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main.png'),
+    ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
+     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
+    ('Fig 2/3 — 3-D condition-means embedding PREVIEW  [per TASK SET (DPA | dual) × window; parallel A–B edges = the PS≈1 result; reliable-rank guard per panel; DECIDE: main or supp]',
+     'pca/figures/pseudo/dimensionality/png/fig_embed_preview.png'),
+    ('Fig 5 — opto · trainLD_TEST (45–59)  [canonical: trade-off r=+0.53 p=.016]',
+     'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
+]
+
+# ── "Variants" — alternative builds of the mains (axis × normalisation × pipeline knobs).
+#    Moved out of MAIN 2026-09-01 (user: one canonical card per figure in Main).
+VARIANTS = [
     ('Fig 3 — PCA-20 pipeline variant  [decoder-knob robustness companion]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
     ('Fig 3 — ANTACT axis variant  [choice axis trained 48–62 in A+B; centred storyboard near axis-invariant; C–F unchanged]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_antact.png'),
     # Fig 4/5 — full grid: axis (ACTION 57–62 vs ANTICIPATORY+ACTION 48–62) × normalisation (pooled-evoked vs robust)
-    ('Fig 4 — LEARNING · ACTION axis · pooled-evoked  [canonical: align p=.008/.004 ★★, push p=.046 ∗, coupling ρ=−0.83 p=.005 ★]',
-     'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact.png'),
     ('Fig 4 — LEARNING · ACTION axis · robust  [coupling ρ=−0.83 p=.005]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_robust.png'),
     ('Fig 4 — LEARNING · ANTACT axis · pooled-evoked  [strongest push β=−1.69 p=.003, coupling n.s.]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact.png'),
     ('Fig 4 — LEARNING · ANTACT axis · robust  [push p=.032, coupling ρ=−0.68 p=.042, FA/CR p=.056 n.s. on raw]',
      'overlaps/figures/overlaps/main/png/fig_overlaps_main_ab_dpaact_antact_robust.png'),
-    ('Fig 2/3 — 3-D condition-means embedding PREVIEW  [per TASK SET (DPA | dual) × window; parallel A–B edges = the PS≈1 result; reliable-rank guard per panel; DECIDE: main or supp]',
-     'pca/figures/pseudo/dimensionality/png/fig_embed_preview.png'),
-    ('Fig 5 — opto · trainLD_TEST (45–59)  [canonical: trade-off r=+0.53 p=.016]',
-     'overlaps/figures/overlaps/behavior/png/behavior_opto_main.png'),
     ('Fig 5 — opto · ACTION axis · pooled-evoked  [ΔGNG r=−0.38 p=.100]',
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_action.png'),
     ('Fig 5 — opto · ACTION axis · robust  [ΔGNG LMM p=.040]',
@@ -426,7 +431,8 @@ def scanned_panel(proj, secs, groups, active):
 def render_index(groups):
     tree = build_sections(groups)
     pills, panels, first = [], [], True
-    for name, entries in (('Main', MAIN), ('Supp', SUPP), ('Extra', EXTRA)):  # pinned curated tabs, first
+    for name, entries in (('Main', MAIN), ('Variants', VARIANTS),  # pinned curated tabs, first
+                          ('Supp', SUPP), ('Extra', EXTRA)):
         pills.append(pill(name, len(entries), first))
         panels.append(curated_panel(name, entries, first))
         first = False
