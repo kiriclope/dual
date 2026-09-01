@@ -341,6 +341,38 @@ if __name__ == '__main__':
     panel_letter(axD, 'D', x=0.5)
     panel_letter(axDp, 'E', x=0.72)
 
+    # ── POLISH VARIANT (--polish; craft review 2026-09-01, user: "try a version with this
+    #    polishing, keep the older version too"): two schematic insets, data untouched. ──
+    POLISH = '--polish' in sys.argv[1:]
+    if POLISH:
+        # (8) the set-point well: memory parked in an output-suppressing minimum, deeper in Expert
+        for _at, _x0 in ((axB_traj[0], -0.45), (axB_traj[1], -0.95)):
+            _ia = _at.inset_axes([0.02, 0.70, 0.30, 0.27])
+            _xx = np.linspace(-1.7, 1.7, 200)
+            _ia.plot(_xx, 0.9 * (_xx - _x0) ** 2, color='0.35', lw=1.0)
+            _ia.scatter([_x0], [0.04], s=16, color='#332288', zorder=5)
+            _ia.axvline(1.0, ls='--', color='#4daf4a', lw=0.8)
+            _ia.text(1.0, 2.55, 'lick', ha='center', va='bottom', fontsize=5, color='#4daf4a')
+            _ia.text(_x0, -0.45, 'memory', ha='center', va='top', fontsize=5, color='#332288')
+            _ia.set_xlim(-1.8, 1.8); _ia.set_ylim(-0.7, 3.1); _ia.axis('off')
+        # (9) the axis-rotation glyph: the dist axis closing on the choice axis with learning
+        _AXF = _RESP['AXIS_FRAME_nopca']
+        _cN = float(np.asarray(_AXF['Naive']['cos'])[1, 2])
+        _cE = float(np.asarray(_AXF['Expert']['cos'])[1, 2])
+        _ig = _axc.inset_axes([0.54, 0.05, 0.44, 0.44])
+        _ig.annotate('', xy=(1.0, 0.0), xytext=(0, 0),
+                     arrowprops=dict(arrowstyle='-|>', color='#4daf4a', lw=1.2))
+        for _cv, _st, _al in ((_cN, 'N', 0.45), (_cE, 'E', 1.0)):
+            _th = np.arccos(_cv)
+            _ig.annotate('', xy=(np.cos(_th), np.sin(_th)), xytext=(0, 0),
+                         arrowprops=dict(arrowstyle='-|>', color='#ee7733', lw=1.2, alpha=_al))
+            _ig.text(1.06 * np.cos(_th), 1.10 * np.sin(_th), _st, fontsize=5,
+                     color='#ee7733', alpha=_al, ha='center')
+        _ig.text(1.02, -0.16, 'choice', fontsize=5, color='#4daf4a', ha='right')
+        _ig.text(0.30, 1.02, 'dist axis', fontsize=5, color='#ee7733')
+        _ig.set_xlim(-0.08, 1.18); _ig.set_ylim(-0.22, 1.18)
+        _ig.set_aspect('equal'); _ig.axis('off')
+
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
         'Figure 4 | What learning changes on the manifold: the distractor code rotates onto the '
@@ -388,6 +420,12 @@ if __name__ == '__main__':
         CAP_PARAS[0] += (f' [BUILD VARIANT {FILE_SUF}: panel annotations carry this build’s own '
                          'statistics; the numbers quoted here are the canonical action-axis '
                          'pooled-evoked build.]')
+    if POLISH:
+        CAP_PARAS[0] += (' [POLISH VARIANT: two schematic insets added — the set-point well in B '
+                         '(the memory parked in an output-suppressing minimum, deeper in Expert; '
+                         'green dashes = the lick boundary) and the axis-rotation glyph in A '
+                         '(the dist axis closing on the choice axis with learning, angles from '
+                         'the corrected Fig. 3E cosines). Data identical to the canonical build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
     draw_justified(fig, CAP_PARAS)
@@ -395,7 +433,7 @@ if __name__ == '__main__':
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
     for ext in ('png', 'svg'):
-        p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}.{ext}'
+        p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}{"_polish" if POLISH else ""}.{ext}'
         fig.savefig(p, bbox_inches='tight')
         print('saved', os.path.abspath(p))
     plt.close(fig)

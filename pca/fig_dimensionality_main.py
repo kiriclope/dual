@@ -469,9 +469,16 @@ def panelE_gen(fig, gsE):
             ax.set_ylabel('train', fontsize=7)
         for sp in ax.spines.values():
             sp.set_visible(True)
+        # PARALLELISM SCORE (Bernardi's geometric twin of the transfer test; exp_parallelism.py,
+        # pipeline-invariant — condition-mean vectors, no decoder). Added 2026-09-01 (craft review).
+        _ps = RES['PS_nopca'][('Expert', var)]
+        ax.text(0.5, -0.52, f"PS {_ps['raw']:.2f} (null {_ps['null95']:.2f})\n"
+                f"rel-corrected {_ps['corrected']:.2f}",
+                transform=ax.transAxes, ha='center', va='top', fontsize=5.6, color='0.3')
         EYE = np.eye(len(M), dtype=bool)
         print(f'E-gen: {var:7s} Expert within {np.round(np.diag(M),2)}  transferred frac '
-              f'{np.round(Nn[~EYE], 2)}  mean {Nn[~EYE].mean():.2f}')
+              f'{np.round(Nn[~EYE], 2)}  mean {Nn[~EYE].mean():.2f}  PS {_ps["raw"]:.2f} '
+              f'corr {_ps["corrected"]:.2f} null95 {_ps["null95"]:.2f}')
     # (the in-figure key was removed 2026-08-31 — the ratio/hatch explanation is caption/Methods
     #  material; its cell now hosts panel F, the learning-stability scatters)
     return axes[0]
@@ -490,6 +497,34 @@ F_GROUP = {**{m: 'Jaws' for m in F_MICE[:5]}, **{m: 'ChR' for m in F_MICE[5:7]},
 F_GMARK = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
 _fpal = sns.color_palette('tab10', n_colors=len(F_MICE))
 F_MCOL = {m: _fpal[i] for i, m in enumerate(F_MICE)}
+
+
+def panelG_biplot(fig, gsG):
+    """Per-neuron selectivity biplot (NEURON_SEL, exp_neuron_sel.py; Expert): d' for sample at
+    mid-delay (x) vs d' for choice at decision (y), one dot per neuron (n = 3,319). A factorised
+    code is a CROSS: neurons selective for one variable or neither, few for both (co-selectivity
+    at the independence product). Model-free (condition means / pooled SD) — no decoder shapes
+    the cloud. Added 2026-09-01 (craft review: the paper's first neuron-level display)."""
+    NS = RES['NEURON_SEL_nopca']['Expert']         # canonical no-PCA, like MAT_CACHE
+    ds, dc = NS['ds'], NS['dc']
+    ok = np.isfinite(ds) & np.isfinite(dc)
+    ax = fig.add_subplot(gsG[0, 0])
+    lim = 2.0
+    ax.axhline(0, color='0.8', lw=0.6, zorder=0); ax.axvline(0, color='0.8', lw=0.6, zorder=0)
+    n95 = NS['null95_abs']
+    ax.add_patch(Rectangle((-n95, -n95), 2 * n95, 2 * n95, fc='0.92', ec='none', zorder=0))
+    ax.scatter(np.clip(ds[ok], -lim, lim), np.clip(dc[ok], -lim, lim), s=2.5, marker='.',
+               color='#332288', alpha=0.22, lw=0, zorder=2, rasterized=True)
+    ax.set_xlim(-lim, lim); ax.set_ylim(-lim, lim); ax.set_aspect('equal', adjustable='box')
+    ax.set_xticks([-2, 0, 2]); ax.set_yticks([-2, 0, 2])
+    ax.set_xlabel("sample d′ (mid-delay)", fontsize=7)
+    ax.set_ylabel("choice d′ (decision)", fontsize=7)
+    ax.set_title('per-neuron selectivity', loc='left', fontsize=TITLE_FS)
+    ax.text(0.03, 0.97, f"|d′| corr r = {NS['r_abs']:+.02f}\nboth-selective 6.2%\n"
+            '(independence: 6.4%)', transform=ax.transAxes, va='top', ha='left',
+            fontsize=6.0, color='0.3')
+    print(f"G: biplot n={NS['n_ok']} r_abs={NS['r_abs']:+.3f} null95={n95:.2f}")
+    return ax
 
 
 def panelF_gen_learning(fig, gsF):
@@ -562,11 +597,13 @@ gsD = gs[2, 0:12].subgridspec(1, 4, wspace=0.70,
                               width_ratios=[4, 4, 4, 4] if CDEC else [4, 4, 3.2, 3.2])
 axD0 = panelD_mats(fig, gsD)
 if CDEC:
-    gsE = gs[3, 0:6].subgridspec(1, 3, wspace=0.60)
+    gsE = gs[3, 0:5].subgridspec(1, 3, wspace=0.55)
     axE0 = panelE_gen(fig, gsE)
-    gsF = gs[3, 7:12].subgridspec(1, 3, wspace=0.24)
+    gsF = gs[3, 5:10].subgridspec(1, 3, wspace=0.24)
     axF0 = panelF_gen_learning(fig, gsF)
-    plabel(axE0, 'E'); plabel(axF0, 'F', )
+    gsG = gs[3, 10:12].subgridspec(1, 1)             # G = per-neuron selectivity biplot
+    axG = panelG_biplot(fig, gsG)
+    plabel(axE0, 'E'); plabel(axF0, 'F'); plabel(axG, 'G')
 
 plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 
@@ -581,8 +618,8 @@ if CDEC:
         'action: variables on separate axes cannot overwrite one another). The panels build the '
         'claim in order: B counts the reliable dimensions, C shows each axis carries its variable '
         'exactly when the task needs it, D identifies the principal components with the variables, '
-        'E tests which axes generalise across tasks, and F shows the whole frame is in place '
-        'before learning.',
+        'E tests which axes generalise across tasks, F shows the whole frame is in place '
+        'before learning, and G grounds the factorisation at the single-neuron level.',
         'A. Design. Trial timeline of the three interleaved tasks, and the two population states '
         'analysed throughout: the MEMORY state (mid-delay window, 5.5–6.3 s — after the distractor, '
         'before the Go/NoGo cue and before any licking) and the DECISION state (test onset onward). '
@@ -623,7 +660,13 @@ if CDEC:
         'hatched cells = ceiling ≈ chance or ratio > 1, i.e. not interpretable. The sample and '
         'choice axes transfer — ONE shared axis per variable rather than a private axis per '
         'task; the test matrix is the honest boundary of the claim (its ceilings are weak at '
-        'this window, so most of its cells are not interpretable).',
+        'this window, so most of its cells are not interpretable). Under each matrix, the '
+        'PARALLELISM SCORE — the geometric twin of the transfer test: the mean cosine between '
+        'the task-wise coding vectors, computed across independent trial halves, against a '
+        'label-shuffle null. Raw PS is far above its null for every variable, and corrected for '
+        'split-half reliability the sample and choice directions are essentially perfectly '
+        'parallel across tasks (≈ 0.96–1.0; the test value exceeds 1 because its reliability is '
+        'low — an estimate, not a test).',
         'F. And the shared frame precedes learning — the axes serve ALL TASKS equally well before '
         'and after (the complementary claim, that they are the same DIRECTIONS across learning, '
         'is Fig. 3F): per-mouse mean cross-task accuracy, Naive (x) '
@@ -633,6 +676,13 @@ if CDEC:
         '[−.03, +.02], test [−.01, +.04], choice [−.03, +.05]) — an equivalence statement, not '
         'mere absence of evidence. Learning repositions the state within this frame (Fig. 3 '
         'identifies the plane it happens in; Fig. 4 the movement); it does not build the frame.',
+        'G. The factorisation is visible neuron by neuron: each dot is one neuron’s '
+        'discriminability (d′, within its own mouse) for sample at mid-delay (x) against choice '
+        'at decision (y); n = 3,319; grey square = the label-shuffle floor. The cloud is a '
+        'CROSS, not a diagonal: |d′| across the two variables is uncorrelated (r = −0.03) and '
+        'the both-selective fraction (6.2%) equals the independence prediction (6.4%) — '
+        'largely separate populations carry the two axes, the single-neuron basis of the '
+        'population-level factorisation in D.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     draw_justified(fig, CAP_PARAS)

@@ -176,16 +176,55 @@ def panel_gen_mouse(fig, gsB):
 # (the per-mouse raw-|cos| scatters that briefly lived here as panel C moved BACK into main
 #  Fig 3 panel E, 2026-08-31 user request — see fig_manifold_main.panel_e_pm)
 
-fig = plt.figure(figsize=(9.4, 9.8))
-gs = fig.add_gridspec(3, 12, height_ratios=[1.9, 1.0, 1.0], hspace=0.50,
-                      left=0.08, right=0.975, top=0.955, bottom=0.055)
+
+# ══ D — temporal-generalisation matrices (King & Dehaene 2014), per code ══════════════════════
+#   TGM cache (overlaps/exp_tgm_cache.py): balanced accuracy of the decoder TRAINED at each bin
+#   (y) read at every other bin (x) — a square block = one code held stable over that period.
+#   Added 2026-09-01 (craft review; user routing: TGM -> supp). t = bin/6 s (overlaps convention).
+def panel_tgm(fig, gsD):
+    TGM = RES['TGM']
+    tb = np.arange(84) / 6.0
+    axes = []
+    for r, stage in enumerate(['Naive', 'Expert']):
+        for k, (code, lab) in enumerate([('sample', 'sample'), ('gng', 'dist'),
+                                         ('test', 'test'), ('choice', 'choice')]):
+            ax = fig.add_subplot(gsD[r, k]); axes.append(ax)
+            M = np.asarray(TGM[(stage, code)])
+            im = ax.imshow(M, origin='lower', cmap='RdBu_r', vmin=0.3, vmax=0.7,
+                           extent=[tb[0], tb[-1], tb[0], tb[-1]], aspect='equal',
+                           interpolation='nearest')
+            for tmark in (2.0, 4.5, 6.5, 9.0):
+                ax.axvline(tmark, color='k', lw=0.3, alpha=0.35)
+                ax.axhline(tmark, color='k', lw=0.3, alpha=0.35)
+            ax.set_xlim(0, 12); ax.set_ylim(0, 12)
+            ax.set_xticks([0, 4.5, 9]); ax.set_yticks([0, 4.5, 9])
+            if r == 0:
+                ax.set_title(f'{lab} code', loc='left', fontsize=TITLE_FS)
+                ax.tick_params(labelbottom=False)
+            else:
+                ax.set_xlabel('test time (s)', fontsize=7)
+            if k == 0:
+                ax.set_ylabel(f'{stage}\ntrain time (s)', fontsize=7)
+            else:
+                ax.tick_params(labelleft=False)
+            if r == 1 and k == 3:
+                cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.06)
+                cb.set_label('balanced acc.', fontsize=6); cb.ax.tick_params(labelsize=5.5)
+    return axes[0]
+
+
+fig = plt.figure(figsize=(9.4, 12.6))
+gs = fig.add_gridspec(4, 12, height_ratios=[1.9, 1.0, 1.0, 1.9], hspace=0.50,
+                      left=0.08, right=0.975, top=0.965, bottom=0.045)
 gsT = gs[0, 0:12].subgridspec(2, 4, wspace=0.36, hspace=0.16)
 axT = panel_traj(fig, gsT)
 gsA = gs[1, 0:12].subgridspec(1, 4, wspace=0.45)
 axA = panel_ccgp(fig, gsA)
 gsB = gs[2, 0:9].subgridspec(1, 3, wspace=0.45)
 axB = panel_gen_mouse(fig, gsB)
-plabel(axT, 'A', dx=-0.16); plabel(axA, 'B'); plabel(axB, 'C')
+gsD = gs[3, 0:12].subgridspec(2, 4, wspace=0.30, hspace=0.16)
+axD = panel_tgm(fig, gsD)
+plabel(axT, 'A', dx=-0.16); plabel(axA, 'B'); plabel(axB, 'C'); plabel(axD, 'D', dx=-0.16)
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

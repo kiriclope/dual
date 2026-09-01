@@ -531,3 +531,34 @@ statistical-unit errors in any cache producer; five propositions. Outcomes:
   user preference for per-mouse mains; fallback = slim to 2×4); "Fig 2 caption too long"
   (conflicts with the caption standard; manuscript captions at submission); Fig 4 headline
   recalibration (already satisfied — A leads, push trend disclosed, ∗ kept by user decision).
+
+### 2026-09-01 craft-menu EXECUTION (user routing: PS+biplot main · TGM supp · embed=decide · AI attempted)
+- **Fig 2 gains** (canonical PNG updated): PS annotations under each panel-E matrix
+  (`exp_parallelism.py` → PS cache, pipeline-invariant — condition-mean vectors, no decoder:
+  raw sample .28 / test .14 / choice .39, ALL ≫ null95 ≈ .04–.05; rel-corrected sample .99 /
+  choice 1.00 — the task-wise coding directions are essentially PERFECTLY parallel; test corr
+  1.21 = low-rel estimate, caption discloses) + **panel G** per-neuron selectivity biplot
+  (`exp_neuron_sel.py` NEURON_SEL: d′ sample@md vs d′ choice@decision per neuron, n=3319,
+  model-free; |d′| corr r=−0.03, both-selective 6.2% vs independence 6.4% — the cross-shaped
+  cloud; row-3 layout now E 0:5 / F 5:10 / G 10:12; caption title roadmap + G paragraph added).
+- **Supp gains panel D** = temporal-generalisation matrices (King & Dehaene;
+  `overlaps/exp_tgm_cache.py` → TGM, computed from the tensor's train-bin × test-bin decision
+  functions, no refitting): sample = ONE stable block spanning the delay (both stages), dist =
+  post-cue block, test/choice compact late blocks — the standard "stable code" visual
+  (supp now A traces / B ccgp / C gen / D TGM, 9.4×12.6).
+- **ALIGNMENT INDEX = DEAD-END** (`exp_alignment_index.py`, cached AI_nopca v1): Elsayed-style
+  subspace AI sits AT its covariance-matched null (cross-stage K=2 0.59 vs null95 0.63; K=3
+  0.54 vs 0.67; v2 with per-neuron scaling + rank-matching: md K=2 0.34 vs null mean 0.36,
+  run then terminated — verdict clear). Same disease as PLANE_VAR: top-K condition-mean
+  subspaces carry unreliable dimensions, and the covariance-shaped null is extremely
+  conservative. DO NOT annotate Fig 3F with it — the decoding transfer (+ scaling check)
+  remains the cross-stage evidence. Logged so it is not re-attempted.
+- **Embedding preview** (`fig_embed_preview.py`, gallery Main "DECIDE" card): 12 condition
+  means, z-scaled, PCA-3D per stage × window — tasks separate on PC1/2, the A–B sample edges
+  run PARALLEL across all three tasks (the PS result made visual). Awaiting main-vs-supp call.
+- **Fig 4 `--polish` variant** (`fig_overlaps_main_ab_dpaact_polish.png`, canonical untouched):
+  set-point WELL schematic insets on the B planes (deeper minimum in Expert, green lick
+  boundary) + axis-rotation glyph inset in A's raw-|cos| scatter (dist axis at 71°→62° from
+  the choice axis, angles from the corrected Fig 3E cosines); caption [POLISH VARIANT] tag.
+- TODO (user: "not now"): orofacial motion-energy regression if video exists (ED 5d lick
+  covariate already in place).
