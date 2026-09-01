@@ -514,3 +514,20 @@ axes — the definitional reference for C–F's variables) moved to `fig_manifol
 in ALL THREE cache variants (canonical / _pca20 / _antact — all rebuilt). The interim
 fig_manifold_main_tasksplit.png is deleted (canonical IS task-split); `fig_traj_tasksplit.py`
 stays as a standalone preview renderer only. Gallery Main back to three Fig-3 cards.
+
+### 2026-09-01 Codex cross-review of Figs 2–4 + verification + applied fixes
+External Codex review (session 01a059c1; full text in the session log): NO new leakage or
+statistical-unit errors in any cache producer; five propositions. Outcomes:
+- **Scaling sensitivity (the one new analytic concern) RESOLVED**: `exp_xstage_scale_check.py`
+  re-runs XSTAGE_DEC's protocol (same seeds) scoring the test stage in the TRAIN stage's
+  per-neuron scaling instead of its own — transfer/within 0.919→0.899 (sample), 0.888→0.883
+  (choice), i.e. ≤0.02: the Fig 3F frame-identity claim is not a renormalisation artifact.
+  Cache `XSTAGE_SCALECHK_nopca`; caption F now states the robustness.
+- **Applied**: Fig 2 title narrowed ("the memory and choice axes are shared across tasks") + E
+  lead reworded (test matrix = the honest boundary; kept, not demoted); Fig 3B in-panel
+  'window-centred' label; Fig 4C mouse-mean diamonds (band/ρ visibly on the n=9 unit; A/B
+  circles stay) + caption glyph clause.
+- **Rejected with reasons**: Fig 3D→ED (carries the only starred learning effect + explicit
+  user preference for per-mouse mains; fallback = slim to 2×4); "Fig 2 caption too long"
+  (conflicts with the caption standard; manuscript captions at submission); Fig 4 headline
+  recalibration (already satisfied — A leads, push trend disclosed, ∗ kept by user decision).

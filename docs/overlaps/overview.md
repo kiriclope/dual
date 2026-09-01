@@ -908,3 +908,6 @@ p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchan
 - 2026-08-31 (later): Fig 4 caption rewritten to the house caption standard (claim+roadmap
   title; per panel what/how/shows/stats; CODE DEPTH defined in the title; cross-refs to Fig 5
   K/L "position not fidelity"; see memory feedback_caption_style) — numbers unchanged.
+- 2026-09-01 (Codex review fix): Fig 4C now draws the nine per-mouse mean DIAMONDS — the unit
+  the Spearman and regression band are computed on — alongside the A/B class circles; caption
+  defines both glyphs. No statistics changed.
