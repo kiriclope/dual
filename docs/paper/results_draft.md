@@ -28,7 +28,7 @@
 >
 > Figure order: **1 Behaviour · 2 Geometry (low-D, factorised, shared) · 3 One subspace (the
 > sample × choice plane: sufficiency + stability) · 4 Learning (alignment + push + coupling) ·
-> 5 Opto (causal).** Publication-ready standard: **every panel is referenced and described.**
+> 5 Modelling (TBD) · 6 Opto (causal).** Publication-ready standard: **every panel is referenced and described.**
 > Panel letters/stats verified against the RENDERED figures (Fig 1 `behavior_main.png`; Fig 2
 > `fig_dimensionality_main.png`; Fig 3 `fig_manifold_main.png` — canonical no-PCA build;
 > Fig 4 `fig_overlaps_main_ab_dpaact.png`; Fig 6 `behavior_opto_main.png`). Caveats to carry are
