@@ -362,7 +362,9 @@ if __name__ == '__main__':
         'B. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
         '| Expert; strips = the late-delay distribution of choice-code depth). With learning, '
         'the delay states sink along the choice axis — the memory is parked deeper in the '
-        'region whose readout is “do not lick”. Right: per-mouse late-delay depth, Naive → '
+        'region whose readout is “do not lick”, a position that buffers it against the '
+        'distractor-evoked lick transient — exactly the interference that learning removes '
+        'behaviourally (Fig. 1G). Right: per-mouse late-delay depth, Naive → '
         'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',

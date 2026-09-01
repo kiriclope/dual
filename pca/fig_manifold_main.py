@@ -713,7 +713,9 @@ CAP_PARAS = [
     'honest: the sample pairs hug the floor in every mouse at both stages, and choice × dist '
     'sits above them — and above the unity line in 8/9 mice. No tests are drawn here; the '
     'choice × dist increase is the starred test of Fig. 4A (∗ p = .008 in both pipelines).',
-    'F. Is it the same frame before and after learning? Left matrices: a decoder trained on one '
+    'F. Is it the same frame before and after learning? Fig. 2F showed the axes SERVE all tasks '
+    'equally at both stages; here we ask the stronger question — are they the same DIRECTIONS? '
+    'Left matrices: a decoder trained on one '
     'stage’s trials reads the OTHER stage’s held-out activity (rows = training stage, columns = '
     'test stage; the neurons are registered across stages, so the axes carry over directly). '
     'Transfer runs at ~90% of the within-stage ceiling — transfer/within 0.90 (sample) and 0.87 '

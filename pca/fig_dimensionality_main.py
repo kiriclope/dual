@@ -576,7 +576,9 @@ plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 if CDEC:
     CAP_PARAS = [
         'Figure 2 | A minimal, factorised population geometry: each task variable has one dedicated '
-        'coding axis, and the memory and choice axes are shared across tasks. The panels build the '
+        'coding axis, and the memory and choice axes are shared across tasks — the geometry a '
+        'memory needs to survive an embedded action task (Fig. 1G showed the interference IS the '
+        'action: variables on separate axes cannot overwrite one another). The panels build the '
         'claim in order: B counts the reliable dimensions, C shows each axis carries its variable '
         'exactly when the task needs it, D identifies the principal components with the variables, '
         'E tests which axes generalise across tasks, and F shows the whole frame is in place '
@@ -604,7 +606,9 @@ if CDEC:
         'anticipatory choice signal in Naive at mid-delay (0.66 vs its null) that DISAPPEARS with '
         'learning. Hatched bar: the distractor decoded not from its own axis but from the DPA-state '
         'subspace (top-3 PCs) — a weak but reliable transfer at mid-delay (permutation p = .031, '
-        '1,000 draws), against 1.0 when decoded within the dual tasks.',
+        '1,000 draws), against 1.0 when decoded within the dual tasks — an early hint of the '
+        'thread Figs. 3D and 4A make quantitative: the distractor code is not fully segregated '
+        'from the memory states, and learning pulls it further into their plane.',
         'D. The principal components ARE the task variables: η² of each condition-mean PC against '
         'the design contrasts (rows = PCs, labelled with their % of condition-mean variance; a cell '
         'near 1 means that PC codes that single variable). Each reliable PC loads on one variable — '
@@ -620,13 +624,15 @@ if CDEC:
         'choice axes transfer — ONE shared axis per variable rather than a private axis per '
         'task; the test matrix is the honest boundary of the claim (its ceilings are weak at '
         'this window, so most of its cells are not interpretable).',
-        'F. And the shared frame precedes learning: per-mouse mean cross-task accuracy, Naive (x) '
+        'F. And the shared frame precedes learning — the axes serve ALL TASKS equally well before '
+        'and after (the complementary claim, that they are the same DIRECTIONS across learning, '
+        'is Fig. 3F): per-mouse mean cross-task accuracy, Naive (x) '
         'vs Expert (y); colour = mouse, marker = opsin line, black diamond = mean; points on the '
         'unity line = no change. All changes are n.s. (Wilcoxon, n = 9; robust across decoder '
         'pipelines) AND bounded: the Δ 95% CIs fall entirely within ±0.05 accuracy (sample '
         '[−.03, +.02], test [−.01, +.04], choice [−.03, +.05]) — an equivalence statement, not '
-        'mere absence of evidence. Learning repositions the state within this frame (Fig. 4); it '
-        'does not build the frame.',
+        'mere absence of evidence. Learning repositions the state within this frame (Fig. 3 '
+        'identifies the plane it happens in; Fig. 4 the movement); it does not build the frame.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     draw_justified(fig, CAP_PARAS)
