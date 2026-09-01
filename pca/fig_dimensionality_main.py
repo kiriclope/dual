@@ -536,7 +536,7 @@ def panelF_gen_learning(fig, gsF):
         nv, ev = np.array(nv), np.array(ev)
         p = float(wilcoxon(ev, nv).pvalue)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
-        ax.set_anchor('NW')                            # top-align with panel E's matrices
+        ax.set_anchor('C')                             # one centre line with E and G
         ax.set_xticks([0.5, 0.6, 0.7]); ax.set_yticks([0.5, 0.6, 0.7])
         if j:
             ax.tick_params(labelleft=False)
@@ -585,11 +585,11 @@ if CDEC:
     # aspect-locked squares of the SAME size on one centre line (user 2026-09-01)
     gsBot = gs[3, 0:12].subgridspec(1, 9, wspace=0.45,
                                     width_ratios=[1, 1, 1, 0.22, 1, 1, 1, 0.22, 1])
-    gsE = gsBot[0, 0:3].subgridspec(1, 3, wspace=0.55)
+    gsE = gsBot[0, 0:3].subgridspec(1, 3, wspace=0.28)   # same internal gap as F ->
     axE0 = panelE_gen(fig, gsE)
-    gsF = gsBot[0, 4:7].subgridspec(1, 3, wspace=0.24)
+    gsF = gsBot[0, 4:7].subgridspec(1, 3, wspace=0.28)   #   same slot width -> same-size
     axF0 = panelF_gen_learning(fig, gsF)
-    gsG = gsBot[0, 8:9].subgridspec(1, 1)            # G = per-neuron selectivity biplot
+    gsG = gsBot[0, 8:9].subgridspec(1, 1)            #   squares, one shared centre line
     axG = panelG_biplot(fig, gsG)
     plabel(axE0, 'E'); plabel(axF0, 'F'); plabel(axG, 'G')
 
