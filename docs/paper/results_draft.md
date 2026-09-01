@@ -1,20 +1,13 @@
-# Compositional learning by geometric editing — main paper (draft v4)
+# Compositional learning by geometric editing — main paper (draft v5)
 
-> **⚠ STALE vs the 2026-08-31 "redistribute" RESTRUCTURE — re-verify every §2/§3/§4 panel letter
-> before submission.** The geometry mains were rebalanced: **Fig 2** gained panel E (cross-task
-> generalisation matrices, moved from Fig 3) AND panel F (per-mouse generalisation-stability
-> scatters: all Δ n.s. and bounded, |Δ| 95% CIs within ±0.05 — the foil for Fig 4), plus an
-> in-figure justified caption (source of caption truth = `CAP_PARAS` in the script); **Fig 3**
-> slimmed to the frame only (A traces ·
-> B state storyboard · C axis cosines — `fig_manifold_main.py`, canonical = no-PCA build); **Fig 4**
-> is now the LEARNING figure (A dist↔choice alignment: cross-decode + per-mouse raw-|cos| ∗ p=.008
-> and cross-decode ∗ p=.004 · B the push ∗ p=.046, per-animal trend p=.098 · C coupling ★ ·
-> D FA/CR · E choice-d′). CCGP + per-mouse generalisation → ED (`fig_manifold_supp.py`); CCGP values
-> stated in text. Also updated stats to carry: weak transfer now p=.031 (1000-draw permutation);
-> FA/CR tested on UNCLIPPED medians (canonical AD p=.265/BC p=.468; the antact-robust p=.045 ★ is
-> DEAD, now p=.056); Fig-4 windows: depth = bins 45–53 unsmoothed (closes AT test onset), action
-> axis = bins 57–62 incl. See `docs/pca/dimensionality.md` (2026-08-30/31 blocks) + memory
-> [[project_main_figs_review_2026-08-30]].
+> **v5 (2026-09-01): §2–§5 REWRITTEN to the current figures** — panel letters and stats verified
+> against the rendered builds (which carry their own in-figure captions, `CAP_PARAS` = caption
+> truth): Fig 2 A–F (incl. E cross-task generalisation, F equivalence-bounded stability); Fig 3
+> A–F (task-split traces · storyboard · plane sufficiency C/D · axis angles E · cross-stage F);
+> Fig 4 A–E (A alignment · B push · C coupling · D FA/CR · E d′); Fig 5 A–L stat-refreshed
+> (trade-off r=+0.48 p=.034; ΔGNG arm r=−0.61 p=.004, mixed-model survivor β=−0.014 p=.023).
+> Literature positioning + vocabulary in memory `reference_literature_positioning`; the Discussion
+> draft lives in `discussion_draft.md`.
 
 > Methods paragraphs are staged per-figure in **`methods_notes.md`** (started 2026-08-10 with the Fig 2
 > dimensionality block: cvPCA incl. the repeated-2-fold-vs-k-fold justification, jackknife CIs, η²
@@ -33,17 +26,13 @@
 > c PR 1→2→3 (Naïve+Expert overlaid) · d η² PC-coding matrices — `fig_dimensionality_main.py`. The dPCA
 > display panels (trajectories, mixing, linking plane) are ED Fig. 9; shattering is ED Fig. 3 / §3.
 >
-> Figure order: **1 Behaviour · 2 dPCA (low-D geometry) · 3 Manifold (abstract / reused geometry) ·
-> 4 Overlaps (push / repositioning) · 5 Opto (causal).** The single overlaps figure was SPLIT
-> (2026-08-04): geometry/abstraction → the new Fig 3 (`fig_overlaps_manifold.py`); push/repositioning →
-> Fig 4 (`fig_overlaps_main_native.py`, trimmed to push panels). The old reserved "Fig 4 — low-rank
-> circuit model" placeholder is dropped; its number is reused by the push figure. Publication-ready
-> standard: **every panel is referenced and described.** Panel letters/stats verified against the RENDERED
-> figures (Fig 1 `behavior_main.png`; Fig 2 `fig_dimensionality_main.png` — the dimensionality composite that REPLACED
-`fig_dpca_story_main.png` on 2026-08-10; Fig 3 `fig_overlaps_manifold.png`;
-> Fig 4 `fig_overlaps_main_ab_dpaact.png` — the CURRENT build, not the stale `fig_overlaps_main_ab.png`;
-> Fig 5 `behavior_opto_main.png`). Caveats to carry are flagged inline as _(caveat: …)_; guardrails and
-> to-reconcile items at the bottom.
+> Figure order: **1 Behaviour · 2 Geometry (low-D, factorised, shared) · 3 One subspace (the
+> sample × choice plane: sufficiency + stability) · 4 Learning (alignment + push + coupling) ·
+> 5 Opto (causal).** Publication-ready standard: **every panel is referenced and described.**
+> Panel letters/stats verified against the RENDERED figures (Fig 1 `behavior_main.png`; Fig 2
+> `fig_dimensionality_main.png`; Fig 3 `fig_manifold_main.png` — canonical no-PCA build;
+> Fig 4 `fig_overlaps_main_ab_dpaact.png`; Fig 5 `behavior_opto_main.png`). Caveats to carry are
+> flagged inline as _(caveat: …)_; guardrails and to-reconcile items at the bottom.
 
 ---
 
@@ -133,7 +122,21 @@ distractor/action dimensions. None of these measures changed with learning (Naï
 Fig. 2b–d, spectra, decodability and coding pattern alike; leave-one-mouse-out jackknife
 Δ(Naïve − Expert) CIs span zero for every spectrum component and every decodable variable — Methods):
 learning neither adds nor removes
-representational dimensions. The one delay-period signal learning does remove is a premature choice
+representational dimensions.
+
+The axes are not only dedicated — the memory and choice axes are *shared across the three tasks*
+(Fig. 2e): decoders trained on one task transferred most of their decodable signal to the others
+(cells = (cross − 0.5)/(within − 0.5), each read against the test task's own within-task ceiling;
+the test code's matrix is the honest boundary of the claim — its ceilings are weak at this window,
+leaving most of its cells uninterpretable). And the sharing *precedes* learning (Fig. 2f):
+per-mouse cross-task accuracy sat on the Naïve = Expert unity line for every code — not merely "no
+significant change" but bounded equivalence, the Δ 95% CIs confined to ±0.05 accuracy (sample
+[−.03, +.02]; test [−.01, +.04]; choice [−.03, +.05]; Wilcoxon n = 9, robust across decoder
+pipelines). A factorised, shared subspace of this kind is exactly the geometry a memory needs to
+survive an embedded action task — variables coded on separate axes cannot overwrite one another
+(the interference of Fig. 1g) — and it is in place before the composition is learned; what learning
+changes is where the state sits within it (Figs. 3, 4). The one delay-period signal learning does
+remove is a premature choice
 signal in the naïve dual-task delay — in naïve mice the upcoming choice is decodable from the delay
 state well before the test (0.64–0.66 from early through late delay), whereas in trained mice it sits
 at chance until the test arrives (Extended Data Fig. 3h): training holds the delay clean of the
@@ -161,72 +164,60 @@ same phenomenon quantified single-trial and behaviourally in Fig. 4, we present 
 corroboration — raw-ΔF/F, time-ramp-removal and pooled-basis robustness — in Extended Data. Earlier
 flow-field / attractor-dynamics analyses of this deepening are retained as "extra", outside the paper.)_
 
-## 3. The low-dimensional manifold is abstract and reused across tasks (Fig. 3)
+## 3. One shared subspace: the sample × choice plane is necessary and sufficient for the memory
+## and choice codes — and it is the same plane before and after learning (Fig. 3)
 
-> ⚠ **STALE PANEL LETTERING (2026-08-30).** Fig. 3 was replaced by `pca/fig_manifold_main.py`
-> ("one frame"): **a** code traces (Naïve|Expert × sample/dist/test/choice) · **b** states plotted
-> IN the fixed sample × choice axes · **c** axis geometry (attenuation-corrected |cos|) · **d**
-> dist↔choice cross-decoding · **e** cross-task generalisation (normalised by each test task's
-> ceiling) · **f** per-mouse CCGP — each pooled panel paired with an n=9 per-mouse companion.
-> The text below still uses the OLD lettering (a traces / b matrix / c action 2×2 / d summary /
-> e CCGP); the *numbers* are unchanged and still correct. The old panel **d (cross-context summary)
-> was dropped** as a derived digest. Two results to add when rewriting: the axis-geometry claim
-> (sample orthogonal to both others; choice × dist overlap GROWS 0.32 → 0.46 with learning) and the
-> caveat that its per-mouse significance is knob-dependent (p = .039 / .074 / 1.000 at PCA 20 / no
-> PCA / PCA 4 — at 4 components a 4-D subspace forces |cos| ≈ 0.5 and saturates the measure).
-> The robust animal-level result is the cross-decoding increase (p ≤ .008, 8–9 of 9 mice).
+A low-dimensional, shared code is not automatically a single reusable structure. We therefore asked
+three questions of increasing strength: do the memory and the action live in one two-dimensional
+subspace — the sample × choice plane; is that plane *sufficient and necessary* for the codes it
+should carry; and is it the *same* plane before and after learning.
 
+We first read the two frame axes in each task separately (Fig. 3a; per-mouse cross-validated
+decoder projections — the decoder never sees the projected trials — baseline-zeroed, one shared
+per-mouse unit). The DPA sample code is maintained across the entire delay, whereas on dual trials
+the same readout decays after the distractor arrives (lower in 9/9 naïve and 8/9 expert mice) —
+the code-morphing signature described in primate PFC after a distractor, read here on a fixed
+axis; whether the memory itself survives, or only this readout, is answered by the cross-task
+transfer of Fig. 2e. On the choice axis, the Go trace rises at the cue in *both* trial classes —
+every correct Go trial licks the cue, a motor/reward transient rather than choice coding — and
+the lick/no-lick split opens only at test; the expert NoGo trace runs below baseline through the
+late delay (7/9 mice), consistent with active withholding. Snapshots of the same projections at
+three trial moments (Fig. 3b; each window re-centred per mouse on its mean state, so the panels
+show condition *geometry*, not absolute position) make the point at a glance: every separation, in
+every task, at every moment, falls along the same two axes.
 
-A low-dimensional code is not automatically a reusable one. Having shown that the computation occupies only
-~two demixed dimensions (Fig. 2), we asked whether those dimensions form a single abstract manifold shared
-across the two task contexts — one the animal can reuse — rather than task-specific structure. Decoders
-trained in one task generalised to the others (cross-task / off-diagonal decoding above chance, approaching
-within-task / diagonal decoding; a single shared action axis), and — because the animals already know the
-two component tasks (Naïve = the first three sessions) — this abstract, factorised format was already
-present in naïve animals and preserved across learning. Establishing one reusable manifold, we then asked
-how learning repositions the working-memory state on it (Fig. 4).
+That the plane is genuinely the code's home — and not an artefact of plotting in it — is shown by
+decode ablation (Fig. 3c,d): for each mouse we decoded each variable from only the two coordinates
+of its own sample × choice plane, from the residual after removing the plane, and from the full
+population (held-out halves; paired Wilcoxons, n = 9). The result is a double dissociation. For
+sample and choice the 2-D plane does as well as the whole population (plane = full, n.s.) and
+removing it collapses decoding (p = .004; the collapse is expected by construction — the
+informative half is plane = full). The test code is the mirror image — at chance from the plane,
+untouched without it (p = .004): that code lives elsewhere. The distractor sits in between, its
+plane share real but partial (p = .004). The dissociation holds animal by animal (Fig. 3d), and
+carries the section's one learning effect: the distractor's *plane-only* accuracy grows with
+learning (0.57 → 0.65, p = .020/.027 across decoder pipelines, 8/9 and 7/9 mice up) — per animal,
+learning pulls the distractor code into the plane, the alignment quantified in Fig. 4a. The axes
+themselves are near-orthogonal — the sample axis at |cos| ≈ 0.07–0.09 to both action codes, with
+a partial, growing choice × distractor overlap (0.32 → 0.47; Fig. 3e, attenuation-corrected with
+disclosed split-half reliabilities; the per-animal test lives in Fig. 4a).
 
-The manifold is inherited directly from the dPCA geometry. Re-plotting the dPCA sample × action plane,
-sample A and B separated along a *single shared* sample axis, essentially identically across DPA, DualGo
-and DualNoGo trials, orthogonal to the pre-existing task/action axis (Extended Data Fig. 9) — one memory dimension,
-reused whichever action context it is embedded in. To confirm this at the single-trial, single-animal
-level we trained cross-generalising decision-code decoders (CCGD): a balanced logistic decoder per mouse
-and stage for each of the sample, GNG, test and choice(lick) variables, read across the whole trial
-(Fig. 3a, naïve top / expert bottom). The four codes matched the dPCA account — the sample memory code was
-stable and epoch-invariant, the GNG code diverged sharply around the cue, the test code appeared only at
-test, and the choice/action code separated only at the response — four near-orthogonal, temporally stable
-directions of one manifold.
+Finally, it is the *same* plane across learning (Fig. 3f): decoders trained in one stage read the
+other stage's held-out activity at ~90% of the within-stage ceiling (transfer/within 0.90 for
+sample, 0.87 for choice; robust across decoder pipelines and to scoring both stages in one common
+feature scaling), and the same transfer holds inside each animal. In the vocabulary of the
+brain–computer-interface learning literature, what follows is *within-manifold* learning: the
+subspace is a fixed constraint, and learning reassociates states within it rather than building
+new dimensions — the repositioning we quantify next (Fig. 4).
 
-That this manifold is *abstract*, not a collection of task-specific codes, was shown by cross-task
-generalisation: decoders trained within one task and tested on another decoded above chance, the cross-task
-(off-diagonal) balanced accuracy approaching the within-task (diagonal) values (Fig. 3b, Naïve and Expert)
-— the geometry is shared across contexts rather than re-learned in each. Aggregated across the four codes,
-every code read out above chance across the context that challenges it, with the choice and GNG action
-codes the strongest cross-context generalisers (Fig. 3d). Critically, this abstraction was not built by
-learning. Per-mouse cross-condition generalisation performance (CCGP) sat on the Naïve = Expert unity line
-for the sample and choice codes (n.s.), with only the test code nudging up slightly (p ≈ 0.04) (Fig. 3e) —
-the factorised, abstract format is present already in naïve animals and preserved, consistent with the two
-component tasks being pre-learned before the dual composition. The same signature appears in the geometry's
-functional expressivity: decoding all 462 balanced dichotomies of the 12 conditions (the shattering
-dimension) gives 0.69–0.70 against a shuffle floor of 0.50 and an unstructured ceiling of 1 (Extended Data
-Fig. 3) — high cross-condition generalisation with a moderate shattering dimension is precisely the
-*abstract, compressed* regime, and it too is unchanged by learning (Δ = +0.01).
-
-The action dimension in particular was a *single shared command*. Because the go/no-go decision and the DPA
-match-lick are two expressions of the same lick action, we tested directly whether they share a neural axis
-by cross-decoding between them — training a decoder on Go-vs-NoGo (at the distractor) and testing it on DPA
-lick-vs-no-lick (at test), and vice versa; because train and test draw on different trials, tasks *and*
-epochs, above-chance transfer cannot arise from leakage. In expert animals the two action codes cross-
-decoded well above chance (Fig. 3c; cross-decoded balanced accuracy 0.60 and 0.84; off-/within-diagonal
-ratio 0.56, 95% CI [0.36, 0.78]) — composing the tasks reuses one lick direction rather than building a
-second. This shared axis was weaker and not clearly above chance in naïve animals (off/diagonal 0.32, CI
-including zero), a positive but non-significant consolidation with learning (Δ = +0.24, p = 0.30). (This
-generalisation-based test supersedes a raw weight-space cosine between the two action axes, which is only
-~0.18 — statistically above its ±1/√N floor but numerically small, because independently fit high-
-dimensional decoders share little raw direction even when they cross-decode; cross-decoding is the robust
-measure of a shared axis.) What learning changes is therefore not the abstraction — largely inherited from
-the pre-learned component tasks — but the state's *position* on the manifold, the repositioning we quantify
-next (Fig. 4).
+The abstraction of this format — its cross-condition generalisation in the sense of Bernardi et
+al. — was already present in naïve animals and preserved across learning: per-mouse CCGP sat on
+the Naïve = Expert unity line for the sample and choice codes, with only the test code nudging up
+(knob-dependent, p = .04/.73 across pipelines — reported without a verdict) (Extended Data). The
+same signature appears in the geometry's expressivity: decoding all 462 balanced dichotomies of
+the 12 conditions (the shattering dimension) gives 0.69–0.70 against a shuffle floor of 0.50 and
+an unstructured ceiling of 1 (Extended Data Fig. 3) — high generalisation with moderate shattering
+is precisely the *abstract, compressed* regime, and it too is unchanged by learning (Δ = +0.01).
 
 That the code is reusable and compositional was borne out at the single-neuron level: the near-
 orthogonality did not arise from conjunctive mixed selectivity but from largely separate, independently
@@ -235,37 +226,48 @@ to two variables ≈ product of the marginals), with more neurons selective for 
 variable (≈ 39%) than for the purely mnemonic sample identity (≈ 10%) (Supplementary Fig. X). A factorised
 substrate of this kind is what makes the two tasks composable without cross-talk.
 
-## 4. Learning repositions the working-memory state on the manifold, and this predicts DPA accuracy (Fig. 4)
+## 4. Learning rotates the distractor code onto the choice axis and repositions the memory state
+## along it — and the repositioning predicts DPA accuracy (Fig. 4)
 
-Having established one abstract manifold whose coding axes are fixed across learning, we asked how learning
-*uses* it. The answer is a targeted geometric edit: within the fixed geometry, learning repositioned the
-working-memory state exactly as the dPCA analysis predicted. The expert DPA delay state sat further into
-the no-lick half of the action axis than the naïve state (Fig. 4a; sample × choice planes for naïve and
-expert, and the per-mouse choice-code depth Naïve → Expert; mixed model 9 mice/36 obs, β = −0.744,
-p = 0.046; per-animal Wilcoxon p = 0.098). The shift was numerically larger for sample A than for
-sample B (ΔA ≈ −1.42, p = 0.098; ΔB ≈ −0.07, p = 0.91), but this is NOT evidence of sample
-specificity: the direct paired A-vs-B comparison across the same 9 mice is not significant, in the
-canonical build (p = 0.055) or in ANY of the six axis × normalisation builds (p = 0.055–0.203).
-Nor is it a decoder artefact — the sample and choice axes are orthogonal (per-mouse |cos| = 0.04),
-and axis leakage would displace A and B in OPPOSITE directions, which only 3/9 mice show. Report the
-push, not its sample specificity. And the size of this
-geometric edit was behaviourally meaningful across animals: the more a mouse pushed its delay state toward
-no-lick, the more its DPA accuracy improved (Fig. 4b left; between-mouse per-mouse Spearman ρ = −0.83,
-p = 0.005, n = 9), with no relationship to Go/NoGo accuracy (Fig. 4b right; ρ = +0.20, p = 0.61) —
-repositioning the state on the pre-existing manifold specifically buys memory performance. The coupling
-held across every normalisation (ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and a resampling battery (jackknife;
-bootstrap CI excluding 0; permutation p = 0.008). Crucially this was a change in the state's *position*, not
-in the code itself: the within-task decodability of the action code was statistically unchanged across
-learning (Fig. 4d; action-code d′ Δ = +0.27, p = 0.25, n.s.) — the manifold's coding fidelity is fixed while
-the state moves on it. As an internal within-trial validation that this axis is
-the action code, on naïve error trials the choice code sat closer to lick before false alarms than before
-correct rejections, though on the current build this did not reach significance (Fig. 4c; sample-A/AD
-p = 0.204; sample-B/BC p = 0.833, n.s.). _(caveats: the push is directional rather than a precise magnitude
-— on a fixed common axis it attenuates to a trend, part of the per-stage change being decoder-axis
-reorganisation, so it is a re-sculpting of the state on a retained scaffold, not a rigid translation; the
-behavioural coupling is an n = 9 individual-difference correlation, robust within the overlaps analysis but
-null on the dPCA-derived depth (r = +0.46, p = 0.21); the false-alarm/correct-rejection panel (Fig. 4c) is
-the weakest element and is currently n.s.)_
+Having established one fixed shared subspace, we asked what learning changes within it. Two things
+— and they are two faces of a single reorganisation of the action dimension. First, the distractor
+code aligns onto the choice axis (Fig. 4a): cross-decoding between the two codes rises from
+chance-referenced transfer 0.33 [−0.03, 0.60] in naïve to 0.57 [0.36, 0.75] in expert animals,
+and per animal both the raw axis cosine (0.073 → 0.114, p = .008) and the cross-decode
+(0.53 → 0.61, p = .004) increase — both robust across decoder pipelines. The distractor's demand
+becomes readable as what it is behaviourally: a lick decision.
+
+Second, learning repositioned the working-memory state along that same axis. The expert DPA delay
+state sat further into the output-suppressing, no-lick half of the choice axis than the naïve
+state (Fig. 4b; sample × choice planes for naïve and expert, and the per-mouse late-delay depth;
+mixed model 9 mice/36 obs, β = −0.744, p = 0.046; per-animal Wilcoxon p = 0.098) — a set-point
+shift that parks the memory away from the lick boundary, buffering it against precisely the
+distractor-evoked lick interference that learning removes behaviourally (Fig. 1g). The shift was
+numerically larger for sample A than for sample B (ΔA ≈ −1.42, p = 0.098; ΔB ≈ −0.07, p = 0.91),
+but this is NOT evidence of sample specificity: the direct paired A-vs-B comparison across the
+same 9 mice is not significant, in the canonical build (p = 0.055) or in ANY of the six
+axis × normalisation builds (p = 0.055–0.203). Nor is it a decoder artefact — the sample and
+choice axes are orthogonal (per-mouse |cos| = 0.04), and axis leakage would displace A and B in
+OPPOSITE directions, which only 3/9 mice show. Report the push, not its sample specificity.
+
+The size of this repositioning was behaviourally meaningful across animals: the more a mouse
+pushed its delay state toward no-lick, the more its DPA accuracy improved (Fig. 4c left;
+between-mouse per-mouse Spearman ρ = −0.83, p = 0.005, n = 9), with no relationship to Go/NoGo
+accuracy (Fig. 4c right; ρ = +0.20, p = 0.61) — repositioning specifically buys memory
+performance, at no distractor-task cost. The coupling held across every normalisation
+(ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and a resampling battery (jackknife; bootstrap CI excluding
+0; permutation p = 0.008). Two controls close the section. Within naïve nonpaired trials, the
+trial-by-trial well depth did not separate correct rejections from false alarms on this axis
+(Fig. 4d; sample-A Δ(CR−FA) = −1.16, p = 0.27; sample-B +0.73, p = 0.47, n.s.) — the push is a
+between-animal learning effect, not a within-stage trial-level accuracy readout. And the change
+is in the state's *position*, not the code itself: the choice code's discriminability was
+statistically unchanged across learning (Fig. 4e; d′ 0.80 → 1.07, Δ = +0.27, p = 0.25, n.s.) —
+fidelity is fixed while the state moves. _(caveats: the push is directional rather than a precise
+magnitude — on a fixed common axis it attenuates to a trend, part of the per-stage change being
+decoder-axis reorganisation, so it is a re-sculpting of the state on a retained scaffold, not a
+rigid translation; the behavioural coupling is an n = 9 individual-difference correlation, robust
+within the overlaps analysis but null on the dPCA-derived depth (r = +0.46, p = 0.21); the
+FA/CR panel (Fig. 4d) is a null control, not evidence.)_
 
 _(A mechanistic low-rank circuit model of this gated no-lick edit is deferred to future work; no modelling
 figure is included here.)_
@@ -286,22 +288,26 @@ ON vs OFF, Jaws, n = 5), and projected both trial types through the fixed, laser
 axis to read the state's *position* on the learned geometry. Transient silencing produced no gross
 behavioural change (Fig. 5d, DPA spared, p = 0.40; Fig. 5e, GNG spared, p = 0.24) but moved the delay
 choice code, per mouse (Fig. 5f; DPA choice-code depth OFF vs ON, 5 Jaws mice). Across animals this
-displacement traded the two tasks off against one another (Fig. 5g; Δdepth vs ΔDPA−ΔGNG, r = +0.53,
-p = 0.016, n = 20), an effect carried by the Go/NoGo arm (Fig. 5i; Δdepth vs ΔGNG, r = −0.65, p = 0.002)
-rather than the DPA arm (Fig. 5h; Δdepth vs ΔDPA, r = +0.34, p = 0.146, n.s.). In laser-ON trials the mice
+displacement traded the two tasks off against one another (Fig. 5g; Δdepth vs ΔDPA−ΔGNG, r = +0.48,
+p = 0.034, n = 20), an effect carried by the Go/NoGo arm (Fig. 5i; Δdepth vs ΔGNG, r = −0.61, p = 0.004;
+ρ = −0.56, p = 0.011) rather than the DPA arm (Fig. 5h; n.s. trend). In laser-ON trials the mice
 still occupied the same suboptimal DPA–GNG balance as at baseline (Fig. 5j; r = +0.44, p = 0.20). Critically,
-the input moved the state without altering the manifold's content: the discriminability (d′) of both the
+the input moved the state without altering the subspace's content: the discriminability (d′) of both the
 sample-memory axis (Fig. 5k; A vs B, late delay) and the Go/NoGo choice axis (Fig. 5l; Go vs NoGo,
 mid-delay) was spared under laser (LMM laser effect sample p = 0.34, GNG p = 0.74; n = 10). ACC→mPFC input
 therefore acts as the knob that sets *where* the delay state sits along the shared action axis — the very
-edit that composes memory with action — while leaving the coded content intact.
+edit that composes memory with action — while leaving the coded content intact. Note the mirror with
+learning: learning's repositioning couples to the DPA arm with no GNG cost (Fig. 4c), whereas the acute
+displacement couples to the GNG arm and trades the two tasks — the fixed subspace permits a factorised,
+memory-specific improvement that a momentary perturbation cannot mimic.
 
 _(caveats to carry: this figure combines two designs — a chronic between-group cohort (Fig. 5b,c; 9 vs 9)
 and a within-mouse transient-silencing cohort (Fig. 5d–l; Jaws, n = 5) — justified only because both
 target the same ACC→mPFC projection; state this explicitly. The trade-off in Fig. 5g–i is a between-animal
 coupling; the n = 20 points are 5 mice × stage × sample and thus pseudoreplicated, so the raw r is
-anti-conservative — under a mouse-clustered model the joint trade-off (g) is a trend (p ≈ 0.11) and only
-the ΔGNG arm (i) survives (β = −0.013, p = 0.018); frame i as the robust arm and g as the trend. The axis
+anti-conservative — under a mouse-clustered model the joint trade-off (g) drops to n.s.
+(β = +0.021, p = 0.145) and only the ΔGNG arm (i) survives (β = −0.014, p = 0.023); frame i as the
+robust arm and g as the raw-level trend. The axis
 and window are pre-committed (the locked main-overlaps axis), with the window sweep reported to avoid
 cherry-picking. Do not headline the trial-level signal × laser interaction (pseudoreplicated); the
 mouse-level d′ result (Fig. 5k,l) is the honest read. An alternative build of the coupling over all 7 laser
@@ -311,13 +317,14 @@ sentence.)_
 ## Synthesis
 
 Together these results describe compositional learning as **geometric editing**. mPFC represents the memory
-and the action on near-orthogonal, reusable axes of a low-dimensional manifold that predates expertise
-(Fig. 2, 3); learning does not add representational dimensions but repositions the working-memory state
-along a pre-existing action axis into the no-lick region
-(Fig. 4), an edit that shields the memory and, animal by animal, predicts how well the two tasks are
-composed (Fig. 4); and top-down ACC→mPFC input supplies this edit — setting the state's position on the
-manifold without changing what the population encodes (Fig. 5). Computation is low-dimensional and
-geometric, and to compose is to edit that geometry.
+and the action on near-orthogonal, reusable axes of a low-dimensional subspace that predates expertise
+(Fig. 2, 3); learning does not add representational dimensions but *reassociates* states within the fixed
+subspace — rotating the distractor code onto the choice axis and repositioning the working-memory state
+along it into the output-suppressing, no-lick region (Fig. 4) — an edit that shields the memory and,
+animal by animal, predicts how well the two tasks are composed; and top-down ACC→mPFC input supplies the
+positional signal — setting the state's place on the subspace without changing what the population encodes
+(Fig. 5). The code's geometry is a fixed constraint; learning and top-down input both act on the state's
+position within it.
 
 ---
 
