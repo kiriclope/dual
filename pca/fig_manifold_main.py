@@ -213,6 +213,10 @@ def panel_a(fig, gsA):
                       mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
                 ax.legend(handles=hs, frameon=False, fontsize=6.0, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
+            if r == 0 and j == 0:                    # crosshair semantics (Codex review 2026-09-01:
+                ax.text(0.98, 0.03, 'window-centred', transform=ax.transAxes, ha='right',
+                        va='bottom', fontsize=6.0, color='0.45', style='italic')
+                #  the zero lines invite a decision-boundary reading; they are the window mean)
             gm = {cd: P.mean(0) for cd, P in ENT.items()}
             ylk = np.mean([g[1] for cd, g in gm.items() if cd[2]])
             ynl = np.mean([g[1] for cd, g in gm.items() if not cd[2]])
@@ -714,7 +718,9 @@ CAP_PARAS = [
     'test stage; the neurons are registered across stages, so the axes carry over directly). '
     'Transfer runs at ~90% of the within-stage ceiling — transfer/within 0.90 (sample) and 0.87 '
     '(choice); cross-stage accuracy 0.88 ± 0.03–0.05 across resamples; robust across both '
-    'decoder pipelines. Right scatters: the same test inside each animal — its own decoder '
+    'decoder pipelines and to scoring both stages in one common (train-stage) feature scaling '
+    '(sensitivity check: the ratios shift by ≤ 0.02). Right scatters: the same test inside each '
+    'animal — its own decoder '
     'trained in one stage and read in the other (within-stage accuracy, x, vs cross-stage, y; '
     'both directions and stages averaged; annotation = mean chance-referenced transfer/within; '
     'no tests drawn). Conclusion of the figure: learning moves the state WITHIN the frame '

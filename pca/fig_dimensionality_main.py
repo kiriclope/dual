@@ -576,10 +576,11 @@ plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 if CDEC:
     CAP_PARAS = [
         'Figure 2 | A minimal, factorised population geometry: each task variable has one dedicated '
-        'coding axis, and the same axes serve every task. The panels build the claim in order: B '
-        'counts the reliable dimensions, C shows each axis carries its variable exactly when the '
-        'task needs it, D identifies the principal components with the variables, E shows the same '
-        'axes generalise across tasks, and F shows the whole frame is in place before learning.',
+        'coding axis, and the memory and choice axes are shared across tasks. The panels build the '
+        'claim in order: B counts the reliable dimensions, C shows each axis carries its variable '
+        'exactly when the task needs it, D identifies the principal components with the variables, '
+        'E tests which axes generalise across tasks, and F shows the whole frame is in place '
+        'before learning.',
         'A. Design. Trial timeline of the three interleaved tasks, and the two population states '
         'analysed throughout: the MEMORY state (mid-delay window, 5.5–6.3 s — after the distractor, '
         'before the Go/NoGo cue and before any licking) and the DECISION state (test onset onward). '
@@ -611,12 +612,14 @@ if CDEC:
         '(rank = leading components reaching 95% of reliable variance); the orange box carries '
         'panel C’s dist cross-decode per DPA PC. Dual rows show 4 of the 7 centred contrasts '
         '(rows need not sum to 1).',
-        'E. The same axes serve every task: decoders trained on one task, tested on the others '
-        '(Expert). Cells = the transferred fraction of the decodable signal, (cross − 0.5) / '
-        '(within − 0.5), so 1 means the training task’s axis works fully in the test task; each '
-        'column label prints the test task’s own within-task accuracy (the ceiling); hatched '
-        'cells = ceiling ≈ chance or ratio > 1, i.e. not interpretable. High off-diagonal '
-        'fractions mean ONE shared axis per variable rather than a private axis per task.',
+        'E. Which axes are shared across tasks? Decoders trained on one task, tested on the '
+        'others (Expert). Cells = the transferred fraction of the decodable signal, (cross − '
+        '0.5) / (within − 0.5), so 1 means the training task’s axis works fully in the test '
+        'task; each column label prints the test task’s own within-task accuracy (the ceiling); '
+        'hatched cells = ceiling ≈ chance or ratio > 1, i.e. not interpretable. The sample and '
+        'choice axes transfer — ONE shared axis per variable rather than a private axis per '
+        'task; the test matrix is the honest boundary of the claim (its ceilings are weak at '
+        'this window, so most of its cells are not interpretable).',
         'F. And the shared frame precedes learning: per-mouse mean cross-task accuracy, Naive (x) '
         'vs Expert (y); colour = mouse, marker = opsin line, black diamond = mean; points on the '
         'unity line = no change. All changes are n.s. (Wilcoxon, n = 9; robust across decoder '
