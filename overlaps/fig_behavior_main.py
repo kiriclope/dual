@@ -262,10 +262,6 @@ for ax in (axB, axC, axD, axE):
 axB.set_ylabel('performance')
 
 # no-lick thread — one subtle line tying B–E to the neural no-lick push
-_bp = axB.get_position()
-fig.text(_bp.x0, _bp.y1 + 0.028,
-         'Learning both tasks = learning to withhold (no-lick); an intruding lick interferes',
-         ha='left', va='bottom', fontsize=7, color='0.35')
 
 # ── F: LMM coefficient forest ─────────────────────────────────────────────────
 cond_recs = [r for r in betas if r['kind'] == 'condition']

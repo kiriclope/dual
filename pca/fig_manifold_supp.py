@@ -130,8 +130,6 @@ def panel_ccgp(fig, gsA):
         for m, rr in piv.iterrows():
             ax.scatter(rr['Naive'], rr['Expert'], s=34, color=MOUSE_COLOR.get(m, '0.5'),
                        marker=GMARKER[GROUP.get(m, 'Jaws')], edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(piv['Naive'].mean(), piv['Expert'].mean(), s=80, color='k', marker='D',
-                   edgecolors='w', linewidths=0.6, zorder=5)
         p = float(wilcoxon(piv['Expert'], piv['Naive']).pvalue)
         ax.set_xlim(0.42, 1.0); ax.set_ylim(0.42, 1.0); ax.set_aspect('equal', adjustable='box')
         # no title verdicts: the test-code comparison is knob-dependent (see header)
@@ -161,8 +159,6 @@ def panel_gen_mouse(fig, gsB):
             wi.append(x); cr.append(y)
             ax.scatter(x, y, s=34, color=MOUSE_COLOR[m], marker=GMARKER[GROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(wi), np.mean(cr), s=80, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
         ax.set_xlim(0.45, 0.95); ax.set_ylim(0.45, 0.95); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
         ax.set_title(v, loc='left', fontsize=7)

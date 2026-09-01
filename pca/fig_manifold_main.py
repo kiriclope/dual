@@ -402,8 +402,6 @@ def panel_e_pm(fig, gs):
             nv.append(a); ev.append(b)
             ax.scatter(a, b, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(nv), np.mean(ev), s=80, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
         if j:
@@ -439,8 +437,6 @@ def panel_f_pm(fig, gs):
                 rat.append((c - 0.5) / (w - 0.5))
             ax.scatter(w, c, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(np.mean(wi), np.mean(cr), s=80, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
         if k:
@@ -488,8 +484,6 @@ def panel_e_plane(fig, gsE):
                 ax.scatter(a, b, s=34, color=PMCOL[m], marker=PMMARK[PMGROUP[m]],
                            edgecolors='w', linewidths=0.5, zorder=3)
             nv, ev = np.array(nv), np.array(ev)
-            ax.scatter(nv.mean(), ev.mean(), s=80, color='k', marker='D', edgecolors='w',
-                       linewidths=0.6, zorder=5)
             p = float(wilcoxon(ev, nv).pvalue)
             ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
             ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
@@ -611,7 +605,7 @@ gsA = outer[1, 0:12].subgridspec(2, 5, wspace=0.16, hspace=0.10)
 axA = panel_a(fig, gsA)
 gsC = outer[2, 0:4].subgridspec(1, 1)                # C = the proof: summary bars
 axC = panel_f_spaces(fig, gsC)
-gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.24, hspace=0.20)   # D = per-mouse 3x4
+gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.08, hspace=0.20)   # D = per-mouse 3x4
 axD = panel_e_plane(fig, gsD)
 # bottom row = E (2 matrices + 3 per-mouse scatters) · F (2 matrices + 2 per-mouse scatters);
 # 12 slots: EQUAL panel widths (all nine axes are aspect-locked squares of the same size,

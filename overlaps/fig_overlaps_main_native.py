@@ -99,8 +99,6 @@ if __name__ == '__main__':
             if m in nv and m in ev:
                 ax.scatter(nv[m], ev[m], s=34, color=MOUSE_COLOR[m], marker=GMARKER[GROUP[m]],
                            edgecolors='w', linewidths=0.5, zorder=3)
-        ax.scatter(n.mean(), e.mean(), s=80, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
         p = float(_wilc(e, n).pvalue)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
         ax.set_xlabel(xlab, fontsize=7); ax.set_ylabel(ylab, fontsize=7)

@@ -218,11 +218,8 @@ def panelB_sets(fig, gsB2):
             if r == 0 and c == 0:                    # DPA mid-delay: ONE axis — a sample line
                 ax.text(0.97, 0.95, '1 reliable axis —\nthe sample line', transform=ax.transAxes,
                         ha='right', va='top', fontsize=6.0, color='0.25')
-                ax.plot([0.62, 0.93], [0.60, 0.70], '-', color='0.45', lw=1.0, transform=ax.transAxes)
-                ax.plot([0.62], [0.60], 'o', ms=3.2, color='#332288', transform=ax.transAxes, clip_on=False)
-                ax.plot([0.93], [0.70], 'o', ms=3.2, color='#44AA99', transform=ax.transAxes, clip_on=False)
-                ax.text(0.62, 0.53, 'A', transform=ax.transAxes, fontsize=6.0, color='#332288', ha='center', va='top')
-                ax.text(0.93, 0.63, 'B', transform=ax.transAxes, fontsize=6.0, color='#44AA99', ha='center', va='top')
+                # (the line/plane cartoon glyphs were removed 2026-09-01 — they overlapped the
+                #  spectra and were unreadable at panel scale; the text callouts carry the message)
             if r == 0 and c == 1:                    # dual mid-delay: 2 axes = distractor × sample.
                 # VERIFIED by projecting held-out cond means on the cvPCA basis (2026-08-12): comp1
                 # (0.93) carries gng η²=0.99, comp2 (0.07) carries sample η²=0.78 — the DISTRACTOR
@@ -230,17 +227,6 @@ def panelB_sets(fig, gsB2):
                 _fd = np.asarray(SJ[('dual', 'md', 'Expert')]['frac'])   # drawn values, not hardcoded
                 ax.text(0.96, 0.84, f'2 axes: distractor ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
                         transform=ax.transAxes, ha='right', va='top', fontsize=6.0, color='0.25')
-                ax.add_patch(Polygon([(0.54, 0.50), (0.86, 0.57), (0.96, 0.72), (0.64, 0.65)],
-                                     closed=True, fc='0.93', ec='0.6', lw=0.6,
-                                     transform=ax.transAxes, zorder=1))
-                ax.plot([0.59, 0.89], [0.535, 0.62], '-', color='0.45', lw=1.0, transform=ax.transAxes)
-                ax.plot([0.59], [0.535], 'o', ms=2.8, color='#332288', transform=ax.transAxes)
-                ax.plot([0.89], [0.62], 'o', ms=2.8, color='#44AA99', transform=ax.transAxes)
-                ax.annotate('', xy=(0.71, 0.705), xytext=(0.65, 0.555),
-                            arrowprops=dict(arrowstyle='-|>', lw=0.9, color=VAR_COL['gng']),
-                            xycoords=ax.transAxes, textcoords=ax.transAxes)
-                ax.text(0.725, 0.70, 'dist', transform=ax.transAxes, fontsize=6.0,
-                        color=VAR_COL['gng'], ha='left', va='center')
             if r == 1:                               # decision: ~3 reliable axes
                 ax.text(0.96, 0.94 if c == 0 else 0.84, '≈3 reliable axes', transform=ax.transAxes,
                         ha='right', va='top', fontsize=6.0, color='0.25')
@@ -464,7 +450,7 @@ def panelE_gen(fig, gsE):
         ax.set_yticks(range(len(TL)))
         ax.set_yticklabels(TL if j == 0 else [], fontsize=6.0)
         ax.set_title(var, loc='left', fontsize=7)
-        ax.set_anchor('NW')
+        ax.set_anchor('C')
         if j == 0:
             ax.set_ylabel('train', fontsize=7)
         for sp in ax.spines.values():
@@ -548,8 +534,6 @@ def panelF_gen_learning(fig, gsF):
             ax.scatter(xn, ye, s=34, color=F_MCOL[m], marker=F_GMARK[F_GROUP[m]],
                        edgecolors='w', linewidths=0.5, zorder=3)
         nv, ev = np.array(nv), np.array(ev)
-        ax.scatter(nv.mean(), ev.mean(), s=80, color='k', marker='D', edgecolors='w',
-                   linewidths=0.6, zorder=5)
         p = float(wilcoxon(ev, nv).pvalue)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_aspect('equal', adjustable='box')
         ax.set_anchor('NW')                            # top-align with panel E's matrices
@@ -597,11 +581,15 @@ gsD = gs[2, 0:12].subgridspec(1, 4, wspace=0.70,
                               width_ratios=[4, 4, 4, 4] if CDEC else [4, 4, 3.2, 3.2])
 axD0 = panelD_mats(fig, gsD)
 if CDEC:
-    gsE = gs[3, 0:5].subgridspec(1, 3, wspace=0.55)
+    # equal-width slots + centred anchors: E matrices, F scatters and G biplot are all
+    # aspect-locked squares of the SAME size on one centre line (user 2026-09-01)
+    gsBot = gs[3, 0:12].subgridspec(1, 9, wspace=0.45,
+                                    width_ratios=[1, 1, 1, 0.22, 1, 1, 1, 0.22, 1])
+    gsE = gsBot[0, 0:3].subgridspec(1, 3, wspace=0.55)
     axE0 = panelE_gen(fig, gsE)
-    gsF = gs[3, 5:10].subgridspec(1, 3, wspace=0.24)
+    gsF = gsBot[0, 4:7].subgridspec(1, 3, wspace=0.24)
     axF0 = panelF_gen_learning(fig, gsF)
-    gsG = gs[3, 10:12].subgridspec(1, 1)             # G = per-neuron selectivity biplot
+    gsG = gsBot[0, 8:9].subgridspec(1, 1)            # G = per-neuron selectivity biplot
     axG = panelG_biplot(fig, gsG)
     plabel(axE0, 'E'); plabel(axF0, 'F'); plabel(axG, 'G')
 
@@ -670,7 +658,7 @@ if CDEC:
         'F. And the shared frame precedes learning — the axes serve ALL TASKS equally well before '
         'and after (the complementary claim, that they are the same DIRECTIONS across learning, '
         'is Fig. 3F): per-mouse mean cross-task accuracy, Naive (x) '
-        'vs Expert (y); colour = mouse, marker = opsin line, black diamond = mean; points on the '
+        'vs Expert (y); colour = mouse, marker = opsin line; points on the '
         'unity line = no change. All changes are n.s. (Wilcoxon, n = 9; robust across decoder '
         'pipelines) AND bounded: the Δ 95% CIs fall entirely within ±0.05 accuracy (sample '
         '[−.03, +.02], test [−.01, +.04], choice [−.03, +.05]) — an equivalence statement, not '
