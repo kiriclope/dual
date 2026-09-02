@@ -602,3 +602,17 @@ candidates if a slot ever opens.
   embed-preview DECIDE card); the 9 alternative builds (Fig 3 pca20/antact, Fig 4 + opto (Fig 6)
   axis×norm grids) moved there. Curated tabs are module-level lists in `serve_figures.py`:
   restart the server after editing them.
+
+### 2026-09-01/02: exploratory analyses (pca side) — containment WIN, cross-mouse RETRACTED
+- **`exp_manifold_containment.py`** (cache `MANIFOLD_CONTAIN_nopca`; BCI within-manifold framing):
+  the PUSH displacement vector is contained in the naive intrinsic manifold (top-10 naive
+  single-trial PCs) at f=0.13 md — 4× the random-direction null (p=.0039) and indistinguishable
+  from the held-out-naive ceiling 0.19 (p=.20, n=9) → consistent with within-manifold
+  repositioning. The ROTATION vector sits below ceiling but that is NOT interpretable yet
+  (axis-estimation noise biases containment toward the null — needs the within-stage split-half
+  Δw noise floor). Ceiling low overall (calcium noise; FA upgrade queued). Full log in memory
+  `project_main_figs_review_2026-08-30`.
+- **`exp_xmouse_plane.py` — RETRACTED** (docstring carries the full reason): the cross-mouse
+  plane "conservation" was circular by construction (own supervised axis + per-mouse
+  standardisation force the same ±1 dumbbell in every mouse; within/cross classifiers make
+  98.6%-identical predictions). Figure removed; do not cite.

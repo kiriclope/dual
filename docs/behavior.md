@@ -248,7 +248,9 @@ Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-la
   NoGo trials, P(lick at test) split by the CUE lick (`odr_choice`, the pure delay lick), Naive vs
   Expert, per-mouse lines + mean±SEM, GEE(test-lick ~ cue-lick, clustered by mouse):
   Naive OR=3.10 **p=.006 `**`**, Expert OR=1.50 p=.42 `ns`; FA arm (unpaired) OR=2.73 p=.090,
-  paired arm OR=9.9 p=.001 toward a HIT (anti-corruption control); cue-lick rate 0.24→0.08.
+  paired arm OR=9.9 p=.001 toward a HIT (anti-corruption control); **lick × pairing interaction
+  n.s. (Naive p=.608, Expert p=.367) → the pooled propagation OR covers the FA arm** (printed by
+  the script; in the caption + Methods since the Codex-calibration pass); cue-lick rate 0.24→0.08.
   [Historical: the pre-2026-09-01 build split DPA accuracy by `licks` = (cue OR test lick) —
   near-circular (the test lick = 96.5% of the predictor); its Naive OR=0.56 p=.006 was carried
   by the test lick and is RETIRED. Do not quote it.]

@@ -912,3 +912,15 @@ p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchan
 - 2026-09-01 (Codex review fix): Fig 4C now draws the nine per-mouse mean DIAMONDS — the unit
   the Spearman and regression band are computed on — alongside the A/B class circles; caption
   defines both glyphs. No statistics changed.
+
+## 2026-09-01 exploratory analyses (overlaps side; from the lit-sweep menu)
+- **`exp_transient_axes.py`** (`figures/overlaps/transient/`): the correct-Go cue-evoked
+  transient decomposed by code axis (per-class common-mode shift, CUE+RWD 39–44 vs MD 33–38,
+  evoked-SD units) — rides the CHOICE axis (md 1.80 Naive → 3.10 Expert) and spares the sample
+  axis (0.63 → 0.37); |choice|>|sample| p=.0039/.0078 (n=9, both stages); NoGo control small;
+  the stage sharpening is DESCRIPTIVE only (p=.65). The geometric twin of Fig 1g's lick chain;
+  candidate ED 6 addition or Fig 3 slot (routing pending).
+- **`exp_laser_vector.py`** (`figures/overlaps/laservec/`): ON−OFF displacement decomposed by
+  axis (choice vs sample, two unit systems) — choice-dominance directional under pooled-evoked
+  units (md 4.18 vs 2.60) but p=.13 at n=5 Jaws, unit-sensitive → EXPLORATORY, not for the
+  paper; do not re-run without a better cross-axis unit.
