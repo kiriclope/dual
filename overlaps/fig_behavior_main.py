@@ -383,10 +383,13 @@ axH.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
                     mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=7, label='ACC')],
            frameon=False, fontsize=PS*6.5, loc='lower left', handletextpad=0.2)
 
-# ── panel letters (A on the setup cartoon, then B–H) ──────────────────────────
-for _ax, _L in [(axAm, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
-                (axE, 'E'), (axF, 'F'), (axG, 'G'), (axH, 'H')]:
-    panel_letter(_ax, _L)
+# ── panel letters (a on the setup cartoon, then b–h) ──────────────────────────
+# bottom-row letters get extra clearance: f's significance stars, g's stage headers and h's
+# tick labels reach into the default letter zone at print scale (user report 2026-09-03)
+for _ax, _L, _dy in [(axAm, 'A', 0.016), (axB, 'B', 0.016), (axC, 'C', 0.016),
+                     (axD, 'D', 0.016), (axE, 'E', 0.016),
+                     (axF, 'F', 0.034), (axG, 'G', 0.034), (axH, 'H', 0.034)]:
+    panel_letter(_ax, _L, dx=0.030, dy=_dy)
 
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
 CAP_PARAS = [
@@ -403,13 +406,13 @@ CAP_PARAS = [
     'responding to it.',
     'b–e. Learning the two tasks (per-mouse/day accuracy; stars above sessions = per-day LMMs, '
     'uncorrected). The Go/NoGo task is acquired within the first sessions and saturates near '
-    'ceiling, while DPA improves gradually and never quite catches up (B; GNG split by '
-    'distractor identity in C). The DPA deficit is not uniform: it is carried almost entirely '
-    'by the UNPAIRED trials — the ones that require withholding (D) — and its size depends on '
-    'which task surrounds the trial (pure DPA vs Go vs NoGo context, E). Together B–E say: what '
+    'ceiling, while DPA improves gradually and never quite catches up (b; GNG split by '
+    'distractor identity in c). The DPA deficit is not uniform: it is carried almost entirely '
+    'by the UNPAIRED trials — the ones that require withholding (d) — and its size depends on '
+    'which task surrounds the trial (pure DPA vs Go vs NoGo context, e). Together b–e say: what '
     'is hard is not licking to the right odour, but NOT licking while a lick-demanding task '
     'runs in the middle of the memory period.',
-    'f. Panels B–E as one model: linear mixed model on the per-mouse/day accuracies (fixed '
+    'f. Panels b–e as one model: linear mixed model on the per-mouse/day accuracies (fixed '
     'effects ± 95% CI; ● = condition offset, □ = condition × day slope; random intercept per '
     'mouse). GNG > DPA (∗) with the gap narrowing over days (∗∗∗); NoGo > Go (∗); unpaired < '
     'paired (∗∗∗), also narrowing over days (∗∗∗); and DPA is worse in Go context than in pure '

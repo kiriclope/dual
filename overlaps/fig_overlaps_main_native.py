@@ -342,9 +342,9 @@ if __name__ == '__main__':
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
         'Figure 4 | What learning changes on the manifold: the distractor code rotates onto the '
-        'choice axis (A), the delay memory state is pushed along that axis into no-lick '
-        'territory (B), the size of each animal’s push predicts its memory improvement (C) — '
-        'and the code itself stays equally readable (D, E). CODE DEPTH throughout = the '
+        'choice axis (a), the delay memory state is pushed along that axis into no-lick '
+        'territory (b), the size of each animal’s push predicts its memory improvement (c) — '
+        'and the code itself stays equally readable (d, e). CODE DEPTH throughout = the '
         'projection of population activity on the choice (lick) decoder axis, per mouse, '
         'baseline-zeroed, in units of that mouse’s evoked SD; negative = toward the no-lick '
         'side.',
@@ -362,7 +362,7 @@ if __name__ == '__main__':
         'the delay states sink along the choice axis — the memory is parked deeper in the '
         'region whose readout is “do not lick”, a position that buffers it against the '
         'distractor-evoked lick transient — exactly the interference that learning removes '
-        'behaviourally (Fig. 1G). Right: per-mouse late-delay depth, Naive → '
+        'behaviourally (Fig. 1g). Right: per-mouse late-delay depth, Naive → '
         'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',
@@ -380,7 +380,7 @@ if __name__ == '__main__':
         'between-animal learning effect, not a trial-by-trial accuracy readout here.',
         'e. Fidelity control: the choice code’s discriminability (d′ between lick and no-lick '
         'trials) does not change with learning (0.80 → 1.07, p = .25). Learning moves WHERE the '
-        'memory state sits on the axis (B), not how well the axis reads out (E) — position, not '
+        'memory state sits on the axis (b), not how well the axis reads out (e) — position, not '
         'fidelity, is what learning tunes.',
     ]
     if FILE_SUF != '_dpaact':

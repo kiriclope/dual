@@ -632,9 +632,9 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 CAP_PARAS = [
     'Figure 3 | One manifold: a single sample × choice plane is necessary and sufficient for the '
     'memory and choice codes — and learning pulls the distractor code into it. The panels build '
-    'the claim in order: A and B show the two axes carrying every separation in every task (as '
-    'time courses, then as geometry — the same data twice); C and D prove the plane is necessary '
-    'and sufficient by decoding; E measures the angles between the axes; F shows the frame '
+    'the claim in order: a and b show the two axes carrying every separation in every task (as '
+    'time courses, then as geometry — the same data twice); c and d prove the plane is necessary '
+    'and sufficient by decoding; e measures the angles between the axes; f shows the frame '
     'itself does not change with learning.',
     'a. The two frame axes, read in each task. Throughout, a CODE is the projection of '
     'population activity onto a linear decoder axis, computed per mouse with cross-validation '
@@ -652,12 +652,12 @@ CAP_PARAS = [
     'mice — consistent with active withholding). (The dist and test codes, on their own axes, '
     'are shown in the ED supplement.)',
     'b. The same data as geometry: five snapshots of the sample × choice plane. Each panel takes '
-    'the panel-A projections at one time window and plots every trial condition as a point with '
+    'the panel-a projections at one time window and plots every trial condition as a point with '
     'x = its sample-axis value and y = its choice-axis value, re-centred per mouse on that '
     'window’s mean state — so a panel shows the condition GEOMETRY at that moment: which codes '
     'are separated, and along which axis. (Absolute positions — the shared temporal ramp and the '
-    'no-lick push — are deliberately removed here; they are carried by the traces in A and '
-    'quantified on a fixed axis in Fig. 4B.) Windows: mid-delay 5.5–6.3 s (pre-cue), late delay '
+    'no-lick push — are deliberately removed here; they are carried by the traces in a and '
+    'quantified on a fixed axis in Fig. 4b.) Windows: mid-delay 5.5–6.3 s (pre-cue), late delay '
     '7.5–8.8 s (post-cue), decision 10–11 s — the first second of the response window (the '
     'choice axis itself is trained at the lick moment, 9.5–10.5 s, and read here; read windows '
     'chosen for display — no statistics are drawn in this panel). Dots = per-mouse condition '
@@ -691,7 +691,7 @@ CAP_PARAS = [
     'plane yet keeps its full accuracy without it. Learning changes are n.s. in both decoder '
     'pipelines (annotations) with ONE robust exception, starred: the dist code’s PLANE-only '
     'accuracy grows with learning (0.57 → 0.65, p = .020 / .027 across pipelines, 8/9 and 7/9 '
-    'mice up) — the per-animal confirmation predicted by Fig. 4A’s starred alignment increase '
+    'mice up) — the per-animal confirmation predicted by Fig. 4a’s starred alignment increase '
     '(directional, p uncorrected): learning pulls the distractor code into the manifold. '
     'Above-chance out-of-plane residuals are expected — only the ESTIMATED plane is removed, '
     'and population codes are redundant.',
@@ -707,7 +707,7 @@ CAP_PARAS = [
     '|cos|, Naive (x) vs Expert (y). Attenuation shrinks the magnitudes but the ordering is '
     'honest: the sample pairs hug the floor in every mouse at both stages, and choice × dist '
     'sits above them — and above the unity line in 8/9 mice. No tests are drawn here; the '
-    'choice × dist increase is the starred test of Fig. 4A (∗ p = .008 in both pipelines).',
+    'choice × dist increase is the starred test of Fig. 4a (∗ p = .008 in both pipelines).',
     'f. Is it the same frame before and after learning? Fig. 2F showed the axes SERVE all tasks '
     'equally at both stages; here we ask the stronger question — are they the same DIRECTIONS? '
     'Left matrices: a decoder trained on one '
@@ -721,12 +721,12 @@ CAP_PARAS = [
     'trained in one stage and read in the other (within-stage accuracy, x, vs cross-stage, y; '
     'both directions and stages averaged; annotation = mean chance-referenced transfer/within; '
     'no tests drawn). Conclusion of the figure: learning moves the state WITHIN the frame '
-    '(Fig. 4B); it does not rotate the frame.',
+    '(Fig. 4b); it does not rotate the frame.',
 ]
 if ANTACT:
-    CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in A (choice trace) and B (y-axis) is '
+    CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in a (choice trace) and b (y-axis) is '
                       'the ANTICIPATORY action axis — decoders trained over overlaps bins 48–62 '
-                      '(anticipatory + action) instead of the action window 57–62. Panels C–F '
+                      '(anticipatory + action) instead of the action window 57–62. Panels c–f '
                       'are unchanged (pca-side decision-window axis).]'
                       if p.startswith('B. ') else '') for p in CAP_PARAS]
 from figcaption import draw_justified                  # shared with fig_dimensionality_main.py

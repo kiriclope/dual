@@ -603,12 +603,12 @@ if CDEC:
     CAP_PARAS = [
         'Figure 2 | A minimal, factorised population geometry: each task variable has one dedicated '
         'coding axis, and the memory and choice axes are shared across tasks — the geometry a '
-        'memory needs to survive an embedded action task (Fig. 1G showed the interference IS the '
+        'memory needs to survive an embedded action task (Fig. 1g showed the interference IS the '
         'action: variables on separate axes cannot overwrite one another). The panels build the '
-        'claim in order: B counts the reliable dimensions, C shows each axis carries its variable '
-        'exactly when the task needs it, D identifies the principal components with the variables, '
-        'E tests which axes generalise across tasks, F shows the whole frame is in place '
-        'before learning, and G grounds the factorisation at the single-neuron level.',
+        'claim in order: b counts the reliable dimensions, c shows each axis carries its variable '
+        'exactly when the task needs it, d identifies the principal components with the variables, '
+        'e tests which axes generalise across tasks, f shows the whole frame is in place '
+        'before learning, and g grounds the factorisation at the single-neuron level.',
         'a. Design. Trial timeline of the three interleaved tasks, and the two population states '
         'analysed throughout: the MEMORY state (mid-delay window, 5.5–6.3 s — after the distractor, '
         'before the Go/NoGo cue and before any licking) and the DECISION state (test onset onward). '
@@ -633,14 +633,14 @@ if CDEC:
         'learning. Hatched bar: the distractor decoded not from its own axis but from the DPA-state '
         'subspace (top-3 PCs) — a weak but reliable transfer at mid-delay (permutation p = .031, '
         '1,000 draws), against 1.0 when decoded within the dual tasks — an early hint of the '
-        'thread Figs. 3D and 4A make quantitative: the distractor code is not fully segregated '
+        'thread Figs. 3d and 4a make quantitative: the distractor code is not fully segregated '
         'from the memory states, and learning pulls it further into their plane.',
         'd. The principal components ARE the task variables: η² of each condition-mean PC against '
         'the design contrasts (rows = PCs, labelled with their % of condition-mean variance; a cell '
         'near 1 means that PC codes that single variable). Each reliable PC loads on one variable — '
-        'the geometry is factorised, not mixed. Rows beyond panel B’s reliable rank are faded '
+        'the geometry is factorised, not mixed. Rows beyond panel b’s reliable rank are faded '
         '(rank = leading components reaching 95% of reliable variance); the orange box carries '
-        'panel C’s dist cross-decode per DPA PC. Dual rows show 4 of the 7 centred contrasts '
+        'panel c’s dist cross-decode per DPA PC. Dual rows show 4 of the 7 centred contrasts '
         '(rows need not sum to 1).',
         'e. Which axes are shared across tasks? Decoders trained on one task, tested on the '
         'others (Expert). Cells = the transferred fraction of the decodable signal, (cross − '
@@ -671,7 +671,7 @@ if CDEC:
         'CROSS, not a diagonal: |d′| across the two variables is uncorrelated (r = −0.03) and '
         'the both-selective fraction (6.2%) equals the independence prediction (6.4%) — '
         'largely separate populations carry the two axes, the single-neuron basis of the '
-        'population-level factorisation in D.',
+        'population-level factorisation in d.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
