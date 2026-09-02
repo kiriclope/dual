@@ -80,9 +80,13 @@ buys memory accuracy at no distractor-task cost (Fig. 4c), while the acute displ
 two tasks (Fig. 6g–i) — the slow process finds the factorised solution the fast perturbation
 cannot.
 
-**Limitations.** (i) Our geometry is measured on a pseudo-population pooled across mice; every
-pooled claim carries an n = 9 per-animal companion, but simultaneous large-scale recordings would
-strengthen the trial-by-trial claims. (ii) The acute optogenetic coupling rests on five animals,
+**Limitations.** (i) Within each mouse, neurons were recorded simultaneously and tracked across
+days; the pooled pseudo-population, however, combines neurons from mice that were never recorded
+together, so its single-trial states are assembled across animals and carry no cross-mouse noise
+correlations — pooled claims therefore concern the task-conditioned state geometry, and every one
+carries an n = 9 within-animal companion computed on genuinely simultaneous data. Larger
+simultaneous populations within single animals would further strengthen the trial-by-trial
+claims. (ii) The acute optogenetic coupling rests on five animals,
 and its joint trade-off does not survive a mouse-clustered model (only the ΔGNG arm does) — we
 therefore frame the acute result as position-moving with a robust distractor-side coupling, not
 as a full causal reproduction of the learning effect. (iii) The choice axis is defined by licking;
