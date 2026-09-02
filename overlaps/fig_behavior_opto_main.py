@@ -859,42 +859,30 @@ if not POSTER:   # one minimal tag where the design switches (batch → within-m
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
 if not POSTER:
     CAP_PARAS = [
-        'Figure 6 | A causal test of the ACC→mPFC(Prl) projection. Silencing it chronically '
-        'during learning impairs the memory task (b, c); silencing it briefly in the delay '
-        'leaves behaviour intact (d, e) but moves the choice code (f) — and how far it moves '
-        'predicts a memory-versus-distractor accuracy trade-off across animals (g–i) — while '
-        'the code itself stays readable (k, l). CODE DEPTH as in Fig. 4: the projection on the '
-        'choice decoder axis, per mouse, in evoked-SD units.',
-        'a. Recorded-cohort design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in '
-        'ACC; 635 nm laser on a pseudo-random 50% of trials, delay period only — so every '
-        'comparison in d–l is WITHIN-mouse, laser ON vs OFF.',
-        'b, c. Chronic silencing impairs the memory task. Training batch: every-trial ACC→Prl '
-        'silencing throughout learning, compared BETWEEN groups (9 opto vs 9 control animals — '
-        'a separate cohort from A). DPA acquisition is impaired across days (b); the '
-        'mixed-model summary (c: group ○ and group × day □ fixed effects ± 95% CI, for DPA / '
-        'GNG / DPA-unpaired) shows the deficit loads on DPA while GNG is spared — the '
-        'projection matters specifically for the memory task.',
-        'd–f. Brief silencing spares behaviour but moves the code. In the recorded cohort '
-        '(n = 5 Jaws inhibition), gross DPA (d) and GNG (e) accuracy are unchanged ON vs OFF — '
-        'yet the same manipulation displaces each animal’s choice-code depth (f: per-mouse '
-        'depth, laser OFF vs ON, samples pooled). Mice move in DIFFERENT directions, so the '
-        'group mean is flat — each animal’s own displacement becomes the x-axis of g–i.',
-        'g–i. The displacement predicts a trade-off. Δdepth (ON−OFF) against the accuracy '
-        'changes it accompanies; 20 points = 5 mice × Naive▲/Expert● × sample A/B; depth read '
-        'on the trainLD_TEST axis at late delay. Pushing the code deeper buys DPA and costs '
-        'GNG jointly: g, Δdepth vs (ΔDPA − ΔGNG), Pearson r = +0.53, p = .016; its two arms '
-        'are ΔDPA (h, n.s. trend) and ΔGNG (i, r = −0.65, p = .002; ρ = −0.62, p = .003). '
-        'Honest caveat (printed, not drawn): under a mouse-respecting mixed model the ΔGNG arm '
-        'survives (β = −0.013, p = .018) but the 20-point trade-off correlation drops to n.s. '
-        '(β = +0.019, p = .108) — the points cluster within 5 mice, so the raw p is '
-        'anti-conservative.',
-        'j–l. What silencing does NOT do. Laser-ON behaviour keeps its DPA–GNG balance near the '
-        'optimal corner (j; r = +0.44, p = .20, descriptive). And the codes stay readable: d′ '
-        '(discriminability) ON vs OFF sits on the unity line for the DPA memory code (k: '
-        'sample-axis d′ at late delay; LMM laser p = .34) and for the GNG code (l: choice-axis '
-        'd′ at mid-delay; p = .74). The projection sets the code’s POSITION (f–i) without '
-        'degrading its quality (k, l) — the same position-not-fidelity principle that learning '
-        'itself follows in Fig. 4.',
+        'Figure 6 | ACC→mPFC input is required for learning the composition and acutely sets the '
+        'state’s position without degrading the code. Code depth as in Fig. 4.',
+        'a, Design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm laser on a '
+        'pseudo-random 50% of trials, delay period only — every comparison in d–l is within-mouse, '
+        'laser ON vs OFF.',
+        'b, c, Chronic every-trial silencing during training (separate cohort; 9 opto vs 9 control '
+        'mice, between-group): DPA acquisition is impaired (b); the mixed-model summary (c; group ● '
+        'and group × day □ fixed effects ± 95% CI) loads the deficit on DPA (β = −0.06, p = 0.009) '
+        'and its unpaired trials (β = −0.12, p = 0.014), sparing GNG.',
+        'd–f, Transient silencing in the recorded cohort (Jaws, n = 5): DPA (d) and GNG (e) accuracy '
+        'are unchanged ON vs OFF, yet the same manipulation displaces each animal’s choice-code depth '
+        '(f; per-mouse depth, samples pooled; directions differ across mice, so the group mean is '
+        'flat).',
+        'g–i, The displacement against the accuracy change it accompanies (Δ, ON−OFF; 20 points = 5 '
+        'mice × naïve/expert × sample A/B; depth read on the trainLD_TEST axis at late delay). The '
+        'joint trade-off (g) is a raw-level trend (r = +0.53, p = .016; the points cluster within '
+        'five mice and a mouse-clustered model gives p = .108); its arms are ΔDPA (h, n.s.) and ΔGNG '
+        '(i, r = −0.65, p = .002; ρ = −0.62, p = .003; the one arm surviving the clustered model, β = '
+        '−0.013, p = .018).',
+        'j, Laser-ON behaviour keeps its DPA–GNG balance (r = +0.44, p = .20).',
+        'k, l, Discriminability is spared: d′ ON vs OFF sits on the unity line for the memory code '
+        '(k; sample-axis d′ at late delay; LMM laser p = .34, n = 10 observations) and the GNG code '
+        '(l; choice-axis d′ at mid-delay; p = .74). The projection sets the code’s position (f–i) '
+        'without degrading its quality — the position-not-fidelity principle of Fig. 4.',
     ]
     if _SUF:
         CAP_PARAS[0] += (f' [BUILD VARIANT {_SUF}: panel annotations carry this build’s own '

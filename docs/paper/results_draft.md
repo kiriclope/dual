@@ -630,6 +630,181 @@ bit-exact tensor reproduction requires seeding, flagged for the deposition.)
 
 ---
 
+## Figure legends
+
+> Mirrored from the scripts’ CAP_PARAS (the single source of truth — edit BOTH together;
+> Nature legend style since 2026-09-03; Fig. 5, modelling, in preparation).
+
+Figure 1 | An embedded action task interferes with working memory through the intruding lick.
+Recorded cohort, nine mice, laser-off trials; curves show mean ± SEM across mice; ∗ p < .05, ∗∗ p <
+.01, ∗∗∗ p < .001 (per-day linear mixed models, uncorrected; day 6 n = 4).
+
+a, Task design. Each trial is a delayed paired-association (DPA) problem: a sample odour (A or B), a
+6-s delay, then a test odour (C or D); the mouse licks if the pair matches (A→C, B→D) and withholds
+otherwise. On two thirds of trials a Go/NoGo (GNG) discrimination is embedded in the delay — a
+distractor odour, then a response cue: lick on Go, withhold on NoGo (DualGo / DualNoGo trials); the
+remainder are pure DPA. All three trial types are interleaved within every session. Right: the
+training curriculum.
+
+b–e, Learning curves (per-mouse/day accuracy). b, DPA vs GNG performance. c, GNG split by distractor
+identity. d, DPA paired vs unpaired trials. e, DPA unpaired trials by surrounding task context.
+
+f, Linear mixed model over panels b–e (fixed effects ± 95% CI; filled circles, condition offset;
+open squares, condition × day slope; random intercept per mouse): GNG−DPA β = +0.037 (p = 0.045),
+narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paired −0.185 (p < 10⁻⁴), narrowing;
+Go−DPA −0.073 (p = 0.038).
+
+g, Probability of licking at the DPA test on NoGo trials, split by whether the animal licked at the
+distractor cue (thin lines, single mice). In naïve mice a cue lick tripled the odds of licking again
+at test (trial-level GEE, OR = 3.10, p = .006); the propagation is pairing-independent (lick ×
+pairing interaction p = .61) — on unpaired trials the second lick is the false alarm (OR = 2.7, p =
+.09), on paired trials a hit (OR = 9.9, p = .001). In expert mice the propagation is absent (OR =
+1.50, p = .42) and cue licks are rare (rate 0.24 → 0.08).
+
+h, Expert DPA vs GNG accuracy per animal (colour, mouse; marker, opsin group; star, the both-optimal
+corner). No animal reaches the corner (mean gap 0.18) and the two accuracies are uncorrelated (r =
++0.10, p = .80; ρ = +0.35, p = .36; n = 9).
+
+Figure 2 | One dedicated coding axis per task variable, with the memory and choice axes shared
+across tasks. All panels use the pseudo-population (3,319 neurons, nine mice, 12 conditions). Memory
+state, mid-delay window (5.5–6.3 s; after the distractor, before any cue or lick); decision state,
+test onset onward.
+
+a, Trial timeline, the two analysed states, and the cross-validated PCA (cvPCA): condition means are
+estimated on one half of the trials and evaluated on the other (30 random half-splits, both
+directions averaged), so only replicating structure counts.
+
+b, Fraction of reliable condition-mean variance per cvPCA component (error bars, leave-one-mouse-out
+jackknife 95% CI, t(8); dashed grey, within-mouse label-shuffle null). The DPA mid-delay state
+occupies a single reliable axis; the dual tasks add exactly one (distractor 0.92 vs sample 0.07);
+the decision state needs ≈3. Naïve and expert spectra are near-identical.
+
+c, Decoding accuracy for each variable along its own demixed axis, on withheld pseudo-trials,
+against each stage’s own label-shuffle null (95th percentile; expert solid, naïve open). A variable
+decodes exactly when it is in play; † marks the single exception — an anticipatory choice signal in
+naïve mid-delay (0.66 vs its null) that disappears with learning. Hatched bar: the distractor
+decoded from the DPA-state subspace (top-3 PCs), a weak but reliable transfer at mid-delay
+(permutation p = .031, 1,000 draws) against 1.0 within the dual tasks.
+
+d, η² of each condition-mean PC against the design contrasts (rows, PCs labelled with their % of
+condition-mean variance; a cell near 1 means that PC codes that variable). Rows beyond panel b’s
+reliable rank are faded; the orange box carries panel c’s distractor cross-decode per DPA PC; dual
+rows show 4 of the 7 centred contrasts.
+
+e, Decoders trained on one task, tested on the others (expert). Cells, the transferred fraction of
+decodable signal, (cross − 0.5)/(within − 0.5); column labels print each test task’s within-task
+ceiling; hatched cells, ceiling ≈ chance or ratio > 1 (not interpretable). Below each matrix, the
+parallelism score against a label-shuffle null; corrected for split-half reliability, the sample and
+choice directions are essentially parallel across tasks (≈0.96–1.0).
+
+f, Per-mouse mean cross-task accuracy, naïve vs expert (points on the unity line = no change). All
+changes are n.s. (Wilcoxon, n = 9; both decoder variants) and bounded: the Δ 95% CIs fall within
+±0.05 accuracy (sample [−.03, +.02]; test [−.01, +.04]; choice [−.03, +.05]).
+
+g, Per-neuron discriminability (d′, within-mouse) for sample at mid-delay vs choice at decision (n =
+3,319; grey square, label-shuffle floor). |d′| across the two variables is uncorrelated (r = −0.03)
+and the both-selective fraction (6.2%) equals the independence prediction (6.4%).
+
+Figure 3 | A single sample × choice plane is necessary and sufficient for the memory and choice
+codes, and learning pulls the distractor code into it. A code is the projection of population
+activity on a per-mouse cross-validated decoder axis (the decoder never sees the projected trials),
+baseline-zeroed, in units of that mouse’s evoked s.d.; correct laser-off trials; mean ± SEM across
+nine mice; p values uncorrected.
+
+a, The two frame axes read in each task (columns, DPA | Go | NoGo × sample / choice; rows, naïve |
+expert). The DPA sample code is maintained across the delay, whereas on dual trials the same readout
+decays after the distractor (lower in 9/9 naïve and 8/9 expert mice). On the choice axis the Go
+trace rises at the cue in both trial classes (every correct Go trial licks the cue) and the lick/no-
+lick split opens only at the test; the expert NoGo trace runs below baseline through late delay (7/9
+mice). Distractor and test codes are shown in Extended Data.
+
+b, The same projections as snapshots of the sample × choice plane (windows: mid-delay 5.5–6.3 s,
+late delay 7.5–8.8 s, decision 10–11 s; the choice axis is trained at the lick moment, 9.5–10.5 s).
+Each panel is re-centred per mouse on that window’s mean state and therefore shows condition
+geometry, not absolute position (the shared ramp and the push are carried by a and Fig. 4b). Dots,
+per-mouse condition means (≥3 correct trials); ellipses, SEM across mice; large marker, grand mean;
+fill = lick, open = no-lick; circle / triangle / square = DPA / Go / NoGo; colour = sample; scale
+bar, 2 z.
+
+c, Decoding each variable from the plane’s two coordinates, from the residual after removing the
+plane, and from the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves;
+paired Wilcoxons, all comparisons drawn). Sample and choice decode as well from the plane as from
+the full population and collapse without it (p = .004); test is at chance from the plane and
+untouched without it (p = .004); the distractor is partial (p = .004). † marks the one decoder-
+variant-dependent comparison.
+
+d, The same comparison per animal (naïve x vs expert y; rows, spaces; columns, variables). Learning
+changes are n.s. everywhere except the distractor’s plane-only accuracy (0.57 → 0.65, p = .020/.027
+across decoder variants, 8/9 and 7/9 mice up), starred.
+
+e, |cos| between the decoder axes, attenuation-corrected by split-half reliabilities (printed above
+each matrix; 0 = orthogonal). The sample axis is orthogonal to both action codes (≈0.07–0.09, both
+stages); the choice × dist overlap is partial and grows (0.32 → 0.47). Right, the raw within-mouse
+|cos|, naïve vs expert; the choice × dist increase is the starred per-animal test of Fig. 4a; no
+tests are drawn here.
+
+f, Cross-stage decoding (registered neurons): axes trained in one stage read the other stage’s
+withheld activity at ~90% of the within-stage ceiling (transfer/within 0.90 sample, 0.87 choice;
+cross-stage accuracy 0.88 ± 0.03–0.05; robust across decoder variants, resampling, and a common-
+scaling check, ratios shifting ≤ 0.02). Right, the same test within each animal. Learning moves the
+state within the frame (Fig. 4b); it does not rotate the frame.
+
+Figure 4 | Learning rotates the distractor code onto the choice axis and repositions the memory
+state along it, predicting each animal’s memory improvement. Code depth, the projection on the
+choice (lick) decoder axis, per mouse, baseline-zeroed, in evoked-s.d. units; negative = toward no-
+lick.
+
+a, Cross-decoding between the distractor and choice codes (balanced accuracy; diagonal, within-code;
+off-diagonal, transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] (naïve) to
+0.57 [0.36, 0.75] (expert). Right, the same convergence within each animal, naïve vs expert: per-
+mouse |cos| 0.073 → 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = .004); both robust across
+decoder variants; drawn from fixed canonical caches in every build.
+
+b, DPA delay trajectories in the sample × choice plane (naïve | expert; strips, late-delay depth
+distributions) and per-mouse late-delay depth. The deepening is significant in the mixed model (β =
+−0.74, p = .046 ∗; 9 mice, 36 observations) and a per-animal trend (Wilcoxon p = .098), carried by
+sample A (Δ = −1.42, p = .098; sample B ≈ 0; the A-vs-B difference itself n.s., p = .055).
+
+c, Each mouse’s change in depth vs its change in accuracy (circles, the two sample classes per
+mouse, joined; the regression band, ρ and p are computed on the nine per-mouse means). A deeper push
+predicts DPA improvement (ρ = −0.83, p = .005 ∗); the same change predicts nothing for GNG (ρ =
++0.20, p = .61).
+
+d, Trial-level control (naïve nonpaired trials): within a stage, single-trial depth does not
+separate correct rejections from false alarms (sample A, Δ(CR−FA) = −1.16, p = .27; sample B, +0.73,
+p = .47).
+
+e, The choice code’s discriminability (d′, lick vs no-lick) is unchanged with learning (0.80 → 1.07,
+p = .25): learning moves where the state sits (b), not how well the axis reads out.
+
+Figure 6 | ACC→mPFC input is required for learning the composition and acutely sets the state’s
+position without degrading the code. Code depth as in Fig. 4.
+
+a, Design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm laser on a pseudo-
+random 50% of trials, delay period only — every comparison in d–l is within-mouse, laser ON vs OFF.
+
+b, c, Chronic every-trial silencing during training (separate cohort; 9 opto vs 9 control mice,
+between-group): DPA acquisition is impaired (b); the mixed-model summary (c; group ● and group × day
+□ fixed effects ± 95% CI) loads the deficit on DPA (β = −0.06, p = 0.009) and its unpaired trials (β
+= −0.12, p = 0.014), sparing GNG.
+
+d–f, Transient silencing in the recorded cohort (Jaws, n = 5): DPA (d) and GNG (e) accuracy are
+unchanged ON vs OFF, yet the same manipulation displaces each animal’s choice-code depth (f; per-
+mouse depth, samples pooled; directions differ across mice, so the group mean is flat).
+
+g–i, The displacement against the accuracy change it accompanies (Δ, ON−OFF; 20 points = 5 mice ×
+naïve/expert × sample A/B; depth read on the trainLD_TEST axis at late delay). The joint trade-off
+(g) is a raw-level trend (r = +0.53, p = .016; the points cluster within five mice and a mouse-
+clustered model gives p = .108); its arms are ΔDPA (h, n.s.) and ΔGNG (i, r = −0.65, p = .002; ρ =
+−0.62, p = .003; the one arm surviving the clustered model, β = −0.013, p = .018).
+
+j, Laser-ON behaviour keeps its DPA–GNG balance (r = +0.44, p = .20).
+
+k, l, Discriminability is spared: d′ ON vs OFF sits on the unity line for the memory code (k;
+sample-axis d′ at late delay; LMM laser p = .34, n = 10 observations) and the GNG code (l; choice-
+axis d′ at mid-delay; p = .74). The projection sets the code’s position (f–i) without degrading its
+quality — the position-not-fidelity principle of Fig. 4.
+
 ## References
 
 > Working author–year list keyed to the inline [Author Year] tags (both this file and
