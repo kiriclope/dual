@@ -108,7 +108,7 @@ plt.rcParams.update({
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'
 OFF_C, ON_C = '#888888', '#332288'          # OFF/control grey · ON/opto indigo
 N_MIN = 3
-TITLE_FS = PS*10.5
+TITLE_FS = PS*9.5              # <=7 pt at 183 mm final size (NN artwork guide)
 _STMK = {'Expert': 'o', 'Naive': '^'}        # Expert circle / Naive triangle (shared by scatters)
 
 # --poster : simplified poster variant — swap the D/E recorded LEARNING CURVES for two
@@ -512,7 +512,7 @@ else:
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L.lower(), fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
 
 def show_scheme(ax, path, aspect='equal'):
@@ -866,7 +866,7 @@ if not POSTER:
         'predicts a memory-versus-distractor accuracy trade-off across animals (G–I) — while '
         'the code itself stays readable (K, L). CODE DEPTH as in Fig. 4: the projection on the '
         'choice decoder axis, per mouse, in evoked-SD units.',
-        'A. Recorded-cohort design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in '
+        'a. Recorded-cohort design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in '
         'ACC; 635 nm laser on a pseudo-random 50% of trials, delay period only — so every '
         'comparison in D–L is WITHIN-mouse, laser ON vs OFF.',
         'B, C. Chronic silencing impairs the memory task. Training batch: every-trial ACC→Prl '
@@ -875,12 +875,12 @@ if not POSTER:
         'mixed-model summary (C: group ○ and group × day □ fixed effects ± 95% CI, for DPA / '
         'GNG / DPA-unpaired) shows the deficit loads on DPA while GNG is spared — the '
         'projection matters specifically for the memory task.',
-        'D–F. Brief silencing spares behaviour but moves the code. In the recorded cohort '
+        'd–f. Brief silencing spares behaviour but moves the code. In the recorded cohort '
         '(n = 5 Jaws inhibition), gross DPA (D) and GNG (E) accuracy are unchanged ON vs OFF — '
         'yet the same manipulation displaces each animal’s choice-code depth (F: per-mouse '
         'depth, laser OFF vs ON, samples pooled). Mice move in DIFFERENT directions, so the '
         'group mean is flat — each animal’s own displacement becomes the x-axis of G–I.',
-        'G–I. The displacement predicts a trade-off. Δdepth (ON−OFF) against the accuracy '
+        'g–i. The displacement predicts a trade-off. Δdepth (ON−OFF) against the accuracy '
         'changes it accompanies; 20 points = 5 mice × Naive▲/Expert● × sample A/B; depth read '
         'on the trainLD_TEST axis at late delay. Pushing the code deeper buys DPA and costs '
         'GNG jointly: G, Δdepth vs (ΔDPA − ΔGNG), Pearson r = +0.53, p = .016; its two arms '
@@ -889,7 +889,7 @@ if not POSTER:
         'survives (β = −0.013, p = .018) but the 20-point trade-off correlation drops to n.s. '
         '(β = +0.019, p = .108) — the points cluster within 5 mice, so the raw p is '
         'anti-conservative.',
-        'J–L. What silencing does NOT do. Laser-ON behaviour keeps its DPA–GNG balance near the '
+        'j–l. What silencing does NOT do. Laser-ON behaviour keeps its DPA–GNG balance near the '
         'optimal corner (J; r = +0.44, p = .20, descriptive). And the codes stay readable: d′ '
         '(discriminability) ON vs OFF sits on the unity line for the DPA memory code (K: '
         'sample-axis d′ at late delay; LMM laser p = .34) and for the GNG code (L: choice-axis '
@@ -903,7 +903,8 @@ if not POSTER:
                          'build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
-    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
+    if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
+        draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main{_SUF}{"_poster" if POSTER else ""}.{ext}'

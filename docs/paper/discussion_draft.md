@@ -1,4 +1,5 @@
-# Discussion — draft v2 (2026-09-01, high-impact rewrite)
+# Discussion — draft v3 (2026-09-03, NatNeuro register: bold paragraph labels stripped,
+# opener names "geometric editing"; prose otherwise v2 with statistics untouched)
 
 > Companion to `results_draft.md` (v6). Anchors and vocabulary from memory
 > `reference_literature_positioning` (Liu 2014; Bernardi 2020; Libby & Buschman 2021;
@@ -17,12 +18,12 @@ fixed subspace: it rotates the distractor code onto the choice axis and repositi
 working-memory state along it, and the size of each animal's repositioning predicts its memory
 improvement (Fig. 4). Third, a defined top-down input — the ACC→mPFC projection — causally
 shifts the state's position on the subspace while sparing the code's discriminability, and is
-required for the memory task to be acquired (Fig. 6). Together they support a simple account: the code's geometry is a fixed
-constraint, and both learning and top-down control operate on the state's position within it.
+required for the memory task to be acquired (Fig. 6). Together they support a simple account — compositional learning as geometric editing: the
+code's geometry is a fixed constraint, and both learning and top-down control operate on the state's position within it.
 
-**Relation to abstract representational geometry.** The format we find — one dedicated,
+The format we find — one dedicated,
 near-orthogonal axis per task variable, generalising across task contexts and animals — is the
-abstract, disentangled geometry described by cross-condition generalisation in primate PFC and
+abstract geometry described by cross-condition generalisation in primate PFC and
 hippocampus [Bernardi 2020], here observed in mouse mPFC and, critically, *under active
 interference*: the same axes must serve a memory while an embedded action task runs through it.
 Our data also refine the mixed-selectivity view [Rigotti 2013]: the decision state occupies ≈3
@@ -34,7 +35,7 @@ higher-dimensional where stimulus–response conjunctions must be resolved. That
 format is built from largely separate, independently tuned neurons (Fig. 2g) rather than from a
 rotated mixed code makes the factorisation legible at the level of single cells.
 
-**Two mechanisms of memory protection.** In auditory cortex, memories are protected from incoming
+In auditory cortex, memories are protected from incoming
 sensory drive by *rotational dynamics* that move the memory into a dimension orthogonal to the
 sensory response [Libby 2021]. mPFC in our task uses a different, two-layer scheme: the memory
 axis is *statically* orthogonal to both action codes throughout the trial (Fig. 3e), and learning
@@ -52,7 +53,7 @@ in primate PFC [Parthasarathy 2017]; our cross-task transfer (Fig. 2e) adds that
 remains partly readable by the same axes, and the plane analysis (Fig. 3c) that the morph does not
 leave the subspace.
 
-**Learning as reassociation in a natural task.** Brain–computer-interface experiments have shown
+Brain–computer-interface experiments have shown
 that short-term learning is constrained to the network's existing manifold [Sadtler 2014] and
 proceeds by *reassociation* — reusing a fixed repertoire of activity patterns while changing what
 they are used for [Golub 2018] — with genuinely new dimensions accessible only slowly and
@@ -67,7 +68,7 @@ growing new ones [Yang 2019; Driscoll 2024] — our data place that solution in 
 learning, and identify what the composition physically is: a rotation and a repositioning inside
 a conserved subspace.
 
-**Top-down input as a positional signal.** The mPFC delay activity our task depends on is known to
+The mPFC delay activity our task depends on is known to
 matter most during learning [Liu 2014]; our chronic-versus-acute dissociation refines this:
 removing the ACC input throughout training prevents the memory task from being acquired
 (Fig. 6b,c), whereas removing it acutely in a trained animal leaves behaviour and code fidelity
@@ -80,7 +81,7 @@ buys memory accuracy at no distractor-task cost (Fig. 4c), while the acute displ
 two tasks (Fig. 6g–i) — the slow process finds the factorised solution the fast perturbation
 cannot.
 
-**Limitations.** (i) Within each mouse, neurons were recorded simultaneously and tracked across
+Several limitations bound these conclusions. (i) Within each mouse, neurons were recorded simultaneously and tracked across
 days; the pooled pseudo-population, however, combines neurons from mice that were never recorded
 together, so its single-trial states are assembled across animals and carry no cross-mouse noise
 correlations — pooled claims therefore concern the task-conditioned state geometry, and every one
@@ -101,7 +102,7 @@ coupling and causal perturbation. (v) We describe the geometry; a circuit model 
 and alignment emerge from training this composition is in preparation (Fig. 5), and our
 preliminary latent-dynamics fits point that way.
 
-**Conclusion.** Composition, in this system, is not construction. mPFC brings a factorised,
+Composition, in this system, is not construction. mPFC brings a factorised,
 shared subspace to the problem; learning edits the positions and alignments of states within it;
 and a top-down projection supplies the positional signal. If cortical computation is carried by
 population geometry, then learning to do two things at once is, quite literally, a matter of

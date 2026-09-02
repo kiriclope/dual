@@ -77,6 +77,11 @@ Fig 1 `PS=1.45`, Fig 2 `1.15`, Fig 3 `1.30`, Fig 4 `1.10` (lives in `overlaps/ma
 imported as `_MP.PS`), Fig 6 `1.35`. Reason: canvases are 10–14 in wide, so at a 183 mm journal page
 the old 7–8 pt fonts printed at 4–6 pt (Albert's review); PS makes printed labels land ≥ 5.7 pt.
 A new wide-canvas figure should set `PS ≈ canvas_width_in / 7.2 × 0.72` and scale the same way.
+**NATURE FINAL ARTWORK (2026-09-03):** panel letters are LOWERCASE bold (print at 8 pt); titles
+print ≤7 pt; every main takes `--nocap` (no in-figure caption — the submission build); and
+`make_submission_figs.py` exports all five as 183 mm-wide vector PDFs to
+`figures/paper_share/submission/` (spec: nature.com/documents/nature-final-artwork.pdf — 5–7 pt
+text, 247 mm max depth, editable vector, RGB).
 Rules that go with it:
 - **Panel titles** left-aligned, `fontsize=TITLE_FS` (8), NOT bold. **Panel letters** (A/B/C…) are the only
   bold text: `fig.text(..., fontsize=11, fontweight='bold')`.

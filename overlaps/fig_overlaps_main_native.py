@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     def panel_letter(ax, L, x=0.008, dy=0.014):
         p = ax.get_position()
-        fig.text(x, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
+        fig.text(x, p.y1 + dy, L.lower(), fontsize=PS*10, fontweight='bold', va='top', ha='left')
 
     # ── A: learning couples the dist code to the choice axis (moved from Fig 3, 2026-08-30) ──
     # CANONICAL no-PCA caches, fixed across the --pca/--robust/--antact build variants: this panel
@@ -348,7 +348,7 @@ if __name__ == '__main__':
         'projection of population activity on the choice (lick) decoder axis, per mouse, '
         'baseline-zeroed, in units of that mouse’s evoked SD; negative = toward the no-lick '
         'side.',
-        'A. Learning couples the distractor and choice codes. Left matrices: cross-decoding '
+        'a. Learning couples the distractor and choice codes. Left matrices: cross-decoding '
         'between the two codes — a decoder trained on one variable reads the other (balanced '
         'accuracy; diagonal = within-code, off-diagonal = transfer). The chance-referenced '
         'transfer, off/within, grows from 0.33 [−0.03, 0.60] in Naive to 0.57 [0.36, 0.75] in '
@@ -357,7 +357,7 @@ if __name__ == '__main__':
         '∗ p = .008), and so does the per-mouse cross-decode (0.53 → 0.61, ∗ p = .004). Both '
         'starred tests are robust across decoder pipelines, and this panel is drawn from fixed '
         'canonical caches in every build variant of the figure.',
-        'B. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
+        'b. The no-lick push. Left: DPA delay trajectories in the sample × choice plane (Naive '
         '| Expert; strips = the late-delay distribution of choice-code depth). With learning, '
         'the delay states sink along the choice axis — the memory is parked deeper in the '
         'region whose readout is “do not lick”, a position that buffers it against the '
@@ -366,7 +366,7 @@ if __name__ == '__main__':
         'Expert. The deepening is significant in the mixed model (β = −0.74, p = .046 ∗) and, '
         'per animal, a trend carried by sample A (Δ = −1.42, p = .098; sample B Δ ≈ 0; the '
         'A-vs-B difference is itself n.s., p = .055).',
-        'C. The push predicts behaviour — across animals. Each mouse’s learning-related change '
+        'c. The push predicts behaviour — across animals. Each mouse’s learning-related change '
         'in depth (Δdepth, x) against its change in accuracy (Δaccuracy, y). Circles = the two '
         'sample classes per mouse (A filled, B open, joined per mouse); the regression band, '
         'ρ and p are computed on the nine PER-MOUSE MEANS of those pairs (per-mouse Spearman — '
@@ -374,11 +374,11 @@ if __name__ == '__main__':
         'memory state, the more its DPA accuracy '
         'improves (ρ = −0.83, p = .005 ∗), while the SAME depth change predicts nothing for '
         'GNG (ρ = +0.20, p = .61) — the coupling is specific to the memory task.',
-        'D. Trial-level control (Naive nonpaired trials): within a stage, does the well depth '
+        'd. Trial-level control (Naive nonpaired trials): within a stage, does the well depth '
         'on single trials separate correct rejections from false alarms? Not on this axis '
         '(sample A: Δ(CR−FA) = −1.16, p = .27; B: +0.73, p = .47) — the push is a '
         'between-animal learning effect, not a trial-by-trial accuracy readout here.',
-        'E. Fidelity control: the choice code’s discriminability (d′ between lick and no-lick '
+        'e. Fidelity control: the choice code’s discriminability (d′ between lick and no-lick '
         'trials) does not change with learning (0.80 → 1.07, p = .25). Learning moves WHERE the '
         'memory state sits on the axis (B), not how well the axis reads out (E) — position, not '
         'fidelity, is what learning tunes.',
@@ -389,7 +389,8 @@ if __name__ == '__main__':
                          'pooled-evoked build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
-    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
+    if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
+        draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

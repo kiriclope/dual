@@ -102,7 +102,7 @@ PMX = RES['PM_XSTAGE' + SUF]                       # per-mouse cross-stage decod
 
 
 def plabel(ax, s, dx=-0.06):
-    ax.text(dx, 1.05, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
+    ax.text(dx, 1.05, s.lower(), transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 
 # ══ a — the frame: REPLAYED per-mouse CCGD states (exp_frame_states.py) ═══════
@@ -636,7 +636,7 @@ CAP_PARAS = [
     'time courses, then as geometry — the same data twice); C and D prove the plane is necessary '
     'and sufficient by decoding; E measures the angles between the axes; F shows the frame '
     'itself does not change with learning.',
-    'A. The two frame axes, read in each task. Throughout, a CODE is the projection of '
+    'a. The two frame axes, read in each task. Throughout, a CODE is the projection of '
     'population activity onto a linear decoder axis, computed per mouse with cross-validation '
     '(the decoder never sees the trials being projected), baseline-zeroed, in units of that '
     'mouse’s evoked SD — so zero is pre-trial rest and amplitudes are comparable across mice and '
@@ -651,7 +651,7 @@ CAP_PARAS = [
     'the test; the Expert NoGo trace runs below baseline through the late delay on average (7/9 '
     'mice — consistent with active withholding). (The dist and test codes, on their own axes, '
     'are shown in the ED supplement.)',
-    'B. The same data as geometry: five snapshots of the sample × choice plane. Each panel takes '
+    'b. The same data as geometry: five snapshots of the sample × choice plane. Each panel takes '
     'the panel-A projections at one time window and plots every trial condition as a point with '
     'x = its sample-axis value and y = its choice-axis value, re-centred per mouse on that '
     'window’s mean state — so a panel shows the condition GEOMETRY at that moment: which codes '
@@ -668,7 +668,7 @@ CAP_PARAS = [
     'choice axis; the dual states already differ along the choice axis at mid-delay (weakly in '
     'Naive, strongly in Expert — the distractor precedes this window). Every separation, in '
     'every task, at every moment, lies along the same two axes.',
-    'C. Is the plane sufficient — and necessary? For each mouse we build its own 2-D sample × '
+    'c. Is the plane sufficient — and necessary? For each mouse we build its own 2-D sample × '
     'choice plane from its two decoder axes, then decode each variable three ways: from ONLY '
     'the plane’s two coordinates, from the residual left after removing the plane '
     '(out-of-plane), and from the full population (mean ± SEM, n = 9 mice, stages averaged; '
@@ -684,7 +684,7 @@ CAP_PARAS = [
     'plane = full and the test / dist contrasts. Every ∗ / n.s. is robust across both decoder '
     'pipelines; † marks the one pipeline-dependent comparison (choice plane-vs-full: '
     'p = .94 / .012 — no verdict drawn). p values uncorrected.',
-    'D. The same three-way comparison, in every animal: Naive (x) vs Expert (y), one point per '
+    'd. The same three-way comparison, in every animal: Naive (x) vs Expert (y), one point per '
     'mouse; rows = the three spaces (plane / out-of-plane / full), columns = variables. The '
     'panel-C dissociation holds mouse by mouse: sample and choice decode as well from the plane '
     'as from the full space and collapse when the plane is removed; test is at chance from the '
@@ -695,7 +695,7 @@ CAP_PARAS = [
     '(directional, p uncorrected): learning pulls the distractor code into the manifold. '
     'Above-chance out-of-plane residuals are expected — only the ESTIMATED plane is removed, '
     'and population codes are redundant.',
-    'E. The angles between the three axes. Left matrices: |cos| between each pair of decoder '
+    'e. The angles between the three axes. Left matrices: |cos| between each pair of decoder '
     'axes (pseudo-population; 0 = orthogonal, 1 = the same direction). Because each axis is '
     'estimated from finite trials, raw cosines are biased toward 0; the values shown are '
     'attenuation-corrected — divided by √(rel·rel) of the split-half reliabilities printed above '
@@ -708,7 +708,7 @@ CAP_PARAS = [
     'honest: the sample pairs hug the floor in every mouse at both stages, and choice × dist '
     'sits above them — and above the unity line in 8/9 mice. No tests are drawn here; the '
     'choice × dist increase is the starred test of Fig. 4A (∗ p = .008 in both pipelines).',
-    'F. Is it the same frame before and after learning? Fig. 2F showed the axes SERVE all tasks '
+    'f. Is it the same frame before and after learning? Fig. 2F showed the axes SERVE all tasks '
     'equally at both stages; here we ask the stronger question — are they the same DIRECTIONS? '
     'Left matrices: a decoder trained on one '
     'stage’s trials reads the OTHER stage’s held-out activity (rows = training stage, columns = '
@@ -730,7 +730,8 @@ if ANTACT:
                       'are unchanged (pca-side decision-window axis).]'
                       if p.startswith('B. ') else '') for p in CAP_PARAS]
 from figcaption import draw_justified                  # shared with fig_dimensionality_main.py
-draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
+if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
+    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

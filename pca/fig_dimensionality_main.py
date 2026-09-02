@@ -80,7 +80,7 @@ VAR_COL = {'sample': '#332288', 'test': '#377eb8', 'choice': '#4daf4a', 'tasks':
 
 
 def plabel(ax, s):
-    ax.text(-0.06, 1.04, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
+    ax.text(-0.06, 1.04, s.lower(), transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 
 # ══ A — schematic: trial timeline, the two read-out states, and the cvPCA (repeated 2-fold CV) logic ══
@@ -609,7 +609,7 @@ if CDEC:
         'exactly when the task needs it, D identifies the principal components with the variables, '
         'E tests which axes generalise across tasks, F shows the whole frame is in place '
         'before learning, and G grounds the factorisation at the single-neuron level.',
-        'A. Design. Trial timeline of the three interleaved tasks, and the two population states '
+        'a. Design. Trial timeline of the three interleaved tasks, and the two population states '
         'analysed throughout: the MEMORY state (mid-delay window, 5.5–6.3 s — after the distractor, '
         'before the Go/NoGo cue and before any licking) and the DECISION state (test onset onward). '
         'All panels use the pseudo-population of 3,319 neurons pooled over the 9 mice (12 task '
@@ -617,14 +617,14 @@ if CDEC:
         'are estimated on one half of the trials and evaluated against the other half (30 random '
         'half-splits, both directions averaged), so only structure that REPLICATES across '
         'independent trial halves counts — noise and overfit dimensions cancel out.',
-        'B. How many reliable dimensions? Fraction of replicating condition-mean variance per cvPCA '
+        'b. How many reliable dimensions? Fraction of replicating condition-mean variance per cvPCA '
         'component (error bars = leave-one-mouse-out jackknife 95% CI, t(8); dashed grey = '
         'within-mouse label-shuffle null floor). At mid-delay the DPA state occupies a SINGLE '
         'reliable axis — the working memory is a line separating sample A from B; the dual tasks '
         'add exactly one more axis (distractor 0.92 vs sample 0.07 of the reliable variance); at '
         'decision both task sets need ≈3 axes. Naive and Expert spectra are near-identical: '
         'learning does not change the dimensionality.',
-        'C. Does each axis carry its variable when the task needs it? Decoding accuracy for each '
+        'c. Does each axis carry its variable when the task needs it? Decoding accuracy for each '
         'variable along its own demixed axis, on held-out pseudo-trials, each stage tested against '
         'its own within-mouse label-shuffle null (95th percentile; Expert solid, Naive dashed). The '
         'rule that emerges: a variable decodes exactly when it is in play — sample throughout the '
@@ -635,14 +635,14 @@ if CDEC:
         '1,000 draws), against 1.0 when decoded within the dual tasks — an early hint of the '
         'thread Figs. 3D and 4A make quantitative: the distractor code is not fully segregated '
         'from the memory states, and learning pulls it further into their plane.',
-        'D. The principal components ARE the task variables: η² of each condition-mean PC against '
+        'd. The principal components ARE the task variables: η² of each condition-mean PC against '
         'the design contrasts (rows = PCs, labelled with their % of condition-mean variance; a cell '
         'near 1 means that PC codes that single variable). Each reliable PC loads on one variable — '
         'the geometry is factorised, not mixed. Rows beyond panel B’s reliable rank are faded '
         '(rank = leading components reaching 95% of reliable variance); the orange box carries '
         'panel C’s dist cross-decode per DPA PC. Dual rows show 4 of the 7 centred contrasts '
         '(rows need not sum to 1).',
-        'E. Which axes are shared across tasks? Decoders trained on one task, tested on the '
+        'e. Which axes are shared across tasks? Decoders trained on one task, tested on the '
         'others (Expert). Cells = the transferred fraction of the decodable signal, (cross − '
         '0.5) / (within − 0.5), so 1 means the training task’s axis works fully in the test '
         'task; each column label prints the test task’s own within-task accuracy (the ceiling); '
@@ -656,7 +656,7 @@ if CDEC:
         'split-half reliability the sample and choice directions are essentially perfectly '
         'parallel across tasks (≈ 0.96–1.0; the test value exceeds 1 because its reliability is '
         'low — an estimate, not a test).',
-        'F. And the shared frame precedes learning — the axes serve ALL TASKS equally well before '
+        'f. And the shared frame precedes learning — the axes serve ALL TASKS equally well before '
         'and after (the complementary claim, that they are the same DIRECTIONS across learning, '
         'is Fig. 3F): per-mouse mean cross-task accuracy, Naive (x) '
         'vs Expert (y); colour = mouse, marker = opsin line; points on the '
@@ -665,7 +665,7 @@ if CDEC:
         '[−.03, +.02], test [−.01, +.04], choice [−.03, +.05]) — an equivalence statement, not '
         'mere absence of evidence. Learning repositions the state within this frame (Fig. 3 '
         'identifies the plane it happens in; Fig. 4 the movement); it does not build the frame.',
-        'G. The factorisation is visible neuron by neuron: each dot is one neuron’s '
+        'g. The factorisation is visible neuron by neuron: each dot is one neuron’s '
         'discriminability (d′, within its own mouse) for sample at mid-delay (x) against choice '
         'at decision (y); n = 3,319; grey square = the label-shuffle floor. The cloud is a '
         'CROSS, not a diagonal: |d′| across the two variables is uncorrelated (r = −0.03) and '
@@ -674,7 +674,8 @@ if CDEC:
         'population-level factorisation in D.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
-    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
+    if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
+        draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
 STEM = 'fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr'

@@ -206,12 +206,12 @@ def perday_stars(ax, mask, cond, correct, ref, y_star=1.03):
 fig = plt.figure(figsize=(14, 12.4))
 gs = GridSpec(3, 12, height_ratios=[1.42, 1.0, 1.0], hspace=0.4, wspace=1.15,
               left=0.055, right=0.99, top=0.975, bottom=0.06)
-TITLE_FS = PS*10.5
+TITLE_FS = PS*9.5              # <=7 pt at 183 mm final size (NN artwork guide)
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L.lower(), fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
 
 # ── A: setup cartoon + task scheme + curriculum training ──────────────────────
@@ -393,7 +393,7 @@ CAP_PARAS = [
     'Figure 1 | The dual task: an odour working-memory problem (DPA) is learned alongside an '
     'embedded Go/NoGo distractor task — and the two interfere in a structured, learnable way. '
     'Recorded cohort, 9 mice, laser-off trials; mean ± SEM; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < .001.',
-    'A. The task. Every trial is a delayed paired-association (DPA) problem: a sample odour '
+    'a. The task. Every trial is a delayed paired-association (DPA) problem: a sample odour '
     '(A or B), a delay, then a test odour (C or D); the mouse licks if the pair matches '
     '(A→C, B→D) and withholds otherwise — so the sample must be held in working memory across '
     'the delay. On two thirds of trials a Go/NoGo distractor task is embedded INSIDE that '
@@ -401,7 +401,7 @@ CAP_PARAS = [
     '(DualGo / DualNoGo trials); the rest are pure DPA. All three trial types are interleaved '
     'within every session, so the memory must survive both the distractor odour and the act of '
     'responding to it.',
-    'B–E. Learning the two tasks (per-mouse/day accuracy; stars above sessions = per-day LMMs, '
+    'b–e. Learning the two tasks (per-mouse/day accuracy; stars above sessions = per-day LMMs, '
     'uncorrected). The Go/NoGo task is acquired within the first sessions and saturates near '
     'ceiling, while DPA improves gradually and never quite catches up (B; GNG split by '
     'distractor identity in C). The DPA deficit is not uniform: it is carried almost entirely '
@@ -409,12 +409,12 @@ CAP_PARAS = [
     'which task surrounds the trial (pure DPA vs Go vs NoGo context, E). Together B–E say: what '
     'is hard is not licking to the right odour, but NOT licking while a lick-demanding task '
     'runs in the middle of the memory period.',
-    'F. Panels B–E as one model: linear mixed model on the per-mouse/day accuracies (fixed '
+    'f. Panels B–E as one model: linear mixed model on the per-mouse/day accuracies (fixed '
     'effects ± 95% CI; ● = condition offset, □ = condition × day slope; random intercept per '
     'mouse). GNG > DPA (∗) with the gap narrowing over days (∗∗∗); NoGo > Go (∗); unpaired < '
     'paired (∗∗∗), also narrowing over days (∗∗∗); and DPA is worse in Go context than in pure '
     'DPA (∗).',
-    'G. Where the interference acts — the intrusive lick propagates to the response: on NoGo '
+    'g. Where the interference acts — the intrusive lick propagates to the response: on NoGo '
     'trials, the probability of licking at the DPA test split by whether the animal intruded a '
     'lick at the distractor cue (thin lines = single mice). In Naive mice a cue lick TRIPLES '
     'the odds of licking again at test (trial-level GEE, OR = 3.10, p = .006) — and on '
@@ -425,7 +425,7 @@ CAP_PARAS = [
     'and the intrusive licks themselves largely disappear (cue-lick rate 0.24 → 0.08). The '
     'distractor costs performance through the action it evokes — the false-alarm route the '
     'no-lick repositioning of Fig. 4 suppresses.',
-    'H. Learned, but not jointly optimal: each Expert animal’s DPA accuracy against its GNG '
+    'h. Learned, but not jointly optimal: each Expert animal’s DPA accuracy against its GNG '
     'accuracy (colour = mouse, marker = opsin group; star = the both-optimal corner). No animal '
     'reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across mice '
     '(r = +0.10, p = .80; ρ = +0.35, p = .36, n = 9): the good memory mice are not '
@@ -434,7 +434,8 @@ CAP_PARAS = [
 ]
 sys.path.insert(0, '/home/leon/dual/pca')
 from figcaption import draw_justified                  # shared with Figs 2/3
-draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
+if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
+    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_main.{ext}'
