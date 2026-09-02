@@ -171,7 +171,7 @@ wherever the per-mouse reliable variance is resolvable, the mid-delay spectrum i
 a single component (per-mouse cvPCA, median top-1 fraction 0.90 naïve / 0.93 expert, n = 7
 resolvable mice per stage), and the within-mouse memory-vs-decision contrast spreads as
 predicted (expert 0.93 vs 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve directional, p = 0.22)
-(Extended Data Fig. 3i).
+(Extended Data Fig. 3c).
 
 Each reliable dimension is a task variable, engaged exactly when its variable is in play. Decoding
 makes the point amplitude-free (Fig. 2c, balanced accuracy of held-out pseudo-trials along each
@@ -213,7 +213,7 @@ of Fig. 1g) — and it is in place before the composition is learned; what learn
 changes is where the state sits within it (Figs. 3, 4). The one delay-period signal learning does
 remove is a premature choice signal in the naïve dual-task delay — in naïve mice the upcoming
 choice is decodable from the delay state well before the test (0.64–0.66 from early through late
-delay), whereas in trained mice it sits at chance until the test arrives (Extended Data Fig. 3h):
+delay), whereas in trained mice it sits at chance until the test arrives (Extended Data Fig. 3g):
 training holds the delay clean of the decision. _(caveats: the DPA mid-delay 1-D is partly
 definitional — only one binary variable is encoded during maintenance; variance-weighted summaries
 (participation ratio: memory 1.0 [1.0, 1.1] → full-state delay 2.0 [1.6, 2.5] → decision 3.3
@@ -538,7 +538,7 @@ state geometry, not the single-trial state space. A per-mouse companion applies 
 estimator within each mouse's own simultaneously recorded neurons (DPA 4-condition set, 30
 halvings, ≥6 trials per condition; cells whose reliable-variance total falls below 5 are
 flagged noise-limited, drawn open, and excluded from the paired memory-vs-decision Wilcoxon;
-Extended Data Fig. 3i). The null is a label-shuffled realisation of
+Extended Data Fig. 3c). The null is a label-shuffled realisation of
 the full pipeline (condition labels permuted within mouse, trial counts preserved), normalised
 by the real spectrum's positive total. Windows (pseudo-population convention): mid-delay
 (bins 36–38 — the final third of the 5.5–6.5-s post-distractor epoch, closing at the Go/NoGo
@@ -732,71 +732,77 @@ bit-exact tensor reproduction requires seeding, flagged for the deposition.)
 > tab). Stats are current run values (verified 2026-08-03). **Trims applied 2026-08-03:** former S5
 > (demixed axes) and S17 (d′ standalone) cut as redundant; former S13 folded into ED 6; flows (former S7)
 > removed → "extra".
+>
+> **COMPOSED 2026-09-02** — the 9 ED pages + the SI figure now exist as real composed figures with
+> justified in-figure captions: `make_ed_figures.py` → `figures/ed/png/ed_fig{1..9}.png` +
+> `si_trialcounts.png` (native-resolution mosaics of the component renders; bold lowercase page letters
+> in the left margin; PNG-only — a raster mosaic gains nothing from SVG; share PDFs made from the PNGs).
+> The panel letters BELOW are the canon and match the composed pages (ED 3 was relettered a–g; its
+> old (a)/(b)/(f) dPCA descriptives have no standalone renders and live in ED 9 — the entries below
+> and all in-text refs were updated 2026-09-02). Edit captions in `make_ed_figures.py` and this section
+> TOGETHER.
 
-**ED Fig. 1 | Behaviour: learning curves (Fig. 1).** DPA/GNG, Go/NoGo, paired/unpaired and
-unpaired-by-context curves over six sessions + the LMM effect-size forest, pooled and split by opsin/target
-(Jaws, ChR, ACC) and for laser-ON trials. Condition effects reproduce (GNG−DPA β=+0.037 p=0.045; NoGo−Go
-+0.072; unpaired−paired −0.185; Go−DPA −0.073). Learning is comparable across cohorts.
+**ED Fig. 1 | Behaviour: learning curves by cohort (Fig. 1).** Five rows (each = the A–E
+curve-plus-LMM-forest strip): pooled 9 mice, Jaws (n=5), ChR (n=2), ACC (n=2), and the interleaved
+laser-ON trials of the 7 laser mice. Condition effects reproduce (pooled: GNG−DPA β=+0.037 p=0.045;
+NoGo−Go +0.072; unpaired−paired −0.185; Go−DPA −0.073). Learning is comparable across cohorts.
 
-**ED Fig. 2 | Behaviour: the DPA↔GNG balance is not a trade-off (Fig. 1e/g/h).** (a–c) per-animal
-DPA-vs-GNG scatter (Naïve co-vary r≈0.67 → Expert decouple r=+0.10), Pareto front (no animal on the
-both-optimal corner), a small fixed dual cost (Δ≈−0.03), and a *positive* within-trial DPA|GNG-correct
-coupling (GEE OR=2.03, p<0.001). (d–e) trial-history: a preceding dual trial lowers current-Go DPA accuracy
-(OR=0.81, p=0.047; GNG history-independent), and the blocked-design switch-cost mirrors it (into-dual
-OR=0.90, p<0.001).
+**ED Fig. 2 | Behaviour: the DPA↔GNG balance is not a trade-off (Fig. 1e/g/h).** (a) per-animal
+DPA-vs-GNG scatter (Naïve co-vary r≈0.67 → Expert decouple r=+0.10); (b) Pareto front (no animal on the
+both-optimal corner); (c) a small fixed dual cost (Δ≈−0.03, per-mouse view) with a *positive*
+within-trial DPA×GNG coupling (Δ=+0.097, p=0.025); (d) the trial-level GEE companion — dual-vs-pure
+cost n.s. within stage, DPA|GNG-correct coupling OR=2.03, p=0.001 (Expert); (e) trial-history
+(sub-panels A–H): a preceding dual trial lowers current-Go DPA accuracy (OR=0.81, p=0.047; GNG
+history-independent); (f) the blocked-design switch-cost mirrors it (into-dual OR=0.90, p<0.001).
 
-**ED Fig. 3 | Dimensionality: provenance & robustness (Fig. 2b–d).** (a0) the shattering dimension —
-all 462 balanced dichotomies decoded at the decision window, 0.69 (Naïve) → 0.70 (Expert) vs shuffle 0.50
-and ceiling 1 (cited from §3: abstract + compressed with the CCGP); (a1) the variance-weighted summary
-of Fig. 2 — the previous PR build (`fig_dimensionality_main_pr.png`): full 12-condition "all-tasks"
-spectra + the PR ladder memory 1.0 [1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8]
-(jackknife CIs); the full-state delay's two large dimensions are its context contrasts (distractor
-presence and identity); (a) the descriptive dPCA scree
-(top-2 ≈94%, PR≈2.2) with its circularity caveat — computed on 4 condition-means inside the demixed
-sample/sample:test subspace, hence retired from the main figure in favour of the cross-validated
-estimators; (b) per-marginal demixed variance (time 54% / tasks 31% / sample 7% / choice 7% / test 1%);
-(c) reduced-rank test — held-out fit rises smoothly with no elbow at 2 (rank-2 = 62–67% of full), backing
-the "rank-2 geometry, not rank-2 dynamics" caveat; (d) window robustness — on full-delay / test windows
-the DPA-delay PR stays 1.0–1.1, delay 2.3–2.6, decision ≈2.5; (e) the FULL PC×factor η² grid behind Fig. 2d — Naïve & Expert × {dual, DPA} × {delay, decision}
-(`plot_dimensionality_main.py`) — plus the per-task-set fits (DPA / dual / all, incl. the delay+dec
-window and the 12-cond presence/identity task split); the DPA-delay condition-mean PCs beyond PC1 carry
-apparent test/choice η² — variables undetermined at that point by design (the test is drawn independently
-of the sample) and at chance in held-out decoding — i.e. sampling noise stripped by cvPCA (PR = 1), not
-anticipatory coding: the noise-dimension gotcha flagged in Fig. 2d's footnote; (f) the shared-memory dPCA
-d′ scatter (Naïve +0.61 → Expert +0.54, Δ = −0.07, p = 0.91 — memory code present in naïve and preserved);
-(g) the Go/NoGo cross-decode from the DPA subspace, per window (main Fig. 2c/d shows the clean mid-delay
-value 0.61; the late-delay ~0.7 figure is consummatory-inflated — the DPA geometry is close to, but not
-fully, orthogonal to the distractor); (h) **learning removes the premature choice signal from the dual
-delay** (`fig_bias_cleanup_ed.png`): in naïve mice the upcoming match/nonmatch choice is decodable from
-the dual delay state from ED through LD (0.64–0.66 vs shuffle-null ≈0.59, demixed-axis held-out
-decoding), and the held-out future-choice separation on a late-delay-defined — hence reward-free — axis
-climbs to ~+2 z by LD; in Expert the same signal sits at chance throughout the delay (0.47–0.49) while
-post-test decoding is intact (0.96). DPA shows no such signal at either stage (control). Decodability
-already at ED (post-sample, pre-distractor) marks it as a trial-history/bias state rather than premature
-deliberation. Caveats: on correct trials choice ≡ trial completion, so state-dependent selection
-contributes to the naïve separation (the naïve/expert contrast may partly reflect stronger selection at
-lower naïve accuracy); and at the mouse level the learning difference is not individually resolved
-(Δ accuracy +0.19, leave-one-mouse-out jackknife CI [−0.09, +0.46], n = 9) — the effect is established
-at the pooled-population level, where it replicates across three independent pipelines; **(i) the
-per-mouse cvPCA companion** (`fig_permouse_cvpca.png`, added 2026-09-02): the Fig. 2b spectra
-reproduced within each mouse's own simultaneously recorded population (DPA set, same estimator) —
-top-1 reliable fraction, memory vs decision window, per stage; noise-limited cells
-(reliable-total < 5) drawn open and excluded from the test; medians 0.90/0.93 at mid-delay,
-expert memory-vs-decision Wilcoxon p = .047 (6/7), naïve directional p = .22.
+**ED Fig. 3 | Dimensionality: provenance & robustness (Fig. 2b–d).** (a) the previous build of
+Fig. 2 (`fig_dimensionality_main_pr.png`, sub-panels A–D): cvPCA schematic, full 12-condition
+"all-tasks" spectra + the PR ladder memory 1.0 [1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3
+[2.8, 3.8] (jackknife CIs); the full-state delay's two large dimensions are its context contrasts
+(distractor presence and identity); (b) reduced-rank test — held-out fit rises smoothly with no
+elbow at 2 (rank-2 = 62–67% of full), backing the "rank-2 geometry, not rank-2 dynamics" caveat;
+(c) **the per-mouse cvPCA companion** (`fig_permouse_cvpca.png`, built 2026-09-02): the Fig. 2b
+spectra reproduced within each mouse's own simultaneously recorded population (DPA set, same
+estimator) — top-1 reliable fraction, memory vs decision window, per stage; noise-limited cells
+(reliable-total < 5) drawn open and excluded from the test; medians 0.90/0.93 at mid-delay, expert
+memory-vs-decision Wilcoxon p = .047 (6/7), naïve directional p = .22; (d) the full per-fit grid
+for the all-tasks set (`dim_all.png`): cvPCA scree, cross-validated PR and shattering per window,
+and the per-PC η² coding matrices — condition-mean PCs beyond the reliable ones carry apparent η²
+for variables undetermined at that point (sampling noise stripped by cvPCA, not anticipatory
+coding: the gotcha flagged in Fig. 2d's footnote); (e) window robustness (`dim_DPA_altwin.png`) —
+on full-delay / test windows the DPA-delay PR stays 1.0–1.1; (f) the Go/NoGo cross-decode column
+from the DPA subspace, per window (`dim_DPA_gng.png`; main Fig. 2c/d shows the clean mid-delay
+value 0.61; the late-delay ~0.7 figure is consummatory-inflated — the DPA geometry is close to,
+but not fully, orthogonal to the distractor); (g) **learning removes the premature choice signal
+from the dual delay** (`fig_bias_cleanup_ed.png`): in naive mice the upcoming match/nonmatch
+choice is decodable from the dual delay state from ED through LD (0.64–0.66 vs shuffle-null ≈0.59,
+demixed-axis held-out decoding), and the held-out future-choice separation on a late-delay-defined
+— hence reward-free — axis climbs to ~+2 z by LD; in Expert the same signal sits at chance
+throughout the delay (0.47–0.49) while post-test decoding is intact (0.96). DPA shows no such
+signal at either stage (control). Decodability already at ED (post-sample, pre-distractor) marks
+it as a trial-history/bias state rather than premature deliberation. Caveats: on correct trials
+choice ≡ trial completion, so state-dependent selection contributes to the naïve separation; and
+at the mouse level the learning difference is not individually resolved (Δ accuracy +0.19,
+leave-one-mouse-out jackknife CI [−0.09, +0.46], n = 9) — established at the pooled-population
+level, where it replicates across three independent pipelines. The shattering dimension (all 462
+balanced dichotomies, 0.69 → 0.70 vs shuffle 0.50) is cited from main Fig. 2c and reappears in the
+per-fit grids (d–f); the descriptive dPCA scree, per-marginal variance, and shared-memory d′
+scatter are in **ED 9** (no standalone renders — the old (a)/(b)/(f) sub-entries of this figure).
 
-**ED Fig. 4 | dPCA no-lick push robustness (corroborates Fig. 4).** The Naïve→Expert deepening reproduces in raw ΔF/F
-(r≈0.997, not a z-score artifact), survives condition-independent time-ramp removal (q0/1/2 =
-−0.59/−0.60/−0.61), holds on a Naïve-defined pooled basis (8/9; bootstrap CI [−0.56,−0.08]), and is
-population- not individual-level (depth↔accuracy null, r=+0.46, p=0.21).
+**ED Fig. 4 | dPCA no-lick push robustness (corroborates Fig. 4b).** (a) The Naïve→Expert deepening reproduces in raw ΔF/F
+(r≈0.997, not a z-score artifact); (b) survives condition-independent time-ramp removal (q0/1/2 =
+−0.59/−0.60/−0.61); (c) holds on a Naïve-defined pooled basis (8/9; bootstrap CI [−0.56,−0.08]); and (d) is
+population- not individual-level in this pipeline (depth↔accuracy null, r=+0.46, p=0.21 — the calibrated
+overlaps pipeline of Fig. 4c is the individual-level assay).
 
-**ED Fig. 5 | Overlaps: coupling/push robustness + movement control (Fig. 4a,b).** (a–b) the Δdepth↔ΔDPA
+**ED Fig. 5 | Overlaps: coupling/push robustness + movement control (Fig. 4b,c).** (a–b) the Δdepth↔ΔDPA
 coupling is ★ under all six normalisations (ρ=−0.83 to −0.90) and survives a fixed common axis (ρ=−0.72)
 where the push attenuates to a trend; (c) a resampling battery (Mundlak β=−0.041 p=0.006; jackknife 9/9;
 bootstrap CI [−1.00,−0.26]; permutation p=0.008), ΔGNG null throughout; (d) movement control — late-delay
 licking is rare, the choice-code depth does not track it (ρ=+0.07), and the push/coupling are unchanged
 with a lick covariate.
 
-**ED Fig. 6 | Overlaps: the factorised geometry is robust (Fig. 3b,c).** (a) cross-temporal cosine matrices
+**ED Fig. 6 | Overlaps: the factorised geometry is robust (Fig. 3e; Fig. 2g).** (a) cross-temporal cosine matrices
 — cross-code |cos| ≈ the 0.05 chance floor at all time-pairs, within-code diagonals 0.4–0.9, choice×GNG the
 one least-orthogonal pair (~0.29); (b) modular, not mixed, selectivity — per-neuron permutation tuning
 (sample 10 / GNG 39 / test 3 / choice 10 %, cross-variable co-tuning at chance); (c) decoder-variant
@@ -805,13 +811,15 @@ push/coupling clearest under logistic); (d) codes robust to the Go/NoGo distract
 Go vs NoGo (sample/test unperturbed; the action code carries the distractor lick).
 
 **ED Fig. 7 | Opto: chronic silencing + transient behaviour (Fig. 6b–e).** (a–c) control-vs-opto learning
-curves for the ACC, ACC→Prl and Prl→ACC batches — ACC null; ACC→Prl impairs DPA (β=−0.06 p=0.009) and its
-unpaired trials (β=−0.12 p=0.014); Prl→ACC impairs GNG; (d–e) transient within-mouse laser OFF-vs-ON curves
-(Jaws n=5): DPA p=0.40, GNG p=0.24 — geometric, not a behavioural knock-down.
+curves for the ACC→Prl, ACC-somata and Prl→ACC batches — ACC→Prl impairs DPA (β=−0.06 p=0.009) and its
+unpaired trials (β=−0.12 p=0.014); ACC-somata null; Prl→ACC impairs GNG; (d) transient within-mouse laser
+OFF-vs-ON curves (Jaws n=5, sub-panels A–D): DPA p=0.40, GNG p=0.24 — geometric, not a behavioural
+knock-down.
 
 **ED Fig. 8 | Opto: laser ON−OFF coupling, 7 mice (Fig. 6g–i).** The acute causal analog of the learning
-coupling over all 7 laser mice (5 Jaws + 2 ChR): GNG ρ≈−0.90 (p≈0.007), DPA null. Backs the axis choice and
-the alternative-n disclosure.
+coupling over all 7 laser mice (5 Jaws + 2 ChR): (a) one point per mouse — GNG ρ=−0.90 (p=0.006, n=7),
+DPA rank-n.s. (ρ=+0.55, p=0.21); (b) sample A & B as independent points (n=14) — GNG ρ=−0.60 (p=0.024),
+DPA rank-n.s. Backs the Jaws-only axis choice and the alternative-n disclosure.
 
 **ED Fig. 9 | dPCA demixed axes: trajectories, mixing, and the shared plane (Fig. 2/3).** The dPCA story
 build (`fig_dpca_story_main.py`): demixing schematic + descriptive scree + marginal contrasts; the 2×4

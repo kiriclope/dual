@@ -92,11 +92,11 @@ across independent trial halves counts.
   (`plot_dimensionality_main.py`) still renders the LATE-delay matrices — regenerate at MD before
   submission if window consistency with the main is wanted there too. **`--pr` renders the PREVIOUS build**
   (`fig_dimensionality_main_pr.png`: all-tasks spectra + PR bars + jackknife CIs, dual-first D) —
-  now ED 3(a1). A dot-strip-over-PR-bars variant was built first and REJECTED — don't rebuild.
+  now ED 3a (was "3(a1)" pre-composition — see the 2026-09-02 ED-pages block below). A dot-strip-over-PR-bars variant was built first and REJECTED — don't rebuild.
   Draft §2, ED 3 list and `methods_notes.md` rewritten for the adoption (2026-08-10),
   `plot_dimensionality_main.py` (curated dual-vs-DPA composite `dimensionality.png`),
   `plot_dimensionality_fits.py [--gng] [--altwin]` (`dim_{DPA,dual,all}*.png`),
-  `plot_dimensionality_scree.py`, `fig_bias_cleanup_ed.py` (**ED 3(h)**, cache-only render from
+  `plot_dimensionality_scree.py`, `fig_bias_cleanup_ed.py` (**ED 3g** — was "3(h)", cache-only render from
   ANTACT_TRAJ + DPCA_COUNT: learning removes the dual-Naive premature-choice/bias signal — Naive
   choice decodable 0.64–0.66 ED→LD vs Expert chance 0.47–0.49, both * at decision; separation trace
   on the reward-free LD-defined axis climbs to ~+2 z in Naive, flat in Expert; DPA control flat;
@@ -617,7 +617,7 @@ candidates if a slot ever opens.
   standardisation force the same ±1 dumbbell in every mouse; within/cross classifiers make
   98.6%-identical predictions). Figure removed; do not cite.
 
-### 2026-09-02: per-mouse cvPCA companion (ED 3i) — built at user request
+### 2026-09-02: per-mouse cvPCA companion (ED 3c — was "3i" pre-composition) — built at user request
 User asked "why don't we do the analysis at a per mouse level" (from the artifact-comment round
 on the pseudo-population limitation). `exp_permouse_cvpca.py` (cache `PM_CVPCA`, estimator-free)
 = Fig 2b's estimator run inside each mouse's own simultaneously recorded neurons (DPA 4-cond
@@ -627,5 +627,19 @@ set, md vs decision, 30 halvings). RESULT: wherever the reliable variance is res
 p=.047 (6/7), Naive directional p=.22. Noise-limited cells (JawsM01-E, JawsM06 both, ACCM04-N
 + md-only cells) drawn open + excluded — the disclosure rule IS the honest answer to "why
 pooled": those mice have <5 units of replicating variance at their trial counts. Wired in:
-§2 sentence + Methods block + ED 3(i) entry + Discussion limitation (i) now cites it; figure
+§2 sentence + Methods block + ED 3c entry + Discussion limitation (i) now cites it; figure
 `fig_permouse_cvpca.png` pinned to gallery Supp. Do NOT star the Naive contrast.
+
+### 2026-09-02 (later): the ED pages are COMPOSED — ED 3 relettered a–g
+`/home/leon/dual/make_ed_figures.py` composes all 9 ED figures + the SI trial-count figure from
+the existing component renders → `figures/ed/png/ed_fig{1..9}.png` + `si_trialcounts.png`
+(native-resolution PIL mosaics; justified captions via `pca/figcaption.py` at 7.2 pt/400 dpi,
+multi-column on wide pages; bold lowercase page letters in a 125 px left margin; PNG-only).
+**ED 3 lettering canon since composition: a = previous PR build (was a1) · b = reduced-rank ·
+c = per-mouse cvPCA (was i) · d = dim_all per-fit grid · e = dim_DPA_altwin window robustness ·
+f = dim_DPA_gng cross-decode · g = bias cleanup (was h).** The old ED 3 (a)/(b)/(f) dPCA
+descriptives (scree / marginal variance / shared-memory d′) have NO standalone renders — they
+live in ED 9 (`fig_dpca_story_main.png`) and the ED 3 caption points there. In-text refs updated
+(draft ×3, discussion ×1). Captions live in `make_ed_figures.py` AND the draft ED section — edit
+together. Share: `figures/paper_share/ED_Fig*.{png,pdf}` + zip; artifacts: new "mPFC Dual-Task
+Extended Data" page + figures-artifact footer + draft-artifact appendix all refreshed.

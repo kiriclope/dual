@@ -85,7 +85,7 @@ days; the pooled pseudo-population, however, combines neurons from mice that wer
 together, so its single-trial states are assembled across animals and carry no cross-mouse noise
 correlations — pooled claims therefore concern the task-conditioned state geometry, and every one
 carries an n = 9 within-animal companion computed on genuinely simultaneous data — including
-the dimensionality spectra themselves (per-mouse cvPCA, Extended Data Fig. 3i). Larger
+the dimensionality spectra themselves (per-mouse cvPCA, Extended Data Fig. 3c). Larger
 simultaneous populations within single animals would further strengthen the trial-by-trial
 claims. (ii) The acute optogenetic coupling rests on five animals,
 and its joint trade-off does not survive a mouse-clustered model (only the ΔGNG arm does) — we
