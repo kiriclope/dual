@@ -63,17 +63,18 @@ from src.common.plot_utils import add_vlines
 # figure effectively uses) so ticks match — set_style/rcParams alone do NOT undo it.
 sns.set_context('notebook')
 sns.set_style('ticks')
+PS = 1.1      # print-scale: typography sized for 183 mm reproduction (2026-09-02)
 plt.rcParams.update({          # NN print typography: 6–8 pt at final size, thin rules
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
-    'legend.fontsize': 6.5,
+    'axes.labelsize': PS*8, 'axes.titlesize': PS*8, 'xtick.labelsize': PS*7, 'ytick.labelsize': PS*7,
+    'legend.fontsize': PS*6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
     'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
 _pal_muted = sns.color_palette('muted')
-TITLE_FS = 8
+TITLE_FS = PS*8
 
 # ── Config shared by every panel ───────────────────────────────────────────────
 DUM      = 'log_generalizing_overlaps_none_l1_ratio_0.0'
@@ -517,14 +518,14 @@ def _setup_A(ax, ylab):
     add_vlines(ax, if_dpa=0)
     ax.axhline(0, ls='--', color='k', lw=0.5, zorder=1)
     ax.set_xlim([0, 14]); ax.set_xticks([0, 2, 4.5, 6.5, 9, 11, 14])
-    ax.set_ylabel(ylab, fontsize=8); ax.tick_params(labelsize=7)
+    ax.set_ylabel(ylab, fontsize=PS*8); ax.tick_params(labelsize=7)
 
 
 def _draw_trace_col(ax, spec, stage, ylab, show_title, show_xlabel):
     """Panel-A trace column: per-class mean±SEM of the pre-normalised projection `D` (labels `YY`)."""
     ttl, D, YY, col, levels, labs, cols, task = spec
     _setup_A(ax, ylab)
-    ax.set_xlabel('Time (s)' if show_xlabel else '', fontsize=9)
+    ax.set_xlabel('Time (s)' if show_xlabel else '', fontsize=PS*9)
     base = (YY.laser == 0).to_numpy() & (YY.learning == stage).to_numpy() & (YY.performance == 1).to_numpy()
     base = base & ((YY.tasks == 'DPA').to_numpy() if task == 'DPA' else (YY.tasks != 'DPA').to_numpy())
     for lv, lab, color in zip(levels, labs, cols):
@@ -538,8 +539,8 @@ def _draw_trace_col(ax, spec, stage, ylab, show_title, show_xlabel):
             plot_mean_sem(ax, xtime, M.mean(0), M.std(0, ddof=1) / np.sqrt(n),
                           color, lw=1.6, label=f'{lab} (n={n})', zorder=2)
     if show_title:                                                    # top (Naive) row only
-        ax.set_title(f'{ttl} code', fontsize=8)
-        ax.legend(fontsize=6, frameon=False, loc='upper left', handlelength=1.2)
+        ax.set_title(f'{ttl} code', fontsize=PS*8)
+        ax.legend(fontsize=PS*6, frameon=False, loc='upper left', handlelength=1.2)
 
 
 # ── shared scatter helper ──────────────────────────────────────────────────────

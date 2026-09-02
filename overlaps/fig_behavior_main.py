@@ -47,11 +47,12 @@ import statsmodels.formula.api as smf
 from scipy.stats import pearsonr, spearmanr
 
 sns.set_style("ticks")
+PS = 1.45      # print-scale: typography sized for 183 mm reproduction (2026-09-02)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
-    'legend.fontsize': 6.5,
+    'axes.labelsize': PS*8, 'axes.titlesize': PS*8, 'xtick.labelsize': PS*7, 'ytick.labelsize': PS*7,
+    'legend.fontsize': PS*6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
     'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
@@ -195,7 +196,7 @@ def perday_stars(ax, mask, cond, correct, ref, y_star=1.03):
             ct = [i for i in wt.index if i.startswith('C(cond')][0]
             p = float(wt.loc[ct, 'pvalue'])
             if star(p):
-                ax.text(day, y_star, star(p), ha='center', va='top', fontsize=8,
+                ax.text(day, y_star, star(p), ha='center', va='top', fontsize=PS*8,
                         fontweight='bold', color='k')
         except Exception:
             pass
@@ -205,12 +206,12 @@ def perday_stars(ax, mask, cond, correct, ref, y_star=1.03):
 fig = plt.figure(figsize=(14, 12.4))
 gs = GridSpec(3, 12, height_ratios=[1.42, 1.0, 1.0], hspace=0.4, wspace=1.15,
               left=0.055, right=0.99, top=0.975, bottom=0.06)
-TITLE_FS = 10.5
+TITLE_FS = PS*10.5
 
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
 
 # ── A: setup cartoon + task scheme + curriculum training ──────────────────────
@@ -240,25 +241,25 @@ plot_line(axC, per_mouse_day('odr_perf', IS_GO), BLUE, 'Go')
 plot_line(axC, per_mouse_day('odr_perf', IS_NOGO), GREEN, 'NoGo')
 betas += lmm(IS_DUAL, COND_TASK, CORR_GNG, 'Go', 'GovNoGo')
 perday_stars(axC, IS_DUAL, COND_TASK, CORR_GNG, 'Go')
-axC.set_title('GNG gains are driven by NoGo', loc='left', fontsize=TITLE_FS)
+axC.set_title('NoGo drives the GNG gain', loc='left', fontsize=TITLE_FS)
 
 plot_line(axD, per_mouse_day('performance', IS_DPA & (d.pair == 1)), RED, 'paired', ls='-')
 plot_line(axD, per_mouse_day('performance', IS_DPA & UNP), RED, 'unpaired', ls='--')
 betas += lmm(IS_DPA, COND_PAIR, CORR_DPA, 'paired', 'pairedVunp')
 perday_stars(axD, IS_DPA, COND_PAIR, CORR_DPA, 'paired')
-axD.set_title('Learning is carried by unpaired trials', loc='left', fontsize=TITLE_FS)
+axD.set_title('Unpaired trials carry learning', loc='left', fontsize=TITLE_FS)
 
 plot_line(axE, per_mouse_day('performance', UNP & IS_DPA), RED, 'DPA only', ls='--')
 plot_line(axE, per_mouse_day('performance', UNP & IS_GO), BLUE, 'Go', ls='--')
 plot_line(axE, per_mouse_day('performance', UNP & IS_NOGO), GREEN, 'NoGo', ls='--')
 betas += lmm(UNP, COND_TASK, CORR_DPA, 'DPA', 'unpByTask')
 perday_stars(axE, UNP, COND_TASK, CORR_DPA, 'DPA')
-axE.set_title('Go distractor lowers unpaired DPA', loc='left', fontsize=TITLE_FS)
+axE.set_title('Go context lowers unpaired DPA', loc='left', fontsize=TITLE_FS)
 
 for ax in (axB, axC, axD, axE):
     ax.axhline(0.5, ls=':', color='0.5', lw=1)
     ax.set_ylim(0.18, 1.07); ax.set_xticks(DAYS); ax.set_xlabel('session')
-    ax.legend(frameon=False, fontsize=6.5, loc='lower right')
+    ax.legend(frameon=False, fontsize=PS*6.5, loc='lower right')
 axB.set_ylabel('performance')
 
 # no-lick thread — one subtle line tying B–E to the neural no-lick push
@@ -278,18 +279,18 @@ for i, c in enumerate(cond_recs):
     for r, dx in ((c, -0.16), (it, 0.16)):
         if star(r['p']):
             axF.text(i + dx, r['hi'] + 0.06, star(r['p']), ha='center', va='bottom',
-                     fontsize=12, fontweight='bold')
+                     fontsize=PS*12, fontweight='bold')
     short = c['contrast'].replace('unpaired', 'unp').replace('paired', 'pair')
     xlabels.append((i, short))
 axF.axhline(0, ls='--', color='0.4', lw=1)
 axF.set_xticks([x for x, _ in xlabels])
-axF.set_xticklabels([lab for _, lab in xlabels], rotation=30, ha='right', fontsize=8)
+axF.set_xticklabels([lab for _, lab in xlabels], rotation=30, ha='right', fontsize=PS*8)
 axF.set_xlim(-0.6, len(cond_recs) - 0.4)
 axF.set_ylabel('LMM β (Δ performance)')
 axF.set_title('Effect-size summary (LMM)', loc='left', fontsize=TITLE_FS)
 axF.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='condition'),
                     mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=5, label='condition×day')],
-           frameon=False, fontsize=6.5, loc='upper right')
+           frameon=False, fontsize=PS*6.5, loc='upper right')
 
 # ── G: the intrusive CUE lick propagates to the test lick — NoGo trials ─────────
 #   REBUILT 2026-09-01 (predictor audit): the old build split DPA performance by
@@ -342,17 +343,15 @@ for stage, (x0, x1) in STAGE_X.items():
     axG.plot([x0, x0, x1, x1], [ybr - 0.012, ybr, ybr, ybr - 0.012], color='k', lw=1.3, zorder=6)
     st = star(pv) or 'ns'
     axG.text((x0 + x1) / 2, ybr + 0.003, st, ha='center', va='bottom',
-             fontsize=12 if star(pv) else 8, fontweight='bold', color='k')
+             fontsize=PS*12 if star(pv) else 8, fontweight='bold', color='k')
     axG.text((x0 + x1) / 2, 1.02, stage, ha='center', va='bottom',
-             transform=axG.get_xaxis_transform(), clip_on=False, fontsize=8,
+             transform=axG.get_xaxis_transform(), clip_on=False, fontsize=PS*8,
              fontweight='bold', color=STAGE_SHADE if stage == 'Expert' else '0.4')
     axG.text((x0 + x1) / 2, 0.04, f'OR={orr:.2f}\np={pv:.3f}',
-             ha='center', va='bottom', fontsize=8, color='0.3')
+             ha='center', va='bottom', fontsize=PS*8, color='0.3')
 axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no cue\nlick', 'cue\nlick', 'no cue\nlick', 'cue\nlick'])
 axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.0, 1.03); axG.set_ylabel('P(lick at test)')
-axG.legend(handles=[mlines.Line2D([0], [0], marker='o', color=NOLICK_C, ls='none', ms=5, label='withheld at cue'),
-                    mlines.Line2D([0], [0], marker='o', color=LICK_C, ls='none', ms=5, label='intrusive cue lick')],
-           frameon=False, fontsize=6.5, loc='lower left', ncol=1)
+# (legend dropped at print scale — the marker colours restate the x-axis categories)
 axG.set_title('The intrusive lick propagates to the test', loc='left',
               fontsize=TITLE_FS, pad=24)   # raised above the Naive/Expert stage headers
 
@@ -364,7 +363,7 @@ yd = {m: de[de.tasks != 'DPA'].loc[de.mouse == m, 'odr_perf'].mean() for m in AL
 lim = (0.66, 1.0)
 axH.plot(lim, lim, ls='--', color='0.7', lw=0.9, zorder=1)
 axH.scatter(0.99, 0.99, marker='*', s=120, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
-axH.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=8, color='#7a5600')
+axH.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=PS*8, color='#7a5600')
 for m in ALL_MICE:
     axH.scatter(xd[m], yd[m], marker=GMARKER[GROUP[m]], s=34, color=MOUSE_COLOR[m],
                 edgecolors='w', linewidths=0.6, zorder=5)
@@ -375,14 +374,14 @@ r_p, p_p = pearsonr(xs[ok], ys[ok]); r_s, p_s = spearmanr(xs[ok], ys[ok])
 gap = np.mean(1.0 - np.minimum(xs[ok], ys[ok]))          # mean shortfall from ceiling
 axH.text(0.035, 0.965, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n={ok.sum()})\n'
          f'gap to optimal: {gap:.2f}', transform=axH.transAxes, ha='left', va='top',
-         fontsize=6.5, color='0.3')
+         fontsize=PS*6.5, color='0.3')
 axH.set_xlim(lim); axH.set_ylim(lim); axH.set_aspect('equal')
 axH.set_xlabel('DPA performance'); axH.set_ylabel('GNG performance')
 axH.set_title('Experts reach a suboptimal balance', loc='left', fontsize=TITLE_FS)
 axH.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='Jaws'),
                     mlines.Line2D([0], [0], marker='^', color='k', ls='none', ms=7, label='ChR'),
                     mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=7, label='ACC')],
-           frameon=False, fontsize=6.5, loc='lower left', handletextpad=0.2)
+           frameon=False, fontsize=PS*6.5, loc='lower left', handletextpad=0.2)
 
 # ── panel letters (A on the setup cartoon, then B–H) ──────────────────────────
 for _ax, _L in [(axAm, 'A'), (axB, 'B'), (axC, 'C'), (axD, 'D'),
@@ -435,7 +434,7 @@ CAP_PARAS = [
 ]
 sys.path.insert(0, '/home/leon/dual/pca')
 from figcaption import draw_justified                  # shared with Figs 2/3
-draw_justified(fig, CAP_PARAS)
+draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_main.{ext}'

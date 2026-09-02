@@ -40,6 +40,7 @@ sys.path.insert(0, '/home/leon/dual/')
 # DEFAULT (no flags) = bins 57-62 pooled-evoked (the canonical Fig 4). --antact (48-62 axis) + --robust (sample-sep
 # units + trial-level odor-A random-slope LMM) produce the ALTERNATIVE → fig_overlaps_main_ab_dpaact_antact_robust.
 import main_panels as _MP
+PS = _MP.PS                       # print-scale factor (defined beside the shared rcParams)
 globals().update({k: v for k, v in vars(_MP).items() if not k.startswith("__")})
 
 
@@ -54,7 +55,7 @@ if __name__ == '__main__':
 
     def panel_letter(ax, L, x=0.008, dy=0.014):
         p = ax.get_position()
-        fig.text(x, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
+        fig.text(x, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
     # ── A: learning couples the dist code to the choice axis (moved from Fig 3, 2026-08-30) ──
     # CANONICAL no-PCA caches, fixed across the --pca/--robust/--antact build variants: this panel
@@ -72,17 +73,17 @@ if __name__ == '__main__':
         _ax.imshow(_M, cmap='Reds', vmin=0.5, vmax=1.0, aspect='equal')
         for _i in range(2):
             for _k in range(2):
-                _ax.text(_k, _i, f'{_M[_i, _k]:.2f}', ha='center', va='center', fontsize=6.6,
+                _ax.text(_k, _i, f'{_M[_i, _k]:.2f}', ha='center', va='center', fontsize=PS*6.6,
                          color='w' if _M[_i, _k] > 0.82 else 'k')
-        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['dist', 'choice'], fontsize=6.0)
+        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['dist', 'choice'], fontsize=PS*6.0)
         _ax.set_yticks([0, 1])
-        _ax.set_yticklabels(['dist', 'choice'] if _j == 0 else [], fontsize=6.0)
+        _ax.set_yticklabels(['dist', 'choice'] if _j == 0 else [], fontsize=PS*6.0)
         _ax.set_title(_stage, loc='left', fontsize=TITLE_FS)
         if _j == 0:
-            _ax.set_ylabel('dist ↔ choice\ncross-dec. (bal. acc.)', fontsize=7)
+            _ax.set_ylabel('dist ↔ choice\ncross-dec. (bal. acc.)', fontsize=PS*7)
         _S = _MATC['ACT_SUMM'][_stage]
         _ax.text(0.5, -0.30, f"off/within {_S['offdiag']:.2f}\n[{_S['offdiag_lo']:.2f}, {_S['offdiag_hi']:.2f}]",
-                 transform=_ax.transAxes, ha='center', va='top', fontsize=6.0, color='0.3')
+                 transform=_ax.transAxes, ha='center', va='top', fontsize=PS*6.0, color='0.3')
         for _sp in _ax.spines.values():
             _sp.set_visible(True)
         print(f"A[align] {_stage} off/within {_S['offdiag']:.2f} [{_S['offdiag_lo']:.2f},{_S['offdiag_hi']:.2f}]")
@@ -101,10 +102,10 @@ if __name__ == '__main__':
                            edgecolors='w', linewidths=0.5, zorder=3)
         p = float(_wilc(e, n).pvalue)
         ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
-        ax.set_xlabel(xlab, fontsize=7); ax.set_ylabel(ylab, fontsize=7)
+        ax.set_xlabel(xlab, fontsize=PS*7); ax.set_ylabel(ylab, fontsize=PS*7)
         ax.set_title(f'{title}  ({"∗" if p < .05 else "n.s."})', loc='left', fontsize=TITLE_FS)
         ax.text(0.05, 0.96, f'Δ={e.mean() - n.mean():+.2f}\np={p:.3f}', transform=ax.transAxes,
-                va='top', ha='left', fontsize=6, color='0.3')
+                va='top', ha='left', fontsize=PS*6, color='0.3')
         print(f'A[align] {title}: {n.mean():.3f} -> {e.mean():.3f}  p={p:.4f}')
 
     _axc = fig.add_subplot(gsAL[0, 2])
@@ -155,7 +156,7 @@ if __name__ == '__main__':
         axB_traj.append(at); axB_hist.append(ah)
     pair_handles = [Line2D([0], [0], color=_c, lw=1.3, label=f'Sample {_l}') for _l, _p, _c in SAMPLE_TRAJ]
     axB_traj[-1].legend(handles=pair_handles, frameon=False, loc='upper right',
-                        handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=8)
+                        handletextpad=0.5, borderaxespad=0.2, labelspacing=0.3, fontsize=PS*8)
 
     # depth panel: per-mouse late-delay choice-code depth, Naive → Expert (deepening mixed model)
     axB_sc = fig.add_subplot(gsB[0, 4])
@@ -217,15 +218,15 @@ if __name__ == '__main__':
           f'ΔB={_dlt["B"].mean():+.2f} (p={_pB:.3f})  A-vs-B p={_pAB:.3f}')
     axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
     axB_sc.set_box_aspect(1)
-    axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=7.5)
+    axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
     axB_sc.set_title('Choice-code depth', loc='left', fontsize=TITLE_FS)
     axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
-                transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
+                transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
     axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
-                fontsize=12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
+                fontsize=PS*12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
     axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
                            mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')],
-                  frameon=False, loc='upper right', fontsize=6.5, handletextpad=0.3,
+                  frameon=False, loc='upper right', fontsize=PS*6.5, handletextpad=0.3,
                   borderaxespad=0.2, labelspacing=0.3)
 
     # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) ──
@@ -259,9 +260,9 @@ if __name__ == '__main__':
         ax.set_ylim(ylimC)
         sig = pv < 0.05
         ax.text(0.03, 0.03, f'per-mouse (n={n_mice})\nSpearman ρ={rho:+.2f}, p={pv:.3f}',
-                transform=ax.transAxes, ha='left', va='bottom', fontsize=6.5, color='0.3')
+                transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
         ax.text(0.92, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
-                fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
+                fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
         ax.set_xlabel('Δ DPA choice-code depth'); ax.set_ylabel(ylabel)
         ax.set_title(msg, loc='left', fontsize=TITLE_FS)
         ax.set_box_aspect(1)
@@ -293,19 +294,19 @@ if __name__ == '__main__':
         tp = float(ttest_rel(r['cr_raw'], r['fa_raw']).pvalue) if n >= 3 else np.nan
         sig = (tp == tp and tp < 0.05)
         axD.text((xc + xe) / 2, 0.99, f'{lab} (sample {samp})', transform=axD.get_xaxis_transform(),
-                 ha='center', va='top', fontsize=7, fontweight='bold', color=col)
+                 ha='center', va='top', fontsize=PS*7, fontweight='bold', color=col)
         axD.text((xc + xe) / 2, 0.87, '*' if sig else 'n.s.', transform=axD.get_xaxis_transform(),
-                 ha='center', va='top', fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
+                 ha='center', va='top', fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
         axD.text((xc + xe) / 2, 0.02, f'p={tp:.3f}', transform=axD.get_xaxis_transform(),
-                 ha='center', va='bottom', fontsize=6.5, color='0.3')
+                 ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
         print(f'C(FA/CR)[Naive {lab} sample {samp}] Δ(cr−fa)={d_mean:+.3f} paired-t p={tp:.3f} n={n}')
     axD.axhline(0, ls=':', color='0.6', lw=0.7)
     _y0D, _y1D = axD.get_ylim()
     axD.set_ylim(_y0D, _y1D + 0.30 * (_y1D - _y0D))   # headroom so the pair titles/stars clear the data
     axD.set_xticks([0.0, 0.8, 1.9, 2.7])
-    axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=6.5)
+    axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
     axD.set_xlim(-0.5, 3.2)
-    axD.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=7.5)
+    axD.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
     axD.set_title('Naive nonpaired trials', loc='left', fontsize=TITLE_FS)
     axD.set_box_aspect(1)
 
@@ -324,11 +325,11 @@ if __name__ == '__main__':
     # canonical code name ("choice", as in Fig 3); the verdict lives in the n.s./Δ/p annotations,
     # not hardcoded in the title
     axDp.set_title('choice-code d′', fontsize=TITLE_FS, loc='left')
-    axDp.set_xlabel('Naive d′', fontsize=7.5); axDp.set_ylabel('Expert d′', fontsize=7.5)
+    axDp.set_xlabel('Naive d′', fontsize=PS*7.5); axDp.set_ylabel('Expert d′', fontsize=PS*7.5)
     axDp.text(0.06, 0.95, '*' if _dp_sig else 'n.s.', transform=axDp.transAxes, ha='left', va='top',
-              fontsize=11 if _dp_sig else 8, fontweight='bold', color='k' if _dp_sig else '0.55')
+              fontsize=PS*11 if _dp_sig else 8, fontweight='bold', color='k' if _dp_sig else '0.55')
     axDp.text(0.97, 0.08, f'Δ={_dp_d:+.2f}, p={_dp_t:.3f}', transform=axDp.transAxes,
-              ha='right', va='bottom', fontsize=6, color='0.3')   # clear of the y=0 dotted line
+              ha='right', va='bottom', fontsize=PS*6, color='0.3')   # clear of the y=0 dotted line
     print(f'D action-code d′ Naive={np.nanmean(_dN):+.2f} Expert={np.nanmean(_dE):+.2f} Δ={_dp_d:+.2f} p={_dp_t:.3f}')
 
     # ── panel letters ──
@@ -388,7 +389,7 @@ if __name__ == '__main__':
                          'pooled-evoked build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
-    draw_justified(fig, CAP_PARAS)
+    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

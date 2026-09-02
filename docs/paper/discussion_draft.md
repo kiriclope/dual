@@ -8,11 +8,11 @@
 > Citations [Author Year] for the reference manager. All statistics identical to v1.
 
 We set out to ask how prefrontal cortex composes a new task from computations the animal already
-performs. Three results answer it. First, decode ablation shows that a single two-dimensional
-sample × choice subspace is *necessary and sufficient* for the memory and choice codes of every
-task variant — sample and choice decode as well from the plane's two coordinates as from the full
-population (bounded equivalence, |Δ| ≤ 0.012 in every mouse and stage) and collapse without
-them, while the test code lives outside it (Fig. 3c,d). Second, learning acts *within* this
+performs. Three results answer it. First, a single two-dimensional sample × choice subspace is
+*necessary and sufficient* for the memory and choice codes of every task variant — sample and
+choice decode as well from the plane's two coordinates as from the full population (agreeing to
+within 0.012 accuracy in every mouse and stage) and collapse when the plane is removed,
+while the test code lives outside it (Fig. 3c,d). Second, learning acts *within* this
 fixed subspace: it rotates the distractor code onto the choice axis and repositions the
 working-memory state along it, and the size of each animal's repositioning predicts its memory
 improvement (Fig. 4). Third, a defined top-down input — the ACC→mPFC projection — causally

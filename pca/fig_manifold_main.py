@@ -59,16 +59,17 @@ ASUF = '_antact' if ANTACT else ''                 #   axis (overlaps train bins
 FIGSUF = ('' if NOPCA else f'_pca{NPC}') + ASUF    # filename: plain = no denoising
 
 sns.set_context('notebook'); sns.set_style('ticks')
+PS = 1.3      # print-scale: typography sized for 183 mm reproduction (2026-09-02)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
-    'legend.fontsize': 6.5,
+    'axes.labelsize': PS*8, 'axes.titlesize': PS*8, 'xtick.labelsize': PS*7, 'ytick.labelsize': PS*7,
+    'legend.fontsize': PS*6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
     'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
 })
-TITLE_FS = 8
+TITLE_FS = PS*8
 SAMPC = {0: '#332288', 1: '#44AA99'}
 SC = {'Naive': '0.55', 'Expert': '#332288'}
 VAR_COL = {'sample': '#332288', 'test': '#377eb8', 'choice': '#4daf4a',
@@ -101,7 +102,7 @@ PMX = RES['PM_XSTAGE' + SUF]                       # per-mouse cross-stage decod
 
 
 def plabel(ax, s, dx=-0.06):
-    ax.text(dx, 1.05, s, transform=ax.transAxes, fontsize=11, fontweight='bold', va='bottom', ha='right')
+    ax.text(dx, 1.05, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 
 # ══ a — the frame: REPLAYED per-mouse CCGD states (exp_frame_states.py) ═══════
@@ -195,27 +196,27 @@ def panel_a(fig, gsA):
                 sx = x0 + 0.05 * (x1 - x0); sy = y0 + 0.06 * (y1 - y0)
                 ax.plot([sx, sx + 2], [sy, sy], '-', color='0.3', lw=1.1)
                 ax.text(sx + 1.0, sy + 0.015 * (y1 - y0), '2 z', ha='center', va='bottom',
-                        fontsize=6.0, color='0.3')
+                        fontsize=PS*6.0, color='0.3')
                 if j == 2:                           # one shared x-label, centred under the grid
-                    ax.set_xlabel('sample axis   A ← · → B', fontsize=7)
+                    ax.set_xlabel('sample axis   A ← · → B', fontsize=PS*7)
             if j == 0:
                 yax = 'antic. action axis' if ANTACT else 'choice axis'
-                ax.set_ylabel(f'{stage}\n{yax}\n← no-lick · lick →', fontsize=7)
+                ax.set_ylabel(f'{stage}\n{yax}\n← no-lick · lick →', fontsize=PS*7)
             if r == 0 and j == 0:                    # colour/fill key once
                 hs = [mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[0], label='sample A'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, color=SAMPC[1], label='sample B'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='0.4', mec='0.4', label='lick'),
                       mlines.Line2D([], [], marker='o', ls='', ms=4, mfc='w', mec='0.4', label='no-lick')]
-                ax.legend(handles=hs, frameon=False, fontsize=6.0, loc='upper left', ncols=2,
+                ax.legend(handles=hs, frameon=False, fontsize=PS*6.0, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, labelspacing=0.25, borderaxespad=0.0)
             if r == 0 and j == 2:                    # marker key on the first dual panel
                 hs = [mlines.Line2D([], [], marker='^', ls='', ms=4, mfc='none', mec='0.3', label='Go'),
                       mlines.Line2D([], [], marker='s', ls='', ms=4, mfc='none', mec='0.3', label='NoGo')]
-                ax.legend(handles=hs, frameon=False, fontsize=6.0, loc='upper left', ncols=2,
+                ax.legend(handles=hs, frameon=False, fontsize=PS*6.0, loc='upper left', ncols=2,
                           handletextpad=0.15, columnspacing=0.5, borderaxespad=0.0)
             if r == 0 and j == 0:                    # crosshair semantics (Codex review 2026-09-01:
                 ax.text(0.98, 0.03, 'window-centred', transform=ax.transAxes, ha='right',
-                        va='bottom', fontsize=6.0, color='0.45', style='italic')
+                        va='bottom', fontsize=PS*6.0, color='0.45', style='italic')
                 #  the zero lines invite a decision-boundary reading; they are the window mean)
             gm = {cd: P.mean(0) for cd, P in ENT.items()}
             ylk = np.mean([g[1] for cd, g in gm.items() if cd[2]])
@@ -240,7 +241,7 @@ def panel_a(fig, gsA):
 #   is not the cloud's crosshair offset. t = bin/6 - 0.5 s (exact).
 TBIN = lambda b: np.asarray(b) / 6.0 - 0.5
 EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
-          ('GNG cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
+          ('cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
 # cue is 6.5-7.0 s; the reward window 7.0-7.5 s is deliberately unshaded (as everywhere else)
 
 
@@ -282,7 +283,7 @@ def panel_traj(fig, gsT):
                 if r == 0 and k == 0:
                     yl = 0.905 if nm == 'distractor' else 0.98
                     ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
-                            ha='center', va='top', fontsize=6.0, color=col)
+                            ha='center', va='top', fontsize=PS*6.0, color=col)
             for lv, lab, col in zip((0, 1), labs, cols):
                 M = np.asarray(TR[(stage, key, lv)], dtype=float)
                 mu = M.mean(0); se = M.std(0, ddof=1) / np.sqrt(len(M))
@@ -295,12 +296,12 @@ def panel_traj(fig, gsT):
                 ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
                 ax.tick_params(labelbottom=False)
                 if k == 1:                          # one legend per code type
-                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='upper left')
+                    ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.2, loc='upper left')
             else:
-                ax.set_xlabel('time (s)', fontsize=7)
+                ax.set_xlabel('time (s)', fontsize=PS*7)
                 if k == 0:
-                    ax.legend(frameon=False, fontsize=6.0, handlelength=1.2, loc='lower right')
-            ax.set_ylabel(f'{stage}\ncode depth' if k == 0 else 'code depth', fontsize=7)
+                    ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.2, loc='lower right')
+            ax.set_ylabel(f'{stage}\ncode depth' if k == 0 else 'code depth', fontsize=PS*7)
     return axes[0]
 
 
@@ -317,22 +318,22 @@ def panel_b(fig, gsB):
             for k in range(3):
                 if i == k:                              # 1 by construction — shown, greyed
                     ax.add_patch(Rectangle((k - .5, i - .5), 1, 1, fc='0.93', ec='none'))
-                    ax.text(k, i, '1', ha='center', va='center', fontsize=6.4, color='0.45')
+                    ax.text(k, i, '1', ha='center', va='center', fontsize=PS*6.4, color='0.45')
                     continue
-                ax.text(k, i, f'{C[i, k]:.2f}', ha='center', va='center', fontsize=6.4,
+                ax.text(k, i, f'{C[i, k]:.2f}', ha='center', va='center', fontsize=PS*6.4,
                         color='w' if C[i, k] > 0.55 else 'k')
-        ax.set_xticks(range(3)); ax.set_xticklabels(labs, fontsize=6.2, rotation=35, ha='right')
+        ax.set_xticks(range(3)); ax.set_xticklabels(labs, fontsize=PS*6.2, rotation=35, ha='right')
         ax.set_yticks(range(3))
-        ax.set_yticklabels(labs if j == 0 else [], fontsize=6.2)
+        ax.set_yticklabels(labs if j == 0 else [], fontsize=PS*6.2)
         ax.set_anchor('C')                              # vertically centred with the scatters
         ax.set_title(stage, loc='left', fontsize=TITLE_FS)
         if j == 0:
-            ax.set_ylabel('axis geometry\n|cos|', fontsize=7)
+            ax.set_ylabel('axis geometry\n|cos|', fontsize=PS*7)
         # the attenuation correction divides by sqrt(rel_i*rel_j) — disclose the reliabilities
         # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
-        ax.text(1.0, 1.135, 'rel ' +                     # above the stage title line
+        ax.text(1.0, 1.26, 'rel ' +                      # above the stage title line
                 '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])),
-                transform=ax.transAxes, fontsize=6.0, color='0.3', ha='right', va='bottom')
+                transform=ax.transAxes, fontsize=PS*6.0, color='0.3', ha='right', va='bottom')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'b: {stage} sample-action {C[0,1]:.2f}  sample-distr {C[0,2]:.2f}  '
@@ -364,19 +365,19 @@ def panel_xstage(fig, gsX):
         ax.imshow(M, cmap='Reds', vmin=0.5, vmax=1.0, aspect='equal')
         for i in range(2):
             for j in range(2):
-                ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=6.6,
+                ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=PS*6.6,
                         color='w' if M[i, j] > 0.82 else 'k')
         off = np.mean([M[0, 1], M[1, 0]]); dia = np.mean([M[0, 0], M[1, 1]])
-        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=6.2)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=PS*6.2)
         ax.set_yticks([0, 1])
-        ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=6.2)
+        ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=PS*6.2)
         ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)
         ax.set_anchor('C')                              # vertically centred with the scatters
         if k == 0:
-            ax.set_ylabel('train stage', fontsize=7)
-        ax.set_xlabel('test stage', fontsize=7)
+            ax.set_ylabel('train stage', fontsize=PS*7)
+        ax.set_xlabel('test stage', fontsize=PS*7)
         ax.text(0.5, -0.44, f'transfer/within {(off - .5) / (dia - .5):.2f}',
-                transform=ax.transAxes, ha='center', va='top', fontsize=6.2, color='0.3')
+                transform=ax.transAxes, ha='center', va='top', fontsize=PS*6.2, color='0.3')
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'f-xstage: {vn} within {dia:.2f} cross {off:.2f} ratio {(off - .5) / (dia - .5):.2f}')
@@ -406,11 +407,11 @@ def panel_e_pm(fig, gs):
         ax.set_xticks([0, 0.1, 0.2]); ax.set_yticks([0, 0.1, 0.2])
         if j:
             ax.tick_params(labelleft=False)
-        ax.set_title(lab, loc='left', fontsize=6.5)
+        ax.set_title(lab, loc='left', fontsize=PS*6.5)
         if j == 0:
-            ax.set_ylabel('raw |cos|\nExpert', fontsize=6.8)
+            ax.set_ylabel('raw |cos|\nExpert', fontsize=PS*6.8)
         if j == 1:
-            ax.set_xlabel('raw |cos| — Naive', fontsize=7)
+            ax.set_xlabel('raw |cos| — Naive', fontsize=PS*7)
         print(f'e-pm: {key} raw |cos| {np.mean(nv):.3f} -> {np.mean(ev):.3f}')
     return axes[0]
 
@@ -441,12 +442,12 @@ def panel_f_pm(fig, gs):
         ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
         if k:
             ax.tick_params(labelleft=False)
-        ax.set_title(vn, loc='left', fontsize=6.5)
+        ax.set_title(vn, loc='left', fontsize=PS*6.5)
         ax.text(0.05, 0.96, f'T/W {np.mean(rat):.2f}', transform=ax.transAxes, va='top',
-                ha='left', fontsize=6.0, color='0.3')
+                ha='left', fontsize=PS*6.0, color='0.3')
         if k == 0:
-            ax.set_ylabel('cross-stage\naccuracy', fontsize=6.8)
-            ax.set_xlabel('within-stage accuracy', fontsize=7, loc='left')
+            ax.set_ylabel('cross-stage\naccuracy', fontsize=PS*6.8)
+            ax.set_xlabel('within-stage accuracy', fontsize=PS*7, loc='left')
         print(f'f-pm: {vn} within {np.mean(wi):.2f} cross {np.mean(cr):.2f} '
               f'T/W {np.mean(rat):.2f} (n={len(wi)})')
     return axes[0]
@@ -490,18 +491,18 @@ def panel_e_plane(fig, gsE):
             if c:
                 ax.tick_params(labelleft=False)
             if r == 0:
-                ax.set_title(vn, loc='left', fontsize=7)
+                ax.set_title(vn, loc='left', fontsize=PS*7)
             if r < 2:
                 ax.tick_params(labelbottom=False)
             if c == 0:
-                ax.set_ylabel(f'{rowlab}\nExpert', fontsize=6.8)
+                ax.set_ylabel(f'{rowlab}\nExpert', fontsize=PS*6.8)
             if r == 2 and c == 1:
-                ax.set_xlabel('accuracy — Naive', fontsize=7, loc='right')   # ~grid centre (4 cols)
+                ax.set_xlabel('accuracy — Naive', fontsize=PS*7, loc='right')   # ~grid centre (4 cols)
             # whitelisted verdict (knob-robust .020/.027): dist gains in-plane decodability
             star = '  ∗' if (vn == 'dist' and key == 0 and p < 0.05) else ''
             ax.text(0.05, 0.96, f'Δ={ev.mean() - nv.mean():+.02f}\np={p:.2f}{star}',
                     transform=ax.transAxes, va='top', ha='left',
-                    fontsize=6.0 if not star else 6.5, color='0.3' if not star else 'k',
+                    fontsize=PS*6.0 if not star else 6.5, color='0.3' if not star else 'k',
                     fontweight='normal' if not star else 'bold')
             print(f'f: {rowlab:16s} {vn:7s} {nv.mean():.2f} -> {ev.mean():.2f}  p={p:.2f}{star}')
     return axes[0]
@@ -548,12 +549,12 @@ def panel_f_spaces(fig, gsF):
                 clip_on=False)
         if mode == 'dagger':
             ax.text((x1 + x2) / 2, y + 0.001, '†', ha='center', va='bottom',
-                    fontsize=8, fontweight='bold', color='0.4')
+                    fontsize=PS*8, fontweight='bold', color='0.4')
             print(f'e-bars: {E_VARS[gi]:7s} {s1}-vs-{s2} p={p:.4f} † (knob-dependent)')
             return
         sig = p < 0.05
         ax.text((x1 + x2) / 2, y + 0.001, '∗' if sig else 'n.s.', ha='center', va='bottom',
-                fontsize=12 if sig else 8, fontweight='bold',
+                fontsize=PS*12 if sig else 8, fontweight='bold',
                 color='k' if sig else '0.55')
         print(f'e-bars: {E_VARS[gi]:7s} {s1}-vs-{s2} p={p:.4f} {"*" if sig else "n.s."}')
 
@@ -571,13 +572,13 @@ def panel_f_spaces(fig, gsF):
                 mode='dagger' if E_VARS[gi] == 'choice' else 'verdict')
         ytop = max(ytop, b0 + 0.095)
     ax.axhline(0.5, ls='--', color='0.6', lw=0.8, zorder=1)
-    ax.set_xticks(range(len(E_VARS))); ax.set_xticklabels(E_VARS, fontsize=7)
+    ax.set_xticks(range(len(E_VARS))); ax.set_xticklabels(E_VARS, fontsize=PS*7)
     ax.set_ylim(0.45, ytop + 0.045); ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9])
-    ax.set_ylabel('accuracy (mean ± SEM, n = 9)', fontsize=7)
+    ax.set_ylabel('accuracy (mean ± SEM, n = 9)', fontsize=PS*7)
     ax.legend(handles=[Patch(fc='0.35', ec='0.35', label='plane (2-D)'),
                        Patch(fc='w', ec='0.35', hatch='///', label='out-of-plane'),
                        Patch(fc='0.35', alpha=0.35, ec='0.35', label='full space')],
-              frameon=False, fontsize=6.0, loc='lower right', bbox_to_anchor=(1.0, 1.01),
+              frameon=False, fontsize=PS*6.0, loc='lower right', bbox_to_anchor=(1.0, 1.01),
               ncols=3, handlelength=1.1, handletextpad=0.4, labelspacing=0.3,
               columnspacing=0.8, borderaxespad=0.0)
     return ax
@@ -729,7 +730,7 @@ if ANTACT:
                       'are unchanged (pca-side decision-window axis).]'
                       if p.startswith('B. ') else '') for p in CAP_PARAS]
 from figcaption import draw_justified                  # shared with fig_dimensionality_main.py
-draw_justified(fig, CAP_PARAS)
+draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)

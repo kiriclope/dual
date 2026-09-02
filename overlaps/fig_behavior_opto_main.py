@@ -94,11 +94,12 @@ from src.common.options import set_options
 from src.pca.io import pkl_load
 
 sns.set_style('ticks')
+PS = 1.35      # print-scale: typography sized for 183 mm reproduction (2026-09-02)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
-    'axes.labelsize': 8, 'axes.titlesize': 8, 'xtick.labelsize': 7, 'ytick.labelsize': 7,
-    'legend.fontsize': 6.5,
+    'axes.labelsize': PS*8, 'axes.titlesize': PS*8, 'xtick.labelsize': PS*7, 'ytick.labelsize': PS*7,
+    'legend.fontsize': PS*6.5,
     'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
     'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
@@ -107,7 +108,7 @@ plt.rcParams.update({
 RED, BLUE, GREEN = '#d62728', '#1f77b4', '#2ca02c'
 OFF_C, ON_C = '#888888', '#332288'          # OFF/control grey · ON/opto indigo
 N_MIN = 3
-TITLE_FS = 10.5
+TITLE_FS = PS*10.5
 _STMK = {'Expert': 'o', 'Naive': '^'}        # Expert circle / Naive triangle (shared by scatters)
 
 # --poster : simplified poster variant — swap the D/E recorded LEARNING CURVES for two
@@ -511,7 +512,7 @@ else:
 
 def panel_letter(ax, L, dx=0.020, dy=0.016):
     p = ax.get_position()
-    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=11, fontweight='bold', va='top', ha='left')
+    fig.text(p.x0 - dx, p.y1 + dy, L, fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
 
 def show_scheme(ax, path, aspect='equal'):
@@ -554,7 +555,7 @@ if POSTER:
         md = np.array([np.mean(v) for v in pm.values()])
         dd = float(md.mean()); pv = float(ttest_1samp(md, 0.0).pvalue)
         ax.text(0.5, 0.02, f'Δ(on−off)={dd:+.3f}  p={pv:.2f}  ({len(md)} mice)',
-                transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
+                transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
         ax.set_xlabel('performance (laser OFF)'); ax.set_ylabel(ylab)
         ax.set_title(msg, loc='left', fontsize=TITLE_FS)
         ax.set_box_aspect(1)
@@ -562,7 +563,7 @@ if POSTER:
               mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B'),
               mlines.Line2D([0], [0], marker='o', color='k', mfc='0.5', ls='none', ms=7, label='Expert'),
               mlines.Line2D([0], [0], marker='^', color='k', mfc='0.5', ls='none', ms=7, label='Naive')]
-    axB.legend(handles=_leg_p, frameon=False, fontsize=6.5, loc='upper left',
+    axB.legend(handles=_leg_p, frameon=False, fontsize=PS*6.5, loc='upper left',
                handletextpad=0.3, ncol=2, columnspacing=0.8)
 else:
   for ax, (short, col, mask), msg in [
@@ -596,12 +597,12 @@ else:
                 pv = float(ttest_1samp(dv, 0.0).pvalue)
                 if star(pv):
                     ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
-                            fontsize=8, fontweight='bold')
+                            fontsize=PS*8, fontweight='bold')
     ax.set_ylim(ylo, yhi)
     if ylo < 0.5 < yhi:
         ax.axhline(0.5, ls=':', color='0.5', lw=1)
     ax.set_xticks(DAYS_REC); ax.set_xlabel('session')
-    ax.legend(frameon=False, fontsize=8, loc='lower right')
+    ax.legend(frameon=False, fontsize=PS*8, loc='lower right')
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
   axB.set_ylabel('performance')
 
@@ -623,9 +624,9 @@ if not POSTER:
     axK.axhline(0, ls=':', color='0.5', lw=1)
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
-    axK.set_ylabel(f'DPA choice-code depth\n(late delay, {AXIS_LBL})')
+    axK.set_ylabel('DPA choice-code depth')     # axis/window named in the caption (print-scale trim)
     axK.set_title('Laser moves the code per mouse', loc='left', fontsize=TITLE_FS)
-    axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=6.5, loc='center left',
+    axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=PS*6.5, loc='center left',
                ncol=1, handletextpad=0.3)
 
 # ── H, I: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
@@ -661,9 +662,9 @@ for ax, key, ylab, msg in [
     _b, _p, _nm, _no = _gi_lmm(key)                 # mouse-respecting LMM — logged caveat, NOT drawn
     print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
     ax.text(0.5, 0.02, f'n={ok.sum()}: r={r_p:+.2f} p={p_p:.3f}  ρ={rho:+.2f} p={ps:.3f}',
-            transform=ax.transAxes, ha='center', va='bottom', fontsize=6.5, color='0.3')
+            transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
-            va='top', fontsize=12, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
+            va='top', fontsize=PS*12, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
     ax.set_xlabel('Δ choice-code depth (on−off)' if POSTER          # short: narrow poster cells
                   else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
@@ -672,12 +673,12 @@ _leg_h = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=
           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='odor B'),
           mlines.Line2D([0], [0], marker='o', color='k', mfc='0.5', ls='none', ms=7, label='Expert'),
           mlines.Line2D([0], [0], marker='^', color='k', mfc='0.5', ls='none', ms=7, label='Naive')]
-axE.legend(handles=_leg_h, frameon=False, fontsize=6.5, loc='upper left', handletextpad=0.3, ncol=2, columnspacing=0.8)
+axE.legend(handles=_leg_h, frameon=False, fontsize=PS*6.5, loc='upper left', handletextpad=0.3, ncol=2, columnspacing=0.8)
 
 # ── B: batch ACC-Prl control vs opto DPA learning curve — first row ───────────
 axG = fig.add_subplot(POS['B'])              # B = batch DPA curve
 for ax, (short, col, mask_fn), msg in [
-        (axG, BATCH_METRICS[0], 'Chronic silencing impairs DPA')]:
+        (axG, BATCH_METRICS[0], 'Silencing impairs DPA')]:
     p1, p2 = batch_pmd(b_ctrl, col, mask_fn), batch_pmd(b_opto, col, mask_fn)
     lo, hi = [], []
     for p, color, lab in [(p1, OFF_C, f'control (n={p1.mouse.nunique()})'),
@@ -702,12 +703,12 @@ for ax, (short, col, mask_fn), msg in [
             pv = float(ttest_ind(b, a, equal_var=False).pvalue)
             if star(pv):
                 ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
-                        fontsize=8, fontweight='bold')
+                        fontsize=PS*8, fontweight='bold')
     ax.set_ylim(ylo, yhi)
     if ylo < 0.5 < yhi:
         ax.axhline(0.5, ls=':', color='0.5', lw=1)
     ax.set_xticks(XT_B); ax.set_xlabel('training day')
-    ax.legend(frameon=False, fontsize=8, loc='lower right')
+    ax.legend(frameon=False, fontsize=PS*8, loc='lower right')
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
 axG.set_ylabel('performance')
 
@@ -725,7 +726,7 @@ for i, (short, col, mask_fn) in enumerate(BATCH_METRICS):
                      capsize=3, lw=1.5, zorder=3)
         if np.isfinite(pv) and star(pv):
             axJ.text(i + dx, vhi + 0.004, star(pv), ha='center', va='bottom',
-                     fontsize=8, fontweight='bold')
+                     fontsize=PS*8, fontweight='bold')
 axJ.axhline(0, ls='--', color='0.4', lw=1)
 axJ.set_xticks(range(len(BATCH_METRICS)))
 axJ.set_xticklabels([m[0] for m in BATCH_METRICS], rotation=15, ha='right')
@@ -734,7 +735,7 @@ axJ.set_ylabel('opto−control  (Δ perf.)')
 axJ.set_title('Silencing effect (LMM)', loc='left', fontsize=TITLE_FS)
 axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='group (at mean day)'),
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
-           frameon=False, fontsize=7, loc='best')
+           frameon=False, fontsize=PS*7, loc='best')
 for _a in (axG, axJ):                            # square B & E panels
     _a.set_box_aspect(1)
 
@@ -760,9 +761,9 @@ _rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _yt
 _gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logged caveat, NOT drawn
 print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
 axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
-         transform=axL.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
+         transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',
-         va='top', fontsize=12, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
+         va='top', fontsize=PS*12, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
 axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontsize=TITLE_FS)
@@ -783,8 +784,8 @@ def _dprime_scatter(ax, dfw, lmm, title):
     ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
     ax.set_xlabel("d′  laser OFF"); ax.set_ylabel("d′  laser ON")
     ax.set_title(title, loc='left', fontsize=TITLE_FS)
-    ax.text(0.5, 0.02, f'LMM laser p={lmm[1]:.2f}  (n=10, +1|mouse)', transform=ax.transAxes,
-            ha='center', va='bottom', fontsize=7, color='0.3')
+    ax.text(0.5, 0.02, f'LMM laser p={lmm[1]:.2f} (n=10)', transform=ax.transAxes,
+            ha='center', va='bottom', fontsize=PS*7, color='0.3')
 
 
 _dprime_scatter(axM, DPR['sample'], LMM_DPR['sample'],
@@ -793,7 +794,7 @@ _dprime_scatter(axN, DPR['gng'], LMM_DPR['gng'],
                 'GNG code (Go vs NoGo)' if POSTER else 'GNG code (Go vs NoGo, mid-delay)')
 axN.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
                     mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
-           frameon=False, fontsize=7, loc='upper left', handletextpad=0.3)
+           frameon=False, fontsize=PS*7, loc='upper left', handletextpad=0.3)
 
 # ── J: DPA vs GNG performance in laser-ON trials (Naive ○ + Expert ●, 10 pts) ──
 #   Balance plane of the non-opto main figure, restricted to laser-ON trials: per mouse ×
@@ -816,7 +817,7 @@ if not POSTER:
     _blim = (max(0.3, np.concatenate([_bx[_bok], _by[_bok]]).min() - 0.05), 1.0)
     axBal.plot(_blim, _blim, ls='--', color='0.7', lw=0.9, zorder=1)
     axBal.scatter(0.99, 0.99, marker='*', s=120, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
-    axBal.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=8, color='#7a5600', transform=axBal.transAxes)
+    axBal.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=PS*8, color='#7a5600', transform=axBal.transAxes)
     for m in JAWS:                                            # join each mouse's Naive→Expert
         xs = [p[2] for p in _bpts if p[0] == m]; ys = [p[3] for p in _bpts if p[0] == m]
         axBal.plot(xs, ys, '-', color=MOUSE_COLOR[m], lw=0.6, alpha=0.35, zorder=3)
@@ -824,14 +825,14 @@ if not POSTER:
         fc = MOUSE_COLOR[m] if st == 'Expert' else 'w'       # Expert filled / Naive open
         axBal.scatter(xd, yd, marker='o', s=34, facecolors=fc, edgecolors=MOUSE_COLOR[m], lw=1.2, zorder=5)
     _brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
-    axBal.text(0.5, 0.02, f'ON, n={_bok.sum()}: r={_brp:+.2f} p={_bpp:.3f}  ρ={_brs:+.2f} p={_bps:.3f}',
-               transform=axBal.transAxes, ha='center', va='bottom', fontsize=6.2, color='0.3')
+    axBal.text(0.5, 0.02, f'ON: r={_brp:+.2f} p={_bpp:.2f}  ρ={_brs:+.2f} p={_bps:.2f}',
+               transform=axBal.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
     axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
     axBal.set_xlabel('DPA performance (laser ON)'); axBal.set_ylabel('GNG performance (laser ON)')
     axBal.set_title('DPA–GNG balance, laser ON', loc='left', fontsize=TITLE_FS)
     axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
                           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
-                 frameon=False, fontsize=7, loc='lower left', handletextpad=0.3)
+                 frameon=False, fontsize=PS*7, loc='lower left', handletextpad=0.3)
 
 
 # ── panel letters + row banners ───────────────────────────────────────────────
@@ -847,7 +848,7 @@ for _ax, _L in _letters:
 
 def row_banner(ax_left, text, dy=0.014):
     p = ax_left.get_position()
-    fig.text(0.055, p.y1 + dy, text, fontsize=8,
+    fig.text(0.055, p.y1 + dy, text, fontsize=PS*8,
              va='bottom', ha='left', color='0.35')
 
 
@@ -902,7 +903,7 @@ if not POSTER:
                          'build.]')
     sys.path.insert(0, '/home/leon/dual/pca')
     from figcaption import draw_justified              # shared with Figs 2/3
-    draw_justified(fig, CAP_PARAS)
+    draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main{_SUF}{"_poster" if POSTER else ""}.{ext}'

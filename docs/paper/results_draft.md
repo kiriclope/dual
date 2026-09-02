@@ -54,8 +54,8 @@ to the axes that code the distractor and the lick decision, within a low-dimensi
 whose axes are shared across all task variants and already in place before learning. Learning
 adds no detectable coding dimensions. Instead it edits state within the fixed subspace: the
 distractor code rotates onto the choice axis, and the memory state is repositioned along that
-axis to an increasingly output-suppressing, no-lick set-point — and the deeper an animal parks
-its memory, the more its memory performance improves (ρ = −0.83). Silencing the input from
+axis to an increasingly output-suppressing, no-lick set-point — and the deeper an animal pushes
+its memory state, the more its memory performance improves (ρ = −0.83). Silencing the input from
 anterior cingulate cortex chronically prevents the memory task from being acquired; silencing it
 acutely (five mice) shifts the state's position along the axis while leaving the code's content
 and discriminability intact. Composition, in this system, is not construction: the code's
@@ -99,7 +99,7 @@ concurrently without one corrupting the other. mPFC delay activity is required f
 exactly this class of olfactory working-memory task [Liu 2014]. Mice progressed through a fixed
 curriculum (DPA → GNG → Dual), and we imaged prelimbic mPFC with two-photon microscopy at both
 ends of learning, yielding a pseudo-population of 3,319 neurons spanning naïve and expert stages.
-Throughout, we measured the population geometry with cross-validated estimators that count only
+Throughout, we measured the population geometry with cross-validated measures that count only
 structure replicating across independent trial halves, paired every pooled claim with a per-animal
 (n = 9) companion statistic, and closed with a causal test of the circuit input that supplies the
 learned change.
@@ -130,8 +130,8 @@ does so by propagating to the response. Unpaired DPA accuracy was selectively de
 distractor required a Go response (Fig. 1e; Go−DPA β = −0.073, p = 0.038) but not a NoGo response
 (NoGo−DPA p = 0.78) — the *intrusive lick*, not the distractor stimulus, is the source of
 interference. And the route is a lick chain: a naïve animal that intruded a lick at the NoGo
-distractor cue was three times as likely to lick again at the test (Fig. 1g; trial-level GEE,
-OR = 3.10, p = 0.006), and this propagation is pairing-independent (lick × pairing interaction
+distractor cue was three times as likely to lick again at the test (Fig. 1g; trial-level regression, odds
+ratio OR = 3.10, p = 0.006), and this propagation is pairing-independent (lick × pairing interaction
 p = 0.61) — so it applies equally to unpaired trials, where the second lick is, by definition,
 the false alarm (direct unpaired estimate OR = 2.7, p = 0.09, consistent), and to paired trials,
 where it lands on a hit (OR = 9.9, p = 0.001). The coupling is response propagation, not memory
@@ -155,11 +155,11 @@ anti-conservative.)_
 ## 2. The dual-task computation is low-dimensional, factorised, and shared across tasks (Fig. 2)
 
 The working memory is a line. We measured the dimensionality and composition of the
-pseudo-population geometry directly, with cross-validated estimators that cannot inherit structure
+pseudo-population geometry directly, with cross-validated measures that cannot inherit structure
 from the analysis itself (task variables and the 12-condition space, Fig. 2a), comparing the pure
 memory task (DPA) with the dual tasks at two states: mid-delay (post-distractor but before any cue
 or lick — clean maintenance) and the post-test decision. Cross-validated PCA — the basis fit on
-one half of the trials, variance evaluated on the independent held-out half, so only variance that
+one half of the trials, variance evaluated on the other, independent half, so only variance that
 *replicates* counts — shows that the maintained memory state is **one-dimensional**: the DPA
 mid-delay reliable spectrum is a single component (fraction 1.00, 95% CI [0.98, 1.00], jackknife
 across mice; Fig. 2b). The dual mid-delay adds exactly one further reliable component
@@ -174,8 +174,8 @@ predicted (expert 0.93 vs 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve directional
 (Extended Data Fig. 3c).
 
 Each reliable dimension is a task variable, engaged exactly when its variable is in play. Decoding
-makes the point amplitude-free (Fig. 2c, balanced accuracy of held-out pseudo-trials along each
-variable's demixed axis against a shuffle null): at mid-delay only sample (DPA 0.89; dual 0.81)
+makes the point independent of signal size (Fig. 2c, balanced decoding accuracy of pseudo-trials
+withheld from the fit, read along each variable's demixed axis against a shuffle null): at mid-delay only sample (DPA 0.89; dual 0.81)
 and, in dual, the distractor (1.00) exceed their nulls, with test and choice at chance until the
 test arrives, whereupon every variable decodes (choice 0.96–0.97, test 0.74–0.77). And the
 reliable dimensions *are* the task variables (Fig. 2d, η² of each condition-mean PC on the
@@ -183,7 +183,7 @@ orthogonal factor contrasts, same windows): the memory line is the sample axis (
 dual mid-delay holds one large distractor axis (η² = 0.98, 37% of condition-mean variance) and the
 compact sample axis (0.91, 14%); the decision adds choice and test (0.92, 0.71; DPA decision =
 choice, 0.99) — one dedicated axis per engaged variable. The distractor code, moreover, barely
-enters the memory geometry: Go-vs-NoGo cross-decoded from the DPA-state subspace ("gng ×")
+enters the memory geometry: Go-vs-NoGo read out from the DPA-state subspace ("gng ×")
 reaches only 0.61 at mid-delay (Naïve n.s.; per-PC values in Fig. 2d). The sample-memory axis is
 thus compact but reliable — little variance, cleanly decoded — and close to orthogonal to the
 larger distractor/action dimensions it must resist. None of these measures showed a detectable change with
@@ -199,9 +199,9 @@ decodable signal to the others (Fig. 2e; cells = (cross − 0.5)/(within − 0.5
 the test task's own within-task ceiling; the test code's matrix is the honest boundary of the
 claim — its ceilings are weak at this window, leaving most of its cells uninterpretable). Per
 mouse, cross-task accuracy sat on the Naïve = Expert unity line for every code — not merely "no
-significant change" but bounded equivalence, the Δ 95% CIs confined to ±0.05 accuracy (Fig. 2f;
+significant change": the 95% CIs on the change are confined to ±0.05 accuracy (Fig. 2f;
 sample [−.03, +.02]; test [−.01, +.04]; choice [−.03, +.05]; Wilcoxon n = 9, robust across
-decoder pipelines). At the single-neuron level this abstract, disentangled format is built from
+decoder variants). At the single-neuron level this abstract, factorised format is built from
 largely separate, independently tuned populations rather than conjunctive mixed selectivity: the
 per-neuron sample and decision d′ are uncorrelated (r = −0.03), and the fraction of
 double-selective neurons matches the independence expectation (6.2% vs 6.4%; Fig. 2g; per-neuron
@@ -261,17 +261,17 @@ so the panels show condition *geometry*, not absolute position) make the point a
 separation, in every task, at every moment, falls along the same two axes.
 
 That the plane is genuinely the code's home — and not an artefact of plotting in it — is shown by
-decode ablation (Fig. 3c,d): for each mouse we decoded each variable from only the two coordinates
-of its own sample × choice plane, from the residual after removing the plane, and from the full
-population (held-out halves; paired Wilcoxons, n = 9). The result is a double dissociation. For
+decoding after removing it (Fig. 3c,d): for each mouse we decoded each variable from only the two
+coordinates of its own sample × choice plane, from the residual population left when the plane is
+removed, and from the full population (trials withheld from the fit; paired Wilcoxons, n = 9). The result is a double dissociation. For
 sample and choice the 2-D plane does as well as the whole population — not merely "not
-significantly different" but bounded: per mouse × stage, |Δ(plane − full)| ≤ 0.012 accuracy in
-every cell (sample ≤ 0.003) — and removing it collapses decoding (p = .004; the collapse is
+significantly different": the plane and the full population agree to within 0.012 accuracy in
+every mouse and stage (sample within 0.003) — and removing it collapses decoding (p = .004; the collapse is
 expected by construction — the informative half is the plane-full equivalence). The test code is the mirror image — at chance from the plane,
 untouched without it (p = .004): that code lives elsewhere. The distractor sits in between, its
 plane share real but partial (p = .004). The dissociation holds animal by animal (Fig. 3d), and
 carries the section's one learning effect: the distractor's *plane-only* accuracy grows with
-learning (0.57 → 0.65, p = .020/.027 across decoder pipelines, 8/9 and 7/9 mice up) — per animal,
+learning (0.57 → 0.65, p = .020/.027 across both decoder variants, 8/9 and 7/9 mice up) — per animal,
 learning pulls the distractor code into the plane, the alignment quantified in Fig. 4a. The axes
 themselves are near-orthogonal — the sample axis at |cos| ≈ 0.07–0.09 to both action codes, with
 a partial, growing choice × distractor overlap (0.32 → 0.47; Fig. 3e, attenuation-corrected with
@@ -279,8 +279,8 @@ disclosed split-half reliabilities; the per-animal test lives in Fig. 4a).
 
 Finally, it is the *same* plane across learning (Fig. 3f): decoders trained in one stage read the
 other stage's held-out activity at ~90% of the within-stage ceiling (transfer/within 0.90 for
-sample, 0.87 for choice; robust across decoder pipelines and to scoring both stages in one common
-feature scaling), and the same transfer holds inside each animal. In the vocabulary of the BCI
+sample, 0.87 for choice; robust across decoder variants and to scoring both stages in one common
+unit scaling), and the same transfer holds inside each animal. In the vocabulary of the BCI
 learning literature [Sadtler 2014; Golub 2018], what follows is *within-manifold* learning: the
 subspace is a fixed constraint, and learning reassociates states within it rather than building
 new dimensions — the repositioning we quantify next (Fig. 4).
@@ -290,8 +290,9 @@ al. [Bernardi 2020] — was already present in naïve animals and preserved acro
 per-mouse cross-condition generalisation performance (CCGP — the accuracy of a decoder trained
 on one subset of conditions and tested on held-out conditions) sat on the Naïve = Expert unity
 line for the sample and choice codes, with only the
-test code nudging up (knob-dependent, p = .04/.73 across pipelines — reported without a verdict)
-(Extended Data). The same signature appears in the geometry's expressivity: decoding all 462
+test code nudging up (significant under one decoder variant but not the other, p = .04/.73 —
+reported without a verdict)
+(Extended Data). The same signature appears in the geometry's separating capacity: decoding all 462
 balanced dichotomies of the 12 conditions (the shattering dimension) gives 0.69–0.70 against a
 shuffle floor of 0.50 and an unstructured ceiling of 1 (Extended Data Fig. 3) — high
 generalisation with moderate shattering is precisely the *abstract, compressed* regime
@@ -304,14 +305,14 @@ Having established one fixed shared subspace, we asked what learning changes wit
 code aligns onto the choice axis (Fig. 4a): cross-decoding between the two codes rises from
 chance-referenced transfer 0.33 [−0.03, 0.60] in naïve to 0.57 [0.36, 0.75] in expert animals,
 and per animal both the raw axis cosine (0.073 → 0.114, p = .008) and the cross-decode
-(0.53 → 0.61, p = .004) increase — both robust across decoder pipelines. The distractor's demand
+(0.53 → 0.61, p = .004) increase — both robust across decoder variants. The distractor's demand
 becomes readable as what it is behaviourally: a lick decision.
 
 Second, learning repositioned the working-memory state along that same axis, to an increasingly
 output-suppressing set-point. The expert DPA delay state sat further into the no-lick half of the
 choice axis than the naïve state (Fig. 4b; sample × choice planes for naïve and expert, and the
 per-mouse late-delay depth; mixed model 9 mice/36 obs, β = −0.744, p = 0.046; per-animal Wilcoxon
-p = 0.098) — a set-point shift that parks the delay state away from the lick boundary,
+p = 0.098) — a set-point shift that moves the delay state away from the lick boundary,
 suppressing precisely the intrusive-lick → false-alarm chain that learning removes behaviourally
 (Fig. 1g). The shift was numerically larger for sample A than for sample B (ΔA ≈ −1.42, p = 0.098;
 ΔB ≈ −0.07, p = 0.91), but the direct paired A-vs-B comparison across the same 9 mice is not
@@ -326,9 +327,9 @@ pushed its delay state toward no-lick, the more its DPA accuracy improved (Fig. 
 between-mouse per-mouse Spearman ρ = −0.83, p = 0.005, n = 9), with no relationship to Go/NoGo
 accuracy (Fig. 4c right; ρ = +0.20, p = 0.61) — the repositioning is associated specifically
 with memory performance, at no detectable distractor-task cost. The coupling held across every normalisation
-(ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and a resampling battery (jackknife; bootstrap CI excluding
+(ρ ≈ −0.83 to −0.90, all p ≤ 0.005) and every resampling check (leave-one-out jackknife; bootstrap CI excluding
 0; permutation p = 0.008). Two controls close the section. Within naïve nonpaired trials, the
-trial-by-trial well depth did not separate correct rejections from false alarms on this axis
+trial-by-trial state depth did not separate correct rejections from false alarms on this axis
 (Fig. 4d; sample-A Δ(CR−FA) = −1.16, p = 0.27; sample-B +0.73, p = 0.47, n.s.) — the push is a
 between-animal learning effect, not a within-stage trial-level accuracy readout. And the change
 is in the state's *position*, not the code itself: the choice code's discriminability was
@@ -843,6 +844,14 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
 ---
 
 ### To reconcile before submission (figure ↔ text integrity)
+- **✓ REGISTER PASS (2026-09-02, Albert Compte's review → Leon: "jargon pass now, keep structure"):**
+  20 replacements in the body (Abstract→Synthesis) + 1 in the Discussion — ML-flavoured vocabulary
+  translated (decode ablation → decoding after removing the plane; bounded equivalence → "agree to
+  within X accuracy"; estimators → measures; decoder pipelines → decoder variants; held-out →
+  withheld-from-fit at first use; disentangled → factorised; parks → pushes/moves; knob-dependent →
+  named explicitly; expressivity → separating capacity; resampling battery → every resampling check;
+  well depth → state depth). Claim-first structure and ALL statistics untouched; Methods keeps its
+  technical register deliberately. In-figure captions not swept (they drop at submission).
 - **✓ CODEX DRAFT REVIEW APPLIED (2026-09-01, adjudicated):** applied = claims calibration
   (abstract/§2/§4/§5/Synthesis/Discussion verbs + "no detectable"), §5 clustered-ΔGNG-first
   reorder, ED count 8→9, estimator-paragraph rewording, expert-day parenthetical, CCGP

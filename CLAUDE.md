@@ -71,6 +71,12 @@ plt.rcParams.update({
 })
 TITLE_FS = 8                          # panel titles: ax.set_title(..., loc='left', fontsize=TITLE_FS)  — NOT bold
 ```
+**PRINT SCALE (2026-09-02):** the five mains each define `PS` right before this rcParams block and
+multiply EVERY font size by it (rcParams values, TITLE_FS, all `fontsize=` literals, the caption) —
+Fig 1 `PS=1.45`, Fig 2 `1.15`, Fig 3 `1.30`, Fig 4 `1.10` (lives in `overlaps/main_panels.py`,
+imported as `_MP.PS`), Fig 6 `1.35`. Reason: canvases are 10–14 in wide, so at a 183 mm journal page
+the old 7–8 pt fonts printed at 4–6 pt (Albert's review); PS makes printed labels land ≥ 5.7 pt.
+A new wide-canvas figure should set `PS ≈ canvas_width_in / 7.2 × 0.72` and scale the same way.
 Rules that go with it:
 - **Panel titles** left-aligned, `fontsize=TITLE_FS` (8), NOT bold. **Panel letters** (A/B/C…) are the only
   bold text: `fig.text(..., fontsize=11, fontweight='bold')`.
