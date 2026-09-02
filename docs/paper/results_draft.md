@@ -513,7 +513,7 @@ decodes from only two coordinates and uses a bare logistic regression on them.)
 ### Cross-validated dimensionality (Fig. 2b)
 
 We estimated the reliable dimensionality of the pseudo-population (12 conditions = 3 tasks ×
-2 samples × 2 test odours) with cross-validated PCA. For each of 30 random halvings (20 for the
+2 samples × 2 test odours) with cross-validated PCA [Stringer 2019b]. For each of 30 random halvings (20 for the
 ED participation-ratio bars), the trials of every (mouse, condition) pool were split into two
 disjoint halves, yielding two independent condition-mean pseudo-populations. A PCA basis was fit
 on one half and the variance of the other half evaluated by cross-projection (both directions
@@ -522,7 +522,7 @@ replicates across independent halves — signal — is retained (on our data onl
 condition-mean variance replicates, and the naïve scree fails to separate states that the
 reliable spectra separate cleanly). Because the basis is fit on a noisy half, per-component
 values estimate signal variance along empirical axes: total reliable variance is unbiased but
-the spectrum is flattened by basis misalignment — conservative for the low-dimensionality
+the spectrum is flattened by basis misalignment [Pospisil 2025] — conservative for the low-dimensionality
 claims made here. Neurons were scaled by a stage-level, condition-agnostic standard deviation
 (scale only — no mean subtraction; condition means are centred across conditions inside the
 estimator). Repeated split-half CV is used rather than k > 2 folds because the estimator is a
@@ -543,7 +543,7 @@ at the stated precision (CI half-widths 0.03–0.30), not strict equivalence.
 
 For each condition set and window, each variable's demixed axis was computed by applying its
 orthogonal design contrast to condition means from a training half (binary factors and
-window-averaged states make each dPCA marginalisation rank-1). Held-out pseudo-trials (one
+window-averaged states make each dPCA marginalisation rank-1 [Kobak 2016]). Held-out pseudo-trials (one
 test-half trial per mouse per pseudo-trial, 10 per condition) were projected on the axis and
 classified by the training-set class midpoint; performance is balanced accuracy over 15 splits,
 tested against the 95th percentile of a within-mouse label-shuffle null (100 shuffles, full
@@ -574,7 +574,7 @@ per-mouse subspaces written into the shared neuron space, unit-normalised), and 
 cross-half, sign-preserving cosine averaged over the three task pairs (10 half-splits); the
 null permutes class labels within task (100 draws, 95th percentile), and the
 reliability-corrected PS (raw ÷ split-half reliability) is reported as an estimate — it can
-exceed 1 at low reliability — alongside the raw value. CCGP follows Bernardi et al., computed
+exceed 1 at low reliability — alongside the raw value. CCGP follows Bernardi et al. [Bernardi 2020], computed
 on the pseudo-population with leakage-free matched cross-validation and label-shuffle nulls
 (per-mouse companion: Wilcoxon, n = 9). The shattering dimension decodes all 462 balanced
 6-vs-6 dichotomies of the 12 conditions at the decision window (disjoint train/test halves per
@@ -648,6 +648,69 @@ Analysis code (Python; one shared decoder module, per-figure scripts) will be de
 (Reproducibility note: the CCGD tensor's cross-validation partition is currently unseeded —
 re-running the tensor build permutes folds; all downstream statistics average over folds, but
 bit-exact tensor reproduction requires seeding, flagged for the deposition.)
+
+---
+
+## References
+
+> Working author–year list keyed to the inline [Author Year] tags (both this file and
+> `discussion_draft.md`); converted to numbered Nature format by the reference manager at
+> submission. Driscoll 2024 and Pospisil 2025 verified by search 2026-09-02; the rest are
+> standard anchors. Note the two distinct Stringer 2019 papers (a = movements; b = cvPCA).
+
+- **[Bernardi 2020]** Bernardi, S., Benna, M. K., Rigotti, M., Munuera, J., Fusi, S. & Salzman,
+  C. D. The geometry of abstraction in the hippocampus and prefrontal cortex. *Cell* **183**,
+  954–967 (2020).
+- **[Driscoll 2024]** Driscoll, L. N., Shenoy, K. & Sussillo, D. Flexible multitask computation
+  in recurrent networks utilizes shared dynamical motifs. *Nat. Neurosci.* **27**, 1349–1363
+  (2024).
+- **[Golub 2018]** Golub, M. D., Sadtler, P. T., Oby, E. R., Quick, K. M., Ryu, S. I.,
+  Tyler-Kabara, E. C., Batista, A. P., Chase, S. M. & Yu, B. M. Learning by neural
+  reassociation. *Nat. Neurosci.* **21**, 607–616 (2018).
+- **[Kaufman 2014]** Kaufman, M. T., Churchland, M. M., Ryu, S. I. & Shenoy, K. V. Cortical
+  activity in the null space: permitting preparation without movement. *Nat. Neurosci.* **17**,
+  440–448 (2014).
+- **[Kobak 2016]** Kobak, D., Brendel, W., Constantinidis, C., Feierstein, C. E., Kepecs, A.,
+  Mainen, Z. F., Qi, X.-L., Romo, R., Uchida, N. & Machens, C. K. Demixed principal component
+  analysis of neural population data. *eLife* **5**, e10989 (2016).
+- **[Libby 2021]** Libby, A. & Buschman, T. J. Rotational dynamics reduce interference between
+  sensory and memory representations. *Nat. Neurosci.* **24**, 715–726 (2021).
+- **[Liu 2014]** Liu, D., Gu, X., Zhu, J., Zhang, X., Han, Z., Yan, W., Cheng, Q., Hao, J.,
+  Fan, H., Hou, R., Chen, Z., Chen, Y. & Li, C. T. Medial prefrontal activity during delay
+  period contributes to learning of a working memory task. *Science* **346**, 458–463 (2014).
+- **[Mante 2013]** Mante, V., Sussillo, D., Shenoy, K. V. & Newsome, W. T. Context-dependent
+  computation by recurrent dynamics in prefrontal cortex. *Nature* **503**, 78–84 (2013).
+- **[Musall 2019]** Musall, S., Kaufman, M. T., Juavinett, A. L., Gluf, S. & Churchland, A. K.
+  Single-trial neural dynamics are dominated by richly varied movements. *Nat. Neurosci.* **22**,
+  1677–1686 (2019).
+- **[Oby 2019]** Oby, E. R., Golub, M. D., Hennig, J. A., Degenhart, A. D., Tyler-Kabara,
+  E. C., Yu, B. M., Chase, S. M. & Batista, A. P. New neural activity patterns emerge with
+  long-term learning. *Proc. Natl Acad. Sci. USA* **116**, 15210–15215 (2019).
+- **[Panichello 2021]** Panichello, M. F. & Buschman, T. J. Shared mechanisms underlie the
+  control of working memory and attention. *Nature* **592**, 601–605 (2021).
+- **[Parthasarathy 2017]** Parthasarathy, A., Herikstad, R., Bong, J. H., Medina, F. S.,
+  Libedinsky, C. & Yen, S.-C. Mixed selectivity morphs population codes in prefrontal cortex.
+  *Nat. Neurosci.* **20**, 1770–1779 (2017).
+- **[Pospisil 2025]** Pospisil, D. A. & Pillow, J. W. Revisiting the high-dimensional geometry
+  of population responses in the visual cortex. *Proc. Natl Acad. Sci. USA* **122**,
+  e2506535122 (2025).
+- **[Rigotti 2013]** Rigotti, M., Barak, O., Warden, M. R., Wang, X.-J., Daw, N. D., Miller,
+  E. K. & Fusi, S. The importance of mixed selectivity in complex cognitive tasks. *Nature*
+  **497**, 585–590 (2013).
+- **[Sadtler 2014]** Sadtler, P. T., Quick, K. M., Golub, M. D., Chase, S. M., Ryu, S. I.,
+  Tyler-Kabara, E. C., Yu, B. M. & Batista, A. P. Neural constraints on learning. *Nature*
+  **512**, 423–426 (2014).
+- **[Stringer 2019a]** Stringer, C., Pachitariu, M., Steinmetz, N., Reddy, C. B., Carandini, M.
+  & Harris, K. D. Spontaneous behaviors drive multidimensional, brainwide activity. *Science*
+  **364**, eaav7893 (2019).
+- **[Stringer 2019b]** Stringer, C., Pachitariu, M., Steinmetz, N., Carandini, M. & Harris,
+  K. D. High-dimensional geometry of population responses in visual cortex. *Nature* **571**,
+  361–365 (2019).
+- **[Vyas 2020]** Vyas, S., Golub, M. D., Sussillo, D. & Shenoy, K. V. Computation through
+  neural population dynamics. *Annu. Rev. Neurosci.* **43**, 249–275 (2020).
+- **[Yang 2019]** Yang, G. R., Joglekar, M. R., Song, H. F., Newsome, W. T. & Wang, X.-J. Task
+  representations in neural networks trained to perform many cognitive tasks. *Nat. Neurosci.*
+  **22**, 297–306 (2019).
 
 ---
 

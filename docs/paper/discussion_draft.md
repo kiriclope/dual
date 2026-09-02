@@ -88,7 +88,7 @@ therefore frame the acute result as position-moving with a robust distractor-sid
 as a full causal reproduction of the learning effect. (iii) The choice axis is defined by licking;
 delay-period displacement is not accompanied by delay licking, code fidelity is
 movement-insensitive under laser, and the coupling survives a lick covariate (ED 5d), but
-uninstructed orofacial movements shape cortical activity broadly [Musall 2019; Stringer 2019],
+uninstructed orofacial movements shape cortical activity broadly [Musall 2019; Stringer 2019a],
 and motion-energy regression would further separate motor execution from choice coding. (iv) The
 push itself is directional and modest per animal (mixed-model p = .046, per-animal trend); its
 force comes from convergence — the same reorganisation seen in alignment, position, behavioural
