@@ -616,3 +616,16 @@ candidates if a slot ever opens.
   plane "conservation" was circular by construction (own supervised axis + per-mouse
   standardisation force the same ±1 dumbbell in every mouse; within/cross classifiers make
   98.6%-identical predictions). Figure removed; do not cite.
+
+### 2026-09-02: per-mouse cvPCA companion (ED 3i) — built at user request
+User asked "why don't we do the analysis at a per mouse level" (from the artifact-comment round
+on the pseudo-population limitation). `exp_permouse_cvpca.py` (cache `PM_CVPCA`, estimator-free)
+= Fig 2b's estimator run inside each mouse's own simultaneously recorded neurons (DPA 4-cond
+set, md vs decision, 30 halvings). RESULT: wherever the reliable variance is resolvable
+(reliable-total ≥ 5; 7/9 mice per stage), the memory spectrum is 1-D per animal — top-1 median
+0.90 Naive / 0.93 Expert; within-mouse memory-vs-decision spread: Expert 0.93→0.61 Wilcoxon
+p=.047 (6/7), Naive directional p=.22. Noise-limited cells (JawsM01-E, JawsM06 both, ACCM04-N
++ md-only cells) drawn open + excluded — the disclosure rule IS the honest answer to "why
+pooled": those mice have <5 units of replicating variance at their trial counts. Wired in:
+§2 sentence + Methods block + ED 3(i) entry + Discussion limitation (i) now cites it; figure
+`fig_permouse_cvpca.png` pinned to gallery Supp. Do NOT star the Naive contrast.

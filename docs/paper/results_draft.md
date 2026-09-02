@@ -165,7 +165,13 @@ mid-delay reliable spectrum is a single component (fraction 1.00, 95% CI [0.98, 
 across mice; Fig. 2b). The dual mid-delay adds exactly one further reliable component
 (0.92 + 0.07 [0.01, 0.13]) — the distractor axis, whose identity and reliability are carried by
 the decoding and factor tests (Fig. 2c,d) rather than by the small variance fraction alone — and
-the decision state spreads to ~3 components (DPA 0.66/0.17/0.17; dual 0.61/0.30/0.05).
+the decision state spreads to ~3 components (DPA 0.66/0.17/0.17; dual 0.61/0.30/0.05). The
+same picture holds animal by animal, on each mouse's own simultaneously recorded population:
+wherever the per-mouse reliable variance is resolvable, the mid-delay spectrum is dominated by
+a single component (per-mouse cvPCA, median top-1 fraction 0.90 naïve / 0.93 expert, n = 7
+resolvable mice per stage), and the within-mouse memory-vs-decision contrast spreads as
+predicted (expert 0.93 vs 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve directional, p = 0.22)
+(Extended Data Fig. 3i).
 
 Each reliable dimension is a task variable, engaged exactly when its variable is in play. Decoding
 makes the point amplitude-free (Fig. 2c, balanced accuracy of held-out pseudo-trials along each
@@ -528,7 +534,11 @@ claims made here. Neurons were scaled by a stage-level, condition-agnostic stand
 estimator). Repeated split-half CV is used rather than k > 2 folds because the estimator is a
 cross-product of two independent condition-mean estimates whose variance is minimised by equal
 halves. These estimators operate on condition means: they characterise the task-conditioned
-state geometry, not the single-trial state space. The null is a label-shuffled realisation of
+state geometry, not the single-trial state space. A per-mouse companion applies the identical
+estimator within each mouse's own simultaneously recorded neurons (DPA 4-condition set, 30
+halvings, ≥6 trials per condition; cells whose reliable-variance total falls below 5 are
+flagged noise-limited, drawn open, and excluded from the paired memory-vs-decision Wilcoxon;
+Extended Data Fig. 3i). The null is a label-shuffled realisation of
 the full pipeline (condition labels permuted within mouse, trial counts preserved), normalised
 by the real spectrum's positive total. Windows (pseudo-population convention): mid-delay
 (bins 36–38 — the final third of the 5.5–6.5-s post-distractor epoch, closing at the Go/NoGo
@@ -767,7 +777,12 @@ deliberation. Caveats: on correct trials choice ≡ trial completion, so state-d
 contributes to the naïve separation (the naïve/expert contrast may partly reflect stronger selection at
 lower naïve accuracy); and at the mouse level the learning difference is not individually resolved
 (Δ accuracy +0.19, leave-one-mouse-out jackknife CI [−0.09, +0.46], n = 9) — the effect is established
-at the pooled-population level, where it replicates across three independent pipelines.
+at the pooled-population level, where it replicates across three independent pipelines; **(i) the
+per-mouse cvPCA companion** (`fig_permouse_cvpca.png`, added 2026-09-02): the Fig. 2b spectra
+reproduced within each mouse's own simultaneously recorded population (DPA set, same estimator) —
+top-1 reliable fraction, memory vs decision window, per stage; noise-limited cells
+(reliable-total < 5) drawn open and excluded from the test; medians 0.90/0.93 at mid-delay,
+expert memory-vs-decision Wilcoxon p = .047 (6/7), naïve directional p = .22.
 
 **ED Fig. 4 | dPCA no-lick push robustness (corroborates Fig. 4).** The Naïve→Expert deepening reproduces in raw ΔF/F
 (r≈0.997, not a z-score artifact), survives condition-independent time-ramp removal (q0/1/2 =

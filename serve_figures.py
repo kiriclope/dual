@@ -78,6 +78,8 @@ VARIANTS = [
 SUPP = [
     ('ED — per-mouse CCGP (abstraction unchanged) + per-mouse cross-task generalisation  [left the mains 2026-08-31]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png'),
+    ('ED 3(i) · per-mouse cvPCA companion — the memory spectrum is 1-D per animal (medians 0.90/0.93; expert mem-vs-dec p=.047, naive directional)',
+     'pca/figures/pseudo/dimensionality/png/fig_permouse_cvpca.png'),
     ('ED — Fig 3 PCA-20 robustness variant (canonical = no-PCA)',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
     # ── moved out of MAIN 2026-08-30: ED material + the Fig-4 cv10 (denoised-decoder) builds
