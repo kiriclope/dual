@@ -393,39 +393,40 @@ for _ax, _L, _dy in [(axAm, 'A', 0.016), (axB, 'B', 0.016), (axC, 'C', 0.016),
 
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
 CAP_PARAS = [
-    'Figure 1 | Composing working memory with an embedded action is costly: the intruding lick, '
-    'not the distractor odour, interferes — and it propagates to the memory response. Recorded '
-    'cohort, nine mice, laser-off trials; curves show mean ± SEM across mice; ∗ p < .05, ∗∗ p < '
-    '.01, ∗∗∗ p < .001 (per-day linear mixed models, uncorrected; day 6 n = 4).',
-    'a, Task design. Each trial is a delayed paired-association (DPA) problem: a sample odour (A '
-    'or B), a 6-s delay, then a test odour (C or D); the mouse licks if the pair matches (A→C, '
-    'B→D) and withholds otherwise — the sample must be held in working memory across the delay. '
-    'On two thirds of trials a Go/NoGo (GNG) discrimination is embedded inside that delay — a '
-    'distractor odour, then a response cue: lick on Go, withhold on NoGo (DualGo / DualNoGo '
-    'trials); the remainder are pure DPA. All three trial types are interleaved within every '
-    'session, so the memory must survive both the distractor odour and the act of responding to '
-    'it. Right: the training curriculum.',
-    'b–e, Learning curves (per-mouse/day accuracy). b, DPA vs GNG performance. c, GNG split by '
-    'distractor identity. d, DPA paired vs unpaired trials. e, DPA unpaired trials by surrounding '
-    'task context. What is hard is not licking to the right odour, but not licking while a lick- '
-    'demanding task runs through the middle of the memory period.',
+    'Figure 1 | Combining working memory with an embedded action is costly, and the cost comes '
+    'from the intruding lick rather than from the distractor odour. Recorded cohort, nine mice, '
+    'laser-off trials. Curves show the mean ± SEM across mice; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < '
+    '.001 (per-day linear mixed models, uncorrected; day 6 n = 4).',
+    'a, Task design. Each trial is a delayed paired-association (DPA) problem. A sample odour (A '
+    'or B) is followed by a 6-s delay and then a test odour (C or D); the mouse licks if the pair '
+    'matches (A→C, B→D) and withholds otherwise, so the sample has to be held in working memory '
+    'across the delay. On two thirds of trials a Go/NoGo (GNG) discrimination is embedded inside '
+    'that delay: a distractor odour, then a response cue, with a lick required on Go and withheld '
+    'on NoGo (DualGo and DualNoGo trials). The remaining trials are pure DPA. All three trial '
+    'types are interleaved within every session, so the memory must survive both the distractor '
+    'odour and the act of responding to it. Right, the training curriculum.',
+    'b–e, Learning curves, per-mouse and per-day accuracy. b, DPA and GNG performance. c, GNG '
+    'split by distractor identity. d, DPA paired and unpaired trials. e, DPA unpaired trials by '
+    'the task context surrounding them. The difficulty is not licking to the right odour but not '
+    'licking while a lick-demanding task runs through the middle of the memory period.',
     'f, Linear mixed model over panels b–e (fixed effects ± 95% CI; filled circles, condition '
-    'offset; open squares, condition × day slope; random intercept per mouse): GNG−DPA β = +0.037 '
-    '(p = 0.045), narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paired −0.185 (p < '
-    '10⁻⁴), narrowing; Go−DPA −0.073 (p = 0.038).',
-    'g, Where the interference acts — the intruding lick propagates through the response: '
-    'probability of licking at the DPA test on NoGo trials, split by whether the animal licked at '
-    'the distractor cue (thin lines, single mice). In naïve mice a cue lick tripled the odds of '
-    'licking again at test (trial-level GEE, OR = 3.10, p = .006); the propagation is pairing- '
-    'independent (lick × pairing interaction p = .61) — on unpaired trials the second lick is the '
-    'false alarm (OR = 2.7, p = .09), on paired trials a hit (OR = 9.9, p = .001). In expert mice '
-    'the propagation is absent (OR = 1.50, p = .42) and cue licks are rare (rate 0.24 → 0.08): '
-    'this is the lick chain that the no-lick repositioning of Fig. 4 closes.',
-    'h, Learned, but not jointly optimal: expert DPA vs GNG accuracy per animal (colour, mouse; '
-    'marker, opsin group; star, the both-optimal corner). No animal reaches the corner (mean gap '
-    '0.18) and the two accuracies are uncorrelated (r = +0.10, p = .80; ρ = +0.35, p = .36; n = '
-    '9) — each animal settles its own balance. The problem the population geometry must solve is '
-    'precise: shield the memory from the very action the animal is required to produce.',
+    'offset; open squares, condition × day slope; random intercept per mouse). GNG−DPA β = +0.037 '
+    '(p = 0.045), with the gap narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paired '
+    '−0.185 (p < 10⁻⁴), narrowing over days; Go−DPA −0.073 (p = 0.038).',
+    'g, Where the interference acts. Probability of licking at the DPA test on NoGo trials, split '
+    'by whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice '
+    'a cue lick tripled the odds of licking again at the test (trial-level GEE, OR = 3.10, p = '
+    '.006). The propagation does not depend on pairing (lick × pairing interaction p = .61): on '
+    'unpaired trials the second lick is the false alarm (OR = 2.7, p = .09), on paired trials it '
+    'is a hit (OR = 9.9, p = .001). In expert mice the propagation is absent (OR = 1.50, p = .42) '
+    'and cue licks are rare (rate 0.24 → 0.08). This is the lick chain that the no-lick '
+    'repositioning in Fig. 4 closes.',
+    'h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each '
+    'animal (colour, mouse; marker, opsin group; star, the corner where both tasks are optimal). '
+    'No animal reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across '
+    'mice (r = +0.10, p = .80; ρ = +0.35, p = .36; n = 9); each animal settles its own balance. '
+    'The problem the population geometry has to solve is therefore a precise one: shield the '
+    'memory from the very action the animal is required to produce.',
 ]
 sys.path.insert(0, '/home/leon/dual/pca')
 from figcaption import draw_justified                  # shared with Figs 2/3

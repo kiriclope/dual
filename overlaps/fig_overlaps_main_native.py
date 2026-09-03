@@ -341,36 +341,38 @@ if __name__ == '__main__':
 
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
-        'Figure 4 | Learning edits the geometry, not the code: the distractor code rotates onto the '
+        'Figure 4 | Learning edits the geometry, not the code. The distractor code rotates onto the '
         'choice axis, and the memory state is pushed along that axis to an output-suppressing no-lick '
-        'set-point that predicts each animal’s memory gain. Code depth, the projection on the choice '
-        '(lick) decoder axis, per mouse, baseline-zeroed, in evoked-s.d. units; negative = toward no- '
-        'lick.',
-        'a, The action dimension reorganises — the distractor code aligns onto the choice axis: '
-        'cross-decoding between the two codes (balanced accuracy; diagonal, within-code; off- '
-        'diagonal, transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] (naïve) to '
-        '0.57 [0.36, 0.75] (expert). Right, the same convergence within each animal, naïve vs expert: '
-        'per-mouse |cos| 0.073 → 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = .004); both '
-        'robust across decoder variants; drawn from fixed canonical caches in every build. The '
-        'distractor’s demand becomes readable as what it is behaviourally: a lick decision.',
-        'b, The no-lick push — the memory state is repositioned along the choice axis: DPA delay '
-        'trajectories in the sample × choice plane (naïve | expert; strips, late-delay depth '
-        'distributions) and per-mouse late-delay depth. With learning the delay state sinks into the '
-        'half of the axis whose readout is “do not lick”, away from the lick boundary — the geometric '
-        'counterpart of the vanishing lick chain (Fig. 1g). Mixed model β = −0.74, p = .046 ∗ (9 '
-        'mice, 36 observations); per-animal trend (Wilcoxon p = .098), carried by sample A (Δ = '
-        '−1.42, p = .098; sample B ≈ 0; the A-vs-B difference itself n.s., p = .055).',
-        'c, The push predicts behaviour across animals: each mouse’s change in depth vs its change in '
-        'accuracy (circles, the two sample classes per mouse, joined; the regression band, ρ and p '
-        'are computed on the nine per-mouse means). The deeper a mouse pushes its memory state, the '
-        'more its DPA accuracy improves (ρ = −0.83, p = .005 ∗); the same change predicts nothing for '
-        'GNG (ρ = +0.20, p = .61) — the coupling is specific to the memory task.',
-        'd, The push is a between-animal learning effect, not a trial-level accuracy readout: within '
-        'a stage (naïve nonpaired trials), single-trial depth does not separate correct rejections '
-        'from false alarms (sample A, Δ(CR−FA) = −1.16, p = .27; sample B, +0.73, p = .47).',
-        'e, Position, not fidelity: the choice code’s discriminability (d′, lick vs no-lick) is '
-        'unchanged with learning (0.80 → 1.07, p = .25). Learning moves where the memory state sits '
-        'on the axis (b), not how well the axis reads out.',
+        'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
+        'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
+        'negative values lie toward no-lick.',
+        'a, The action dimension reorganises: the distractor code aligns with the choice axis. Cross- '
+        'decoding between the two codes (balanced accuracy; diagonal, within-code; off-diagonal, '
+        'transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] in naïve to 0.57 '
+        '[0.36, 0.75] in expert mice. Right, the same convergence within each animal, naïve against '
+        'expert: per-mouse |cos| 0.073 → 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = '
+        '.004), both robust across decoder variants and drawn from fixed canonical caches in every '
+        'build. The distractor’s demand becomes readable as what it is for the animal, a lick '
+        'decision.',
+        'b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay '
+        'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late- '
+        'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '
+        'half of the axis whose readout is “do not lick”, away from the lick boundary, the geometric '
+        'counterpart of the vanishing lick chain in Fig. 1g. Mixed model β = −0.74, p = .046 ∗ (9 '
+        'mice, 36 observations); per-animal trend, Wilcoxon p = .098, carried by sample A (Δ = −1.42, '
+        'p = .098; sample B ≈ 0; the A-versus-B difference itself is n.s., p = .055).',
+        'c, The push predicts behaviour across animals. Each mouse’s change in depth against its '
+        'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
+        'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
+        'state, the more its DPA accuracy improves (ρ = −0.83, p = .005 ∗), whereas the same change '
+        'predicts nothing for GNG (ρ = +0.20, p = .61). The coupling is specific to the memory task.',
+        'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
+        'Within a stage (naïve nonpaired trials), single-trial depth does not separate correct '
+        'rejections from false alarms (sample A, Δ(CR−FA) = −1.16, p = .27; sample B, +0.73, p = '
+        '.47).',
+        'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no- '
+        'lick) is unchanged by learning (0.80 → 1.07, p = .25). Learning moves where the memory state '
+        'sits on the axis (b), not how well the axis reads out.',
     ]
     if FILE_SUF != '_dpaact':
         CAP_PARAS[0] += (f' [BUILD VARIANT {FILE_SUF}: panel annotations carry this build’s own '

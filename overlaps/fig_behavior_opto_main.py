@@ -859,33 +859,34 @@ if not POSTER:   # one minimal tag where the design switches (batch → within-m
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
 if not POSTER:
     CAP_PARAS = [
-        'Figure 6 | ACC→mPFC input supplies the edit: the projection is required while the '
-        'composition is learned, and acutely sets the state’s position on the learned geometry '
-        'without degrading the code. Code depth as in Fig. 4.',
-        'a, Design: hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm laser on a '
-        'pseudo-random 50% of trials, delay period only — every comparison in d–l is within-mouse, '
-        'laser ON vs OFF.',
-        'b, c, The projection is required for the composition to be learned: chronic every-trial '
-        'silencing during training (separate cohort; 9 opto vs 9 control mice, between-group) impairs '
-        'DPA acquisition (b); the mixed-model summary (c; group ● and group × day □ fixed effects ± '
-        '95% CI) loads the deficit on DPA (β = −0.06, p = 0.009) and its unpaired trials (β = −0.12, '
-        'p = 0.014), sparing GNG — the memory task specifically.',
-        'd–f, Acute silencing moves the state, not behaviour: in the recorded cohort (Jaws, n = 5), '
-        'DPA (d) and GNG (e) accuracy are unchanged ON vs OFF, yet the same manipulation displaces '
-        'each animal’s position along the choice axis (f; per-mouse depth, samples pooled; directions '
-        'differ across mice, so the group mean is flat).',
-        'g–i, The displacement is read on the learned action axis and predicts behaviour: Δdepth '
-        '(ON−OFF) against the accompanying accuracy change (20 points = 5 mice × naïve/expert × '
-        'sample A/B; depth on the trainLD_TEST axis at late delay). The joint trade-off (g) is a raw- '
-        'level trend (r = +0.53, p = .016; the points cluster within five mice and a mouse-clustered '
-        'model gives p = .108); its arms are ΔDPA (h, n.s.) and ΔGNG (i, r = −0.65, p = .002; ρ = '
-        '−0.62, p = .003; the one arm surviving the clustered model, β = −0.013, p = .018).',
-        'j, Laser-ON behaviour keeps its DPA–GNG balance (r = +0.44, p = .20).',
-        'k, l, Position, not fidelity, again: d′ ON vs OFF sits on the unity line for the memory code '
-        '(k; sample-axis d′ at late delay; LMM laser p = .34, n = 10 observations) and the GNG code '
-        '(l; choice-axis d′ at mid-delay; p = .74). The input sets the code’s position on the '
-        'subspace (f–i) without degrading its content — the same position-not-fidelity principle as '
-        'learning itself (Fig. 4).',
+        'Figure 6 | ACC→mPFC input supplies the edit. The projection is required while the '
+        'composition is being learned, and acutely it sets the position of the state on the learned '
+        'geometry without degrading the code. Code depth as in Fig. 4.',
+        'a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm light on a '
+        'pseudo-random 50% of trials, restricted to the delay period, so every comparison in d–l is '
+        'within-mouse, laser ON against OFF.',
+        'b, c, The projection is required for the composition to be learned. Chronic every-trial '
+        'silencing during training (a separate between-group cohort; 9 opto and 9 control mice) '
+        'impairs DPA acquisition (b). The mixed-model summary (c; group ● and group × day □ fixed '
+        'effects ± 95% CI) places the deficit on DPA (β = −0.06, p = 0.009) and on its unpaired '
+        'trials (β = −0.12, p = 0.014) while sparing GNG; the memory task is affected specifically.',
+        'd–f, Acute silencing moves the state, not behaviour. In the recorded cohort (Jaws, n = 5), '
+        'DPA (d) and GNG (e) accuracy are unchanged between ON and OFF, yet the same manipulation '
+        'displaces each animal’s position along the choice axis (f; per-mouse depth, samples pooled). '
+        'The directions differ across mice, so the group mean is flat.',
+        'g–i, The displacement, read on the learned action axis, predicts behaviour. Δdepth (ON−OFF) '
+        'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
+        'depth on the trainLD_TEST axis at late delay). The joint trade-off (g) is a raw-level trend '
+        '(r = +0.53, p = .016); because the points cluster within five mice, a mouse-clustered model '
+        'gives p = .108. Its arms are ΔDPA (h, n.s.) and ΔGNG (i, r = −0.65, p = .002; ρ = −0.62, p = '
+        '.003), the latter being the one arm that survives the clustered model (β = −0.013, p = '
+        '.018).',
+        'j, Behaviour under laser ON keeps its DPA–GNG balance (r = +0.44, p = .20).',
+        'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
+        'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 10 '
+        'observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
+        'the position of the code on the subspace (f–i) without degrading its content, the same '
+        'position-not-fidelity principle that governs learning itself (Fig. 4).',
     ]
     if _SUF:
         CAP_PARAS[0] += (f' [BUILD VARIANT {_SUF}: panel annotations carry this build’s own '
