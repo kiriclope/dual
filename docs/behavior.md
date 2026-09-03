@@ -235,7 +235,7 @@ lean on trial-level GEE); coupling is associational, not a causal capacity manip
 
 Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-laser pickle,
 `target=='choice'`, `laser==0`). `figures/overlaps/behavior/{png,svg}/behavior_main.*`. Layout =
-`GridSpec(3,12)`; message-based panel titles. Panels:
+`GridSpec(3,12)`; message-based panel titles _(titles REMOVED 2026-09-03 — see the Nature-style block at the end)_. Panels:
 - **A** — schematics: (i) a setup cartoon, (ii) the DPA+GNG **task scheme** (`dual_task_scheme.svg`),
   (iii) the **Curriculum training** pipeline (`dual_training_scheme_vector.svg`, hand-authored vector,
   conventions colours: DPA red / GNG blue / dual orange; "shaping" = paired-trials-only task version,
@@ -298,7 +298,7 @@ a single **4 equal-height row** gridspec: **first row = scheme A (left, cols 0:6
 curve, cols 6:9) + E (LMM forest, cols 9:12), B & E `set_box_aspect(1)` → square**; then F–H (row 2),
 I–K (row 3), L–N (row 4). **The batch GNG-spared curve (C) and DPA-unpaired curve (D) were removed**
 (E's forest still carries all three metrics), so panel letters run A, B, E, F…N (no C/D). No bottom
-caption strip (removed); message-titled panels; row banners over the recorded / overlaps / last rows
+caption strip (removed); message-titled panels and row banners _(BOTH REMOVED 2026-09-03 — Nature-style block at the end)_ over the recorded / overlaps / last rows
 (the batch first row has none — panels are self-titled). Helpers copied inline from
 `fig_behavior_learning_offon.py`, `fig_behavior_learning_batch.py --ctrlopto`, and
 `plot_scatter_laser.py`, so those stay untouched. Panels:
@@ -480,10 +480,24 @@ boundary → treat as mildly anti-conservative.
 ## 2026-08-31 in-figure captions (Figs 1 & 6 — the opto figure, numbered Fig 5 at the time)
 Both behaviour figures now draw a justified caption below the panels (same mechanism as Figs 2/3:
 `pca/figcaption.draw_justified`; caption text lives in each script's `CAP_PARAS`). Fig 1's old
-one-line footnote was folded into the caption title. Fig 5 keeps its row banners; its caption
+one-line footnote was folded into the caption title. Fig 5 (now Fig 6) kept its row banners until 2026-09-03 (removed since); its caption
 carries the header's exact stats (trade-off r=+0.53 p=.016 with the mixed-model caveat printed;
 K/L LMM p=.34/.74) and appends a [BUILD VARIANT] tag on the axis/norm variant builds (as does
 Fig 4). The poster build skips the caption.
 - 2026-08-31 (later): both captions rewritten to the house caption standard (claim+roadmap
   title; per panel what/how/shows/stats; shared vocabulary; see memory feedback_caption_style)
   — numbers unchanged.
+
+### 2026-09-03 — Nature-style pass (applies to every main figure; supersedes older layout notes above)
+- **No claim-sentence panel titles** on the mains any more (user decision "go for it", 5-figure sweep,
+  commit 22d0d4a): the legend's first sentence and its `a,` entries carry the claims; panels keep only
+  orientation labels (condition / window / axis names). Fig 6's row banners are gone as well; its b/d/e
+  panels carry bare "DPA"/"GNG" labels so they self-identify. Older mentions of "message-based titles"
+  or "row banners" in this file are historical.
+- **Panel letters are lowercase bold** (Nature final-artwork spec); in-text refs use `Fig. 1g` style.
+- **Legends are Nature-format** ("Figure N | title." then `a, …` entries), geometry-voiced and in the
+  human-voice register; they live in each script's `CAP_PARAS` AND in the draft's "## Figure legends"
+  section — edit both together. The captioned PNG is the working/gallery build; `--nocap` is the
+  submission build and `make_submission_figs.py` exports 183 mm vector PDFs.
+- **Print scale**: each main defines `PS` (Fig 1 1.45 · Fig 2 1.15 · Fig 3 1.30 · Fig 4 1.10 via
+  `main_panels.py` · Fig 6 1.35) so printed text lands at 5–7 pt. Convention in CLAUDE.md.

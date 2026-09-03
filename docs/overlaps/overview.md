@@ -924,3 +924,17 @@ p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchan
   axis (choice vs sample, two unit systems) — choice-dominance directional under pooled-evoked
   units (md 4.18 vs 2.60) but p=.13 at n=5 Jaws, unit-sensitive → EXPLORATORY, not for the
   paper; do not re-run without a better cross-axis unit.
+
+### 2026-09-03 — Nature-style pass (applies to every main figure; supersedes older layout notes above)
+- **No claim-sentence panel titles** on the mains any more (user decision "go for it", 5-figure sweep,
+  commit 22d0d4a): the legend's first sentence and its `a,` entries carry the claims; panels keep only
+  orientation labels (condition / window / axis names). Fig 6's row banners are gone as well; its b/d/e
+  panels carry bare "DPA"/"GNG" labels so they self-identify. Older mentions of "message-based titles"
+  or "row banners" in this file are historical.
+- **Panel letters are lowercase bold** (Nature final-artwork spec); in-text refs use `Fig. 1g` style.
+- **Legends are Nature-format** ("Figure N | title." then `a, …` entries), geometry-voiced and in the
+  human-voice register; they live in each script's `CAP_PARAS` AND in the draft's "## Figure legends"
+  section — edit both together. The captioned PNG is the working/gallery build; `--nocap` is the
+  submission build and `make_submission_figs.py` exports 183 mm vector PDFs.
+- **Print scale**: each main defines `PS` (Fig 1 1.45 · Fig 2 1.15 · Fig 3 1.30 · Fig 4 1.10 via
+  `main_panels.py` · Fig 6 1.35) so printed text lands at 5–7 pt. Convention in CLAUDE.md.
