@@ -601,43 +601,49 @@ plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 #    across the gaps; the last line of each paragraph stays flush-left (print convention). ──
 if CDEC:
     CAP_PARAS = [
-        'Figure 2 | One dedicated coding axis per task variable, with the memory and choice axes '
-        'shared across tasks. All panels use the pseudo-population (3,319 neurons, nine mice, 12 '
-        'conditions). Memory state, mid-delay window (5.5–6.3 s; after the distractor, before any cue '
-        'or lick); decision state, test onset onward.',
+        'Figure 2 | The population geometry is minimal and factorised: the working memory is a single '
+        'dimension, each task variable has its own near-orthogonal coding axis, and the memory and '
+        'choice axes are shared across tasks. All panels use the pseudo-population (3,319 neurons, '
+        'nine mice, 12 conditions). Memory state, mid-delay window (5.5–6.3 s; after the distractor, '
+        'before any cue or lick); decision state, test onset onward.',
         'a, Trial timeline, the two analysed states, and the cross-validated PCA (cvPCA): condition '
         'means are estimated on one half of the trials and evaluated on the other (30 random half- '
-        'splits, both directions averaged), so only replicating structure counts.',
-        'b, Fraction of reliable condition-mean variance per cvPCA component (error bars, leave-one- '
-        'mouse-out jackknife 95% CI, t(8); dashed grey, within-mouse label-shuffle null). The DPA '
-        'mid-delay state occupies a single reliable axis; the dual tasks add exactly one (distractor '
-        '0.92 vs sample 0.07); the decision state needs ≈3. Naïve and expert spectra are near- '
-        'identical.',
-        'c, Decoding accuracy for each variable along its own demixed axis, on withheld pseudo- '
-        'trials, against each stage’s own label-shuffle null (95th percentile; expert solid, naïve '
-        'open). A variable decodes exactly when it is in play; † marks the single exception — an '
+        'splits, both directions averaged), so only structure that replicates across independent '
+        'trial halves counts toward the geometry.',
+        'b, The memory manifold is a line: fraction of reliable condition-mean variance per cvPCA '
+        'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed grey, within-mouse '
+        'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension; the dual '
+        'tasks add exactly one — the distractor axis (0.92 vs sample 0.07); the decision state '
+        'spreads to ≈3. Naïve and expert spectra are near-identical: learning does not change the '
+        'dimensionality.',
+        'c, Each axis carries its variable exactly when the task engages it: decoding accuracy along '
+        'each demixed coding axis, on withheld pseudo-trials, against each stage’s own label-shuffle '
+        'null (95th percentile; expert solid, naïve open). † marks the single exception — an '
         'anticipatory choice signal in naïve mid-delay (0.66 vs its null) that disappears with '
-        'learning. Hatched bar: the distractor decoded from the DPA-state subspace (top-3 PCs), a '
-        'weak but reliable transfer at mid-delay (permutation p = .031, 1,000 draws) against 1.0 '
-        'within the dual tasks.',
-        'd, η² of each condition-mean PC against the design contrasts (rows, PCs labelled with their '
-        '% of condition-mean variance; a cell near 1 means that PC codes that variable). Rows beyond '
-        'panel b’s reliable rank are faded; the orange box carries panel c’s distractor cross-decode '
-        'per DPA PC; dual rows show 4 of the 7 centred contrasts.',
-        'e, Decoders trained on one task, tested on the others (expert). Cells, the transferred '
-        'fraction of decodable signal, (cross − 0.5)/(within − 0.5); column labels print each test '
-        'task’s within-task ceiling; hatched cells, ceiling ≈ chance or ratio > 1 (not '
-        'interpretable). Below each matrix, the parallelism score against a label-shuffle null; '
+        'learning. Hatched bar: the distractor read from the DPA-state subspace (top-3 PCs) — a weak '
+        'but reliable transfer at mid-delay (permutation p = .031, 1,000 draws) against 1.0 within '
+        'the dual tasks; the distractor code barely enters the memory subspace.',
+        'd, The principal components are the task variables: η² of each condition-mean PC against the '
+        'design contrasts (rows, PCs labelled with their % of condition-mean variance; a cell near 1 '
+        'means that PC codes that single variable) — the geometry is factorised, not mixed. Rows '
+        'beyond panel b’s reliable rank are faded; the orange box carries panel c’s distractor cross- '
+        'decode per DPA PC; dual rows show 4 of the 7 centred contrasts.',
+        'e, One shared axis per variable, rather than a private axis per task: decoders trained on '
+        'one task read the others (expert). Cells, the transferred fraction of decodable signal, '
+        '(cross − 0.5)/(within − 0.5); column labels print each test task’s within-task ceiling; '
+        'hatched cells, ceiling ≈ chance or ratio > 1 (not interpretable). Below each matrix, the '
+        'parallelism score — the geometric twin of the transfer test — against a label-shuffle null; '
         'corrected for split-half reliability, the sample and choice directions are essentially '
         'parallel across tasks (≈0.96–1.0).',
-        'f, Per-mouse mean cross-task accuracy, naïve vs expert (points on the unity line = no '
-        'change). All changes are n.s. (Wilcoxon, n = 9; both decoder variants) and bounded: the Δ '
-        '95% CIs fall within ±0.05 accuracy (sample [−.03, +.02]; test [−.01, +.04]; choice [−.03, '
-        '+.05]).',
-        'g, Per-neuron discriminability (d′, within-mouse) for sample at mid-delay vs choice at '
-        'decision (n = 3,319; grey square, label-shuffle floor). |d′| across the two variables is '
-        'uncorrelated (r = −0.03) and the both-selective fraction (6.2%) equals the independence '
-        'prediction (6.4%).',
+        'f, The shared frame precedes learning: per-mouse mean cross-task accuracy, naïve vs expert '
+        '(points on the unity line = no change). All changes are n.s. (Wilcoxon, n = 9; both decoder '
+        'variants) and bounded — the Δ 95% CIs fall within ±0.05 accuracy (sample [−.03, +.02]; test '
+        '[−.01, +.04]; choice [−.03, +.05]): an equivalence statement, not mere absence of evidence.',
+        'g, The factorisation is visible neuron by neuron: per-neuron discriminability (d′, within- '
+        'mouse) for sample at mid-delay vs choice at decision (n = 3,319; grey square, label-shuffle '
+        'floor). |d′| across the two variables is uncorrelated (r = −0.03) and the both-selective '
+        'fraction (6.2%) equals the independence prediction (6.4%): largely separate populations '
+        'carry the two axes — the single-neuron basis of the factorised geometry.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure

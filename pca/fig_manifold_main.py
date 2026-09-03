@@ -630,52 +630,59 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 
 # ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
 CAP_PARAS = [
-    'Figure 3 | A single sample × choice plane is necessary and sufficient for the memory and '
-    'choice codes, and learning pulls the distractor code into it. A code is the projection of '
-    'population activity on a per-mouse cross-validated decoder axis (the decoder never sees the '
-    'projected trials), baseline-zeroed, in units of that mouse’s evoked s.d.; correct laser-off '
-    'trials; mean ± SEM across nine mice; p values uncorrected.',
+    'Figure 3 | One manifold: the two-dimensional sample × choice plane is the home of the memory '
+    'and choice codes — necessary, sufficient, and the same plane before and after learning. A '
+    'code is the projection of population activity on a per-mouse cross-validated decoder axis '
+    '(the decoder never sees the projected trials), baseline-zeroed, in units of that mouse’s '
+    'evoked s.d.; correct laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
     'a, The two frame axes read in each task (columns, DPA | Go | NoGo × sample / choice; rows, '
     'naïve | expert). The DPA sample code is maintained across the delay, whereas on dual trials '
-    'the same readout decays after the distractor (lower in 9/9 naïve and 8/9 expert mice). On '
-    'the choice axis the Go trace rises at the cue in both trial classes (every correct Go trial '
-    'licks the cue) and the lick/no-lick split opens only at the test; the expert NoGo trace runs '
-    'below baseline through late delay (7/9 mice). Distractor and test codes are shown in '
-    'Extended Data.',
-    'b, The same projections as snapshots of the sample × choice plane (windows: mid-delay '
+    'the same readout decays after the distractor — the code-morphing signature after an '
+    'interfering stimulus (lower in 9/9 naïve and 8/9 expert mice); whether the memory itself '
+    'survives, or only this readout, is answered by the transfer of Fig. 2e. On the choice axis '
+    'the Go trace rises at the cue in both trial classes (the motor/reward transient — every '
+    'correct Go trial licks the cue) and the lick/no-lick split opens only at the test; the '
+    'expert NoGo trace runs below baseline through late delay (7/9 mice), consistent with active '
+    'withholding. Distractor and test codes are shown in Extended Data.',
+    'b, The same data as geometry: snapshots of the sample × choice plane (windows: mid-delay '
     '5.5–6.3 s, late delay 7.5–8.8 s, decision 10–11 s; the choice axis is trained at the lick '
     'moment, 9.5–10.5 s). Each panel is re-centred per mouse on that window’s mean state and '
     'therefore shows condition geometry, not absolute position (the shared ramp and the push are '
     'carried by a and Fig. 4b). Dots, per-mouse condition means (≥3 correct trials); ellipses, '
     'SEM across mice; large marker, grand mean; fill = lick, open = no-lick; circle / triangle / '
-    'square = DPA / Go / NoGo; colour = sample; scale bar, 2 z.',
-    'c, Decoding each variable from the plane’s two coordinates, from the residual after removing '
-    'the plane, and from the full population (mean ± SEM, n = 9, stages averaged; withheld trial '
-    'halves; paired Wilcoxons, all comparisons drawn). Sample and choice decode as well from the '
-    'plane as from the full population and collapse without it (p = .004); test is at chance from '
-    'the plane and untouched without it (p = .004); the distractor is partial (p = .004). † marks '
-    'the one decoder-variant-dependent comparison.',
-    'd, The same comparison per animal (naïve x vs expert y; rows, spaces; columns, variables). '
-    'Learning changes are n.s. everywhere except the distractor’s plane-only accuracy (0.57 → '
-    '0.65, p = .020/.027 across decoder variants, 8/9 and 7/9 mice up), starred.',
-    'e, |cos| between the decoder axes, attenuation-corrected by split-half reliabilities '
-    '(printed above each matrix; 0 = orthogonal). The sample axis is orthogonal to both action '
-    'codes (≈0.07–0.09, both stages); the choice × dist overlap is partial and grows (0.32 → '
-    '0.47). Right, the raw within-mouse |cos|, naïve vs expert; the choice × dist increase is the '
-    'starred per-animal test of Fig. 4a; no tests are drawn here.',
-    'f, Cross-stage decoding (registered neurons): axes trained in one stage read the other '
-    'stage’s withheld activity at ~90% of the within-stage ceiling (transfer/within 0.90 sample, '
-    '0.87 choice; cross-stage accuracy 0.88 ± 0.03–0.05; robust across decoder variants, '
-    'resampling, and a common-scaling check, ratios shifting ≤ 0.02). Right, the same test within '
-    'each animal. Learning moves the state within the frame (Fig. 4b); it does not rotate the '
-    'frame.',
+    'square = DPA / Go / NoGo; colour = sample; scale bar, 2 z. Every separation, in every task, '
+    'at every moment, falls along the same two axes.',
+    'c, The plane is sufficient — and necessary: decoding each variable from the plane’s two '
+    'coordinates, from the residual population after removing the plane, and from the full '
+    'population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired Wilcoxons, all '
+    'comparisons drawn). A double dissociation: sample and choice decode as well from the plane '
+    'as from the full population and collapse without it (p = .004); the test code is at chance '
+    'from the plane and untouched without it (p = .004) — it lives outside the manifold; the '
+    'distractor’s share is real but partial (p = .004). † marks the one decoder-variant-dependent '
+    'comparison.',
+    'd, The dissociation holds animal by animal (naïve x vs expert y; rows, spaces; columns, '
+    'variables), and carries the one learning effect: the distractor’s plane-only accuracy grows '
+    '(0.57 → 0.65, p = .020/.027 across decoder variants, 8/9 and 7/9 mice up, starred) — '
+    'learning pulls the distractor code into the plane (quantified in Fig. 4a).',
+    'e, The axes are near-orthogonal: |cos| between the decoder axes, attenuation-corrected by '
+    'split-half reliabilities (printed above each matrix; 0 = orthogonal). The memory axis is '
+    'orthogonal to both action codes (≈0.07–0.09, both stages) — the static layer of protection — '
+    'while the choice × dist overlap is partial and grows (0.32 → 0.47). Right, the raw within- '
+    'mouse |cos|, naïve vs expert; the choice × dist increase is the starred per-animal test of '
+    'Fig. 4a; no tests are drawn here.',
+    'f, The frame is fixed across learning: axes trained in one stage read the other stage’s '
+    'withheld activity (registered neurons) at ~90% of the within-stage ceiling (transfer/within '
+    '0.90 sample, 0.87 choice; cross-stage accuracy 0.88 ± 0.03–0.05; robust across decoder '
+    'variants, resampling, and a common-scaling check, ratios shifting ≤ 0.02). Right, the same '
+    'test within each animal. Within-manifold learning: the state moves inside the frame (Fig. '
+    '4b); the frame does not rotate.',
 ]
 if ANTACT:
     CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in a (choice trace) and b (y-axis) is '
                       'the ANTICIPATORY action axis — decoders trained over overlaps bins 48–62 '
                       '(anticipatory + action) instead of the action window 57–62. Panels c–f '
                       'are unchanged (pca-side decision-window axis).]'
-                      if p.startswith('b, The same projections') else '') for p in CAP_PARAS]
+                      if p.startswith('b, ') else '') for p in CAP_PARAS]
 from figcaption import draw_justified                  # shared with fig_dimensionality_main.py
 if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
     draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
