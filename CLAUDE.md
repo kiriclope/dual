@@ -83,7 +83,7 @@ print ≤7 pt; every main takes `--nocap` (no in-figure caption — the submissi
 `figures/paper_share/submission/` (spec: nature.com/documents/nature-final-artwork.pdf — 5–7 pt
 text, 247 mm max depth, editable vector, RGB).
 Rules that go with it:
-- **Panel titles** left-aligned, `fontsize=TITLE_FS` (8), NOT bold. **Panel letters** (A/B/C…) are the only
+- **Panel titles** (2026-09-03, Nature style): main figures carry NO claim-sentence titles — the legend's first sentence and its `a,` entries make the claims. Keep only ORIENTATION labels (condition / window / axis names such as `DPA · sample code`, `Naive`, `mid-delay`), left-aligned, `fontsize=TITLE_FS`, NOT bold. Supplements/ED components may keep descriptive titles. **Panel letters** (A/B/C…) are the only
   bold text: `fig.text(..., fontsize=11, fontweight='bold')`.
 - **Significance markers**: `fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55'`
   (`*` when p<.05 else `n.s.`). **Stats text** (β/ρ/p lines): `fontsize=6.5, color='0.3'`.

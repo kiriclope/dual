@@ -219,7 +219,6 @@ if __name__ == '__main__':
     axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
     axB_sc.set_box_aspect(1)
     axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
-    axB_sc.set_title('Choice-code depth', loc='left', fontsize=TITLE_FS)
     axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
                 transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
     axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
@@ -264,7 +263,6 @@ if __name__ == '__main__':
         ax.text(0.92, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
                 fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
         ax.set_xlabel('Δ DPA choice-code depth'); ax.set_ylabel(ylabel)
-        ax.set_title(msg, loc='left', fontsize=TITLE_FS)
         ax.set_box_aspect(1)
         print(f'B[{ylabel[:6]}] per-mouse n={n_mice} Spearman ρ={rho:+.3f} p={pv:.3f}')
     _C_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),

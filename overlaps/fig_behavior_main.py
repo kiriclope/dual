@@ -235,26 +235,22 @@ plot_line(axB, per_mouse_day('performance', IS_DPA), RED, 'DPA')
 plot_line(axB, per_mouse_day('odr_perf', IS_DUAL), BLUE, 'GNG')
 betas += lmm(IS_DPA | IS_DUAL, COND_A, CORR_A, 'DPA', 'DPAvGNG')
 perday_stars(axB, IS_DPA | IS_DUAL, COND_A, CORR_A, 'DPA')
-axB.set_title('Both tasks are learned', loc='left', fontsize=TITLE_FS)
 
 plot_line(axC, per_mouse_day('odr_perf', IS_GO), BLUE, 'Go')
 plot_line(axC, per_mouse_day('odr_perf', IS_NOGO), GREEN, 'NoGo')
 betas += lmm(IS_DUAL, COND_TASK, CORR_GNG, 'Go', 'GovNoGo')
 perday_stars(axC, IS_DUAL, COND_TASK, CORR_GNG, 'Go')
-axC.set_title('NoGo drives the GNG gain', loc='left', fontsize=TITLE_FS)
 
 plot_line(axD, per_mouse_day('performance', IS_DPA & (d.pair == 1)), RED, 'paired', ls='-')
 plot_line(axD, per_mouse_day('performance', IS_DPA & UNP), RED, 'unpaired', ls='--')
 betas += lmm(IS_DPA, COND_PAIR, CORR_DPA, 'paired', 'pairedVunp')
 perday_stars(axD, IS_DPA, COND_PAIR, CORR_DPA, 'paired')
-axD.set_title('Unpaired trials carry learning', loc='left', fontsize=TITLE_FS)
 
 plot_line(axE, per_mouse_day('performance', UNP & IS_DPA), RED, 'DPA only', ls='--')
 plot_line(axE, per_mouse_day('performance', UNP & IS_GO), BLUE, 'Go', ls='--')
 plot_line(axE, per_mouse_day('performance', UNP & IS_NOGO), GREEN, 'NoGo', ls='--')
 betas += lmm(UNP, COND_TASK, CORR_DPA, 'DPA', 'unpByTask')
 perday_stars(axE, UNP, COND_TASK, CORR_DPA, 'DPA')
-axE.set_title('Go context lowers unpaired DPA', loc='left', fontsize=TITLE_FS)
 
 for ax in (axB, axC, axD, axE):
     ax.axhline(0.5, ls=':', color='0.5', lw=1)
@@ -287,7 +283,6 @@ axF.set_xticks([x for x, _ in xlabels])
 axF.set_xticklabels([lab for _, lab in xlabels], rotation=30, ha='right', fontsize=PS*8)
 axF.set_xlim(-0.6, len(cond_recs) - 0.4)
 axF.set_ylabel('LMM β (Δ performance)')
-axF.set_title('Effect-size summary (LMM)', loc='left', fontsize=TITLE_FS)
 axF.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='condition'),
                     mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=5, label='condition×day')],
            frameon=False, fontsize=PS*6.5, loc='upper right')
@@ -344,7 +339,7 @@ for stage, (x0, x1) in STAGE_X.items():
     st = star(pv) or 'ns'
     axG.text((x0 + x1) / 2, ybr + 0.003, st, ha='center', va='bottom',
              fontsize=PS*12 if star(pv) else 8, fontweight='bold', color='k')
-    axG.text((x0 + x1) / 2, 1.02, stage, ha='center', va='bottom',
+    axG.text((x0 + x1) / 2, 1.13, stage, ha='center', va='bottom',
              transform=axG.get_xaxis_transform(), clip_on=False, fontsize=PS*8,
              fontweight='bold', color=STAGE_SHADE if stage == 'Expert' else '0.4')
     axG.text((x0 + x1) / 2, 0.04, f'OR={orr:.2f}\np={pv:.3f}',
@@ -352,8 +347,6 @@ for stage, (x0, x1) in STAGE_X.items():
 axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no cue\nlick', 'cue\nlick', 'no cue\nlick', 'cue\nlick'])
 axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.0, 1.03); axG.set_ylabel('P(lick at test)')
 # (legend dropped at print scale — the marker colours restate the x-axis categories)
-axG.set_title('The intrusive lick propagates to the test', loc='left',
-              fontsize=TITLE_FS, pad=24)   # raised above the Naive/Expert stage headers
 
 # ── H: suboptimal expert balance — DPA vs GNG per animal ──────────────────────
 axH = fig.add_subplot(gs[2, 8:12])
@@ -377,7 +370,6 @@ axH.text(0.035, 0.965, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n
          fontsize=PS*6.5, color='0.3')
 axH.set_xlim(lim); axH.set_ylim(lim); axH.set_aspect('equal')
 axH.set_xlabel('DPA performance'); axH.set_ylabel('GNG performance')
-axH.set_title('Experts reach a suboptimal balance', loc='left', fontsize=TITLE_FS)
 axH.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='Jaws'),
                     mlines.Line2D([0], [0], marker='^', color='k', ls='none', ms=7, label='ChR'),
                     mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=7, label='ACC')],

@@ -171,8 +171,7 @@ def panelC(ax, show_title=True):
     ax.set_xticks(xp); ax.set_xticklabels([g[2] for g in groups], fontsize=PS*7)
     ax.set_ylim(0, 4.6); ax.set_ylabel('participation ratio')
     if show_title:
-        ax.set_title('one dimension per variable in play', loc='left', fontsize=TITLE_FS)
-    ax.legend(frameon=False, fontsize=PS*6.5, loc='upper left')
+            ax.legend(frameon=False, fontsize=PS*6.5, loc='upper left')
     ax.text(0.03, 0.76, 'error bars: 95% CI,\njackknife across mice (n=9)', transform=ax.transAxes,
             ha='left', va='top', fontsize=PS*6.0, color='0.35')
     for ts, wn, _ in groups:
@@ -506,7 +505,6 @@ def panelG_biplot(fig, gsG):
     ax.set_xticks([-2, 0, 2]); ax.set_yticks([-2, 0, 2])
     ax.set_xlabel("sample d′ (mid-delay)", fontsize=PS*7)
     ax.set_ylabel("choice d′ (decision)", fontsize=PS*7)
-    ax.set_title('per-neuron selectivity', loc='left', fontsize=TITLE_FS)
     ax.text(0.03, 0.97, f"|d′| corr r = {NS['r_abs']:+.02f}\nboth-selective 6.2%\n"
             '(independence: 6.4%)', transform=ax.transAxes, va='top', ha='left',
             fontsize=PS*6.0, color='0.3')

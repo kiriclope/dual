@@ -567,8 +567,8 @@ if POSTER:
                handletextpad=0.3, ncol=2, columnspacing=0.8)
 else:
   for ax, (short, col, mask), msg in [
-        (axB, REC_METRICS[0], 'Delay silencing spares DPA'),
-        (axC, REC_METRICS[1], '…and spares GNG')]:
+        (axB, REC_METRICS[0], 'DPA'),
+        (axC, REC_METRICS[1], 'GNG')]:
     g = per_mouse_day_laser(col, mask)
     g = g[g.mouse.isin(JAWS)]
     lo, hi = [], []
@@ -625,7 +625,6 @@ if not POSTER:
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
     axK.set_ylabel('DPA choice-code depth')     # axis/window named in the caption (print-scale trim)
-    axK.set_title('Laser moves the code per mouse', loc='left', fontsize=TITLE_FS)
     axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=PS*6.5, loc='center left',
                ncol=1, handletextpad=0.3)
 
@@ -641,9 +640,9 @@ ylim = (ally.min() - pad, ally.max() + pad)
 _STMK = {'Expert': 'o', 'Naive': '^'}                       # Expert circle / Naive triangle
 for ax, key, ylab, msg in [
         (axE, 'd_dpa', 'Δ DPA accuracy (on−off)',
-         'Depth vs ΔDPA' if POSTER else 'Depth vs ΔDPA (positive trend)'),
+         ''),
         (axF, 'd_gng', 'Δ GNG accuracy (on−off)',
-         'Depth vs ΔGNG' if POSTER else 'Depth change predicts ΔGNG')]:
+         '')]:
     xdep = np.array([r['d_depth'] for r in rows_ab])
     yv = np.array([r[key] for r in rows_ab])
     for mouse in JAWS:                                   # join A&B within each mouse×stage
@@ -678,7 +677,7 @@ axE.legend(handles=_leg_h, frameon=False, fontsize=PS*6.5, loc='upper left', han
 # ── B: batch ACC-Prl control vs opto DPA learning curve — first row ───────────
 axG = fig.add_subplot(POS['B'])              # B = batch DPA curve
 for ax, (short, col, mask_fn), msg in [
-        (axG, BATCH_METRICS[0], 'Silencing impairs DPA')]:
+        (axG, BATCH_METRICS[0], 'DPA')]:
     p1, p2 = batch_pmd(b_ctrl, col, mask_fn), batch_pmd(b_opto, col, mask_fn)
     lo, hi = [], []
     for p, color, lab in [(p1, OFF_C, f'control (n={p1.mouse.nunique()})'),
@@ -732,7 +731,6 @@ axJ.set_xticks(range(len(BATCH_METRICS)))
 axJ.set_xticklabels([m[0] for m in BATCH_METRICS], rotation=15, ha='right')
 axJ.set_xlim(-0.6, len(BATCH_METRICS) - 0.4)
 axJ.set_ylabel('opto−control  (Δ perf.)')
-axJ.set_title('Silencing effect (LMM)', loc='left', fontsize=TITLE_FS)
 axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='group (at mean day)'),
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=PS*7, loc='best')
@@ -766,7 +764,6 @@ axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha=
          va='top', fontsize=PS*12, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
 axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
-axL.set_title('Depth drives a DPA↑/GNG↓ trade-off', loc='left', fontsize=TITLE_FS)
 axL.set_box_aspect(1)
 
 # ── K, L: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
@@ -829,7 +826,6 @@ if not POSTER:
                transform=axBal.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
     axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
     axBal.set_xlabel('DPA performance (laser ON)'); axBal.set_ylabel('GNG performance (laser ON)')
-    axBal.set_title('DPA–GNG balance, laser ON', loc='left', fontsize=TITLE_FS)
     axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
                           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
                  frameon=False, fontsize=PS*7, loc='lower left', handletextpad=0.3)
@@ -854,7 +850,7 @@ def row_banner(ax_left, text, dy=0.014):
 
 if not POSTER:   # one minimal tag where the design switches (batch → within-mouse); the caption
     #            carries the row descriptions — the old working-notes row banners were cut 2026-09-03
-    row_banner(axB, 'Transient within-mouse silencing (recorded cohort, laser ON vs OFF; Jaws, n = 5)')
+    pass   # row banner removed 2026-09-03 (Nature style: the legend carries the cohort description)
 
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
 if not POSTER:
