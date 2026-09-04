@@ -1,5 +1,5 @@
-# Discussion — draft v5 (2026-09-04, review-comment pass: American English, "before learning" scoped to
-# dual-task learning after single-task pretraining, sixth limitation on the curriculum; stats untouched)
+# Discussion — draft v5.1 (2026-09-04, "dual task" unhyphenated after the intro comment pass; v5 = review-comment pass: American English, "before learning" scoped to
+# dual task learning after single-task pretraining, sixth limitation on the curriculum; stats untouched)
 
 > Companion to `results_draft.md` (v6). Anchors and vocabulary from memory
 > `reference_literature_positioning` (Liu 2014; Bernardi 2020; Libby & Buschman 2021;
@@ -58,7 +58,7 @@ network's existing manifold [Sadtler 2014] and proceeds by reassociation, reusin
 repertoire of activity patterns while changing what they are used for [Golub 2018], with
 genuinely new dimensions accessible only slowly and with effort [Oby 2019]. To our knowledge,
 our results are the first demonstration of the same principle during the natural acquisition of
-a composite task. The subspace and its axes are unchanged by dual-task learning, under equivalence bounds (Fig. 2f)
+a composite task. The subspace and its axes are unchanged by dual task learning, under equivalence bounds (Fig. 2f)
 and by cross-stage decoding (Fig. 3f; transfer at about 90% of the within-stage ceiling), while
 the position of the state and the alignment of the distractor code change (Fig. 4). Learning
 here does not build coding dimensions; it re-parameterizes a fixed geometry. This is also the
@@ -101,8 +101,8 @@ per animal (mixed-model p = .046, per-animal trend); its force comes from conver
 reorganization appearing in alignment, position, behavioral coupling and causal perturbation.
 Fifth, we describe the geometry; a circuit model showing that push and alignment emerge from
 training on this composition is in preparation (Fig. 5), and our preliminary latent-dynamics
-fits point in that direction. Sixth, the mice had learned DPA and GNG separately before dual-task
-recordings began, so the factorized geometry we find in the first dual-task sessions may itself be
+fits point in that direction. Sixth, the mice had learned DPA and GNG separately before dual task
+recordings began, so the factorized geometry we find in the first dual task sessions may itself be
 a product of that single-task training rather than an innate organization of mPFC; what we can
 say is that the composition of the two tasks was learned under observation without adding
 dimensions to that geometry, and that the axes present at the outset were the ones that learning

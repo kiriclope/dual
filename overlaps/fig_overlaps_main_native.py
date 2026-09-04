@@ -350,8 +350,7 @@ if __name__ == '__main__':
         '[0.36, 0.75] in expert mice. Right, the same convergence within each animal, naïve against '
         'expert: per-mouse |cos| 0.073 → 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = '
         '.004), both robust across decoder variants and drawn from fixed canonical caches in every '
-        'build. The distractor’s demand becomes readable as what it is for the animal, a lick '
-        'decision.',
+        'build. The distractor’s demand becomes readable as what it is for the animal, a choice.',
         'b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay '
         'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late- '
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '

@@ -1,4 +1,20 @@
-# Compositional learning by geometric editing — main paper (draft v9)
+# Compositional learning by geometric editing — main paper (draft v10)
+
+> **v10 (2026-09-04): INTRODUCTION COMMENT PASS** — 8 activated artifact comments (Leon, 2026-09-04)
+> on the Abstract + Introduction. Applied: (1) the opening is now about complex behavior running
+> several computations at once, not "two things" (Abstract and intro ¶1); (2) the interference
+> premise is stated the way the literature states it — same prefrontal neurons carry memory and
+> respond to stimuli/actions [Jacob 2014; Parthasarathy 2017; Musall 2019]; a second task in the
+> delay weakens the memory representation [Watanabe 2014] as in human dual task interference
+> [Pashler 1994]; distractors transiently disrupt/reformat the code; subspace separation limits it
+> [Libby 2021] — our own "the action captures the response" mechanism is no longer a premise
+> (it is Fig. 1's result); intro ¶1 rewritten around this; (3) the task is introduced AS the dual
+> task ("designed to force the composition: the dual task"; "learned a dual task" in the
+> Abstract) and only then decomposed into DPA + GNG; (4) "dual task" unhyphenated everywhere
+> (text, legends, Discussion, notes; hyphen kept only inside verbatim reference titles), §1
+> heading → "The cost of the dual task arises from the intruding lick"; (5) "lick decision" →
+> "choice" (Abstract, §4, Fig. 4a legend + its CAP_PARAS); (6) two references added. ALL
+> statistics verbatim.
 
 > **v9 (2026-09-04): REVIEW-COMMENT PASS** — 20 artifact comments (Leon, 2026-09-04) + the
 > carried NoGo-accuracy comment. Applied: (1) American English throughout text and legends
@@ -6,13 +22,13 @@
 > intro, trials called Go / NoGo trials (not DualGo/DualNoGo) after that; (3) intro: the
 > "same network" sentence now rests on citations [Jacob 2014; Parthasarathy 2017; Libby 2021]
 > rather than assertion, no-punishment stated, curriculum → Methods, imaging described as every
-> session (naïve = early, expert = late dual-task sessions), the technical closing sentence
+> session (naïve = early, expert = late dual task sessions), the technical closing sentence
 > replaced by a plain one; (4) §1 opens with a full task + setup description and a narrative
 > learning paragraph, "second lick" → "that test lick", "lick interference" → "intrusive delay
 > licks", decoupling sentence rewritten; (5) §2: no forward reference to Fig. 4, the premature-
 > choice/dPCA/qualifications paragraph rewritten in plain language (PR and rank-2 numbers moved
 > out to ED 3, where they already live); (6) SCOPING FIX raised twice: the geometry was measured
-> after single-task pretraining, so "before learning" → "when dual-task training began" in the
+> after single-task pretraining, so "before learning" → "when dual task training began" in the
 > Abstract, intro, §2, §3, legends and Discussion, plus a new sixth limitation; (7) Methods:
 > curriculum paragraph + no-punishment sentence (author placeholders for criteria); (8) ED Fig. 10
 > (licks) drafted as a proposal; (9) NoGo-accuracy coupling logged as an open analysis. ALL
@@ -43,7 +59,7 @@
 > Synthesis section DELETED — its job is the Discussion opener (which now carries "geometric
 > editing"); (6) Discussion bold paragraph labels stripped (continuous prose). **ALL statistics
 > verbatim from v6.1 — no number changed.** Old section names for cross-reference: §1 cost →
-> "The dual-task cost arises from the intruding action"; §2 low-D → "One coding dimension per
+> "The dual task cost arises from the intruding action"; §2 low-D → "One coding dimension per
 > task variable, shared across tasks"; §3 plane → "A single sample × choice plane is necessary,
 > sufficient and stable"; §4 learning → "Learning repositions the memory state along the choice
 > axis"; §5 opto → "ACC input shifts the state's position but not the code".
@@ -80,7 +96,7 @@
 > Working title (NatNeuro declarative style, v7): *"Learning repositions working memory within a
 > fixed prefrontal population geometry."* Alternatives kept: *"Prefrontal cortex learns a dual task
 > by repositioning states in a fixed population subspace"*; *"A fixed population geometry constrains
-> and enables dual-task learning"*. (The v6 colon title is retired — the cited NatNeuro corpus
+> and enables dual task learning"*. (The v6 colon title is retired — the cited NatNeuro corpus
 > [Golub 2018; Libby 2021; Parthasarathy 2017; Driscoll 2024] titles are single declarative claims.)
 >
 > Figure order: **1 Behavior · 2 Geometry (low-D, factorized, shared) · 3 One subspace (the
@@ -95,14 +111,16 @@
 
 ## Abstract
 
-Animals often have to do two things at once, such as holding a memory while responding to an
-unrelated cue. This is a hard problem for a cortical circuit, because the activity evoked by
-the action can capture the response that the memory was supposed to control. We asked how
-mouse medial prefrontal cortex learns to combine the two. We imaged 3,319 prelimbic neurons in
-nine mice as they learned an olfactory working-memory task with a Go/NoGo distractor embedded
-in the delay. The memory itself occupied a single dimension of population activity, nearly
-orthogonal to the axes coding the distractor and the lick decision, inside a low-dimensional
-subspace whose axes were shared across trial types and already present when dual-task
+Natural behavior rarely involves one process at a time: an animal holds information in mind
+while it responds to whatever else the moment demands, and both computations run in shared
+cortical circuitry. This is a hard problem, because the prefrontal neurons that hold a memory
+across a delay also respond to intervening stimuli and actions, and a concurrent demand
+degrades the stored information. We asked how mouse medial prefrontal cortex learns to carry
+two computations at once. We imaged 3,319 prelimbic neurons in nine mice as they learned a
+dual task, an olfactory working-memory task with a Go/NoGo discrimination embedded in its
+delay. The memory itself occupied a single dimension of population activity, nearly
+orthogonal to the axes coding the distractor and the choice, inside a low-dimensional
+subspace whose axes were shared across trial types and already present when dual task
 training began. Learning the dual task did not add coding dimensions that we could detect.
 Instead, the distractor code rotated onto the choice axis, and the memory state moved along
 that axis toward a no-lick set-point; the further an animal moved it, the more its memory
@@ -113,15 +131,20 @@ population state sits within a geometry that itself stays fixed.
 
 ---
 
-Doing two things at once is a hallmark of flexible behavior, and it poses a real computational
-problem. In prefrontal cortex, the neurons that hold a memory across a delay also respond to
-intervening stimuli and to the animal's own actions [Jacob 2014; Parthasarathy 2017], so an
-action selected in the middle of a delay is generated by circuitry that is also carrying the
-memory, and the intruding activity can degrade what is stored [Parthasarathy 2017;
-Libby 2021]. The cost is well documented, from dual-task interference in humans to the
-disruption of prefrontal memory codes by distractors. Learning to combine two behaviors is
-therefore more than learning each of them: the circuit has to be arranged so that two
-computations share it without overwriting one another.
+Behavior in a natural setting is rarely one thing at a time. An animal keeps a goal in mind
+while it monitors new stimuli, decides whether they call for an action and produces it, and
+these computations run concurrently in overlapping cortical circuits. Prefrontal cortex makes
+the problem concrete. The neurons that hold a memory across a delay also respond to
+intervening stimuli and to the animal's own actions [Jacob 2014; Parthasarathy 2017;
+Musall 2019], and when a second task is performed during the delay the memory representation
+weakens and behavior suffers, in monkey prefrontal cortex as in human dual task interference
+[Watanabe 2014; Pashler 1994]. Even a distractor that requires no response is encoded by the
+same neurons and transiently disrupts or reformats the memory code [Jacob 2014;
+Parthasarathy 2017]. Cortex can limit this interference by keeping sensory input and stored
+information in separate subspaces of population activity [Libby 2021], but how a circuit
+arrives at such an arrangement when a new demand is imposed on it is not known. Learning to
+combine two behaviors is therefore more than learning each of them: the circuit has to be
+organized so that the computations share it without overwriting one another.
 
 Population recordings suggest where such an arrangement might live. Cortical computation is
 increasingly described in terms of the low-dimensional geometry of population activity, the
@@ -139,26 +162,29 @@ learning [Sadtler 2014; Golub 2018], and it is what one would predict if the geo
 infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Which of the two describes the
 natural acquisition of a composite task by a cortical population is not known.
 
-We addressed this with a task designed to force the composition. Head-fixed mice (n = 9)
-learned a delayed paired-association (DPA) working-memory task, in which a sample odor (A or B)
-must be matched, after a 6-s delay, to a test odor (C or D); a lick at the test was rewarded
-with water when the pair matched and went unrewarded otherwise, and errors were never
-punished. In dual-task sessions a Go/NoGo (GNG) discrimination was embedded in the middle of the
-delay on two thirds of the trials, which we refer to as Go and NoGo trials; the remaining
-trials were distractor-free DPA trials, and the three types were interleaved. The same delay
-period thus sometimes demanded an intervening action and sometimes did not, which makes the
-dual task an explicit composition of two computations that have to run at the same time
-without one corrupting the other. Delay activity in mPFC is required for learning this class
-of olfactory working-memory task [Liu 2014]. Mice learned DPA and GNG separately before the two
-were combined, following a fixed curriculum (Methods), and we imaged prelimbic mPFC with
-two-photon microscopy in every dual-task session, comparing the first sessions (naïve) with
+We addressed this with a task designed to force the composition: the dual task. Head-fixed
+mice (n = 9) performed two tasks at once, an olfactory working-memory task and an odor
+discrimination presented inside its delay. The working-memory component was a delayed paired
+association (DPA): a sample odor (A or B) had to be matched, after a 6-s delay, to a test odor
+(C or D), and a lick at the test was rewarded with water when the pair matched and went
+unrewarded otherwise; errors were never punished. The second component was a Go/NoGo (GNG)
+discrimination in the middle of that delay: a distractor odor followed by a response cue, at
+which the mouse had to lick for water on Go trials and withhold licking on NoGo trials, where
+a lick went unrewarded. In the dual task the discrimination was present on two thirds of the
+trials (Go and NoGo trials) and absent on the remaining third (DPA trials), and the three
+trial types were interleaved. The same delay period thus sometimes demanded an intervening
+action and sometimes did not, which makes the dual task an explicit composition of two
+computations that have to run at the same time without one corrupting the other. Delay
+activity in mPFC is required for learning this class of olfactory working-memory task
+[Liu 2014]. Mice learned DPA and GNG separately before the two were combined, following a fixed curriculum (Methods), and we imaged prelimbic mPFC with
+two-photon microscopy in every dual task session, comparing the first sessions (naïve) with
 the later ones (expert) across a pseudo-population of 3,319 neurons. Every population-level
 result below is accompanied by the same measurement made inside individual animals, and we
 end with an optogenetic test of the input that supplies the learned change.
 
 Here we show that mPFC does not build a new representation for the dual task. The memory and
 the action are carried on nearly orthogonal axes of a low-dimensional subspace that is already
-present, with the same axes, when dual-task training begins. Learning the composition leaves
+present, with the same axes, when dual task training begins. Learning the composition leaves
 this scaffold in place and refines the alignment of its axes, without adding dimensions that
 we could detect. What learning does change is the position of the working-memory state, which
 moves along a pre-existing action axis into the half that suppresses licking. This shift
@@ -168,22 +194,22 @@ cingulate cortex (ACC), a projection that is required while the composition is b
 The geometry of the code is a fixed constraint; learning and top-down input both act on where
 the state sits within it.
 
-## The dual-task cost arises from the intruding lick
+## The cost of the dual task arises from the intruding lick
 
 We trained head-fixed mice on the DPA task while imaging prelimbic mPFC with two-photon
 calcium imaging (Fig. 1a). On each trial, one of two sample odors (A or B) was followed by a
 6-s delay and then one of two test odors (C or D). Licking at the test was rewarded with water
 when the pair matched (A→C, B→D) and went unrewarded otherwise; errors were not punished. The
-mouse therefore had to hold the sample in working memory across the delay. In dual-task
+mouse therefore had to hold the sample in working memory across the delay. In dual task
 sessions, two thirds of the trials carried a GNG discrimination inside that delay: a distractor
 odor, then a response cue, on which the mouse had to lick (Go trials) or withhold (NoGo
 trials). The remaining trials were pure DPA, and the three trial types were interleaved within
 every session. Mice reached the dual task through a fixed curriculum, learning DPA and then GNG
 on their own before the two were combined (Methods), and we imaged the same field of view in
-every dual-task session. Throughout, we compare the first three dual-task sessions, which we
+every dual task session. Throughout, we compare the first three dual task sessions, which we
 call naïve, with the later sessions, which we call expert (Methods).
 
-Both tasks improved over the six dual-task sessions, and their accuracies converged (Fig. 1b;
+Both tasks improved over the six dual task sessions, and their accuracies converged (Fig. 1b;
 mixed-effects model, GNG−DPA condition β = +0.037, p = 0.045; condition × day β = −0.039,
 p = 8 × 10⁻⁴). The two tasks improved in different ways. On the GNG side the gain came from
 NoGo trials, that is, from learning to withhold rather than to lick (Fig. 1c; NoGo−Go
@@ -223,12 +249,12 @@ required to produce. We next asked how the population solves it.
 We began with the dimensionality and composition of the pseudo-population geometry, using
 cross-validated measures that cannot inherit structure from the analysis itself (the task
 variables and the 12-condition space are laid out in Fig. 2a). We compared the pure memory task
-with the dual-task trials at two states: mid-delay, after the distractor but before any cue or
+with the dual task trials at two states: mid-delay, after the distractor but before any cue or
 lick, and the post-test decision. In cross-validated PCA the basis is fit on one half of the
 trials and the variance is evaluated on the other half, so only variance that replicates is
 counted. By this measure the maintained memory state was one-dimensional. The reliable
 spectrum of the DPA mid-delay state consisted of a single component (fraction 1.00, 95% CI
-[0.98, 1.00], jackknife across mice; Fig. 2b). The dual-task mid-delay state added exactly one
+[0.98, 1.00], jackknife across mice; Fig. 2b). The dual task mid-delay state added exactly one
 further reliable component (0.92 + 0.07 [0.01, 0.13]), the distractor axis; its identity is
 established by the decoding and factor tests below, not by the small variance fraction on its
 own. The decision state spread to about three components (DPA 0.66/0.17/0.17; dual
@@ -242,12 +268,12 @@ Wilcoxon p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22) (Extended 
 Each reliable dimension turned out to be a task variable, engaged when and only when that
 variable mattered. Decoding makes this point without reference to signal size (Fig. 2c;
 balanced decoding accuracy of withheld pseudo-trials along each variable's demixed axis, tested
-against a shuffle null). At mid-delay, only the sample (DPA 0.89; dual 0.81) and, on dual-task
+against a shuffle null). At mid-delay, only the sample (DPA 0.89; dual 0.81) and, on dual task
 trials, the distractor (1.00) exceeded their nulls, while test and choice stayed at chance
 until the test arrived, at which point every variable became decodable (choice 0.96–0.97, test
 0.74–0.77). The reliable dimensions were also the task variables in a stricter sense (Fig. 2d,
 η² of each condition-mean PC on the orthogonal factor contrasts). The memory line was the
-sample axis (η² = 0.93). The dual-task mid-delay state held one large distractor axis (0.98,
+sample axis (η² = 0.93). The dual task mid-delay state held one large distractor axis (0.98,
 37% of condition-mean variance) together with the compact sample axis (0.91, 14%), and the
 decision state added choice and test axes (0.92, 0.71; for DPA the decision axis is the choice
 axis, 0.99). The distractor code barely entered the memory geometry: read out from the
@@ -264,7 +290,7 @@ dimensions and their identities, within which learning tunes alignments; that tu
 quantified in the sections that follow.
 
 The memory and choice axes were also shared across the three trial types, and the sharing was
-already present in the first dual-task sessions. Decoders trained on one trial type
+already present in the first dual task sessions. Decoders trained on one trial type
 transferred most of their decodable signal to the other two (Fig. 2e; cells show the
 transferred fraction, (cross − 0.5)/(within − 0.5); the test code's matrix has weak
 within-type ceilings at this window and marks the boundary of the claim). Per mouse,
@@ -277,7 +303,7 @@ and the fraction of neurons selective for both matched what independence predict
 6.4%; Fig. 2g; per-neuron permutation tuning in Extended Data Fig. 6b). A factorized, shared
 subspace of this kind is what a memory needs in order to survive an embedded action task,
 because variables on separate axes cannot overwrite one another, and it was in place when
-dual-task training began.
+dual task training began.
 
 Learning did remove one signal from the delay. In naïve mice, the animal's upcoming choice
 could already be read from the population well before the test odor arrived (0.64–0.66
@@ -300,11 +326,11 @@ of higher rank.
 A low-dimensional, shared code is not automatically a single structure that the animal reuses.
 We therefore asked three questions of increasing strength. Do the memory and the action live in
 one two-dimensional subspace, the sample × choice plane? Is that plane sufficient and necessary
-for the codes it should carry? And is it the same plane before and after dual-task learning?
+for the codes it should carry? And is it the same plane before and after dual task learning?
 
 We first read the two axes of the frame on each trial type separately (Fig. 3a; per-mouse
 cross-validated decoder projections, baseline-zeroed, in one shared unit per mouse). The DPA
-sample code was maintained across the whole delay. On dual-task trials the same readout
+sample code was maintained across the whole delay. On dual task trials the same readout
 decayed after the distractor arrived (lower in 9/9 naïve and 8/9 expert mice), which is the
 code-morphing signature reported in primate PFC after a distractor [Parthasarathy 2017], here
 read on a fixed axis. Whether the memory itself survives, or only this readout, is answered by
@@ -336,7 +362,7 @@ sample axis at |cos| ≈ 0.07–0.09 to both action codes, with a partial and gr
 between choice and distractor (0.32 → 0.47; Fig. 3e, attenuation-corrected using the disclosed
 split-half reliabilities; the per-animal test follows in the next section).
 
-Finally, the plane was the same plane across dual-task learning (Fig. 3f). Decoders trained in
+Finally, the plane was the same plane across dual task learning (Fig. 3f). Decoders trained in
 one stage read the withheld activity of the other stage at about 90% of the within-stage
 ceiling (transfer/within 0.90 for sample and 0.87 for choice; robust across decoder variants and
 to scoring both stages under one common unit scaling), and the same transfer held within each
@@ -344,7 +370,7 @@ animal. In the terms of the brain–computer-interface learning literature [Sadt
 Golub 2018], what follows is within-manifold learning: the subspace is a fixed constraint and
 learning reassociates states within it, rather than building new dimensions. The abstract
 character of this format, its cross-condition generalization [Bernardi 2020], was present in
-the first dual-task sessions and preserved. Per-mouse cross-condition generalization
+the first dual task sessions and preserved. Per-mouse cross-condition generalization
 performance (CCGP) sat on the naïve = expert unity line for the sample and choice codes; only
 the test code nudged upward, and only under one of the two decoder variants (p = .04/.73), so
 we report it without a verdict (Extended Data). Decoding all 462 balanced dichotomies of the 12
@@ -362,7 +388,7 @@ between the two codes rose from a chance-referenced transfer of 0.33 [−0.03, 0
 animals to 0.57 [0.36, 0.75] in expert animals, and within animals both the raw cosine between
 the axes (0.073 → 0.114, p = .008) and the cross-decode (0.53 → 0.61, p = .004) increased,
 robustly across decoder variants. The distractor's demand had become readable as what it is for
-the animal: a lick decision.
+the animal: a choice.
 
 Second, learning moved the working-memory state along that same axis. The expert DPA delay
 state sat further into the no-lick half of the choice axis than the naïve state (Fig. 4b; mixed
@@ -453,15 +479,15 @@ chronic-silencing training experiment (Fig. 6b,c). **[AUTHOR: strain, sex, age, 
 restriction, licence/ethics statement.]** Mice learned a delayed paired-association (DPA) task:
 a sample odor (A or B, 2–3 s) followed after a 6-s delay by a test odor (C or D, 9–10 s), with
 a lick response in the 10–11-s window rewarded on matching sample–test pairs and unrewarded
-(false alarm) otherwise. On dual-task trials a Go/NoGo (GNG) discrimination was embedded in the
+(false alarm) otherwise. On dual task trials a Go/NoGo (GNG) discrimination was embedded in the
 delay: a distractor odor at 4.5–5.5 s, a response cue at 6.5–7.0 s, lick-for-reward on Go.
 DualGo, DualNoGo and distractor-free DPA trials were interleaved within sessions. Mice progressed
-through a fixed curriculum (DPA → GNG → Dual, six dual-task sessions); days 1–3 are analyzed as
+through a fixed curriculum (DPA → GNG → Dual, six dual task sessions); days 1–3 are analyzed as
 "naïve" and day 4 to the last day as "expert" (mice contribute 4–6 recorded days). Errors were never punished: an incorrect lick simply went unrewarded, and a missed
 reward was not signaled. **Curriculum.** Mice were trained on DPA alone until they performed
 it reliably, then on GNG alone, and only then on the dual task, in which DPA, Go and NoGo
-trials were interleaved; all six dual-task sessions were imaged, so "naïve" and "expert" refer
-to early versus late dual-task sessions in animals that had already learned each task
+trials were interleaved; all six dual task sessions were imaged, so "naïve" and "expert" refer
+to early versus late dual task sessions in animals that had already learned each task
 separately **[AUTHOR: sessions per stage, criterion at each stage, shaping steps]**. Trials are
 analyzed in 84 bins over 14 s
 (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). Two window conventions coexist in the codebase and are
@@ -782,7 +808,7 @@ parallelism score, the geometric twin of the transfer test, against a label-shuf
 corrected for split-half reliability, the sample and choice directions are essentially parallel
 across tasks (≈0.96–1.0).
 
-f, The shared frame precedes dual-task learning. Per-mouse mean cross-task accuracy, naïve against
+f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy, naïve against
 expert; points on the unity line indicate no change. All changes are n.s. (Wilcoxon, n = 9; both
 decoder variants) and bounded, with the Δ 95% CIs inside ±0.05 accuracy (sample [−.03, +.02]; test
 [−.01, +.04]; choice [−.03, +.05]). This is an equivalence statement, not an absence of evidence.
@@ -794,7 +820,7 @@ across the two variables is uncorrelated (r = −0.03), and the fraction of both
 which is the single-neuron basis of the factorized geometry.
 
 Figure 3 | One manifold. The two-dimensional sample × choice plane is the home of the memory and
-choice codes: necessary, sufficient, and the same plane before and after dual-task learning. A code
+choice codes: necessary, sufficient, and the same plane before and after dual task learning. A code
 is the projection of population activity onto a per-mouse cross-validated decoder axis (the decoder
 never sees the trials it projects), baseline-zeroed, in units of that mouse’s evoked s.d.; correct
 laser-off trials; mean ± SEM across nine mice; p values uncorrected.
@@ -839,7 +865,7 @@ the overlap between choice and distractor is partial and grows (0.32 → 0.47). 
 mouse |cos|, naïve against expert; the increase for choice × distractor is the starred per-animal
 test of Fig. 4a. No tests are drawn here.
 
-f, The frame is fixed across dual-task learning. Axes trained in one stage read the withheld
+f, The frame is fixed across dual task learning. Axes trained in one stage read the withheld
 activity of the other stage (registered neurons) at about 90% of the within-stage ceiling
 (transfer/within 0.90 for sample, 0.87 for choice; cross-stage accuracy 0.88 ± 0.03–0.05; robust
 across decoder variants, resampling and a common-scaling check, with ratios shifting by at most
@@ -858,7 +884,7 @@ The chance-referenced transfer grows from 0.33 [−0.03, 0.60] in naïve to 0.57
 mice. Right, the same convergence within each animal, naïve against expert: per-mouse |cos| 0.073 →
 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = .004), both robust across decoder variants
 and drawn from fixed canonical caches in every build. The distractor’s demand becomes readable as
-what it is for the animal, a lick decision.
+what it is for the animal, a choice.
 
 b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay trajectories
 in the sample × choice plane (naïve | expert; strips, distributions of late- delay depth) and per-
@@ -920,8 +946,8 @@ learning itself (Fig. 4).
 
 > Working author–year list keyed to the inline [Author Year] tags (both this file and
 > `discussion_draft.md`); converted to numbered Nature format by the reference manager at
-> submission. Driscoll 2024 and Pospisil 2025 verified by search 2026-09-02; the rest are
-> standard anchors. Note the two distinct Stringer 2019 papers (a = movements; b = cvPCA).
+> submission. Driscoll 2024 and Pospisil 2025 verified by search 2026-09-02; Watanabe 2014 and
+> Pashler 1994 added 2026-09-04 (intro comment pass); the rest are standard anchors. Note the two distinct Stringer 2019 papers (a = movements; b = cvPCA).
 
 - **[Bernardi 2020]** Bernardi, S., Benna, M. K., Rigotti, M., Munuera, J., Fusi, S. & Salzman,
   C. D. The geometry of abstraction in the hippocampus and prefrontal cortex. *Cell* **183**,
@@ -958,6 +984,8 @@ learning itself (Fig. 4).
 - **[Parthasarathy 2017]** Parthasarathy, A., Herikstad, R., Bong, J. H., Medina, F. S.,
   Libedinsky, C. & Yen, S.-C. Mixed selectivity morphs population codes in prefrontal cortex.
   *Nat. Neurosci.* **20**, 1770–1779 (2017).
+- **[Pashler 1994]** Pashler, H. Dual-task interference in simple tasks: data and theory.
+  *Psychol. Bull.* **116**, 220–244 (1994).
 - **[Pospisil 2025]** Pospisil, D. A. & Pillow, J. W. Revisiting the high-dimensional geometry
   of population responses in the visual cortex. *Proc. Natl Acad. Sci. USA* **122**,
   e2506535122 (2025).
@@ -975,6 +1003,9 @@ learning itself (Fig. 4).
   361–365 (2019).
 - **[Vyas 2020]** Vyas, S., Golub, M. D., Sussillo, D. & Shenoy, K. V. Computation through
   neural population dynamics. *Annu. Rev. Neurosci.* **43**, 249–275 (2020).
+- **[Watanabe 2014]** Watanabe, K. & Funahashi, S. Neural mechanisms of dual-task interference
+  and cognitive capacity limitation in the prefrontal cortex. *Nat. Neurosci.* **17**, 601–611
+  (2014).
 - **[Yang 2019]** Yang, G. R., Joglekar, M. R., Song, H. F., Newsome, W. T. & Wang, X.-J. Task
   representations in neural networks trained to perform many cognitive tasks. *Nat. Neurosci.*
   **22**, 297–306 (2019).

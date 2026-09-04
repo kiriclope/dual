@@ -634,7 +634,7 @@ if CDEC:
         'each matrix is the parallelism score, the geometric twin of the transfer test, against a '
         'label-shuffle null; once corrected for split-half reliability, the sample and choice '
         'directions are essentially parallel across tasks (≈0.96–1.0).',
-        'f, The shared frame precedes dual-task learning. Per-mouse mean cross-task accuracy, naïve against '
+        'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy, naïve against '
         'expert; points on the unity line indicate no change. All changes are n.s. (Wilcoxon, n = 9; '
         'both decoder variants) and bounded, with the Δ 95% CIs inside ±0.05 accuracy (sample [−.03, '
         '+.02]; test [−.01, +.04]; choice [−.03, +.05]). This is an equivalence statement, not an '
