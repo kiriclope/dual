@@ -386,7 +386,7 @@ for _ax, _L, _dy in [(axAm, 'A', 0.016), (axB, 'B', 0.016), (axC, 'C', 0.016),
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
 CAP_PARAS = [
     'Figure 1 | Combining working memory with an embedded action is costly, and the cost comes '
-    'from the intruding lick rather than from the distractor odor. Recorded cohort, nine mice, '
+    'from the delay lick rather than from the distractor odor. Recorded cohort, nine mice, '
     'laser-off trials. Curves show the mean ± SEM across mice; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < '
     '.001 (per-day linear mixed models, uncorrected; day 6 n = 4).',
     'a, Task design. Each trial is a delayed paired-association (DPA) problem. A sample odor (A '
@@ -406,10 +406,10 @@ CAP_PARAS = [
     '−0.185 (p < 10⁻⁴), narrowing over days; Go−DPA −0.073 (p = 0.038).',
     'g, Where the interference acts. Probability of licking at the DPA test on NoGo trials, split '
     'by whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice '
-    'a cue lick tripled the odds of licking again at the test (trial-level GEE, OR = 3.10, p = '
+    'a delay lick tripled the odds of licking again at the test (trial-level GEE, OR = 3.10, p = '
     '.006). The propagation does not depend on pairing (lick × pairing interaction p = .61): on unpaired trials that test lick is the false alarm (OR = 2.7, p = .09), on paired trials it '
     'is a hit (OR = 9.9, p = .001). In expert mice the propagation is absent (OR = 1.50, p = .42) '
-    'and cue licks are rare (rate 0.24 → 0.08). This is the chain of intrusive delay lick and test lick that the no-lick repositioning in Fig. 4 closes.',
+    'and delay licks are rare (rate 0.24 → 0.08). This is the chain of delay lick and test lick that the no-lick repositioning in Fig. 4 closes.',
     'h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each '
     'animal (color, mouse; marker, opsin group; star, the corner where both tasks are optimal). '
     'No animal reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across '

@@ -243,7 +243,9 @@ Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-la
 - **B–E** — the five learning curves from `fig_behavior_learning.py` (helpers copied per repo
   convention): B DPA-vs-GNG, C Go-vs-NoGo, D paired-vs-unpaired, E unpaired-by-task; per-day LMM stars.
 - **F** — LMM effect-size forest (condition + condition×day βs).
-- **G** — **the intrusive lick propagates to the test** (REBUILT 2026-09-01 after the predictor
+- **G** — **the intrusive lick propagates to the test** (PAPER NAMING CANON since 2026-09-04: the
+  manuscript calls these **delay licks** — any lick emitted during the delay; "intrusive/intruding
+  lick" and "cue lick" are retired in the text and legends) (REBUILT 2026-09-01 after the predictor
   audit; user framing: the delay lick leads to FALSE ALARMS — the chain the Fig-4 push suppresses):
   NoGo trials, P(lick at test) split by the CUE lick (`odr_choice`, the pure delay lick), Naive vs
   Expert, per-mouse lines + mean±SEM, GEE(test-lick ~ cue-lick, clustered by mouse):

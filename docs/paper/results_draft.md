@@ -1,4 +1,15 @@
-# Compositional learning by geometric editing — main paper (draft v10)
+# Compositional learning by geometric editing — main paper (draft v10.1)
+
+> **v10.1 (2026-09-04, later): INTRO + §1 COMMENT PASS** — 7 activated threads. (1) Intro ¶3 is
+> now GENERAL (dual task = working-memory task + GNG discrimination in its delay; composition;
+> imaging; per-animal companions) and the full task description lives at the top of §1, which now
+> opens "We trained head-fixed mice (n = 9) on the dual task" (not "the DPA task") and decomposes
+> it into DPA + GNG with reward/no-punishment/trial mix/curriculum; (2) NAMING CANON "delay lick"
+> = any lick emitted during the delay (defined in §1 ¶3; the Go response or an unwarranted NoGo
+> lick) — replaces "intruding/intrusive lick", "cue lick" in the §1 heading ("…arises from delay
+> licks"), §1, intro closing, §4, Methods, Fig. 1 legend + CAP_PARAS (Fig 1 re-rendered);
+> (3) "distractor performance" → "GNG performance" (§1 ¶4); (4) ED lick figure request logged
+> again (assets: overlaps_lick_control.png, licks.py). ALL statistics verbatim.
 
 > **v10 (2026-09-04): INTRODUCTION COMMENT PASS** — 8 activated artifact comments (Leon, 2026-09-04)
 > on the Abstract + Introduction. Applied: (1) the opening is now about complex behavior running
@@ -163,24 +174,17 @@ infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Which of the tw
 natural acquisition of a composite task by a cortical population is not known.
 
 We addressed this with a task designed to force the composition: the dual task. Head-fixed
-mice (n = 9) performed two tasks at once, an olfactory working-memory task and an odor
-discrimination presented inside its delay. The working-memory component was a delayed paired
-association (DPA): a sample odor (A or B) had to be matched, after a 6-s delay, to a test odor
-(C or D), and a lick at the test was rewarded with water when the pair matched and went
-unrewarded otherwise; errors were never punished. The second component was a Go/NoGo (GNG)
-discrimination in the middle of that delay: a distractor odor followed by a response cue, at
-which the mouse had to lick for water on Go trials and withhold licking on NoGo trials, where
-a lick went unrewarded. In the dual task the discrimination was present on two thirds of the
-trials (Go and NoGo trials) and absent on the remaining third (DPA trials), and the three
-trial types were interleaved. The same delay period thus sometimes demanded an intervening
-action and sometimes did not, which makes the dual task an explicit composition of two
+mice (n = 9) performed an olfactory working-memory task while a Go/NoGo (GNG) odor
+discrimination was embedded in its delay, so that the same delay period sometimes demanded an
+intervening action and sometimes did not. The dual task is thus an explicit composition of two
 computations that have to run at the same time without one corrupting the other. Delay
 activity in mPFC is required for learning this class of olfactory working-memory task
-[Liu 2014]. Mice learned DPA and GNG separately before the two were combined, following a fixed curriculum (Methods), and we imaged prelimbic mPFC with
-two-photon microscopy in every dual task session, comparing the first sessions (naïve) with
-the later ones (expert) across a pseudo-population of 3,319 neurons. Every population-level
-result below is accompanied by the same measurement made inside individual animals, and we
-end with an optogenetic test of the input that supplies the learned change.
+[Liu 2014]. Mice had learned each component on its own before the two were combined
+(Methods), and we imaged prelimbic mPFC with two-photon microscopy in every dual task session,
+comparing the first sessions (naïve) with the later ones (expert) across a pseudo-population
+of 3,319 neurons. Every population-level result below is accompanied by the same measurement
+made inside individual animals, and we end with an optogenetic test of the input that supplies
+the learned change.
 
 Here we show that mPFC does not build a new representation for the dual task. The memory and
 the action are carried on nearly orthogonal axes of a low-dimensional subspace that is already
@@ -188,26 +192,28 @@ present, with the same axes, when dual task training begins. Learning the compos
 this scaffold in place and refines the alignment of its axes, without adding dimensions that
 we could detect. What learning does change is the position of the working-memory state, which
 moves along a pre-existing action axis into the half that suppresses licking. This shift
-tracks the disappearance of the interference from intrusive delay licks, predicts memory
+tracks the disappearance of the interfering delay licks, predicts memory
 performance animal by animal, and is itself moved by top-down input from the anterior
 cingulate cortex (ACC), a projection that is required while the composition is being learned.
 The geometry of the code is a fixed constraint; learning and top-down input both act on where
 the state sits within it.
 
-## The cost of the dual task arises from the intruding lick
+## The cost of the dual task arises from delay licks
 
-We trained head-fixed mice on the DPA task while imaging prelimbic mPFC with two-photon
-calcium imaging (Fig. 1a). On each trial, one of two sample odors (A or B) was followed by a
-6-s delay and then one of two test odors (C or D). Licking at the test was rewarded with water
-when the pair matched (A→C, B→D) and went unrewarded otherwise; errors were not punished. The
-mouse therefore had to hold the sample in working memory across the delay. In dual task
-sessions, two thirds of the trials carried a GNG discrimination inside that delay: a distractor
-odor, then a response cue, on which the mouse had to lick (Go trials) or withhold (NoGo
-trials). The remaining trials were pure DPA, and the three trial types were interleaved within
-every session. Mice reached the dual task through a fixed curriculum, learning DPA and then GNG
-on their own before the two were combined (Methods), and we imaged the same field of view in
-every dual task session. Throughout, we compare the first three dual task sessions, which we
-call naïve, with the later sessions, which we call expert (Methods).
+We trained head-fixed mice (n = 9) on the dual task while imaging prelimbic mPFC with
+two-photon calcium imaging (Fig. 1a). The dual task combines two components. The working-memory
+component is a delayed paired association (DPA): on each trial, one of two sample odors (A or B)
+was followed by a 6-s delay and then one of two test odors (C or D), and licking at the test
+was rewarded with water when the pair matched (A→C, B→D) and went unrewarded otherwise. Errors
+were never punished. The mouse therefore had to hold the sample in working memory across the
+delay. The second component is the GNG discrimination, placed inside that delay: a distractor
+odor followed by a response cue, at which the mouse had to lick for water (Go trials) or
+withhold licking (NoGo trials). Two thirds of the trials in every session carried the
+discrimination and one third did not (DPA trials), and the three trial types were interleaved.
+Mice reached the dual task through a fixed curriculum, learning DPA and then GNG on their own
+before the two were combined (Methods), and we imaged the same field of view in every dual
+task session. Throughout, we compare the first three dual task sessions, which we call naïve,
+with the later sessions, which we call expert (Methods).
 
 Both tasks improved over the six dual task sessions, and their accuracies converged (Fig. 1b;
 mixed-effects model, GNG−DPA condition β = +0.037, p = 0.045; condition × day β = −0.039,
@@ -220,23 +226,24 @@ In both tasks, then, what the animals learned was mainly when not to lick.
 
 This pointed to where the cost of composition lies. Unpaired DPA accuracy was depressed when
 the distractor called for a Go response (Fig. 1e; Go−DPA β = −0.073, p = 0.038) but not when it
-called for a NoGo response (NoGo−DPA p = 0.78). It was the intrusive lick, and not the
-distractor odor, that interfered with the memory. We next asked how the lick did its damage.
-On NoGo trials, a naïve animal that licked at the distractor cue, an intrusive delay lick, was
-three times as likely to lick at the test as well (Fig. 1g; trial-level regression, odds
-ratio OR = 3.10, p = 0.006). The effect did not depend on whether the trial was paired (lick ×
-pairing interaction p = 0.61): on unpaired trials that test lick is, by definition, a false
-alarm (direct estimate OR = 2.7, p = 0.09), and on paired trials it is a hit (OR = 9.9,
-p = 0.001). The interference therefore propagates through the response rather than degrading
-the memory. In expert animals the propagation was gone (OR = 1.50, p = 0.42), and the
-intrusive delay licks themselves had largely disappeared (cue-lick rate 0.24 → 0.08). Learning
-removed both the intruding action and its hold on the subsequent response. We note that
-Fig. 1g is a within-trial association; it identifies the route of the interference, not its
-cause.
+called for a NoGo response (NoGo−DPA p = 0.78). It was the lick in the middle of the delay, and
+not the distractor odor, that interfered with the memory. We refer to any lick emitted during
+the delay as a delay lick, whether it is the Go response the task requires or an unwarranted
+lick on a NoGo trial. We next asked how the delay lick did its damage. On NoGo trials, a naïve
+animal that emitted a delay lick at the distractor cue was three times as likely to lick at
+the test as well (Fig. 1g; trial-level regression, odds ratio OR = 3.10, p = 0.006). The
+effect did not depend on whether the trial was paired (lick × pairing interaction p = 0.61):
+on unpaired trials that test lick is, by definition, a false alarm (direct estimate OR = 2.7,
+p = 0.09), and on paired trials it is a hit (OR = 9.9, p = 0.001). The interference therefore
+propagates through the response rather than degrading the memory. In expert animals the
+propagation was gone (OR = 1.50, p = 0.42), and delay licks on NoGo trials had themselves
+largely disappeared (rate 0.24 → 0.08). Learning removed both the delay lick and its hold on
+the subsequent response. We note that Fig. 1g is a within-trial association; it identifies the
+route of the interference, not its cause.
 
 Even in expert mice the composition was imperfect. Across the nine animals, expert DPA and GNG
 accuracy were unrelated (Fig. 1h; Pearson r = +0.10, p = 0.80; Spearman ρ = +0.35, p = 0.36):
-an animal's memory performance did not predict its distractor performance, and none reached
+an animal's memory performance did not predict its GNG performance, and none reached
 the corner where both tasks are performed optimally (mean shortfall ≈ 0.18; mean DPA 0.88, GNG
 0.87). In naïve mice the two accuracies had still co-varied (r ≈ 0.66–0.74). The two tasks did
 not, therefore, trade off against each other at the level of individual animals; rather, each
@@ -394,7 +401,7 @@ Second, learning moved the working-memory state along that same axis. The expert
 state sat further into the no-lick half of the choice axis than the naïve state (Fig. 4b; mixed
 model over 9 mice and 36 observations, β = −0.744, p = 0.046; per-animal Wilcoxon p = 0.098).
 This is a set-point shift away from the lick boundary, and it suppresses precisely the
-intrusive-lick to false-alarm chain that learning removes behaviorally (Fig. 1g). The shift
+delay-lick to false-alarm chain that learning removes behaviorally (Fig. 1g). The shift
 was numerically larger for sample A than for sample B (ΔA ≈ −1.42, p = 0.098; ΔB ≈ −0.07,
 p = 0.91). The direct paired comparison across the same nine mice, however, was not significant
 in any of six axis × normalization builds (p = 0.055–0.203), and the difference is not a
@@ -505,10 +512,10 @@ per group. Random-effect variances near the boundary make per-day p-values mildl
 anti-conservative, as noted in the text. Trial-level associations (Fig. 1g; history effects,
 ED 2) used logistic GEEs clustered by mouse (exchangeable working correlation), fit separately
 per stage. Fig. 1g models the probability of licking at the DPA test on NoGo trials as a
-function of the intrusive cue lick (the pure delay-period lick variable); a lick × pairing
+function of the delay lick at the distractor cue (the pure delay-period lick variable); a lick × pairing
 interaction term tests whether the propagation differs between paired and unpaired trials (it
 does not, p = 0.61, so the pooled estimate applies to the unpaired arm, where the test lick is
-the false alarm), and the paired arm is the propagation control (a cue lick there predicts a
+the false alarm), and the paired arm is the propagation control (a delay lick there predicts a
 hit — incompatible with memory corruption, diagnostic of response propagation). The panel was rebuilt 2026-09-01: the
 original build's predictor pooled cue and test licks, which is near-circular with performance.
 Across-animal relationships are Pearson/Spearman correlations over n = 9 mice. All tests
@@ -730,7 +737,7 @@ bit-exact tensor reproduction requires seeding, flagged for the deposition.)
 > American English + Go/NoGo terminology since v9, 2026-09-04; Fig. 5, modelling, in preparation).
 
 Figure 1 | Combining working memory with an embedded action is costly, and the cost comes from the
-intruding lick rather than from the distractor odor. Recorded cohort, nine mice, laser-off trials.
+delay lick rather than from the distractor odor. Recorded cohort, nine mice, laser-off trials.
 Curves show the mean ± SEM across mice; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < .001 (per-day linear mixed
 models, uncorrected; day 6 n = 4).
 
@@ -754,12 +761,12 @@ with the gap narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paire
 narrowing over days; Go−DPA −0.073 (p = 0.038).
 
 g, Where the interference acts. Probability of licking at the DPA test on NoGo trials, split by
-whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice a cue lick
+whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice a delay lick
 tripled the odds of licking again at the test (trial-level GEE, OR = 3.10, p = .006). The
 propagation does not depend on pairing (lick × pairing interaction p = .61): on unpaired trials that
 test lick is the false alarm (OR = 2.7, p = .09), on paired trials it is a hit (OR = 9.9, p = .001).
-In expert mice the propagation is absent (OR = 1.50, p = .42) and cue licks are rare (rate 0.24 →
-0.08). This is the chain of intrusive delay lick and test lick that the no-lick repositioning in
+In expert mice the propagation is absent (OR = 1.50, p = .42) and delay licks are rare (rate 0.24 →
+0.08). This is the chain of delay lick and test lick that the no-lick repositioning in
 Fig. 4 closes.
 
 h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each animal
@@ -1172,7 +1179,7 @@ expression, imaging FOV + per-mouse cell counts, laser-power / opsin titration.
   the test lick — cue-only OR = 0.93 n.s.). The panel now shows the clean propagation:
   predictor = the cue lick (`odr_choice`), outcome = P(lick at test); naïve OR = 3.10
   p = .006 ∗∗, expert OR = 1.50 p = .42 n.s.; FA arm (unpaired) OR = 2.73 p = .090, paired arm
-  OR = 9.9 p = .001 toward a hit (the anti-corruption control); cue-lick rate 0.24 → 0.08.
+  OR = 9.9 p = .001 toward a hit (the anti-corruption control); delay-lick rate 0.24 → 0.08.
   §1 header, §2/§4/abstract clauses, caption, Methods and behavior.md all recast to
   "propagates to false alarms". Downstream Discussion clause updated.
 - **Fig. 2a mid-delay bracket label (audit):** the panel/caption say "5.5–6.3 s" but the sampled
