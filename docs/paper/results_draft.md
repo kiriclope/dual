@@ -1,4 +1,15 @@
-# Compositional learning by geometric editing — main paper (draft v10.1)
+# Compositional learning by geometric editing — main paper (draft v10.2)
+
+> **v10.2 (2026-09-04, later): §2 STORY REWRITE + DPA NAMING** — 5 activated threads. (1) §2
+> rewritten paragraph by paragraph for the NatNeuro register (question → measurement → claim;
+> "line in population space", "frame", "axes"; ML phrasing out; "dimensionality and composition of
+> the pseudo-population geometry" gone); every statistic verbatim; (2) the "free of the decision"
+> sentence no longer contradicts §4: training removes TRIAL-BY-TRIAL choice information from the
+> delay, while the expert delay state rests at a fixed no-lick position on the choice axis that
+> does not differ detectably with the upcoming choice ("a standing no-lick set-point, not a
+> premature decision"); (3) the working-memory task is named precisely as the olfactory delayed
+> paired association (DPA) task in the Abstract and intro ¶3; §1 now says "the DPA task" (defined
+> earlier).
 
 > **v10.1 (2026-09-04, later): INTRO + §1 COMMENT PASS** — 7 activated threads. (1) Intro ¶3 is
 > now GENERAL (dual task = working-memory task + GNG discrimination in its delay; composition;
@@ -128,8 +139,8 @@ cortical circuitry. This is a hard problem, because the prefrontal neurons that 
 across a delay also respond to intervening stimuli and actions, and a concurrent demand
 degrades the stored information. We asked how mouse medial prefrontal cortex learns to carry
 two computations at once. We imaged 3,319 prelimbic neurons in nine mice as they learned a
-dual task, an olfactory working-memory task with a Go/NoGo discrimination embedded in its
-delay. The memory itself occupied a single dimension of population activity, nearly
+dual task, an olfactory delayed paired association (DPA) task with a Go/NoGo discrimination
+embedded in its delay. The memory itself occupied a single dimension of population activity, nearly
 orthogonal to the axes coding the distractor and the choice, inside a low-dimensional
 subspace whose axes were shared across trial types and already present when dual task
 training began. Learning the dual task did not add coding dimensions that we could detect.
@@ -174,9 +185,10 @@ infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Which of the tw
 natural acquisition of a composite task by a cortical population is not known.
 
 We addressed this with a task designed to force the composition: the dual task. Head-fixed
-mice (n = 9) performed an olfactory working-memory task while a Go/NoGo (GNG) odor
-discrimination was embedded in its delay, so that the same delay period sometimes demanded an
-intervening action and sometimes did not. The dual task is thus an explicit composition of two
+mice (n = 9) performed an olfactory delayed paired association (DPA) task, in which a sample
+odor must be held in working memory across a delay, while a Go/NoGo (GNG) odor discrimination
+was embedded in that delay, so that the same delay period sometimes demanded an intervening
+action and sometimes did not. The dual task is thus an explicit composition of two
 computations that have to run at the same time without one corrupting the other. Delay
 activity in mPFC is required for learning this class of olfactory working-memory task
 [Liu 2014]. Mice had learned each component on its own before the two were combined
@@ -202,7 +214,7 @@ the state sits within it.
 
 We trained head-fixed mice (n = 9) on the dual task while imaging prelimbic mPFC with
 two-photon calcium imaging (Fig. 1a). The dual task combines two components. The working-memory
-component is a delayed paired association (DPA): on each trial, one of two sample odors (A or B)
+component is the DPA task: on each trial, one of two sample odors (A or B)
 was followed by a 6-s delay and then one of two test odors (C or D), and licking at the test
 was rewarded with water when the pair matched (A→C, B→D) and went unrewarded otherwise. Errors
 were never punished. The mouse therefore had to hold the sample in working memory across the
@@ -253,80 +265,86 @@ required to produce. We next asked how the population solves it.
 
 ## One coding dimension per task variable, shared across trial types
 
-We began with the dimensionality and composition of the pseudo-population geometry, using
-cross-validated measures that cannot inherit structure from the analysis itself (the task
-variables and the 12-condition space are laid out in Fig. 2a). We compared the pure memory task
-with the dual task trials at two states: mid-delay, after the distractor but before any cue or
-lick, and the post-test decision. In cross-validated PCA the basis is fit on one half of the
-trials and the variance is evaluated on the other half, so only variance that replicates is
-counted. By this measure the maintained memory state was one-dimensional. The reliable
-spectrum of the DPA mid-delay state consisted of a single component (fraction 1.00, 95% CI
-[0.98, 1.00], jackknife across mice; Fig. 2b). The dual task mid-delay state added exactly one
-further reliable component (0.92 + 0.07 [0.01, 0.13]), the distractor axis; its identity is
-established by the decoding and factor tests below, not by the small variance fraction on its
-own. The decision state spread to about three components (DPA 0.66/0.17/0.17; dual
-0.61/0.30/0.05). The same picture held within individual animals, on each mouse's own
-simultaneously recorded population. Wherever the per-mouse reliable variance could be
-resolved, the mid-delay spectrum was dominated by a single component (per-mouse cvPCA, median
-top-1 fraction 0.90 naïve / 0.93 expert, n = 7 resolvable mice per stage), and the contrast
-between the memory and decision windows spread as expected within mice (expert 0.93 vs 0.61,
-Wilcoxon p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22) (Extended Data Fig. 3c).
+How much of the population's activity does the memory occupy, and how does it sit relative to
+the distractor and the choice? We asked this of the pseudo-population of 3,319 neurons,
+comparing DPA trials with Go and NoGo trials at two moments of the trial: mid-delay, after the
+distractor has come and gone but before any cue or lick, when only the memory should be
+active, and the decision period that follows the test odor (Fig. 2a). To count dimensions
+without inheriting structure from the analysis itself we used cross-validated PCA, in which
+the axes are found on one half of the trials and the variance along them is measured on the
+other half, so that only structure that replicates across independent trials is counted.
 
-Each reliable dimension turned out to be a task variable, engaged when and only when that
-variable mattered. Decoding makes this point without reference to signal size (Fig. 2c;
-balanced decoding accuracy of withheld pseudo-trials along each variable's demixed axis, tested
-against a shuffle null). At mid-delay, only the sample (DPA 0.89; dual 0.81) and, on dual task
-trials, the distractor (1.00) exceeded their nulls, while test and choice stayed at chance
-until the test arrived, at which point every variable became decodable (choice 0.96–0.97, test
-0.74–0.77). The reliable dimensions were also the task variables in a stricter sense (Fig. 2d,
-η² of each condition-mean PC on the orthogonal factor contrasts). The memory line was the
-sample axis (η² = 0.93). The dual task mid-delay state held one large distractor axis (0.98,
-37% of condition-mean variance) together with the compact sample axis (0.91, 14%), and the
-decision state added choice and test axes (0.92, 0.71; for DPA the decision axis is the choice
-axis, 0.99). The distractor code barely entered the memory geometry: read out from the
-DPA-state subspace, Go versus NoGo reached only 0.61 at mid-delay (naïve n.s.; per-PC values
-in Fig. 2d). The sample-memory axis is thus small but reliable, and it lies close to orthogonal
-to the larger distractor and action dimensions that it has to resist.
+By this measure the memory occupied a single dimension. During the delay of DPA trials, one
+component accounted for all of the reliable variance in the population state (fraction 1.00,
+95% CI [0.98, 1.00], jackknife across mice; Fig. 2b). On Go and NoGo trials the same window
+added exactly one further dimension (0.92 + 0.07 [0.01, 0.13]), which the analyses below
+identify as the distractor axis, and the decision period spread the state over about three
+(DPA 0.66/0.17/0.17; dual 0.61/0.30/0.05). The same picture held animal by animal, on each
+mouse's own simultaneously recorded neurons: wherever the reliable variance could be resolved,
+the delay spectrum was dominated by one component (per-mouse cvPCA, median top-1 fraction 0.90
+naïve / 0.93 expert, n = 7 resolvable mice per stage), and the decision period was
+higher-dimensional than the delay within the same mice (expert 0.93 vs 0.61, Wilcoxon
+p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22; Extended Data Fig. 3c). The
+maintained memory, in other words, is a line in population space.
 
-None of these measures changed detectably with learning. Naïve and expert spectra,
-decodability and coding patterns were near-identical (Fig. 2b–d), and leave-one-mouse-out
-jackknife CIs on the naïve−expert difference included zero for every spectrum component and
-every decodable variable (Methods). We therefore found no evidence that learning the dual task
-adds or removes representational dimensions. Our claim throughout is a stable scaffold, the
-dimensions and their identities, within which learning tunes alignments; that tuning is
-quantified in the sections that follow.
+Each of these dimensions turned out to be one task variable, active only when the task called
+for it. We trained a decoder along each variable's own axis and tested it on withheld
+pseudo-trials against a shuffle null (Fig. 2c). In the delay only the sample could be read out
+(DPA 0.89; dual 0.81), together with the distractor on Go and NoGo trials (1.00); the test odor
+and the choice stayed at chance until the test arrived, at which point all of them became
+decodable (choice 0.96–0.97, test 0.74–0.77). The principal components themselves were the
+task variables, each loading on a single factor of the design (Fig. 2d, η² of every
+condition-mean component against the factor contrasts). The memory line was the sample axis
+(η² = 0.93). In the delay of Go and NoGo trials the population state held one large distractor
+axis (0.98, 37% of condition-mean variance) beside the smaller sample axis (0.91, 14%), and the
+decision period added choice and test axes (0.92, 0.71; on DPA trials the decision axis is the
+choice axis, 0.99). The distractor barely entered the memory's own subspace: read out from the
+axes of the DPA state, Go versus NoGo reached only 0.61 at mid-delay (naïve n.s.;
+per-component values in Fig. 2d). The memory axis is small, then, but it is reliable, and it
+lies close to orthogonal to the larger distractor and choice axes that it has to withstand.
 
-The memory and choice axes were also shared across the three trial types, and the sharing was
-already present in the first dual task sessions. Decoders trained on one trial type
-transferred most of their decodable signal to the other two (Fig. 2e; cells show the
-transferred fraction, (cross − 0.5)/(within − 0.5); the test code's matrix has weak
-within-type ceilings at this window and marks the boundary of the claim). Per mouse,
-cross-type accuracy sat on the naïve = expert unity line for every code, and the 95% CIs on the
-change were confined to ±0.05 accuracy (Fig. 2f; sample [−.03, +.02]; test [−.01, +.04];
-choice [−.03, +.05]; Wilcoxon n = 9, robust across decoder variants). At the level of single
-neurons this abstract, factorized format was built from largely separate populations rather
-than from mixed selectivity: per-neuron sample and decision d′ were uncorrelated (r = −0.03),
-and the fraction of neurons selective for both matched what independence predicts (6.2% vs
-6.4%; Fig. 2g; per-neuron permutation tuning in Extended Data Fig. 6b). A factorized, shared
-subspace of this kind is what a memory needs in order to survive an embedded action task,
-because variables on separate axes cannot overwrite one another, and it was in place when
-dual task training began.
+This frame was the same on all three trial types, and it was already in place in the first
+dual task sessions. A decoder for the sample or the choice trained on one trial type read the
+other two nearly as well as its own (Fig. 2e; cells show the transferred fraction of decodable
+signal, (cross − 0.5)/(within − 0.5); the test code has weak within-type ceilings at this
+window and marks the boundary of the claim). Within each mouse, cross-type accuracy in naïve
+sessions matched that in expert sessions for every code, with the 95% CIs on the change
+confined to ±0.05 accuracy (Fig. 2f; sample [−.03, +.02]; test [−.01, +.04]; choice
+[−.03, +.05]; Wilcoxon n = 9, robust across decoder variants). At the level of single neurons
+the arrangement was carried by largely separate populations rather than by neurons tuned to
+both variables: per-neuron sample and choice d′ were uncorrelated (r = −0.03), and the fraction
+of neurons selective for both was what independence predicts (6.2% vs 6.4%; Fig. 2g; per-neuron
+permutation tuning in Extended Data Fig. 6b). A frame of this kind, one axis per variable with
+the axes nearly orthogonal, is what a memory needs in order to survive an action performed in
+the middle of it: variables on separate axes cannot overwrite one another.
 
-Learning did remove one signal from the delay. In naïve mice, the animal's upcoming choice
-could already be read from the population well before the test odor arrived (0.64–0.66
-accuracy from early through late delay), as if the decision were being made ahead of the
-evidence; in trained mice the same readout stayed at chance until the test (Extended Data
-Fig. 3g). Training thus keeps the delay period free of the decision. A complementary
-description of the same geometry with demixed PCA is given in Extended Data Fig. 9: the time
-courses along single axes sharpened with learning without reorganizing, the choice and action
-axes became more aligned (|cos| 0.147 → 0.222, p < 0.001) while the sample and test axes
-separated (0.098 → 0.033, p = 0.008), and the action axis ordered the three trial types by the
-response they required. Three technical qualifications, detailed in Methods and Extended Data
-Fig. 3, are worth stating here. The one-dimensionality of the DPA delay state is partly a
-matter of definition, since only one binary variable is being held. Variance-weighted estimates
-of dimensionality and the full 12-condition spectra are reported in Extended Data Fig. 3. And
-the low dimensionality describes the geometry of the states rather than the dynamics, which are
-of higher rank.
+Learning the dual task left this frame unchanged, as far as we could detect. Naïve and expert
+spectra, decodability and coding patterns were near-identical (Fig. 2b–d), and the
+leave-one-mouse-out confidence intervals on the naïve−expert difference included zero for
+every spectrum component and every decodable variable (Methods). We found no evidence, then,
+that composing the two tasks adds or removes representational dimensions. What learning does
+instead, as the following sections show, is to adjust alignments and positions within this
+fixed frame.
+
+One signal did disappear from the delay with learning, and it was not part of the frame. In
+naïve mice the animal's upcoming choice could be read from the delay activity well before the
+test odor (0.64–0.66 accuracy from early through late delay), as if the decision were being
+taken ahead of the evidence; this is the single exception marked in Fig. 2c. In trained mice
+the same readout stayed at chance until the test (Extended Data Fig. 3g). Training therefore
+removed trial-by-trial choice information from the delay. It did not remove the choice axis
+from the delay state: as we show below, the expert delay state comes to rest at a fixed
+position on that axis, on its no-lick side, and that position does not differ detectably with
+what the animal will go on to do at the test. The trained delay carries a standing no-lick
+set-point, not a premature decision. A demixed-PCA view of the same geometry is given in
+Extended Data Fig. 9: the time courses along single axes sharpened with learning without
+reorganizing, the choice and action axes became more aligned (|cos| 0.147 → 0.222, p < 0.001)
+while the sample and test axes separated (0.098 → 0.033, p = 0.008), and the action axis
+ordered the three trial types by the response they required. Three qualifications, detailed in
+Methods and Extended Data Fig. 3, belong here. The one-dimensionality of the DPA delay state is
+partly a matter of definition, since only one binary variable is being held; variance-weighted
+estimates of dimensionality and the full 12-condition spectra are reported in Extended Data
+Fig. 3; and the low dimensionality describes the geometry of the states rather than the
+dynamics, which are of higher rank.
 
 ## A single sample × choice plane is necessary, sufficient and stable
 
