@@ -1,4 +1,15 @@
-# Compositional learning by geometric editing — main paper (draft v11.1)
+# Compositional learning by geometric editing — main paper (draft v11.2)
+
+> **v11.2 (2026-09-04): STORYLINE PASS** (Leon: style, flow and story matter now, not word counts).
+> The Introduction set up two named alternatives, construction and editing, and the Results never
+> named them again, so the paper's central question went missing for four sections. They are now
+> threaded through: the Introduction states the opposite predictions the two make; the behaviour
+> section hands over by asking which route learning took; section 2 closes the first test
+> (construction predicts new coding dimensions, and there are none); section 3 closes the second
+> (construction could still have rotated the existing axes, and it did not); section 4 opens on
+> what is left (editing predicts states move within a fixed frame, so what moves?). This is the
+> Golub adjudication pattern, in which each named hypothesis is disposed of where its evidence
+> lands. No statistics touched, no claim strengthened.
 
 > **v11.1 (2026-09-04): CLARITY PASS on 14 threads** — (1) BUILD FIX: the draft artifact split
 > Introduction from Results at the first `## ` heading, so the untitled Results opening paragraphs
@@ -221,12 +232,14 @@ conditions and allow variables to be read and combined without interference [Rig
 Bernardi 2020]. Seen this way, a cortical population could acquire a composite task in two quite
 different ways. It could construct: add new coding dimensions, or a new arrangement of them, to
 make room for the second task. In brain-computer-interface experiments this kind of
-outside-manifold learning is slow and effortful [Oby 2019]. Or it could edit: keep the existing
-geometry and learn only where states sit within it. That is what within-manifold reassociation
-looks like in the same experiments, where it is the fast and natural mode of learning
-[Sadtler 2014; Golub 2018], and it is what one would predict if the geometry is shared
-infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Which of the two describes the
-natural acquisition of a composite task is not yet understood.
+outside-manifold learning is slow and effortful [Oby 2019]. Or it could edit: keep the existing geometry and change only where states sit within it. That is
+what within-manifold reassociation looks like in the same experiments, where it is the fast and
+natural mode of learning [Sadtler 2014; Golub 2018], and it is what one would predict if the
+geometry is shared infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Construction
+and editing make opposite predictions. Construction requires the set of coding dimensions to
+change as the second task is acquired; editing requires that set to stay fixed while the states
+within it move. Which of the two describes the natural acquisition of a composite task is not yet
+understood.
 
 To force the composition we trained mice on a dual task composed of an olfactory delayed paired
 association (DPA) and a Go/NoGo (GNG) discrimination embedded in its delay, so that the same delay
@@ -294,9 +307,9 @@ NoGo trials. The two were unrelated across the nine animals (Fig. 1h; Pearson r 
 Spearman ρ = +0.35, p = 0.36), and none reached the corner at which both are performed at ceiling
 (mean shortfall 0.18; mean DPA 0.88, GNG 0.87). In naïve mice the two accuracies had still co-
 varied (r = 0.66–0.74). Expert animals therefore did not trade one component against the other,
-and each settled at its own balance between them. This leaves the circuit with a precise problem.
-It must protect the sample memory from the lick that the discrimination demands in the middle of
-the delay.
+and each settled at its own balance between them. This leaves the circuit with a precise problem. It must protect the sample memory from the lick
+that the discrimination demands in the middle of the delay. We turned to the population geometry
+to ask how it does so, and which of the two routes, construction or editing, learning had taken.
 
 ## Each task variable occupies its own coding dimension
 
@@ -348,11 +361,13 @@ selective for both matched the independence prediction (Fig. 2g; 6.2% versus 6.4
 variable, with the axes nearly orthogonal, is what a memory needs in order to survive an action
 performed in the middle of it, because variables on separate axes cannot overwrite one another.
 
-Learning the dual task left this frame unchanged, as far as we could detect. Naïve and expert
-spectra, decodability and coding patterns were near-identical (Fig. 2b–d), and jackknife confidence intervals across mice, leaving out one animal at a time, included zero on the
-naïve−expert difference for every spectrum component and every decodable variable (Methods). We found no evidence that composing the two components adds
-or removes representational dimensions. What learning changes instead, as the following sections
-show, are alignments and positions within this fixed frame.
+This frame is what construction predicts learning should change, and it did not change, as far as
+we could detect. Naïve and expert spectra, decodability and coding patterns were near-identical
+(Fig. 2b–d), and jackknife confidence intervals across mice, leaving out one animal at a time,
+included zero on the naïve−expert difference for every spectrum component and every decodable
+variable (Methods). Composing the two components added no representational dimension that we could
+detect, and removed none. The first prediction of construction therefore fails, and whatever
+learning changes has to lie inside the frame rather than in its composition.
 
 One delay signal did disappear with learning, and it was not part of the frame. In naïve mice the
 animal's upcoming choice could be read from delay activity well before the test odor (0.64–0.66
@@ -427,9 +442,11 @@ Finally, the plane was the same plane before and after learning (Fig. 3f). Decod
 in one stage read the withheld activity of the other stage at about 90% of the within-stage
 ceiling (transfer/within 0.90 for sample and 0.87 for choice, robust across decoder variants and
 to scoring both stages under one common scaling), and the same transfer held within each animal.
-In the vocabulary of brain-computer-interface learning [Sadtler 2014; Golub 2018], what follows
-is within-manifold learning: the subspace is a fixed constraint, and learning moves states within
-it rather than building new dimensions.
+Construction could still have survived the dimension count by rotating the existing axes into a
+new arrangement, and this is the test that rules that out: axes fitted before learning read the
+activity after it, so the frame neither gained dimensions nor turned. In the vocabulary of brain-
+computer-interface learning [Sadtler 2014; Golub 2018], what remains is within-manifold learning,
+in which the subspace is a fixed constraint and learning moves states inside it.
 
 The abstract character of the format, its generalization across conditions [Bernardi 2020], was
 likewise present in the first dual task sessions and preserved. Per-mouse cross-condition
@@ -443,8 +460,9 @@ hippocampus and prefrontal cortex [Bernardi 2020].
 
 ## Learning repositions the memory state along the choice axis
 
-With one fixed, shared subspace established, we asked what learning changes inside it. Two things
-changed, and they turned out to be two faces of a single reorganization along the choice axis.
+That leaves editing, which predicts that learning moves states within the fixed frame. We asked
+what moves. Two things did, and they turned out to be two faces of a single reorganization along
+the choice axis.
 The first concerned the distractor. In naïve mice the distractor code and the choice code were
 only partly aligned, and with learning the distractor code rotated onto the choice axis (Fig. 4a).
 A decoder trained on one code read the other with a chance-referenced transfer of 0.33

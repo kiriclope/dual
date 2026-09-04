@@ -121,7 +121,7 @@ Not done: no P values, no n, no error bars, no effect sizes, no "for the first t
 | Heading grammar | one grammar, ≤10 words | mixed, 8–11 | **claims, 8–10** |
 | "Critically" | 0 | 1 | **0** |
 
-The one metric still out of range is main-text length: 5,791 against the 4,500-word limit.
-Introduction (535) and Results (3,902) are both within the corpus range on their own; the overage
-sits in the Discussion (1,354) and in the Results' qualification and control paragraphs. Cutting
-it is a content decision, not a style one.
+**On length.** The word limits are a submission-formatting matter, not a style one, and they are
+deliberately not a target while the argument is still moving (Leon, 2026-09-04). Trim at the end,
+when the story is settled and the cuts are obvious. Judge a revision by whether the argument moves
+in one line, never by its word delta.
