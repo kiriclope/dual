@@ -344,7 +344,7 @@ if __name__ == '__main__':
         'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
         'negative values lie toward no-lick.',
-        'a, The action dimension reorganises: the distractor code aligns with the choice axis. Cross- '
+        'a, The action dimension reorganizes: the distractor code aligns with the choice axis. Cross- '
         'decoding between the two codes (balanced accuracy; diagonal, within-code; off-diagonal, '
         'transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] in naïve to 0.57 '
         '[0.36, 0.75] in expert mice. Right, the same convergence within each animal, naïve against '
@@ -359,7 +359,7 @@ if __name__ == '__main__':
         'counterpart of the vanishing lick chain in Fig. 1g. Mixed model β = −0.74, p = .046 ∗ (9 '
         'mice, 36 observations); per-animal trend, Wilcoxon p = .098, carried by sample A (Δ = −1.42, '
         'p = .098; sample B ≈ 0; the A-versus-B difference itself is n.s., p = .055).',
-        'c, The push predicts behaviour across animals. Each mouse’s change in depth against its '
+        'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
         'state, the more its DPA accuracy improves (ρ = −0.83, p = .005 ∗), whereas the same change '

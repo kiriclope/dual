@@ -631,7 +631,7 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 # ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
 CAP_PARAS = [
     'Figure 3 | One manifold. The two-dimensional sample × choice plane is the home of the memory '
-    'and choice codes: necessary, sufficient, and the same plane before and after learning. A '
+    'and choice codes: necessary, sufficient, and the same plane before and after dual-task learning. A '
     'code is the projection of population activity onto a per-mouse cross-validated decoder axis '
     '(the decoder never sees the trials it projects), baseline-zeroed, in units of that mouse’s '
     'evoked s.d.; correct laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
@@ -646,11 +646,11 @@ CAP_PARAS = [
     'active withholding. Distractor and test codes are shown in Extended Data.',
     'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.3 '
     's), late delay (7.5–8.8 s) and decision (10–11 s); the choice axis is trained at the lick '
-    'moment (9.5–10.5 s). Each panel is re-centred per mouse on the mean state of that window, so '
+    'moment (9.5–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
     'it shows the geometry of the conditions rather than their absolute position (the shared ramp '
     'and the push are carried by a and by Fig. 4b). Dots, per-mouse condition means (at least '
     'three correct trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
-    'open = no-lick; circle, triangle and square = DPA, Go and NoGo; colour = sample; scale bar, '
+    'open = no-lick; circle, triangle and square = DPA, Go and NoGo; color = sample; scale bar, '
     '2 z. Every separation, in every task and at every moment, falls along the same two axes.',
     'c, The plane is sufficient, and it is necessary. Each variable is decoded from the two '
     'coordinates of the plane, from the residual population after the plane is removed, and from '
@@ -670,7 +670,7 @@ CAP_PARAS = [
     'protection, while the overlap between choice and distractor is partial and grows (0.32 → '
     '0.47). Right, the raw within-mouse |cos|, naïve against expert; the increase for choice × '
     'distractor is the starred per-animal test of Fig. 4a. No tests are drawn here.',
-    'f, The frame is fixed across learning. Axes trained in one stage read the withheld activity '
+    'f, The frame is fixed across dual-task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at about 90% of the within-stage ceiling '
     '(transfer/within 0.90 for sample, 0.87 for choice; cross-stage accuracy 0.88 ± 0.03–0.05; '
     'robust across decoder variants, resampling and a common-scaling check, with ratios shifting '

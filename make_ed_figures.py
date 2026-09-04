@@ -137,8 +137,8 @@ build('ed_fig1', [
     [(f'{B}/behavior_learning_acc.png', None)],
     [(f'{B}/behavior_learning_laseron.png', None)],
 ], [
-    'Extended Data Fig. 1 | Behavioural learning curves by cohort (companion to Fig. 1). Each row '
-    'shows the behavioural learning-curve panels (A, DPA vs GNG performance; B, GNG Go vs NoGo; C, '
+    'Extended Data Fig. 1 | Behavioral learning curves by cohort (companion to Fig. 1). Each row '
+    'shows the behavioral learning-curve panels (A, DPA vs GNG performance; B, GNG Go vs NoGo; C, '
     'DPA paired vs unpaired; D, DPA unpaired by task context) and the LMM fixed-effect forest (E) '
     'for one cohort.',
     'Rows, top to bottom: all 9 recorded mice (laser-off trials); the Jaws subgroup (n = 5); the '
@@ -221,7 +221,7 @@ build('ed_fig4', [
 ], [
     'Extended Data Fig. 4 | The no-lick push is robust in the dPCA pipeline (corroborates '
     'Fig. 4b). a, The Naïve→Expert deepening is present in raw ΔF/F (raw vs '
-    'z-scored r ≈ 0.997) — not a normalisation artifact. b, It survives removal of the '
+    'z-scored r ≈ 0.997) — not a normalization artifact. b, It survives removal of the '
     'condition-independent time ramp (deepening at q = 0/1/2 ramp components removed: '
     '−0.59/−0.60/−0.61). c, It holds when both stages are projected on a '
     'Naïve-defined pooled basis (8/9 mice; bootstrap CI [−0.56, −0.08]) — not '
@@ -237,10 +237,10 @@ build('ed_fig5', [
     [(f'{C}/overlaps_lick_control.png', 'd')],
 ], [
     'Extended Data Fig. 5 | The learning coupling and push are estimator-robust, and not movement '
-    '(companion to Fig. 4b,c). a, Normalisation robustness: the between-mouse '
-    'Δdepth↔ΔDPA-accuracy coupling is significant under every normalisation '
+    '(companion to Fig. 4b,c). a, Normalization robustness: the between-mouse '
+    'Δdepth↔ΔDPA-accuracy coupling is significant under every normalization '
     '(Spearman ρ = −0.83 to −0.90, including raw), while the within-mouse push is '
-    'normalisation-sensitive. b, Fixed common axis: projecting both stages on one axis preserves '
+    'normalization-sensitive. b, Fixed common axis: projecting both stages on one axis preserves '
     'the coupling (ρ = −0.72) while the push attenuates to a trend — the coupling '
     'is not a decoder-rotation artifact. c, Resampling battery for the coupling: Mundlak '
     'β = −0.041 (p = 0.006), jackknife 9/9, bootstrap CI [−1.00, −0.26], '
@@ -256,7 +256,7 @@ build('ed_fig6', [
     [(f'{M}/fig_overlaps_main_ab_l1.png', 'c'), (f'{M}/fig_overlaps_main_ab_lda.png', None)],
     [(f'{C}/overlaps_codes_gng_trials.png', 'd')],
 ], [
-    'Extended Data Fig. 6 | The factorised geometry is robust (companion to Fig. 3e and Fig. 2g). '
+    'Extended Data Fig. 6 | The factorized geometry is robust (companion to Fig. 3e and Fig. 2g). '
     'a, Cross-temporal cosine matrices: cross-code |cos| sits at the ≈0.05 chance floor at '
     'all time pairs, within-code diagonals 0.4–0.9; choice × GNG is the one '
     'least-orthogonal pair (≈0.29). b, Modular, not mixed, selectivity: per-neuron '
@@ -278,13 +278,13 @@ build('ed_fig7', [
     [(f'{B}/behavior_learning_offon_jaws.png', 'd')],
 ], [
     'Extended Data Fig. 7 | Chronic silencing during training impairs learning; transient '
-    'silencing in trained mice spares behaviour (companion to Fig. 6b–e). a, ACC→Prl '
+    'silencing in trained mice spares behavior (companion to Fig. 6b–e). a, ACC→Prl '
     'batch, control vs opto learning curves: silencing on every trial throughout training impairs '
     'DPA (β = −0.06, p = 0.009) and its unpaired trials (β = −0.12, '
     'p = 0.014). b, ACC-somata batch: null. c, Prl→ACC batch: impairs GNG. d, Transient '
     'within-mouse laser OFF vs ON learning curves in the recorded cohort (Jaws, n = 5): DPA '
     'p = 0.40, GNG p = 0.24 — acute silencing in trained animals moves the code (Fig. 6), '
-    'not behaviour.',
+    'not behavior.',
 ], W=7739)
 
 # ── ED 8 — laser ON−OFF coupling, 7 mice ─────────────────────────────────────
@@ -312,9 +312,9 @@ build('ed_fig9', [
     '(companion to Figs. 2 and 3). The dPCA story build: the demixing schematic, descriptive '
     'scree and marginal contrasts (time 54 / tasks 31 / sample 7 / choice 7 / test 1% of demixed '
     'variance; the scree is computed on 4 condition means inside the demixed subspace — '
-    'near-circular, hence retired from Fig. 2 in favour of the cross-validated estimators); the '
+    'near-circular, hence retired from Fig. 2 in favor of the cross-validated estimators); the '
     '2 × 4 Naïve/Expert trajectory grid (single-axis time courses sharpen without '
-    'reorganising); the full pairwise axis-mixing slopegraph (choice–task binds, '
+    'reorganizing); the full pairwise axis-mixing slopegraph (choice–task binds, '
     '0.147 → 0.222, p < 0.001; sample–test demixes, 0.098 → 0.033, p = 0.008 '
     '— neuron-bootstrap resampling, not an across-animal test); the per-mouse shared-memory '
     'd′ scatter (Naïve +0.61 → Expert +0.54, Δ = −0.07, p = 0.91 — '
@@ -329,7 +329,7 @@ build('si_trialcounts', [
 ], [
     'Supplementary Fig. 1 | Trial counts per mouse. Per-mouse × stage × task trial '
     'counts entering the pseudo-population (balanced by design; 5,568 laser-OFF trials total). '
-    'Analysis-balanced counts, not raw behavioural trial numbers — see Methods.',
+    'Analysis-balanced counts, not raw behavioral trial numbers — see Methods.',
 ], W=3821)
 
 print('done.')

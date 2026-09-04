@@ -599,17 +599,16 @@ plabel(axSch, 'A'); plabel(axB0, 'B'); plabel(axC, 'C'); plabel(axD0, 'D')
 #    across the gaps; the last line of each paragraph stays flush-left (print convention). ──
 if CDEC:
     CAP_PARAS = [
-        'Figure 2 | The population geometry is minimal and factorised. The working memory occupies a '
-        'single dimension, each task variable has its own nearly orthogonal coding axis, and the '
-        'memory and choice axes are shared across tasks. All panels use the pseudo-population (3,319 '
+        'Figure 2 | The population geometry is minimal and factorized. The working memory occupies a '
+        'single dimension, each task variable has its own nearly orthogonal coding axis, and the memory and choice axes are shared across trial types. All panels use the pseudo-population (3,319 '
         'neurons, nine mice, 12 conditions). The memory state is the mid-delay window (5.5–6.3 s, '
         'after the distractor and before any cue or lick); the decision state runs from test onset.',
-        'a, Trial timeline, the two analysed states, and the logic of cross-validated PCA (cvPCA). '
+        'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
         'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
         'random half-splits, both directions averaged), so only structure that replicates across '
         'independent trial halves counts toward the geometry.',
         'b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA '
-        'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed grey, within-mouse '
+        'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse '
         'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
         'tasks add exactly one, the distractor axis (0.92 against sample 0.07), and the decision '
         'state spreads to about three. Naïve and expert spectra are near-identical; learning does not '
@@ -623,10 +622,10 @@ if CDEC:
         '.031, 1,000 draws), compared with 1.0 within the dual tasks. The distractor code barely '
         'enters the memory subspace.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
-        'design contrasts (rows, PCs labelled with their percentage of condition-mean variance; a '
-        'cell near 1 means that the PC codes that variable alone). The geometry is factorised rather '
+        'design contrasts (rows, PCs labeled with their percentage of condition-mean variance; a '
+        'cell near 1 means that the PC codes that variable alone). The geometry is factorized rather '
         'than mixed. Rows beyond the reliable rank of panel b are faded; the orange box carries the '
-        'distractor cross-decode of panel c for each DPA PC; dual rows show 4 of the 7 centred '
+        'distractor cross-decode of panel c for each DPA PC; dual rows show 4 of the 7 centered '
         'contrasts.',
         'e, One shared axis per variable rather than a private axis per task. Decoders trained on one '
         'task read the others (expert). Cells give the transferred fraction of decodable signal, '
@@ -635,16 +634,16 @@ if CDEC:
         'each matrix is the parallelism score, the geometric twin of the transfer test, against a '
         'label-shuffle null; once corrected for split-half reliability, the sample and choice '
         'directions are essentially parallel across tasks (≈0.96–1.0).',
-        'f, The shared frame precedes learning. Per-mouse mean cross-task accuracy, naïve against '
+        'f, The shared frame precedes dual-task learning. Per-mouse mean cross-task accuracy, naïve against '
         'expert; points on the unity line indicate no change. All changes are n.s. (Wilcoxon, n = 9; '
         'both decoder variants) and bounded, with the Δ 95% CIs inside ±0.05 accuracy (sample [−.03, '
         '+.02]; test [−.01, +.04]; choice [−.03, +.05]). This is an equivalence statement, not an '
         'absence of evidence.',
-        'g, The factorisation is visible neuron by neuron. Per-neuron discriminability (d′, within '
-        'mouse) for sample at mid-delay against choice at decision (n = 3,319; grey square, label- '
+        'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '
+        'mouse) for sample at mid-delay against choice at decision (n = 3,319; gray square, label- '
         'shuffle floor). |d′| across the two variables is uncorrelated (r = −0.03), and the fraction '
         'of both-selective neurons (6.2%) equals the independence prediction (6.4%). Largely separate '
-        'populations carry the two axes, which is the single-neuron basis of the factorised geometry.',
+        'populations carry the two axes, which is the single-neuron basis of the factorized geometry.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure

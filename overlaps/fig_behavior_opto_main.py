@@ -866,18 +866,18 @@ if not POSTER:
         'impairs DPA acquisition (b). The mixed-model summary (c; group ● and group × day □ fixed '
         'effects ± 95% CI) places the deficit on DPA (β = −0.06, p = 0.009) and on its unpaired '
         'trials (β = −0.12, p = 0.014) while sparing GNG; the memory task is affected specifically.',
-        'd–f, Acute silencing moves the state, not behaviour. In the recorded cohort (Jaws, n = 5), '
+        'd–f, Acute silencing moves the state, not behavior. In the recorded cohort (Jaws, n = 5), '
         'DPA (d) and GNG (e) accuracy are unchanged between ON and OFF, yet the same manipulation '
         'displaces each animal’s position along the choice axis (f; per-mouse depth, samples pooled). '
         'The directions differ across mice, so the group mean is flat.',
-        'g–i, The displacement, read on the learned action axis, predicts behaviour. Δdepth (ON−OFF) '
+        'g–i, The displacement, read on the learned action axis, predicts behavior. Δdepth (ON−OFF) '
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
         'depth on the trainLD_TEST axis at late delay). The joint trade-off (g) is a raw-level trend '
         '(r = +0.53, p = .016); because the points cluster within five mice, a mouse-clustered model '
         'gives p = .108. Its arms are ΔDPA (h, n.s.) and ΔGNG (i, r = −0.65, p = .002; ρ = −0.62, p = '
         '.003), the latter being the one arm that survives the clustered model (β = −0.013, p = '
         '.018).',
-        'j, Behaviour under laser ON keeps its DPA–GNG balance (r = +0.44, p = .20).',
+        'j, Behavior under laser ON keeps its DPA–GNG balance (r = +0.44, p = .20).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
         'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 10 '
         'observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
