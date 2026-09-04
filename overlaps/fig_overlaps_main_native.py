@@ -344,7 +344,7 @@ if __name__ == '__main__':
         'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
         'negative values lie toward no-lick.',
-        'a, The action dimension reorganizes: the distractor code aligns with the choice axis. Cross- '
+        'a, The distractor code rotates onto the choice axis. Cross- '
         'decoding between the two codes (balanced accuracy; diagonal, within-code; off-diagonal, '
         'transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] in naïve to 0.57 '
         '[0.36, 0.75] in expert mice. Right, the same convergence within each animal, naïve against '
@@ -362,9 +362,9 @@ if __name__ == '__main__':
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
         'state, the more its DPA accuracy improves (ρ = −0.83, p = .005 ∗), whereas the same change '
-        'predicts nothing for GNG (ρ = +0.20, p = .61). The coupling is specific to the memory task.',
+        'predicts nothing for GNG (ρ = +0.20, p = .61), nor for NoGo trials alone (ρ = +0.34, p = .38). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
-        'Within a stage (naïve nonpaired trials), single-trial depth does not separate correct '
+        'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
         'rejections from false alarms (sample A, Δ(CR−FA) = −1.16, p = .27; sample B, +0.73, p = '
         '.47).',
         'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no- '

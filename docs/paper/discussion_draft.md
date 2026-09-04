@@ -39,8 +39,8 @@ makes the factorization legible at the level of single cells.
 In auditory cortex, memories are protected from incoming sensory drive by rotational dynamics
 that move the memory into a dimension orthogonal to the sensory response [Libby 2021]. mPFC in
 our task uses a different, two-layered scheme. The memory axis is statically orthogonal to both
-action codes throughout the trial (Fig. 3e), and learning adds a second layer: a positional
-offset along the action axis itself, which holds the delay state at an increasingly
+the choice and the distractor code throughout the trial (Fig. 3e), and learning adds a second
+layer: a positional offset along the choice axis itself, which holds the delay state at an increasingly
 output-suppressing set-point on the no-lick side (Fig. 4b). The set-point is close to, but
 distinct from, the output-null principle of motor cortex [Kaufman 2014]. Preparatory activity
 there is held where it cannot drive output; the memory here is held where it actively opposes

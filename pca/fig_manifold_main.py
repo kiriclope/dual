@@ -666,7 +666,7 @@ CAP_PARAS = [
     'Learning pulls the distractor code into the plane, which Fig. 4a quantifies.',
     'e, The axes are nearly orthogonal. |cos| between the decoder axes, corrected for attenuation '
     'using the split-half reliabilities printed above each matrix (0 = orthogonal). The memory '
-    'axis is orthogonal to both action codes (≈0.07–0.09 at both stages), the static layer of '
+    'axis is orthogonal to both the choice and the distractor code (≈0.07–0.09 at both stages), the static layer of '
     'protection, while the overlap between choice and distractor is partial and grows (0.32 → '
     '0.47). Right, the raw within-mouse |cos|, naïve against expert; the increase for choice × '
     'distractor is the starred per-animal test of Fig. 4a. No tests are drawn here.',

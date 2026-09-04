@@ -870,7 +870,7 @@ if not POSTER:
         'DPA (d) and GNG (e) accuracy are unchanged between ON and OFF, yet the same manipulation '
         'displaces each animal’s position along the choice axis (f; per-mouse depth, samples pooled). '
         'The directions differ across mice, so the group mean is flat.',
-        'g–i, The displacement, read on the learned action axis, predicts behavior. Δdepth (ON−OFF) '
+        'g–i, The displacement, read on the learned choice axis, predicts behavior. Δdepth (ON−OFF) '
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
         'depth on the trainLD_TEST axis at late delay). The joint trade-off (g) is a raw-level trend '
         '(r = +0.53, p = .016); because the points cluster within five mice, a mouse-clustered model '
