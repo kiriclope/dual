@@ -651,7 +651,7 @@ CAP_PARAS = [
     'and the push are carried by a and by Fig. 4b). Dots, per-mouse condition means (at least '
     'three correct trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
     'open = no-lick; circle, triangle and square = DPA, Go and NoGo; color = sample; scale bar, '
-    '2 z. Every separation, in every task and at every moment, falls along the same two axes.',
+    '2 z. Whatever the task and the moment, the conditions separate along the same two axes.',
     'c, The plane is sufficient, and it is necessary. Each variable is decoded from the two '
     'coordinates of the plane, from the residual population after the plane is removed, and from '
     'the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired '

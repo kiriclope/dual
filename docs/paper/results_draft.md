@@ -1,4 +1,13 @@
-# Compositional learning by geometric editing — main paper (draft v10.2)
+# Compositional learning by geometric editing — main paper (draft v10.3)
+
+> **v10.3 (2026-09-04, later): §3 STORY REWRITE** — 4 activated threads. §3 rewritten paragraph by
+> paragraph in the NatNeuro register (questions → traces → sufficiency/necessity → stability), stats
+> verbatim; "cross-type transfer" explained in plain words (a sample decoder trained on one trial
+> type still reads the sample on the other two after the distractor, so the memory survives and only
+> its projection on the fixed axis fades); the "every … every … every" sentence rewritten in text and
+> Fig. 3b legend (CAP_PARAS, Fig 3 re-rendered); the NoGo choice-trace sentence VERIFIED from the
+> trace cache (expert NoGo choice-axis late-delay mean −1.9 (no-lick trials) / −1.0 (lick trials),
+> 7/9 mice below baseline on both; Go +4.6/+5.1) — the cue drives Go positive and NoGo negative.
 
 > **v10.2 (2026-09-04, later): §2 STORY REWRITE + DPA NAMING** — 5 activated threads. (1) §2
 > rewritten paragraph by paragraph for the NatNeuro register (question → measurement → claim;
@@ -348,61 +357,66 @@ dynamics, which are of higher rank.
 
 ## A single sample × choice plane is necessary, sufficient and stable
 
-A low-dimensional, shared code is not automatically a single structure that the animal reuses.
-We therefore asked three questions of increasing strength. Do the memory and the action live in
-one two-dimensional subspace, the sample × choice plane? Is that plane sufficient and necessary
-for the codes it should carry? And is it the same plane before and after dual task learning?
+A shared, low-dimensional code is not yet a single structure that the animal reuses. Three
+questions of increasing strength decide whether it is. Do the memory and the choice occupy one
+two-dimensional subspace, the sample × choice plane? Does that plane carry the two codes on its
+own, and do they depend on it? And is it the same plane before and after dual task learning?
 
-We first read the two axes of the frame on each trial type separately (Fig. 3a; per-mouse
-cross-validated decoder projections, baseline-zeroed, in one shared unit per mouse). The DPA
-sample code was maintained across the whole delay. On dual task trials the same readout
-decayed after the distractor arrived (lower in 9/9 naïve and 8/9 expert mice), which is the
-code-morphing signature reported in primate PFC after a distractor [Parthasarathy 2017], here
-read on a fixed axis. Whether the memory itself survives, or only this readout, is answered by
-the cross-type transfer of Fig. 2e. On the choice axis, the Go trace rose at the cue on both
-trial types, because every correct Go trial licks at the cue; this is a motor and reward
-transient rather than choice coding. The lick/no-lick split opened only at the test, and in
-expert mice the NoGo trace ran below baseline through the late delay (7/9 mice), consistent
-with active withholding. Snapshots of the same projections at three moments in the trial
-(Fig. 3b; each window re-centered per mouse on its mean state, so that the panels show the
-geometry of the conditions rather than their absolute position) showed every separation, on
-every trial type, at every moment, falling along the same two axes.
+We began by reading the two axes of the frame on each trial type separately (Fig. 3a;
+projections of withheld trials onto each mouse's cross-validated decoder axes, baseline-zeroed,
+in one common unit per mouse). On DPA trials the sample code held steady across the whole
+delay. On Go and NoGo trials the same readout faded after the distractor (lower in 9/9 naïve
+and 8/9 expert mice), the signature of code morphing that follows an interfering stimulus in
+primate prefrontal cortex [Parthasarathy 2017], here seen along a fixed axis. The memory
+itself was not lost: a sample decoder trained on one trial type still read the sample on the
+other two after the distractor (Fig. 2e), so what fades on this axis is the projection of the
+memory, not the information. The choice axis told a different story. The Go trace rose sharply
+at the cue, on lick and no-lick trials alike, because every correct Go trial licks at the cue;
+this is the motor and reward transient of the required lick rather than a choice signal, and
+the split between upcoming lick and no-lick opened only at the test. On NoGo trials the same
+axis moved the other way: in expert mice the NoGo trace ran below baseline from the distractor
+through the late delay (7/9 mice), on the no-lick side of the axis, consistent with active
+withholding. Snapshots of the plane at three moments in the trial (Fig. 3b; each window
+re-centered per mouse on its mean state, so that the panels show the arrangement of the
+conditions rather than their absolute position) made the point compactly: whatever the trial
+type and the moment, the conditions separated along the same two axes.
 
-To check that the plane is genuinely where these codes live, and not an artifact of plotting in
-it, we decoded each variable from the two coordinates of each mouse's sample × choice plane
+Plotting the codes in a plane does not show that they live there. To test this we decoded
+each variable three ways in each mouse: from the two coordinates of its sample × choice plane
 alone, from what remained of the population once the plane was removed, and from the full
-population (trials withheld from the fit; paired Wilcoxon tests, n = 9; Fig. 3c,d). The result
-was a double dissociation. For sample and choice, the two-dimensional plane did as well as the
-whole population, agreeing to within 0.012 accuracy in every mouse and stage (sample within
-0.003), and removing the plane collapsed decoding (p = .004; the collapse is expected by
+population (withheld trials; paired Wilcoxon tests, n = 9; Fig. 3c,d). The outcome was a double
+dissociation. For sample and choice the plane was enough. Its two coordinates decoded as well
+as the whole population, to within 0.012 accuracy in every mouse and stage (sample within
+0.003), and removing the plane collapsed the decoding (p = .004; this collapse is expected by
 construction, so the informative half of the dissociation is the equivalence between plane and
-full population). The test code was the mirror image: at chance from the plane and untouched
-when the plane was removed (p = .004). That code lives elsewhere. The distractor sat between
-the two, its share of the plane real but partial (p = .004). The dissociation held in every
-animal (Fig. 3d), and it carried the one learning effect of this section: the distractor's
-plane-only accuracy grew with learning (0.57 → 0.65, p = .020/.027 across the two decoder
-variants, 8/9 and 7/9 mice). Animal by animal, learning pulled the distractor code into the
-plane, a change we quantify further below. The axes themselves were close to orthogonal, the
-sample axis at |cos| ≈ 0.07–0.09 to both action codes, with a partial and growing overlap
-between choice and distractor (0.32 → 0.47; Fig. 3e, attenuation-corrected using the disclosed
-split-half reliabilities; the per-animal test follows in the next section).
+full population). The test code was the mirror image, at chance from the plane and untouched
+when the plane was removed (p = .004): it lives elsewhere. The distractor fell between the two,
+with a real but partial share of the plane (p = .004). The dissociation held in every animal
+(Fig. 3d), and it carried the one change with learning in this section: the distractor's
+plane-only accuracy rose (0.57 → 0.65, p = .020/.027 across the two decoder variants, 8/9 and
+7/9 mice). Animal by animal, learning drew the distractor code into the plane, a change we
+return to in the next section. The axes themselves were close to orthogonal. The sample axis
+stood at |cos| ≈ 0.07–0.09 to both the choice and the distractor axis, whereas the overlap
+between choice and distractor was partial and growing (0.32 → 0.47; Fig. 3e, corrected for
+attenuation using the split-half reliabilities shown; the per-animal test follows in the next
+section).
 
-Finally, the plane was the same plane across dual task learning (Fig. 3f). Decoders trained in
-one stage read the withheld activity of the other stage at about 90% of the within-stage
-ceiling (transfer/within 0.90 for sample and 0.87 for choice; robust across decoder variants and
-to scoring both stages under one common unit scaling), and the same transfer held within each
-animal. In the terms of the brain–computer-interface learning literature [Sadtler 2014;
-Golub 2018], what follows is within-manifold learning: the subspace is a fixed constraint and
-learning reassociates states within it, rather than building new dimensions. The abstract
-character of this format, its cross-condition generalization [Bernardi 2020], was present in
-the first dual task sessions and preserved. Per-mouse cross-condition generalization
-performance (CCGP) sat on the naïve = expert unity line for the sample and choice codes; only
-the test code nudged upward, and only under one of the two decoder variants (p = .04/.73), so
-we report it without a verdict (Extended Data). Decoding all 462 balanced dichotomies of the 12
-conditions, the shattering dimension, gave 0.69–0.70 against a shuffle floor of 0.50 and an
-unstructured ceiling of 1 (Extended Data Fig. 3), and this too was unchanged by learning
-(Δ = +0.01). High generalization with moderate shattering is the abstract, compressed regime
-described by Bernardi et al. [Bernardi 2020].
+Finally, the plane was the same plane before and after learning (Fig. 3f). Decoder axes
+trained in one stage read the withheld activity of the other stage at about 90% of the
+within-stage ceiling (transfer/within 0.90 for sample and 0.87 for choice; robust across
+decoder variants and to scoring both stages under one common scaling), and the same transfer
+held within each animal. In the vocabulary of brain–computer-interface learning [Sadtler 2014;
+Golub 2018], what follows is within-manifold learning: the subspace is a fixed constraint, and
+learning moves states within it rather than building new dimensions. The abstract character of
+the format, its generalization across conditions [Bernardi 2020], was likewise present in the
+first dual task sessions and preserved. Per-mouse cross-condition generalization sat on the
+naïve = expert line for the sample and choice codes; only the test code nudged upward, and only
+under one of the two decoder variants (p = .04/.73), so we report it without a verdict
+(Extended Data). Decoding all 462 balanced dichotomies of the 12 conditions, the shattering
+dimension, gave 0.69–0.70 against a shuffle floor of 0.50 and an unstructured ceiling of 1
+(Extended Data Fig. 3), unchanged by learning (Δ = +0.01). High generalization with moderate
+shattering is the abstract, compressed regime that Bernardi et al. described in hippocampus and
+prefrontal cortex [Bernardi 2020].
 
 ## Learning repositions the memory state along the choice axis
 
@@ -866,8 +880,8 @@ s). Each panel is re-centered per mouse on the mean state of that window, so it 
 of the conditions rather than their absolute position (the shared ramp and the push are carried by a
 and by Fig. 4b). Dots, per-mouse condition means (at least three correct trials); ellipses, SEM
 across mice; large marker, grand mean; filled = lick, open = no-lick; circle, triangle and square =
-DPA, Go and NoGo; color = sample; scale bar, 2 z. Every separation, in every task and at every
-moment, falls along the same two axes.
+DPA, Go and NoGo; color = sample; scale bar, 2 z. Whatever the task and the moment, the
+conditions separate along the same two axes.
 
 c, The plane is sufficient, and it is necessary. Each variable is decoded from the two coordinates
 of the plane, from the residual population after the plane is removed, and from the full population
