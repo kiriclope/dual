@@ -630,8 +630,8 @@ plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
 
 # ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
 CAP_PARAS = [
-    'Figure 3 | One manifold. The two-dimensional sample × choice plane is the home of the memory '
-    'and choice codes: necessary, sufficient, and the same plane before and after dual task learning. A '
+    'Figure 3 | One manifold. The two-dimensional sample × choice plane carries the memory and '
+    'choice codes on every trial type, excludes the test code, and is the same plane before and after dual task learning. A '
     'code is the projection of population activity onto a per-mouse cross-validated decoder axis '
     '(the decoder never sees the trials it projects), baseline-zeroed, in units of that mouse’s '
     'evoked s.d.; correct laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
@@ -652,15 +652,15 @@ CAP_PARAS = [
     'three correct trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
     'open = no-lick; circle, triangle and square = DPA, Go and NoGo; color = sample; scale bar, '
     '2 z. Whatever the task and the moment, the conditions separate along the same two axes.',
-    'c, The plane is sufficient, and it is necessary. Each variable is decoded from the two '
+    'c, What lives in the plane. Each variable is decoded from the two '
     'coordinates of the plane, from the residual population after the plane is removed, and from '
     'the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired '
-    'Wilcoxon tests, all comparisons drawn). The result is a double dissociation. Sample and '
+    'Wilcoxon tests, all comparisons drawn). Sample and '
     'choice decode as well from the plane as from the full population and collapse without it (p '
-    '= .004); the test code is at chance from the plane and untouched without it (p = .004), so '
+    '= .004), as they must, since the plane is built from their own decoder axes; the test code is at chance from the plane and untouched without it (p = .004), so '
     'it lives outside the manifold; the distractor’s share is real but partial (p = .004). The '
     'dagger marks the one comparison that depends on the decoder variant.',
-    'd, The dissociation holds in every animal (naïve x against expert y; rows, spaces; columns, '
+    'd, The same pattern holds in every animal (naïve x against expert y; rows, spaces; columns, '
     'variables), and it carries the one learning effect: the distractor’s plane-only accuracy '
     'grows (0.57 → 0.65, p = .020/.027 across decoder variants, 8/9 and 7/9 mice up; starred). '
     'Learning pulls the distractor code into the plane, which Fig. 4a quantifies.',

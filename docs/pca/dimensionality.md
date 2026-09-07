@@ -311,6 +311,25 @@ Both variants re-rendered. Fig 3 now reads at comparable density to Figs 2/4.
   are not (push preview → Fig 4B); dual Go/NoGo mid-delay split weak in Naive / strong in Expert;
   choice×dist above unity in 8/9 mice (D).
 
+
+### 2026-09-07: plane-vs-full "sufficiency" is BY CONSTRUCTION — text recast (analysis kept)
+- Leon (artifact comment): "worried we are overselling… isn't it straightforward that we can decode from the
+  plane and not outside it?" Verified in `exp_permouse_plane.py` (lines ~86–114): for sample and choice the
+  FULL classifier (`make_clf`) is fit on the SAME half-split trials as the axis (`fit_axis` = `make_clf`) that
+  spans the plane (the HH dict reuses the axis pools' split), so plane coordinate 1 IS the full decoder's
+  output and the 2-feature plane classifier reproduces it by construction; the |Δ| ≤ 0.012 "bounded
+  equivalence" is refit noise. Collapse without the plane is expected for a binary variable (one Δμ
+  direction) — a weak "no further linear information in the residual" check.
+- What panel C/D still shows: test code entirely OUTSIDE the plane; distractor PARTLY inside and drawn in with
+  learning (0.57→0.65 ∗). The "one plane" claim rests on Fig 2b/2e/3e/3f.
+- Applied 2026-09-07 (draft v12.6): §3 paragraph = consistency check + where the other variables live;
+  "necessary and sufficient" removed from the Discussion and from the Fig 3 legend (CAP_PARAS title, panel c
+  "What lives in the plane", panel d "The same pattern holds"); figure re-rendered. Same failure family as the
+  retracted cross-mouse plane (2026-09-01): exact plane = full ⇒ suspect construction.
+- Non-circular replacement (proposed, not built): OUT-OF-CONTEXT plane test — fit the plane in one context
+  (stage × window × trial type), then measure plane-only and residual decoding in every OTHER context against
+  that context's own full decoder; Fig 3f/2e ratios are special cases.
+
 ### 2026-08-31 (later): Fig 3 gains panels E/F — plane sufficiency WITH stats (user decision)
 - **E** = per-mouse 3×3 block (`exp_permouse_plane.py` → `PM_PLANE`+SUF): each variable decoded
   from the mouse's own 2-D plane / the out-of-plane residual / the full space (held-out halves,
