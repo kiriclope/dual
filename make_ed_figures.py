@@ -255,6 +255,7 @@ build('ed_fig6', [
     [(f'{C}/overlaps_mixed_selectivity.png', 'b')],
     [(f'{M}/fig_overlaps_main_ab_l1.png', 'c'), (f'{M}/fig_overlaps_main_ab_lda.png', None)],
     [(f'{C}/overlaps_codes_gng_trials.png', 'd')],
+    [('pca/figures/pseudo/dimensionality/png/fig_ooc_plane_ed_nopca.png', 'e')],
 ], [
     'Extended Data Fig. 6 | The factorized geometry is robust (companion to Fig. 3e and Fig. 2g). '
     'a, Cross-temporal cosine matrices: cross-code |cos| sits at the ≈0.05 chance floor at '
@@ -268,6 +269,14 @@ build('ed_fig6', [
     'logistic. d, The codes are robust to the Go/NoGo distractor: the code time courses split by '
     'Go vs NoGo trials — sample and test codes unperturbed; the action code carries the '
     'distractor lick.',
+    'e, The out-of-context plane test. A sample × choice plane fitted on the naïve DPA trials is read in '
+    'every other stage, trial type and moment against a plane fitted in that context (pooled '
+    'pseudo-population): captured fraction (fixed − 0.5)/(in-context − 0.5) with the 2-D readout refit in '
+    'context (left) and with the reference decoder applied unchanged (middle); boxed, the within-context '
+    'check; grey, in-context ceiling below 0.60; hatched, ratio above 1.2. Right, the per-mouse ratio over '
+    'each mouse\'s out-of-context cells (line, median). The plane carries the codes everywhere; where the '
+    'unchanged decoder fails and the refit does not (expert NoGo trials after the distractor), the code has '
+    'moved within the plane.',
 ], W=6800)
 
 # ── ED 7 — opto: chronic vs transient behaviour ───────────────────────────────

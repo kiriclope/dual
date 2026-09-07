@@ -326,11 +326,36 @@ Both variants re-rendered. Fig 3 now reads at comparable density to Figs 2/4.
   "necessary and sufficient" removed from the Discussion and from the Fig 3 legend (CAP_PARAS title, panel c
   "What lives in the plane", panel d "The same pattern holds"); figure re-rendered. Same failure family as the
   retracted cross-mouse plane (2026-09-01): exact plane = full ⇒ suspect construction.
-- Non-circular replacement (proposed, not built): OUT-OF-CONTEXT plane test — fit the plane in one context
-  (stage × window × trial type), then measure plane-only and residual decoding in every OTHER context against
-  that context's own full decoder; Fig 3f/2e ratios are special cases.
+- **OUT-OF-CONTEXT plane test — BUILT 2026-09-07** (`exp_ooc_plane_pseudo.py` pooled, `exp_ooc_plane.py`
+  per-mouse companion, `fig_ooc_plane.py`; caches `OOC_PLANE_PSEUDO_nopca` / `OOC_PLANE_nopca` in results.pkl;
+  figure `figures/pseudo/dimensionality/png/fig_ooc_plane_nopca.png`). Design: plane = QR[sample axis @md,
+  choice axis @decision] fitted on DPA trials of ONE stage (reference Naive-DPA | Expert-DPA), then in every
+  other context (stage × trial type × window; sample ed/md/decision, choice decision) a 2-feature LR is refit
+  on the fixed plane's coordinates and compared with a plane fitted IN that context (`iplane`, = the full
+  decoder by construction) — ratio_ic = (fixed − .5)/(in-context − .5); `transfer` = the reference axis
+  decoder with NO refit; `resid` = decoding with the plane projected out (stays ≈ full everywhere: population
+  codes are redundant → NOT a necessity measure, reported only). Pooled (20 reps, K=24/48 pseudo-trials):
+  out-of-context median ratio_ic sample 0.98 (ref Naive) / 1.00 (ref Expert), choice 1.01 / 1.02; no-refit
+  median 0.86 / 0.86 (sample), 0.87 / 0.89 (choice); cells with ceiling < 0.60 (choice @md, sample @decision on
+  dual trials) masked. NO-REFIT DROPS where the 2-D refit does not: expert NoGo sample @md 0.33–0.43 and
+  expert DPA sample @decision 0.30 vs ratio_ic 0.85–1.06 → the sample code after the distractor / at the test
+  is DISPLACED INSIDE the reference plane (the morph stays in the plane; the boundary moves). Per-mouse
+  companion (20 reps): median ratio_ic over out-of-context cells 0.72 [IQR .66–.90] sample (n=9), 0.78
+  [.67–.89] choice (n=8); fixed − in-context = −0.052 ± 0.011 (p<.01) / −0.042 ± 0.007 (p=.01); same-stage
+  other-task cells ≈ 0.9–1.0, cross-stage cells 0.67–0.80 (per-mouse planes are fitted on 15–50 trials per
+  class, so part of the shortfall is estimation noise; the pooled build is the clean statement, the per-mouse
+  build the honest companion). Reference DPA-only pools make the other-task cells genuinely out of context.
+  STATUS 2026-09-07 (late): Leon — "no new panel". Written in as ONE §3 paragraph (after the recast plane
+  paragraph), a Methods paragraph (plane subsection) and ED 6e (`fig_ooc_plane_ed.py` → composed into
+  `figures/ed/png/ed_fig6.png` by make_ed_figures.py; caption there + draft ED section). The full audit figure
+  (`fig_ooc_plane.py`) stays in the repo/gallery `tmp/` only. Leon judged the full 4-matrix version "too much
+  information" for a main panel — do not re-propose it for Fig 3.
 
 ### 2026-08-31 (later): Fig 3 gains panels E/F — plane sufficiency WITH stats (user decision)
+> **STALE 2026-09-07:** the plane-vs-full "sufficiency"/"necessity" reading of these panels is BY CONSTRUCTION for
+> sample and choice (see the 2026-09-07 block above); the panels stay but the text/legend now call them a
+> consistency check and the non-circular statement is the out-of-context test (ED 6e).
+
 - **E** = per-mouse 3×3 block (`exp_permouse_plane.py` → `PM_PLANE`+SUF): each variable decoded
   from the mouse's own 2-D plane / the out-of-plane residual / the full space (held-out halves,
   canonical windows; (plane, full, out) triples). Double dissociation per animal: sample & choice
@@ -366,7 +391,7 @@ Fig 4A's alignment stars).** Whitelist updated accordingly.
 **A codes · B frame (2×5) · C sufficiency bars (all stats) · D per-mouse 3×4 (dist-plane learning
 ∗) · E cosine matrices · F cross-stage decoding 2×2s (transfer/within 0.90/0.87 — one frame across
 learning, knob-robust).** Per-mouse cosine scatters → fig_manifold_supp.py panel C (duplicated
-Fig 4A's data). Caption title = the proven claim (necessary & sufficient + dist pulled in).
+Fig 4A's data). Caption title = the proven claim (necessary & sufficient + dist pulled in). **[STALE 2026-09-07: title no longer says necessary/sufficient — see the 2026-09-07 block.]**
 Reading order: frame → proof → geometry/identity. exp_plane_frame.py now run for BOTH pipelines.
 
 ### 2026-08-31 storyboard REPLACED by a CCGD REPLAY (user: "B is not consistent with A")

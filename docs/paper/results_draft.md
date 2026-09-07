@@ -1,5 +1,15 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.8 (2026-09-07): OUT-OF-CONTEXT PLANE TEST written in** (Leon: "no new panel, write the sentence and the
+> ED entry"). One §3 paragraph after the plane paragraph (pooled medians 0.98–1.02 refit / 0.86–0.89 no
+> refit; per mouse 0.72 / 0.78; the in-plane displacement clause), a Methods paragraph in the plane
+> subsection, and ED 6e (`fig_ooc_plane_ed.py`, composed into the ED 6 page). Numbers from
+> `docs/pca/dimensionality.md` 2026-09-07 (caches OOC_PLANE_PSEUDO_nopca / OOC_PLANE_nopca, 20 resamples).
+
+> **v12.7 (2026-09-07): intro gap sentence made a question** (artifact comment "this should be a question"):
+> "Which of the two describes the natural acquisition of a composite task?" closes intro ¶2 (Kaufman and Yang
+> pose their gap as a question in the Introduction; questions stay out of the Results).
+
 > **v12.6 (2026-09-07): PLANE STORY RECAST — route A** (artifact comment: "worried that we are overselling this
 > point"; VERIFIED in `pca/exp_permouse_plane.py`: for sample and choice the full decoder is fit on the same
 > trials with the same estimator as the axis that spans the plane, so plane = full is by construction and
@@ -307,8 +317,7 @@ learning [Sadtler 2014; Golub 2018], and it is what one would expect if the geom
 infrastructure for a family of tasks [Yang 2019; Driscoll 2024]. Construction and editing make
 opposite predictions. Construction requires the set of coding dimensions to change as the
 second task is acquired, whereas editing requires that set to stay fixed while the states
-within it move. Which of the two describes the natural acquisition of a composite task is not
-yet understood.
+within it move. Which of the two describes the natural acquisition of a composite task?
 
 To force such an acquisition, we trained mice on a dual task composed of an olfactory delayed
 paired association (DPA) and a Go/NoGo (GNG) discrimination embedded in its delay, so that the
@@ -520,6 +529,14 @@ decoding (p = .004), so the residual carries no further linear sample or choice 
 The informative results concern the other two variables. The test code lay entirely outside the
 plane, at chance from its two coordinates and untouched when the plane was removed (p = .004).
 The distractor fell between the two, with a real but partial share of the plane (p = .004).
+
+The plane also held beyond the trials on which it was fitted. A plane fitted on the DPA trials
+of one stage read the sample and the choice on every other stage, trial type and moment of the
+trial nearly as well as a plane fitted in that context (Extended Data Fig. 6e; median 0.98–1.02
+of the in-context signal with the two-dimensional readout refit in place, 0.86–0.89 with the
+reference decoder applied unchanged; per mouse, medians 0.72 and 0.78). Where the unchanged
+decoder failed and the refit did not, on NoGo trials after the distractor in expert mice, the
+sample code had moved within the plane rather than left it.
 
 The same pattern held in every animal (Fig. 3d), and it carried the one change with learning in
 this section. The distractor's plane-only accuracy rose (0.57 → 0.65, p = .020/.027 across the
@@ -877,6 +894,21 @@ per class, 8 resamples) and per mouse on real trials (10 half-splits; per-mouse 
 a within-stage ceiling > 0.52) — summarized as the chance-referenced ratio
 (cross − 0.5)/(within − 0.5); a scaling-sensitivity check re-scoring the test stage in the
 training stage's per-neuron scaling changes the pooled ratios by ≤ 0.02.
+
+Out-of-context plane test (Extended Data Fig. 6e). To test the plane without circularity, the
+sample axis (mid-delay) and the choice axis (decision window) were fitted on partition A of the
+DPA trials of one stage and orthonormalized, and in every other context (stage × trial type ×
+window; sample at early delay, mid-delay and decision, choice at the decision) three readouts
+were scored on partition B2 of that context: a two-feature logistic regression on the fixed
+plane's coordinates, trained on partition A of the test context; the same readout on a plane
+fitted in the test context (its own axis at the tested window plus the other axis at its
+canonical window); and the reference axis decoder applied without refitting. The captured
+fraction is (fixed − 0.5)/(in-context − 0.5), reported where the in-context ceiling exceeds
+0.60; cells above 1.2 are denominator artefacts. Pooled pseudo-trials (24 per condition for
+sample, 48 per class for choice; 20 resamples) and a per-mouse companion on real trials
+(half-splits, 20 resamples; the ratio pooled over a mouse's eligible cells). Decoding from the
+residual after projecting the plane out stays near the full-population level because population
+codes are redundant, so the test makes no necessity claim.
 
 ### Repositioning and couplings (Fig. 4)
 
@@ -1289,13 +1321,20 @@ bootstrap CI [−1.00,−0.26]; permutation p=0.008), ΔGNG null throughout; (d)
 licking is rare, the choice-code depth does not track it (ρ=+0.07), and the push/coupling are unchanged
 with a lick covariate.
 
-**ED Fig. 6 | Overlaps: the factorized geometry is robust (Fig. 3e; Fig. 2g).** (a) cross-temporal cosine matrices
-— cross-code |cos| ≈ the 0.05 chance floor at all time-pairs, within-code diagonals 0.4–0.9, choice×GNG the
-one least-orthogonal pair (~0.29); (b) modular, not mixed, selectivity — per-neuron permutation tuning
-(sample 10 / GNG 39 / test 3 / choice 10 %, cross-variable co-tuning at chance); (c) decoder-variant
-robustness — the main figure under L1 and LDA decoders (geometry/orthogonality decoder-invariant;
-push/coupling clearest under logistic); (d) codes robust to the Go/NoGo distractor — panel-A codes split by
-Go vs NoGo (sample/test unperturbed; the action code carries the distractor lick).
+**ED Fig. 6 | Overlaps: the factorized geometry is robust (Fig. 3e; Fig. 2g).** (a)
+cross-temporal cosine matrices — cross-code |cos| ≈ the 0.05 chance floor at all time-pairs,
+within-code diagonals 0.4–0.9, choice×GNG the one least-orthogonal pair (~0.29); (b) modular,
+not mixed, selectivity — per-neuron permutation tuning (sample 10 / GNG 39 / test 3 / choice 10
+%, cross-variable co-tuning at chance); (c) decoder-variant robustness — the main figure under
+L1 and LDA decoders (geometry/orthogonality decoder-invariant; push/coupling clearest under
+logistic); (d) codes robust to the Go/NoGo distractor — panel-A codes split by Go vs NoGo
+(sample/test unperturbed; the action code carries the distractor lick); (e) the out-of-context
+plane test (`pca/exp_ooc_plane_pseudo.py`, `exp_ooc_plane.py`, `fig_ooc_plane_ed.py`) — a plane
+fitted on the naïve DPA trials reads the sample and the choice in every other stage, trial type
+and moment at 0.98–1.02 of a plane fitted in that context (2-D readout refit) and 0.86–0.89
+with no refit; the no-refit drop on expert NoGo trials after the distractor, with the refit
+intact, shows the sample code moving within the plane; per-mouse medians 0.72 (sample, n = 9)
+and 0.78 (choice, n = 8).
 
 **ED Fig. 7 | Opto: chronic silencing + transient behavior (Fig. 6b–e).** (a–c) control-vs-opto learning
 curves for the ACC→Prl, ACC-somata and Prl→ACC batches — ACC→Prl impairs DPA (β=−0.06 p=0.009) and its
