@@ -1,10 +1,12 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
+> **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
+
 **The non-circular dimensionality analysis of the dual-task pseudo-population, and — since 2026-08-10 —
 main Fig 2** (`pca/fig_dimensionality_main.py`, which replaced `fig_dpca_story_main.py`; that dPCA build
 is now ED Fig 9). **Fig 2 is built around ONE message: "one dedicated axis per task variable — the
 working memory is a line."** Panels (the DECODE build, adopted 2026-08-10): **a** trial-timeline +
-split-half cvPCA schematic (mid-delay bracket at 5.5–6.3 s) · **b** 2×2 per-set reliable spectra —
+split-half cvPCA schematic (mid-delay bracket labelled 6.0–6.5 s = bins 36–38; the old 5.5–6.3 s label was wrong) · **b** 2×2 per-set reliable spectra —
 DPA | dual (columns) × mid-delay | decision (rows), Naive + Expert overlaid, leave-one-mouse-out
 jackknife 95% CIs (`SPEC_JK`), xlim 6 components, LINEAR fraction axis (log axis rejected) ·
 **c** per-variable DECODING POWER (held-out pseudo-trials along each variable's demixed axis vs
@@ -701,3 +703,106 @@ Extended Data" page + figures-artifact footer + draft-artifact appendix all refr
   submission build and `make_submission_figs.py` exports 183 mm vector PDFs.
 - **Print scale**: each main defines `PS` (Fig 1 1.45 · Fig 2 1.15 · Fig 3 1.30 · Fig 4 1.10 via
   `main_panels.py` · Fig 6 1.35) so printed text lands at 5–7 pt. Convention in CLAUDE.md.
+
+## 2026-09-07 (late) — reviewer-readiness fixes on Figs 2 and 3 + ED 6f (draft v12.9/v12.10)
+Two review rounds (internal rigor, figure review, outside-referee simulation); the figure-side fixes that
+touch this area, all cosmetic/labelling — NO statistic changed:
+- **Fig 2a bracket** now prints the true mid-delay window `6.0–6.5 s` (bins 36–38). The PS ("parallelism
+  score") text under panel e no longer carries the reliability-corrected "≈0.96–1.0 parallel" line: the
+  corrected value rests on split-half reliabilities the panel does not show and read as an over-claim next
+  to a sample transfer of only 0.06–0.56. The PS cache is untouched; the raw PS vs label-shuffle null stays.
+- **Fig 2e legend + Results §2**: the sample transfer is stated as PARTIAL at mid-delay (0.06–0.56 of a
+  small ceiling 0.60–0.66 on Go/NoGo trials, where the readout has faded after the distractor — Fig 3a) with
+  the choice at 0.65–0.99; the "memory is not lost" claim in §3 now rests on ED 6e (refit-in-plane readout),
+  not on Fig 2e. **Fig 2g** prints r = −0.02 (the caption/text said −0.03; the script's number wins).
+- **Fig 3b window labels** corrected to `5.5–6.5 / 7.5–9.0 / 10.0–11.2 s`; **Fig 3c legend** gives the
+  residual numbers (sample 0.70→0.56 p=.004; choice 0.67→0.61 p=.020) instead of "collapsed"; **Fig 3f**
+  legend carries the per-animal transfer/within ratios (sample 0.86, choice 0.73).
+- **Distractor plane SHARE** (Results §3 new sentence): chance-referenced share of the distractor signal
+  carried by the plane, (plane−0.5)/(full−0.5), grows 0.19 → 0.35 (Wilcoxon p = .039, 7/9 mice), i.e. the
+  plane-only rise (0.57→0.65) outpaces the full-population rise (0.79→0.86). Computed in-session from the
+  per-mouse plane cache (`exp_permouse_plane.py` output) — not yet its own script.
+- **Orthogonality floor**: §3 now quotes |cos| ≈ 0.07–0.09 against the ≈0.05 floor expected for random
+  directions at these population sizes (was quoted bare).
+- **ED 6f** = `pca/fig_manifold_supp.py` (four-code traces / per-mouse CCGP / per-mouse cross-task
+  generalization) is now COMPOSED into the ED 6 page (`make_ed_figures.py` row f + caption) — it was
+  referenced from the text but never on a page. ED 6 is now 6 rows (6955×20686 px, 51.7 in tall) — will need
+  splitting for submission.
+- The Fig 2e/3 changes are mirrored in the draft's "Figure legends" section (edit CAP_PARAS + draft together).
+
+## 2026-09-08 — Fig 2c DECLUTTERED (Leon: "panel c has too much information")
+Removed from `panelC_decode`: the hatched DPA-subspace distractor cross-decode bar (+ orange "weak
+transfer" callout), the naïve null (dashed) lines, and the legend entries for both. Kept: expert bars, naïve
+open circles, ONE null mark per bar (expert 95th percentile), the † for the naïve-only anticipatory choice
+(judged against the naïve null, which is printed but not drawn), chance line, DPA | dual divider. The
+cross-decode result (md expert 0.61, null95 0.59, p = .031; decision 0.63 p = .013; naïve md 0.47 n.s.)
+is still printed (`C-dec: DPA-subspace …` lines) and now lives in panel d's orange column + its legend and
+the §2 sentence "(Fig. 2d, orange column; permutation p = 0.031)". DPA group has 3 bars (sample/test/choice),
+dual 4. No statistic changed. Draft v12.13 mirrors legends c/d.
+
+**2026-09-08 (later) — Fig 2b/d edits (Leon):** panel b prints the window tag (mid-delay / decision) on
+the DPA column too (callouts moved down to y=0.84 in all four spectra); panel d shows PC1–3 only
+(`nk = 3` in `panelD_mats`; DPA PC4 was the degenerate 0 % direction, dual PC4 sits below the reliable
+rank). No numbers changed. Panel c's shuffle null is being switched to the MATCHED null (see the next block
+once `exp_dpca_count.py` finishes).
+
+## 2026-09-08 (late) — Fig 2: MATCHED shuffle null (panel c), e/f moved to mid-delay/decision, c in b-format, g coloured
+**Matched null (`exp_dpca_count.py`, Leon: "why is shuffle accuracy so high?").** The old null was the 95th pct
+of SINGLE-SPLIT accuracies (40 DPA / 80 dual held-out pseudo-trials per shuffle → SD 0.06–0.10, null95
+0.61–0.70) while the bar is a 15-split MEAN. Each shuffle is now scored as the same 15-split mean → null95
+0.52–0.55 (SD ≈0.02); the cache keeps `null95_split` (old), `null_mean`, `null_sd`, `p`. Backup of the
+pre-change cache: scratchpad `results.pkl.bak_before_matched_null`. Verdict changes in the drawn (md/decision)
+cells: only naïve dual sample @ decision 0.63 → sig. Other windows (ed/delay/test) gained several sig flags
+(e.g. naïve DPA choice @ ed 0.59, naïve dual test @ ed 0.56) — ED 3g re-rendered (its naïve-choice stars
+unchanged in substance, null ≈0.53). Methods sentence + §2 "≈0.59" → "≈0.53" updated.
+**e/f windows (Leon: "use mid-delay to be consistent with the rest of the figure").** Panel e now reads
+`overlaps/figures/overlaps/ccgp/matrices_cache_mddec_acc_nopca.pkl` (`fig_ccgp_matrices_pseudo.py --mddec
+--acc --nopca`: sample @ bins_MD 36–38, choice/test @ 57–65 via the new `W_DEC`/`AW['DEC']`) and panel f
+`PM_GEN_mddec_nopca` (`exp_permouse_frame.py --nopca --mddec`, section d only, merged under the new key; the
+old LD/TEST caches and keys are untouched for Figs 3/4 + ED). PS was already md/decision. RESULT: choice
+0.73–1.01, test ≥0.72 (4 cells >1 hatched), sample 0.27–0.90 ASYMMETRIC (dual-trained → DPA 0.76–0.80;
+DPA-trained → dual 0.27–0.44); within ceilings sample 0.94/0.78/0.80, test 0.79/0.70/0.68, choice
+0.96/0.91/0.95. Panel f: sample Δ 0.00 [−.05,+.05] p=1.00; test +0.03 [−.00,+.06] p=.04 (8/9 up); choice
++0.04 [−.02,+.10] p=.20; within-task test 0.58→0.59, choice 0.64→0.69 (p=.16) → the per-mouse transfer
+FRACTION is stable (medians sample .94→.92, test .87→.97, choice .99→.99; all p≥.31). The "all n.s. & bounded
+±0.05" equivalence claim is RETIRED (draft v12.15). ED 6f (fig_manifold_supp.py panel C) repointed to the new
+key and recomposed. Old-window numbers for the record: choice 0.65–0.99, sample 0.06–0.56, f all n.s.
+**Layout:** panel c = 2×2 grid (DPA|dual × mid-delay|decision, `gsC` width_ratios [3,4]), legend (Expert /
+Naive / null 95%) inside DPA mid-delay upper-right, † explained in the caption; panel e plain task labels
+(ceilings → legend) and "PS x.xx" only (null → legend); panel g coloured by selectivity class (neither 50 % /
+sample only 10 % / choice only 33 % / both 6 %; legend above the axes, short stats text).
+
+**2026-09-08 (latest) — Fig 2 layout (Leon):** panel d matrices are SQUARE boxes (`aspect='auto'` +
+`set_box_aspect(1)`, anchor C; row-d height ratio 0.84→0.70, `gsD` wspace 0.70→0.50) so the three rows
+(a–c | d | e–g) share the same left/right extent; panel g now shows TWO clouds — every neuron coloured by the
+axis with the larger |d′| (sample indigo 33 %, choice green 61 %) with the 207 both-selective neurons (6.2 %)
+in orange on top; no separate "neither" colour; key stacked above the axes within the panel width, stats
+text lower-left. Legend g updated in script + draft.
+
+**2026-09-08 (latest+1) — DPA cross-decode column OUT of Fig 2d (Leon: "remove dist from panel d dpa, keep the
+cross dec for figure 3").** `DCROSS = False` in `fig_dimensionality_main.py`: DPA matrices are 3×3
+(sample/test/choice), no orange box; `DPA_GNG` / `DPA_GNG_C` caches unchanged and still printed by panel c.
+The pooled number (0.61 @ md, p = .031) is quoted in the §3 plane paragraph next to the per-mouse Fig 3c
+plane-share result; Fig 3 untouched. Draft v12.16.
+
+## 2026-09-08 — Fig 3 RESTRUCTURED (Leon; draft v12.17)
+- **b storyboard 2×4**: `B_SPECS` lost `('dual','delay')` — columns DPA mid-delay | DPA decision | dual mid-delay |
+  dual decision. Legend/text: "two moments, mid-delay and decision".
+- **old d (per-mouse plane grid) → ED 6g**: `panel_e_plane` is rendered standalone at the end of
+  `fig_manifold_main.py` → `fig_manifold_permouse_plane{FIGSUF}.png/svg`; composed as ED 6 row g
+  (`make_ed_figures.py`, caption = the old d legend). Text refs: "Fig. 3c,d" → "Fig. 3c and Extended Data Fig. 6g".
+- **old e → d** (cosine matrices keep the dist axis; the per-mouse raw-|cos| scatters are the two SAMPLE pairs only —
+  the choice × dist scatter duplicated Fig 4a's starred test and was dropped); **old f → e**. D and E are STACKED in
+  the block beside C (`gsR` 2×1 → 4 squares per row), figsize (12.4, 12.4), height_ratios [1.45, 1.55, 1.55].
+- References relettered (3e→3d, 3f→3e) in results/discussion/Methods/ED 6 title; ED 6 f-caption "Fig. 3c–e".
+  No statistics changed. ED 6 page is now 58 in tall (7 rows) — must be split before submission.
+
+**2026-09-08 (Fig 3d, v12.18):** the cosine matrices are 2×2 (sample × choice; `C3[:2,:2]`, rel label shows the
+first two reliabilities; the full 3×3 is still printed). Per-mouse scatters unchanged (memory axis vs choice, vs
+dist). The pooled 0.32→0.47 choice×dist overlap is quoted in §3 text only; its per-animal test is Fig 4a.
+GOTCHA: figure references wrapped across lines ("Fig.\n3e") escape plain-string relettering — use
+`re.sub(r'Fig\.\s*\n\s*3e', …)`; one "Fig. 3c–f" survived to v12.18 and was fixed.
+
+**2026-09-08 (Fig 3d, v12.19):** the per-mouse scatter block is ONE panel (sample × choice raw |cos|); `PAIRS`
+has one entry, `gsE2 = gsDrow[0, 3:4]` (slot 5 empty so the square aligns with E's third square). §3 cites Fig 3d
+for sample×choice (0.07–0.08) and gives sample×dist (0.09) as text.

@@ -30,7 +30,11 @@ import numpy as np
 import main_panels as MP                                    # loads the ~1.9 GB overlaps tensor
 
 TSUF = ('_pca20' if '--pca' in sys.argv[1:] else '') + \
-       ('_antact' if '--antact' in sys.argv[1:] else '')   # --antact → main_panels' choice axis
+       ('_antact' if '--antact' in sys.argv[1:] else '') + \
+       ('_f2' if '--fig2axes' in sys.argv[1:] else '') + \
+       ('_ev' if '--evwin' in sys.argv[1:] else '') + \
+       ('_pb' if '--pcabins' in sys.argv[1:] else '') + \
+       __import__('os').environ.get('DUAL_AXSUF', '')      # flags / DUAL_AXSUF → main_panels' axes
                                                            #   = anticipatory+action, bins 48-62
 
 # SAMPLE_D rows and LICK_D rows are the SAME trial set but NOT row-aligned (each target's rows

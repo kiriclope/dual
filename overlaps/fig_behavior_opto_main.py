@@ -125,8 +125,15 @@ EQNORM = '--eqnorm' in sys.argv[1:]
 ANTACT = '--antact' in sys.argv[1:]
 ACTION = '--action' in sys.argv[1:]                                        # pure action axis 57-62 (matches Fig 3/4's default axis)
 ROBUST = '--robust' in sys.argv[1:]
-_SUF = ('_antact' if ANTACT else '') + ('_action' if ACTION else '') + ('_robust' if ROBUST else '')
-AXIS_LBL = ('48–62' if ANTACT else '57–62' if ACTION else 'trainLD_TEST') + (' · sample-sep' if ROBUST else '')
+EVWIN = '--evwin' in sys.argv[1:]            # event windows: depth axis = test odor 54-59 (Leon 2026-09-08)
+PCABINS = '--pcabins' in sys.argv[1:]        # pca bins: depth axis = 57-59 (Leon 2026-09-08)
+AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven depth axis (DUAL_CHOICE_BINS, inclusive)
+ENV_CHO = None
+if AXENV:
+    _cb = [int(v) for v in __import__('os').environ['DUAL_CHOICE_BINS'].split('-')]; ENV_CHO = np.arange(_cb[0], _cb[1] + 1)
+_SUF = ('_antact' if ANTACT else '') + ('_action' if ACTION else '') + ('_robust' if ROBUST else '') + ('_ev' if EVWIN else '') + ('_pb' if PCABINS else '') + AXENV
+LEGACY = '--legacyaxes' in sys.argv[1:]          # pre-2026-09-08 depth axis (bins 45-59, trainLD_TEST)
+AXIS_LBL = (f'{_cb[0]}–{_cb[1]}' if AXENV else '48–62' if ANTACT else '57–62' if ACTION else 'test-odor axis' if EVWIN else '57–59' if PCABINS else 'OFF-trained axis')   # window (54-62, 9.0-10.5 s) stated in the caption; a longer label collides across g-i + (' · sample-sep' if ROBUST else '')
 
 JAWS = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18']   # ACC→Prl INHIBITION
 CHR  = ['ChRM04', 'ChRM23']                                      # ACC→Prl EXCITATION
@@ -187,7 +194,7 @@ def _depth_on_axis(bins_train):
 
 
 TRAIN_LDTEST = np.concatenate([options['bins_LD'], options['bins_TEST']])   # 45-59 (main-fig axis)
-DEPTH_AXIS = np.arange(48, 63) if ANTACT else (np.arange(57, 63) if ACTION else TRAIN_LDTEST)  # --antact 48-62 · --action 57-62
+DEPTH_AXIS = ENV_CHO if ENV_CHO is not None else np.arange(57, 60) if PCABINS else np.arange(54, 60) if EVWIN else (np.arange(48, 63) if ANTACT else (np.arange(57, 63) if ACTION else (TRAIN_LDTEST if LEGACY else np.arange(54, 63))))   # canonical 54-62 since 2026-09-08  # --evwin 54-59 · --antact 48-62 · --action 57-62
 depth_all = _depth_on_axis(DEPTH_AXIS)                         # F, G–I, J (raw if --robust; ÷ sample-sep below)
 cdf_diag = np.stack([X[:, 1, t, t] for t in range(X.shape[-1])], axis=1).astype(float)  # choice DV diag(t)
 del X                                                          # free ~1 GB
@@ -515,17 +522,22 @@ def panel_letter(ax, L, dx=0.020, dy=0.016):
     fig.text(p.x0 - dx, p.y1 + dy, L.lower(), fontsize=PS*11, fontweight='bold', va='top', ha='left')
 
 
-def show_scheme(ax, path, aspect='equal'):
+def show_scheme(ax, path, aspect='equal', blank=()):
+    """blank = [(x0, y0, x1, y1), ...] fractions of the cropped image painted white (baked-in letters)."""
     im = mpimg.imread(path)
     g = im[..., :3].mean(-1); mk = g < 0.985
     r = np.where(mk.any(1))[0]; c = np.where(mk.any(0))[0]
-    ax.imshow(im[r.min():r.max() + 1, c.min():c.max() + 1], aspect=aspect); ax.axis('off')
+    im = im[r.min():r.max() + 1, c.min():c.max() + 1].copy()
+    H, W = im.shape[:2]
+    for x0, y0, x1, y1 in blank:
+        im[int(y0 * H):int(y1 * H), int(x0 * W):int(x1 * W), :3] = 1.0
+    ax.imshow(im, aspect=aspect); ax.axis('off')
 
 
 # ── A: opto scheme banner ─────────────────────────────────────────────────────
 SCHEME = '../opto.png'                        # recorded-cohort design (self-labelled a/b)
 axA = fig.add_subplot(POS['A'])              # scheme (panel A)
-show_scheme(axA, SCHEME)                      # aspect='equal' — no distortion
+show_scheme(axA, SCHEME, blank=[(0.0, 0.0, 0.05, 0.11), (0.445, 0.0, 0.49, 0.11)])   # baked-in a/b letters blanked (review 2026-09-07)
 
 # ── D, E: recorded laser OFF vs ON — learning curves, OR (--poster) perf ON-vs-OFF scatters ──
 axB = fig.add_subplot(POS['D'])              # D = DPA perf / curve
@@ -595,7 +607,7 @@ else:
             dv = delta.loc[delta.day == day, 'dd'].values
             if len(dv) >= N_MIN and not np.allclose(dv, dv[0]):
                 pv = float(ttest_1samp(dv, 0.0).pvalue)
-                if star(pv):
+                if False and star(pv):   # per-day markers removed 2026-09-07: uncorrected, contradicted the within-mouse LMM verdict
                     ax.text(day, yhi - 0.02 * (yhi - ylo), star(pv), ha='center', va='top',
                             fontsize=PS*8, fontweight='bold')
     ax.set_ylim(ylo, yhi)
@@ -625,8 +637,9 @@ if not POSTER:
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
     axK.set_ylabel('DPA choice-code depth')     # axis/window named in the caption (print-scale trim)
-    axK.legend(frameon=True, framealpha=0.85, edgecolor='0.85', fontsize=PS*6.5, loc='center left',
-               ncol=1, handletextpad=0.3)
+    _klo, _khi = axK.get_ylim(); axK.set_ylim(_klo - 0.42 * (_khi - _klo), _khi)      # room for the key below the data
+    axK.legend(frameon=False, fontsize=PS*6, loc='lower center', ncol=3, handletextpad=0.3,
+               columnspacing=0.9, labelspacing=0.25, borderaxespad=0.1)
 
 # ── H, I: overlaps causal coupling — Δdepth vs Δaccuracy (square) ─────────────
 #   Jaws only, A&B taken as INDEPENDENT points (each mouse → odor-A solid + odor-B open,
@@ -662,8 +675,8 @@ for ax, key, ylab, msg in [
     print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
     ax.text(0.5, 0.02, f'n={ok.sum()}: r={r_p:+.2f} p={p_p:.3f}  ρ={rho:+.2f} p={ps:.3f}',
             transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
-    ax.text(0.85, 0.93, '*' if p_p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',
-            va='top', fontsize=PS*12, fontweight='bold', color='k' if p_p < 0.05 else '0.55')
+    ax.text(0.85, 0.93, '*' if _p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',        # verdict = mouse-clustered model
+            va='top', fontsize=PS*12, fontweight='bold', color='k' if _p < 0.05 else '0.55')
     ax.set_xlabel('Δ choice-code depth (on−off)' if POSTER          # short: narrow poster cells
                   else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
@@ -760,8 +773,8 @@ _gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logg
 print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
 axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
          transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
-axL.text(0.85, 0.93, '*' if _pp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',
-         va='top', fontsize=PS*12, fontweight='bold', color='k' if _pp < 0.05 else '0.55')
+axL.text(0.85, 0.93, '*' if _gp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = mouse-clustered model (review 2026-09-07)
+         va='top', fontsize=PS*12, fontweight='bold', color='k' if _gp < 0.05 else '0.55')
 axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_box_aspect(1)
@@ -781,8 +794,8 @@ def _dprime_scatter(ax, dfw, lmm, title):
     ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
     ax.set_xlabel("d′  laser OFF"); ax.set_ylabel("d′  laser ON")
     ax.set_title(title, loc='left', fontsize=TITLE_FS)
-    ax.text(0.5, 0.02, f'LMM laser p={lmm[1]:.2f} (n=10)', transform=ax.transAxes,
-            ha='center', va='bottom', fontsize=PS*7, color='0.3')
+    ax.text(0.97, 0.03, f'LMM laser p={lmm[1]:.2f}\n(10 OFF/ON pairs, 20 obs.)', transform=ax.transAxes,
+            ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
 
 
 _dprime_scatter(axM, DPR['sample'], LMM_DPR['sample'],
@@ -814,7 +827,7 @@ if not POSTER:
     _blim = (max(0.3, np.concatenate([_bx[_bok], _by[_bok]]).min() - 0.05), 1.0)
     axBal.plot(_blim, _blim, ls='--', color='0.7', lw=0.9, zorder=1)
     axBal.scatter(0.99, 0.99, marker='*', s=120, color='#E8A100', edgecolor='k', linewidths=0.6, zorder=6)
-    axBal.text(0.985, 0.955, 'optimal', ha='right', va='top', fontsize=PS*8, color='#7a5600', transform=axBal.transAxes)
+    axBal.text(0.86, 0.985, 'optimal', ha='right', va='top', fontsize=PS*8, color='#7a5600', transform=axBal.transAxes)
     for m in JAWS:                                            # join each mouse's Naive→Expert
         xs = [p[2] for p in _bpts if p[0] == m]; ys = [p[3] for p in _bpts if p[0] == m]
         axBal.plot(xs, ys, '-', color=MOUSE_COLOR[m], lw=0.6, alpha=0.35, zorder=3)
@@ -855,13 +868,13 @@ if not POSTER:   # one minimal tag where the design switches (batch → within-m
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; skip on the poster build) ──
 if not POSTER:
     CAP_PARAS = [
-        'Figure 6 | ACC→mPFC input supplies the edit. The projection is required while the '
-        'composition is being learned, and acutely it sets the position of the state on the learned '
-        'geometry without degrading the code. Code depth as in Fig. 4.',
+        'Figure 6 | ACC→mPFC input moves the state on the learned geometry. Silencing the projection '
+        'during training impairs learning of the memory task, and acutely it shifts the position of the '
+        'state without degrading the code. Code depth as in Fig. 4.',
         'a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm light on a '
         'pseudo-random 50% of trials, restricted to the delay period, so every comparison in d–l is '
         'within-mouse, laser ON against OFF.',
-        'b, c, The projection is required for the composition to be learned. Chronic every-trial '
+        'b, c, Silencing the projection during training impairs learning of the memory task. Chronic every-trial '
         'silencing during training (a separate between-group cohort; 9 opto and 9 control mice) '
         'impairs DPA acquisition (b). The mixed-model summary (c; group ● and group × day □ fixed '
         'effects ± 95% CI) places the deficit on DPA (β = −0.06, p = 0.009) and on its unpaired '
@@ -869,18 +882,17 @@ if not POSTER:
         'd–f, Acute silencing moves the state, not behavior. In the recorded cohort (Jaws, n = 5), '
         'DPA (d) and GNG (e) accuracy are unchanged between ON and OFF, yet the same manipulation '
         'displaces each animal’s position along the choice axis (f; per-mouse depth, samples pooled). '
-        'The directions differ across mice, so the group mean is flat.',
+        'The direction of the shift differs across mice (two toward no-lick, three toward lick), so the mean shift is small relative to its spread.',
         'g–i, The displacement, read on the learned choice axis, predicts behavior. Δdepth (ON−OFF) '
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
-        'depth on the trainLD_TEST axis at late delay). The joint trade-off (g) is a raw-level trend '
-        '(r = +0.53, p = .016); because the points cluster within five mice, a mouse-clustered model '
-        'gives p = .108. Its arms are ΔDPA (h, n.s.) and ΔGNG (i, r = −0.65, p = .002; ρ = −0.62, p = '
-        '.003), the latter being the one arm that survives the clustered model (β = −0.013, p = '
-        '.018).',
-        'j, Behavior under laser ON keeps its DPA–GNG balance (r = +0.44, p = .20).',
+        'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay). The joint trade-off (g) is not significant '
+        '(r = +0.34, p = .15; mouse-clustered model p = .24). Its arms are ΔDPA (h, n.s.) and ΔGNG '
+        '(i, r = −0.56, p = .011; ρ = −0.61, p = .004), the latter surviving the mouse-clustered model '
+        '(β = −0.011, p = .009).',
+        'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (r = +0.44, p = .20).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
-        'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 10 '
-        'observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
+        'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 20 '
+        'observations, 10 OFF/ON pairs) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
         'the position of the code on the subspace (f–i) without degrading its content, the same '
         'position-not-fidelity principle that governs learning itself (Fig. 4).',
     ]

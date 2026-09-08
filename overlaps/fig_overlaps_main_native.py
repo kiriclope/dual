@@ -219,14 +219,15 @@ if __name__ == '__main__':
     axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
     axB_sc.set_box_aspect(1)
     axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
-    axB_sc.text(0.03, 0.03, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
+    axB_sc.yaxis.set_label_position('right'); axB_sc.yaxis.tick_right()   # off the KDE strip (review 2026-09-07)
+    axB_sc.text(0.03, 0.80, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
                 transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
-    axB_sc.text(0.06, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='left', va='top',
+    axB_sc.text(0.95, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='right', va='top',
                 fontsize=PS*12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
     axB_sc.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
                            mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')],
-                  frameon=False, loc='upper right', fontsize=PS*6.5, handletextpad=0.3,
-                  borderaxespad=0.2, labelspacing=0.3)
+                  frameon=False, loc='upper center', bbox_to_anchor=(0.5, -0.16), ncol=2, columnspacing=0.8,
+                  fontsize=PS*6.5, handletextpad=0.3, borderaxespad=0.0, labelspacing=0.3)   # key below the axes (review 2026-09-07)
 
     # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) ──
     gsC = gs[2, 0:6].subgridspec(1, 2, wspace=0.55)
@@ -260,15 +261,14 @@ if __name__ == '__main__':
         sig = pv < 0.05
         ax.text(0.03, 0.03, f'per-mouse (n={n_mice})\nSpearman ρ={rho:+.2f}, p={pv:.3f}',
                 transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
-        ax.text(0.92, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
+        ax.text(0.80, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
                 fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
         ax.set_xlabel('Δ DPA choice-code depth'); ax.set_ylabel(ylabel)
         ax.set_box_aspect(1)
         print(f'B[{ylabel[:6]}] per-mouse n={n_mice} Spearman ρ={rho:+.3f} p={pv:.3f}')
     _C_leg = [mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=5, label='sample A'),
               mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')]
-    axC[0].legend(handles=_C_leg, frameon=False, loc='upper center', bbox_to_anchor=(0.42, 1.0),
-                  ncol=2, columnspacing=0.8, handletextpad=0.3, borderaxespad=0.2)
+    # no legend in C: the filled/open glyph key sits directly above in the panel-B depth strip (review 2026-09-07)
 
     # ── D: Naive nonpaired corr-rej vs false-alarm depth, sample A | sample B ──
     axD = fig.add_subplot(gs[2, 6:9])
@@ -292,7 +292,7 @@ if __name__ == '__main__':
         tp = float(ttest_rel(r['cr_raw'], r['fa_raw']).pvalue) if n >= 3 else np.nan
         sig = (tp == tp and tp < 0.05)
         axD.text((xc + xe) / 2, 0.99, f'{lab} (sample {samp})', transform=axD.get_xaxis_transform(),
-                 ha='center', va='top', fontsize=PS*7, fontweight='bold', color=col)
+                 ha='center', va='top', fontsize=PS*7, color=col)
         axD.text((xc + xe) / 2, 0.87, '*' if sig else 'n.s.', transform=axD.get_xaxis_transform(),
                  ha='center', va='top', fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
         axD.text((xc + xe) / 2, 0.02, f'p={tp:.3f}', transform=axD.get_xaxis_transform(),
@@ -304,8 +304,8 @@ if __name__ == '__main__':
     axD.set_xticks([0.0, 0.8, 1.9, 2.7])
     axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
     axD.set_xlim(-0.5, 3.2)
-    axD.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
-    axD.set_title('Naive nonpaired trials', loc='left', fontsize=TITLE_FS)
+    axD.set_ylabel('choice-code depth', fontsize=PS*7.5)
+    axD.set_title('Naive unpaired trials', loc='left', fontsize=TITLE_FS)
     axD.set_box_aspect(1)
 
     # ── E: within-task choice-code d′ (Naive vs Expert) — decodability UNCHANGED ⇒ the push (B) is a
@@ -333,7 +333,7 @@ if __name__ == '__main__':
     # ── panel letters ──
     panel_letter(axAL[0], 'A')
     panel_letter(axB_traj[0], 'B')
-    panel_letter(axC[0], 'C')
+    panel_letter(axC[0], 'C', dy=0.04)          # clear of the long y-label
     panel_letter(axD, 'D', x=0.5)
     panel_letter(axDp, 'E', x=0.72)
 
@@ -344,31 +344,31 @@ if __name__ == '__main__':
         'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
         'negative values lie toward no-lick.',
-        'a, The distractor code rotates onto the choice axis. Cross- '
+        'a, The distractor code rotates onto the choice axis. Cross-'
         'decoding between the two codes (balanced accuracy; diagonal, within-code; off-diagonal, '
-        'transfer). The chance-referenced transfer grows from 0.33 [−0.03, 0.60] in naïve to 0.57 '
-        '[0.36, 0.75] in expert mice. Right, the same convergence within each animal, naïve against '
-        'expert: per-mouse |cos| 0.073 → 0.114 (∗ p = .008) and cross-decode 0.53 → 0.61 (∗ p = '
-        '.004), both robust across decoder variants and drawn from fixed canonical caches in every '
+        'transfer). The chance-referenced transfer grows from 0.42 [0.11, 0.64] in naïve to 0.50 '
+        '[0.29, 0.70] in expert mice. Right, the same convergence within each animal, naïve against '
+        'expert: per-mouse |cos| 0.063 → 0.100 (∗ p = .012) and cross-decode 0.53 → 0.60 (∗ p = '
+        '.020), drawn from fixed canonical caches in every '
         'build. The distractor’s demand becomes readable as what it is for the animal, a choice.',
         'b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay '
-        'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late- '
+        'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-'
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '
         'half of the axis whose readout is “do not lick”, away from the lick boundary, the geometric '
-        'counterpart of the vanishing lick chain in Fig. 1g. Mixed model β = −0.74, p = .046 ∗ (9 '
-        'mice, 36 observations); per-animal trend, Wilcoxon p = .098, carried by sample A (Δ = −1.42, '
-        'p = .098; sample B ≈ 0; the A-versus-B difference itself is n.s., p = .055).',
+        'counterpart of the weakening lick chain in Fig. 1g. Mixed model β = −1.15, p = .007 ∗ (9 '
+        'mice, 36 observations); per-animal trend, Wilcoxon p = .055, larger for sample A (Δ = −1.87, '
+        'p = .074) than for sample B (−0.44, p = .30); the A-versus-B difference itself is n.s., p = .098.',
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
-        'state, the more its DPA accuracy improves (ρ = −0.83, p = .005 ∗), whereas the same change '
-        'predicts nothing for GNG (ρ = +0.20, p = .61), nor for NoGo trials alone (ρ = +0.34, p = .38). The coupling is specific to the memory task.',
+        'state, the more its DPA accuracy improves (ρ = −0.72, p = .030 ∗), whereas the same change '
+        'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone a trend of the opposite sign, ρ = +0.65, p = .060). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
-        'rejections from false alarms (sample A, Δ(CR−FA) = −1.16, p = .27; sample B, +0.73, p = '
-        '.47).',
-        'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no- '
-        'lick) is unchanged by learning (0.80 → 1.07, p = .25). Learning moves where the memory state '
+        'rejections from false alarms (sample A, Δ(CR−FA) = −1.05, p = .26; sample B, +1.17, p = '
+        '.49).',
+        'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no-'
+        'lick) is unchanged by learning (0.55 → 0.63, p = .57). Learning moves where the memory state '
         'sits on the axis (b), not how well the axis reads out.',
     ]
     if FILE_SUF != '_dpaact':

@@ -67,11 +67,17 @@ TITLE_FS = PS*8
 LEGACY = '--pr' in sys.argv          # previous PR/all-tasks build (ED source)
 CDEC = not LEGACY                    # the adopted main Fig 2
 
-RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
+EVWIN = '--evwin' in sys.argv[1:]                 # event-window variant: caches from DUAL_RES, matrices _mdte, stem _ev
+PCABINS = '--pcabins' in sys.argv[1:]             # pca-bins variant: caches from DUAL_RES, matrices _pb, stem _pb
+AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant: caches from DUAL_RES, matrices/stem AXENV
+RES = pickle.load(open(__import__('os').environ.get('DUAL_RES', 'figures/pseudo/dimensionality/results.pkl'), 'rb'))
 CV, FITDATA = RES['CV'], RES['FITDATA']
 # panel E (cross-task generalisation) reads the CANONICAL no-PCA overlaps cache — deliberately
 # hardcoded (Figs 3-5 are no-PCA canonical; the PCA-20 build is an ED robustness variant)
-MAT_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/matrices_cache_acc_nopca.pkl'
+MAT_CACHE = (f'/home/leon/dual/overlaps/figures/overlaps/ccgp/matrices_cache{AXENV}_acc_nopca.pkl' if AXENV else
+             '/home/leon/dual/overlaps/figures/overlaps/ccgp/matrices_cache_pb_acc_nopca.pkl' if PCABINS else
+             '/home/leon/dual/overlaps/figures/overlaps/ccgp/matrices_cache_mdte_acc_nopca.pkl' if EVWIN else
+             '/home/leon/dual/overlaps/figures/overlaps/ccgp/matrices_cache_acc_nopca.pkl')   # canonical axes (sample 36-38, choice/test 54-62)   # Fig 2 windows: sample @ md, test/choice @ decision (Leon 2026-09-08; was LD/TEST)
 assert os.path.exists(MAT_CACHE), (f'missing {MAT_CACHE} — '
                                    'run: cd ../overlaps && python fig_ccgp_matrices_pseudo.py --acc --nopca')
 STAGES = ['Naive', 'Expert']
@@ -98,8 +104,8 @@ def schematic(ax):
         ax.add_patch(Rectangle((lo, y0), hi - lo, h, fc=col, alpha=0.75, lw=0))
         ax.text((lo + hi) / 2, y0 + h + 0.025, nm, ha='center', va='bottom', fontsize=PS*6.0, color=col)
     ax.text(0.1, y0 + h + 0.025, 'trial', ha='left', va='bottom', fontsize=PS*6.0, color='0.4')
-    brackets = ([(5.6, 6.4, 'memory / delay state (5.5–6.3 s)', 'right', 5.5),   # bins_MD 36–38
-                 (9.5, 10.8, 'decision state', 'left', 9.6)] if CDEC else       # keep SHORT: a longer
+    brackets = ([(5.6, 6.4, 'memory / delay state (6.0–6.5 s)', 'right', 5.5),   # bins_MD 36–38
+                 (9.0, 10.5, 'decision state\n(9.0–10.5 s)', 'left', 9.1)] if CDEC else   # bins 54–62 (canonical 2026-09-08)
                 [(8.0, 8.9, 'memory / delay state', 'right', 7.9),      # legacy: late delay
                  (9.5, 11.0, 'decision state', 'left', 10.0)])
     for lo, hi, lab, hal, xt in brackets:
@@ -212,11 +218,11 @@ def panelB_sets(fig, gsB2):
                 ax.set_xlabel('component', fontsize=PS*7)
             if c == 1:
                 ax.tick_params(labelleft=False)
-                ax.text(0.90, 0.94, wlab, transform=ax.transAxes, ha='right', va='top',
-                        fontsize=PS*6.5, color='0.35', style='italic')
+            ax.text(0.96, 0.94, wlab, transform=ax.transAxes, ha='right', va='top',   # window tag on BOTH
+                    fontsize=PS*6.5, color='0.35', style='italic')                     # columns (2026-09-08)
             # geometry callouts + cartoons (the point of evidence, not the caption)
             if r == 0 and c == 0:                    # DPA mid-delay: ONE axis — a sample line
-                ax.text(0.97, 0.95, '1 reliable axis —\nthe sample line', transform=ax.transAxes,
+                ax.text(0.96, 0.84, '1 reliable axis —\nthe sample line', transform=ax.transAxes,
                         ha='right', va='top', fontsize=PS*6.0, color='0.25')
                 # (the line/plane cartoon glyphs were removed 2026-09-01 — they overlapped the
                 #  spectra and were unreadable at panel scale; the text callouts carry the message)
@@ -228,7 +234,7 @@ def panelB_sets(fig, gsB2):
                 ax.text(0.96, 0.84, f'2 axes: distractor ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
                         transform=ax.transAxes, ha='right', va='top', fontsize=PS*6.0, color='0.25')
             if r == 1:                               # decision: ~3 reliable axes
-                ax.text(0.96, 0.94 if c == 0 else 0.84, '≈3 reliable axes', transform=ax.transAxes,
+                ax.text(0.96, 0.84, '≈3 reliable axes', transform=ax.transAxes,
                         ha='right', va='top', fontsize=PS*6.0, color='0.25')
             if r == 1 and c == 0:
                 ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.3, loc='center right')
@@ -242,34 +248,25 @@ def panelB_sets(fig, gsB2):
 #     pseudo-trial accuracy along each variable's demixed axis (exp_dpca_count.py, Kobak-style).
 #     Amplitude-free existence metric: replaces the variance-weighted PR bars. ══
 def panelC_decode(fig, gsC):
+    """2×2 grid in panel-b format (Leon 2026-09-08): DPA | dual columns × mid-delay | decision rows, each
+    its own axes. Expert bars, naive open circles, one null mark per bar (expert 95th pct of the MATCHED
+    label-shuffle null), † = naive above its own null (the anticipatory choice; explained in the caption).
+    The DPA-subspace distractor cross-decode is printed (→ panel d's orange column), not drawn."""
     DC = RES['DPCA_COUNT']; GC = RES['DPA_GNG_C']
-    setsvars = [('DPA', ['sample', 'gng', 'test', 'choice']), ('dual', ['sample', 'gng', 'test', 'choice'])]
-    gap = 0.9
-    xpos, x = {}, 0.0
-    for sname, vs in setsvars:
-        for v in vs:
-            xpos[(sname, v)] = x; x += 1.0
-        x += gap
-    xdiv = xpos[('dual', 'sample')] - (gap + 1.0) / 2.0 + 0.5
-    axs = []
+    setsvars = [('DPA', ['sample', 'test', 'choice']), ('dual', ['sample', 'gng', 'test', 'choice'])]
+    for wn in ('md', 'decision'):
+        for st in STAGES:
+            _g = GC[(wn, st)]
+            print(f'C-dec: DPA-subspace distractor cross-decode {wn:9s} {st:6s} acc={_g["acc"]:.2f} '
+                  f'null95={_g["null95"]:.2f} sig={_g["sig"]} p={_g.get("p", float("nan")):.3f}')
+    axes = []
     for r, (wn, wlab) in enumerate([('md', 'mid-delay'), ('decision', 'decision')]):
-        ax = fig.add_subplot(gsC[r, 0]); axs.append(ax)
-        for sname, vs in setsvars:
-            for v in vs:
-                xb = xpos[(sname, v)]
-                if sname == 'DPA' and v == 'gng':      # CROSS-decode: dist from the DPA-state subspace
-                    d, dn = GC[(wn, 'Expert')], GC[(wn, 'Naive')]
-                    ax.bar(xb, d['acc'], 0.72, facecolor='none', edgecolor=VAR_COL['gng'],
-                           hatch='/////', lw=0.9, zorder=2)
-                else:
-                    d = DC[(sname, wn, 'Expert')][v]; dn = DC[(sname, wn, 'Naive')][v]
-                    ax.bar(xb, d['acc'], 0.72, color=VAR_COL[v], zorder=2)
-                # each stage against ITS OWN shuffle null: the old single Expert line made the
-                # Naive dots unreadable (DPA-decision sample Naive is sig vs its own null yet sat
-                # BELOW the drawn Expert line, reading as n.s.)
-                ax.hlines(d['null95'], xb - 0.36, xb + 0.36, color='0.15', lw=0.8, zorder=3)
-                ax.hlines(dn['null95'], xb - 0.36, xb + 0.36, color='0.45', lw=0.7,
-                          ls=(0, (2, 1.4)), zorder=3)
+        for c, (sname, vs) in enumerate(setsvars):
+            ax = fig.add_subplot(gsC[r, c]); axes.append(ax)
+            for xb, v in enumerate(vs):
+                d = DC[(sname, wn, 'Expert')][v]; dn = DC[(sname, wn, 'Naive')][v]
+                ax.bar(xb, d['acc'], 0.72, color=VAR_COL[v], zorder=2)
+                ax.hlines(d['null95'], xb - 0.36, xb + 0.36, color='0.2', lw=0.8, zorder=3)
                 ax.plot(xb, dn['acc'], 'o', ms=2.8, mfc='w', mec='0.3', mew=0.7, zorder=4)
                 if dn['sig'] and not d['sig']:                 # naive-only signal (the bias state)
                     ax.text(xb + 0.15, dn['acc'] + 0.01, '†', fontsize=PS*7, color='0.25',
@@ -277,54 +274,28 @@ def panelC_decode(fig, gsC):
                 print(f'C-dec: {wn:9s} {sname:4s} {v:6s} E {d["acc"]:.2f} (n95 {d["null95"]:.2f})'
                       f'{" *" if d["sig"] else "  "} N {dn["acc"]:.2f} (n95 {dn["null95"]:.2f})'
                       f'{" *" if dn["sig"] else ""}')
-        if r == 0:                                   # the salience fix: 0.61 is WEAK next to dual's 1.0
-            _gmd = GC[('md', 'Expert')]
-            _wlab = ('weak transfer\n(dual dist = 1.0)' if _gmd['sig']
-                     else 'no reliable transfer\n(dual dist = 1.0)')   # verdict follows the 1000-draw null
-            ax.annotate(_wlab, xy=(xpos[('DPA', 'gng')] + 0.30,
-                        _gmd['acc']), xytext=(xpos[('DPA', 'gng')] + 1.05, 0.80),
-                        fontsize=PS*6.0, color=VAR_COL['gng'], ha='left', va='center',
-                        arrowprops=dict(arrowstyle='-', lw=0.6, color=VAR_COL['gng'],
-                                        shrinkA=0, shrinkB=1))
-            print(f"C-dec: weak-transfer verdict sig={_gmd['sig']} p={_gmd.get('p', float('nan')):.3f}")
-        ax.axhline(0.5, color='0.6', lw=0.7, ls='--', zorder=1)
-        ax.axvline(xdiv, color='0.85', lw=0.7)
-        ax.set_ylim(0.35, 1.04); ax.set_yticks([0.5, 0.75, 1.0]); ax.set_yticklabels(['0.5', '', '1.0'])
-        ax.set_xlim(-0.7, x - gap - 0.3)
-        # mid-delay tag lives bottom-right (top-right is taken by the 6-entry legend)
-        ax.text(0.985, 0.965 if r else 0.03, wlab, transform=ax.transAxes, ha='right',
-                va='top' if r else 'bottom', fontsize=PS*6.5, color='0.35', style='italic')
-        if r == 0:
-            ax.tick_params(labelbottom=False); ax.set_xticks([])
-        else:
-            ax.set_xticks([xpos[k] for k in xpos])
-            # canonical code names (sample/dist/test/choice, as in Figs 3-4): 'gng' displays as 'dist'
-            ax.set_xticklabels(['dist cross' if k == ('DPA', 'gng') else
-                                ('dist' if k[1] == 'gng' else k[1]) for k in xpos],
-                               fontsize=PS*6.0, rotation=35, ha='right')   # NOT '×': rotated it reads '+'
-                                                                        # (35°/5.8: shorter drop — the
-                                                                        # group labels below must clear D)
-            # group labels at the OUTER EDGES (not group centres): centred labels at any depth
-            # collide with row 1's 'dual — decision' title, which sits directly below the group
-            # centres; the in-axes divider line already separates the two groups
-            ax.text(-0.17, -0.42, 'DPA', transform=ax.transAxes,
-                    ha='left', va='top', fontsize=PS*6.2, color='0.2')
-            ax.text(1.02, -0.29, 'dual', transform=ax.transAxes,
-                    ha='right', va='top', fontsize=PS*6.2, color='0.2')
+            ax.axhline(0.5, color='0.6', lw=0.7, ls='--', zorder=1)
+            ax.set_ylim(0.35, 1.04); ax.set_yticks([0.5, 0.75, 1.0]); ax.set_yticklabels(['0.5', '', '1.0'])
+            ax.set_xlim(-0.6, len(vs) - 0.4); ax.set_xticks(range(len(vs)))
+            if r == 0:
+                ax.set_title(sname, loc='left', fontsize=PS*7)
+                ax.tick_params(labelbottom=False)
+            else:
+                ax.set_xticklabels([('dist' if v == 'gng' else v) for v in vs],
+                                   fontsize=PS*6.0, rotation=35, ha='right')
+            if c == 1:
+                ax.tick_params(labelleft=False)
+                ax.text(0.96, 0.94, wlab, transform=ax.transAxes, ha='right', va='top',
+                        fontsize=PS*6.5, color='0.35', style='italic')
     hs = [Patch(fc='0.45', label='Expert'),
           mlines.Line2D([], [], marker='o', ls='', ms=2.8, mfc='w', mec='0.3', mew=0.7, label='Naive'),
-          mlines.Line2D([], [], color='0.15', lw=0.8, label='null 95% (Exp.)'),
-          mlines.Line2D([], [], color='0.45', lw=0.7, ls=(0, (2, 1.4)), label='null 95% (Naive)'),
-          Patch(fc='none', ec=VAR_COL['gng'], hatch='/////', label='dist cross-dec ← DPA PCs'),
-          mlines.Line2D([], [], marker='$†$', ls='', ms=4, color='0.25', label='Naive-only sig.')]
-    # legend ABOVE the axes: 6 entries inside collided with the dual bars / the Naive dot at 1.0
-    axs[0].legend(handles=hs, frameon=False, fontsize=PS*6.0, loc='lower left', ncols=3,
-                  bbox_to_anchor=(0.0, 1.01), handlelength=1.1, handletextpad=0.4,
-                  labelspacing=0.3, columnspacing=0.7, borderaxespad=0.0)
-    p0, p1 = axs[0].get_position(), axs[1].get_position()
-    fig.text(p0.x0 - 0.032, (p1.y0 + p0.y1) / 2, 'held-out decoding accuracy',
+          mlines.Line2D([], [], color='0.2', lw=0.8, label='null 95%')]
+    axes[0].legend(handles=hs, frameon=False, fontsize=PS*5.5, loc='upper right', handlelength=1.1,
+                   handletextpad=0.4, labelspacing=0.25, borderaxespad=0.15)   # inside DPA mid-delay: its
+    p0, p3 = axes[0].get_position(), axes[2].get_position()                    # test/choice bars sit at chance
+    fig.text(p0.x0 - 0.032, (p3.y0 + p0.y1) / 2, 'held-out decoding accuracy',
              rotation=90, va='center', ha='center', fontsize=PS*8)
-    return axs[0]
+    return axes[0]
 
 
 # ══ D — the axes ARE the variables: η² of each condition-mean PC on the factor contrasts (Expert).
@@ -363,30 +334,37 @@ def _rank_b(ts, wn):
     return max(r, 1)
 
 
+DCROSS = False      # 2026-09-08 (Leon): the DPA 'dist × (cross-dec)' column is OUT of panel d — the
+                    # distractor-in-the-memory-subspace result lives in Fig 3c (per mouse) and the pooled
+                    # number (0.61 @ md, p=.031) is quoted in §3; DPA_GNG stays cached and printed.
+
+
 def panelD_mats(fig, gsD):
     axes = []
     for c, (ts, wn, ttl) in enumerate(D_SPECS):
         ax = fig.add_subplot(gsD[0, c]); axes.append(ax)
         F = FITDATA[(ts, wn, 'Expert')]
-        nk = 4 if (ts == 'dual' or CDEC) else 3
+        nk = 3                                       # PC1-3 only (Leon 2026-09-08: PC4 removed — DPA PC4 is
+                                                     # the degenerate 0% direction, dual PC4 sits below the rank)
         M = np.asarray(F['pceta'])[:nk]; FO = list(F['factors']); cmv = np.asarray(F['cm_var'])[:nk]
         rk = _rank_b(ts, wn) if CDEC else nk
-        if CDEC and ts == 'DPA':                    # dist CROSS-decode column (DPA_GNG, above-chance frac)
+        if DCROSS and ts == 'DPA':                  # dist CROSS-decode column (DPA_GNG, above-chance frac)
             g = np.asarray(RES['DPA_GNG'][(wn, 'Expert')])[:nk]
             M = np.insert(M, 1, g, axis=1); FO = FO[:1] + ['dist ×\n(cross-dec)'] + FO[1:]
         FO = ['dist' if f == 'gng' else f for f in FO]   # canonical code names (as in Figs 3-4)
-        ax.imshow(M, cmap='Purples', vmin=0, vmax=1, aspect='equal')
-        if CDEC and ts == 'DPA':
+        ax.imshow(M, cmap='Purples', vmin=0, vmax=1, aspect='auto')   # square BOX (Leon 2026-09-08)
+        ax.set_box_aspect(1)
+        if DCROSS and ts == 'DPA':
             ax.add_patch(Rectangle((0.5, -0.5), 1.0, nk, fill=False,
                                    edgecolor=VAR_COL['gng'], lw=1.0, zorder=4, clip_on=False))
-        ax.set_anchor('NW')
+        ax.set_anchor('C')
         for i in range(M.shape[0]):
             for j in range(M.shape[1]):
-                veiled = i >= rk and not (CDEC and ts == 'DPA' and j == 1)
+                veiled = i >= rk and not (DCROSS and ts == 'DPA' and j == 1)
                 ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=PS*6.2,
                         color='0.62' if veiled else ('w' if M[i, j] > 0.55 else 'k'))
         if CDEC and rk < M.shape[0]:                # fade rows beyond B's reliable rank (future = noise);
-            spans = ([(-0.5, 1.0), (1.5, M.shape[1] - 2.0)] if ts == 'DPA'     # keep the boxed gng×
+            spans = ([(-0.5, 1.0), (1.5, M.shape[1] - 2.0)] if (DCROSS and ts == 'DPA')   # keep the boxed gng×
                      else [(-0.5, float(M.shape[1]))])                          # column readable
             for x0, wdt in spans:
                 ax.add_patch(Rectangle((x0, rk - 0.5), wdt, M.shape[0] - rk,
@@ -445,7 +423,7 @@ def panelE_gen(fig, gsE):
                     ax.add_patch(Rectangle((k - .5, i - .5), 1, 1, fill=False, hatch='////',
                                            edgecolor='0.45', lw=0.0, zorder=3))
         ax.set_xticks(range(len(TL)))
-        ax.set_xticklabels([f'{t}\n{d:.2f}' for t, d in zip(TL, np.diag(M))],
+        ax.set_xticklabels(TL,                        # plain task labels (ceilings → legend; Leon 2026-09-08)
                            fontsize=PS*6.0, rotation=35, ha='right')
         ax.set_yticks(range(len(TL)))
         ax.set_yticklabels(TL if j == 0 else [], fontsize=PS*6.0)
@@ -458,8 +436,7 @@ def panelE_gen(fig, gsE):
         # PARALLELISM SCORE (Bernardi's geometric twin of the transfer test; exp_parallelism.py,
         # pipeline-invariant — condition-mean vectors, no decoder). Added 2026-09-01 (craft review).
         _ps = RES['PS_nopca'][('Expert', var)]
-        ax.text(0.5, -0.52, f"PS {_ps['raw']:.2f} (null {_ps['null95']:.2f})\n"
-                f"rel-corrected {_ps['corrected']:.2f}",
+        ax.text(0.5, -0.42, f"PS {_ps['raw']:.2f}",             # null → legend (Leon 2026-09-08)
                 transform=ax.transAxes, ha='center', va='top', fontsize=PS*6.0, color='0.3')
         EYE = np.eye(len(M), dtype=bool)
         print(f'E-gen: {var:7s} Expert within {np.round(np.diag(M),2)}  transferred frac '
@@ -499,22 +476,39 @@ def panelG_biplot(fig, gsG):
     ax.axhline(0, color='0.8', lw=0.6, zorder=0); ax.axvline(0, color='0.8', lw=0.6, zorder=0)
     n95 = NS['null95_abs']
     ax.add_patch(Rectangle((-n95, -n95), 2 * n95, 2 * n95, fc='0.92', ec='none', zorder=0))
-    ax.scatter(np.clip(ds[ok], -lim, lim), np.clip(dc[ok], -lim, lim), s=2.5, marker='.',
-               color='#332288', alpha=0.22, lw=0, zorder=2, rasterized=True)
+    # colour by selectivity class (Leon 2026-09-08: "make the two clouds explicit"): |d'| above the
+    # label-shuffle floor for the sample only (indigo), the choice only (green), both (orange) or neither (grey)
+    x, yv = np.clip(ds[ok], -lim, lim), np.clip(dc[ok], -lim, lim)
+    ssel, csel = np.abs(ds[ok]) > n95, np.abs(dc[ok]) > n95
+    both = ssel & csel
+    dom_s = np.abs(ds[ok]) >= np.abs(dc[ok])          # two clouds: the axis with the larger |d'| (Leon
+    classes = [('sample cloud', dom_s & ~both, VAR_COL['sample'], 0.45, 3.0, 2),   # 2026-09-08: no separate
+               ('choice cloud', ~dom_s & ~both, VAR_COL['choice'], 0.45, 3.0, 2),  # 'neither' colour)
+               ('both selective', both, '#E69F00', 0.85, 5.0, 3)]
+    hs = []
+    for lab, msk, col, al, sz, z in classes:
+        ax.scatter(x[msk], yv[msk], s=sz, marker='.', color=col, alpha=al, lw=0, zorder=z, rasterized=True)
+        hs.append(mlines.Line2D([], [], marker='o', ls='', ms=3.2, color=col,
+                                label=(f'{lab} {100 * msk.mean():.0f}%' if lab == 'both selective' else lab)))
+        print(f'G: class {lab:15s} n={int(msk.sum()):4d} ({100 * msk.mean():.1f}%)')
+    print(f'G: sample-only {int((ssel & ~csel).sum())} choice-only {int((~ssel & csel).sum())} '
+          f'neither {int((~ssel & ~csel).sum())} both {int(both.sum())}')
+    ax.legend(handles=hs, frameon=False, fontsize=PS*5.5, loc='lower left', bbox_to_anchor=(0.0, 1.02),
+              ncols=1, handletextpad=0.2, labelspacing=0.15, borderaxespad=0.0, markerscale=1.0)
+    #   one column ABOVE the axes, within the panel width (inside, any key crosses the vertical arm)
     ax.set_xlim(-lim, lim); ax.set_ylim(-lim, lim); ax.set_aspect('equal', adjustable='box')
     ax.set_xticks([-2, 0, 2]); ax.set_yticks([-2, 0, 2])
     ax.set_xlabel("sample d′ (mid-delay)", fontsize=PS*7)
     ax.set_ylabel("choice d′ (decision)", fontsize=PS*7)
-    ax.text(0.03, 0.97, f"|d′| corr r = {NS['r_abs']:+.02f}\nboth-selective 6.2%\n"
-            '(independence: 6.4%)', transform=ax.transAxes, va='top', ha='left',
-            fontsize=PS*6.0, color='0.3')
+    ax.text(0.03, 0.03, f"r = {NS['r_abs']:+.02f}\nboth {100 * both.mean():.1f}%\nindep. {100 * ssel.mean() * csel.mean():.1f}%", transform=ax.transAxes,
+            va='bottom', ha='left', fontsize=PS*6.0, color='0.3')   # lower-left quadrant (few points)
     print(f"G: biplot n={NS['n_ok']} r_abs={NS['r_abs']:+.3f} null95={n95:.2f}")
     return ax
 
 
 def panelF_gen_learning(fig, gsF):
     from scipy.stats import wilcoxon
-    PG = RES['PM_GEN_nopca']                           # canonical no-PCA per-mouse matrices
+    PG = RES['PM_GEN_mddec_nopca']                     # canonical no-PCA per-mouse matrices, Fig 2 windows (md / decision)
     E3 = np.eye(3, dtype=bool)
     lo, hi = 0.45, 0.73
     axes = []
@@ -558,7 +552,7 @@ fig = plt.figure(figsize=(10.6, 7.9))
 # wspace 1.5 (was 1.0): explicit air between A | B | C (subgridspecs keep their own internal wspace).
 # Row 1 is a thin SPACER: it moves D away from the first row without widening the D→E/F gap
 # (uniform hspace can't do one-sided spacing).
-gs = fig.add_gridspec(4, 12, height_ratios=[1.0, 0.02, 0.84, 0.60], hspace=0.26, wspace=1.5,
+gs = fig.add_gridspec(4, 12, height_ratios=[1.0, 0.02, 0.70, 0.60], hspace=0.26, wspace=1.5,
                       left=0.076, right=0.978, top=0.955, bottom=0.045)
 
 axSch = fig.add_subplot(gs[0, 0:4])
@@ -571,12 +565,12 @@ else:
     gsB = gs[0, 4:9].subgridspec(1, 3, wspace=0.22)
     axB0 = panelB(fig, gsB)
 if CDEC:
-    gsC = gs[0, 9:12].subgridspec(2, 1, hspace=0.18)
+    gsC = gs[0, 9:12].subgridspec(2, 2, wspace=0.20, hspace=0.25, width_ratios=[3, 4])   # panel-b format
     axC = panelC_decode(fig, gsC)
 else:
     axC = fig.add_subplot(gs[0, 9:12])
     panelC(axC)
-gsD = gs[2, 0:12].subgridspec(1, 4, wspace=0.70,
+gsD = gs[2, 0:12].subgridspec(1, 4, wspace=0.50,
                               width_ratios=[4, 4, 4, 4] if CDEC else [4, 4, 3.2, 3.2])
 axD0 = panelD_mats(fig, gsD)
 if CDEC:
@@ -601,8 +595,8 @@ if CDEC:
     CAP_PARAS = [
         'Figure 2 | The population geometry is minimal and factorized. The working memory occupies a '
         'single dimension, each task variable has its own nearly orthogonal coding axis, and the memory and choice axes are shared across trial types. All panels use the pseudo-population (3,319 '
-        'neurons, nine mice, 12 conditions). The memory state is the mid-delay window (5.5–6.3 s, '
-        'after the distractor and before any cue or lick); the decision state runs from test onset.',
+        'neurons, nine mice, 12 conditions). The memory state is the mid-delay window (6.0–6.5 s, '
+        'after the distractor and before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).',
         'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
         'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
         'random half-splits, both directions averaged), so only structure that replicates across '
@@ -613,44 +607,38 @@ if CDEC:
         'tasks add exactly one, the distractor axis (0.92 against sample 0.07), and the decision '
         'state spreads to about three. Naïve and expert spectra are near-identical; learning does not '
         'change the dimensionality.',
-        'c, Each axis carries its variable when, and only when, the task engages it. Decoding '
-        'accuracy along each demixed coding axis on withheld pseudo-trials, tested against each '
-        'stage’s own label-shuffle null (95th percentile; expert solid, naïve open). The dagger marks '
-        'the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 '
-        'against its null) that disappears with learning. Hatched bar, the distractor read from the '
-        'DPA-state subspace (top-3 PCs): a weak but reliable transfer at mid-delay (permutation p = '
-        '.031, 1,000 draws), compared with 1.0 within the dual tasks. The distractor code barely '
-        'enters the memory subspace.',
+        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 against its own null) that disappears with learning.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts (rows, PCs labeled with their percentage of condition-mean variance; a '
         'cell near 1 means that the PC codes that variable alone). The geometry is factorized rather '
-        'than mixed. Rows beyond the reliable rank of panel b are faded; the orange box carries the '
-        'distractor cross-decode of panel c for each DPA PC; dual rows show 4 of the 7 centered '
-        'contrasts.',
-        'e, One shared axis per variable rather than a private axis per task. Decoders trained on one '
-        'task read the others (expert). Cells give the transferred fraction of decodable signal, '
-        '(cross − 0.5)/(within − 0.5); column labels print each test task’s within-task ceiling; '
-        'hatched cells have a ceiling near chance or a ratio above 1 and are not interpretable. Below '
-        'each matrix is the parallelism score, the geometric twin of the transfer test, against a '
-        'label-shuffle null; once corrected for split-half reliability, the sample and choice '
-        'directions are essentially parallel across tasks (≈0.96–1.0).',
-        'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy, naïve against '
-        'expert; points on the unity line indicate no change. All changes are n.s. (Wilcoxon, n = 9; '
-        'both decoder variants) and bounded, with the Δ 95% CIs inside ±0.05 accuracy (sample [−.03, '
-        '+.02]; test [−.01, +.04]; choice [−.03, +.05]). This is an equivalence statement, not an '
-        'absence of evidence.',
+        'than mixed. Rows beyond the reliable rank of panel b are faded; dual rows show 4 of the 7 centered contrasts.',
+        'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the distractor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
+        'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy (same windows as e), naïve against expert; points on the unity line indicate no change. The sample is unchanged (Δ = 0.00, 95% CI [−0.05, +0.05], Wilcoxon p = 1.00, n = 9), and so are the test (+0.01, [−0.01, +0.03], p = .43) and the choice (+0.01, [−0.03, +0.06], p = .82); the fraction transferred is unchanged (per-mouse medians 0.41–0.88, all p ≥ .65).',
         'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '
-        'mouse) for sample at mid-delay against choice at decision (n = 3,319; gray square, label- '
-        'shuffle floor). |d′| across the two variables is uncorrelated (r = −0.03), and the fraction '
-        'of both-selective neurons (6.2%) equals the independence prediction (6.4%). Largely separate '
+        'mouse) for sample at mid-delay against choice at decision (n = 3,319; gray square, label-'
+        'shuffle floor; color, the axis with the larger |d′|, sample in indigo or choice in green; orange, neurons above the floor on both axes). |d′| across the two variables is uncorrelated (r = −0.02), and the fraction '
+        'of both-selective neurons (5.2%) equals the independence prediction (5.2%). Largely separate '
         'populations carry the two axes, which is the single-neuron basis of the factorized geometry.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
+    if AXENV:
+        CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/distractor axes on bins '
+                         f'{__import__("os").environ["DUAL_SAMPLE_BINS"]}, choice/test axes on bins '
+                         f'{__import__("os").environ["DUAL_CHOICE_BINS"]} in every panel; panel annotations carry '
+                         'this build’s statistics, the entries quote the canonical build.]')
+    if PCABINS:
+        CAP_PARAS[0] += (' [BUILD VARIANT _pb: sample axis 6.0–6.5 s (post-distractor, pre-cue, after the GCaMP rise), '
+                         'choice and test axes 9.5–10.0 s (second half of the test odor) in every panel; panel annotations '
+                         'carry this build’s statistics, the entries quote the canonical build.]')
+    if EVWIN:
+        CAP_PARAS[0] += (' [BUILD VARIANT _ev: sample axis 5.5–6.5 s (post-distractor, pre-cue), choice and test axes '
+                         '9.0–10.0 s (test odor) in every panel; panel annotations carry this build’s statistics, the '
+                         'numbers quoted in the entries are the canonical build’s.]')
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
-STEM = 'fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr'
+STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/{STEM}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{STEM}.svg', bbox_inches='tight')

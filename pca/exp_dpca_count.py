@@ -10,7 +10,9 @@ marginalization" reduces to one test per contrast. Amplitude-free by constructio
 and a 90% gng axis face the same criterion): the count companion to the variance-weighted PR.
 
 Inputs: fits_inputs.pkl (AW window matrices, VALIDIX, labels) — no X reload.
-Output: merge-dumps {'DPCA_COUNT': {(set, window, stage): {contrast: dict(acc, null95, sig)}}} into
+Output: merge-dumps {'DPCA_COUNT': {(set, window, stage): {contrast: dict(acc, null95, sig, null_mean,
+null_sd, p, null95_split)}}} (null95 = 95th pct of the MATCHED null, mean over NSPLIT splits per shuffle;
+null95_split = the old single-split percentile) into
 results.pkl and prints the count table.
 
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python exp_dpca_count.py
@@ -26,7 +28,7 @@ ALL12 = [(t, s, te) for t in ['DPA', 'DualGo', 'DualNoGo'] for s in (0, 1) for t
 DUAL = [c for c in ALL12 if c[0] != 'DPA']
 DPA4 = [c for c in ALL12 if c[0] == 'DPA']
 SETS = {'DPA': DPA4, 'dual': DUAL, 'all': ALL12}
-WINS = ['ed', 'md', 'delay', 'test', 'decision']
+WINS = os.environ.get('DUAL_DPCA_WINS', 'ed,md,delay,test,decision').split(',')   # env: restrict for variant builds
 NSPLIT, NNULL, KPSEUDO = 15, 100, 10
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
@@ -142,15 +144,26 @@ for wn in WINS:
                 r = one_run(M, sd, stage, P, conds, C, rng, shuffle=False)
                 for f in C:
                     real[f].append(r[f])
-            null = {f: [] for f in C}
+            # MATCHED NULL (2026-09-08, Leon): the real statistic is the MEAN over NSPLIT splits, so each
+            # shuffle is scored the same way (mean over NSPLIT splits of one label permutation). The old
+            # single-split null (one split per shuffle, 40/80 held-out pseudo-trials) had SD 0.06-0.10 and a
+            # 95th percentile of 0.61-0.70 — conservative by 3-4x in spread; kept as null95_split.
+            null, null_split = {f: [] for f in C}, {f: [] for f in C}
             for _ in range(NNULL):
-                r = one_run(M, sd, stage, P, conds, C, rng, shuffle=True)
+                accs = {f: [] for f in C}
+                for k in range(NSPLIT):
+                    r = one_run(M, sd, stage, P, conds, C, rng, shuffle=True)
+                    for f in C:
+                        accs[f].append(r[f])
                 for f in C:
-                    null[f].append(r[f])
+                    null[f].append(float(np.mean(accs[f]))); null_split[f].append(accs[f][0])
             res = {}
             for f in C:
                 acc = float(np.mean(real[f])); n95 = float(np.percentile(null[f], 95))
-                res[f] = dict(acc=acc, null95=n95, sig=bool(acc > n95))
+                res[f] = dict(acc=acc, null95=n95, sig=bool(acc > n95),
+                              null_mean=float(np.mean(null[f])), null_sd=float(np.std(null[f])),
+                              p=float((np.sum(np.asarray(null[f]) >= acc) + 1) / (NNULL + 1)),
+                              null95_split=float(np.percentile(null_split[f], 95)))
             OUT[(sname, wn, stage)] = res
             sigs = [f for f in C if res[f]['sig']]
             parts = '  '.join(f"{f}={res[f]['acc']:.2f}{'*' if res[f]['sig'] else ' '}(n95 {res[f]['null95']:.2f})"

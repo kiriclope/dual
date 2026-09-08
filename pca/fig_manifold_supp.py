@@ -49,7 +49,7 @@ MOUSE_COLOR = {m: _pal[i] for i, m in enumerate(ALL_MICE)}
 
 CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache.pkl'   # no-PCA build
 RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
-PG = RES['PM_GEN_nopca']                                                # canonical no-PCA
+PG = RES['PM_GEN_mddec_nopca']                                          # canonical no-PCA, Fig 2 windows (md / decision; 2026-09-08)
 
 
 def plabel(ax, s, dx=-0.10):

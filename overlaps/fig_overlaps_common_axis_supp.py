@@ -12,7 +12,7 @@ Three axis definitions × two rows:
 Columns: per-stage (current figure) | COMMON = Expert axis | COMMON = pooled axis.
 
 Message: the push is strong on per-stage axes but attenuates to a trend on a fixed axis (part of it is
-axis reorganisation); the behaviour coupling survives on the pooled fixed axis (ρ≈−0.72 p≈.03).
+axis reorganisation); the behaviour coupling weakens to a trend on the pooled fixed axis (ρ≈−0.63 p≈.07; canonical axes 2026-09-08).
 Output: figures/overlaps/controls/{png,svg}/overlaps_common_axis_control.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
@@ -38,7 +38,7 @@ TITLE_FS = 8
 DATA = '../data/overlaps'
 BDUM = 'log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
-ACT = np.arange(57, 63); LD = np.asarray(set_options()['bins_LD']); BL = np.arange(0, 12); SAMPLES = [('A', [0, 1]), ('B', [2, 3])]  # LD = figure's bins_LD [48..53]
+ACT = np.arange(54, 63); LD = np.arange(45, 54); BL = np.arange(0, 12); SAMPLES = [('A', [0, 1]), ('B', [2, 3])]  # LD = figure's bins_LD [48..53]   # LD 45-53 = the main figure's BINS_LATE (T_WINDOW=0); fixed 2026-09-08 (was set_options 48-53 / 45-52)
 _pal = sns.color_palette('tab10', n_colors=len(MICE)); MC = {m: _pal[i] for i, m in enumerate(MICE)}
 
 Wb = pkl_load(f'weights_{BDUM}', path=DATA); W, VALID = Wb['weights'], Wb['valid']
@@ -134,7 +134,7 @@ for ci, (mode, title) in enumerate(MODES):
     if ci == 0:
         ax2.set_ylabel('Δ DPA accuracy (Exp−Naive)')
 fig.suptitle('Fixed-axis control: the no-lick push is partly decoder-axis reorganisation, but the '
-             'depth↔accuracy coupling survives on a fixed pooled axis', fontsize=9, y=1.0)
+             'depth↔accuracy coupling weakens to a trend on a fixed pooled axis', fontsize=9, y=1.0)
 fig.tight_layout(rect=(0, 0, 1, 0.96))
 OUT = 'figures/overlaps/controls'
 for s in ('png', 'svg'):

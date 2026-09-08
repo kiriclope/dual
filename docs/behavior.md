@@ -1,5 +1,7 @@
 # Behaviour — data structures, laser encoding, and learning-curve figures
 
+> **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
+
 Reference for the behavioural analyses (DPA + DualGo/DualNoGo). Covers **two distinct
 datasets** that must not be confused, the on-disk `.mat` structure of the training
 batches, how the `Trials` array decodes, how the laser is (and is not) encoded, and the
@@ -503,3 +505,58 @@ Fig 4). The poster build skips the caption.
   submission build and `make_submission_figs.py` exports 183 mm vector PDFs.
 - **Print scale**: each main defines `PS` (Fig 1 1.45 · Fig 2 1.15 · Fig 3 1.30 · Fig 4 1.10 via
   `main_panels.py` · Fig 6 1.35) so printed text lands at 5–7 pt. Convention in CLAUDE.md.
+
+## 2026-09-07 (late) — Fig 6 reviewer-readiness fixes (`fig_behavior_opto_main.py`)
+Cosmetic/verdict fixes from the review round; NO statistic recomputed:
+- **Panel g verdict marker** is now drawn from the MOUSE-CLUSTERED model (`_gi_lmm('trade')`, p = .108 →
+  `n.s.`), not from the raw 20-point Pearson p (which starred it and contradicted the text/caption). The
+  drawn r/ρ text stays. Panels h/i were already on the clustered verdict (i ★ β=−0.013 p=.018; h n.s.).
+- **Per-day ON−OFF stars removed from d/e** (`if False and star(pv)`): they contradicted "no gross change in
+  behavior (DPA p=.40, GNG p=.24)"; the LMM verdict is the one the text uses.
+- **Panel f**: ylim extended below the data and the 5-mouse key drawn `lower center, ncol=3` (was a framed
+  box over the lines); caption now says the direction differs across mice (two toward no-lick, three toward
+  lick) instead of "the group mean is flat".
+- **Panels k/l**: stats text two-line, bottom-right (`10 OFF/ON pairs, 20 obs.`; caption n = 20 observations —
+  the old "n = 10 observations" was wrong); **panel j** "optimal" label moved off the data points.
+- Axis label `OFF-trained axis` replaces the code name `trainLD_TEST` in all printed text (the code name
+  stays in scripts/docs); baked "A/B" letters in the scheme PNG are blanked (`show_scheme(..., blank=…)`).
+- Draft §5 additions from the same round: ED 7a–c specificity controls cited in Results, "blocked
+  curriculum + no-opsin illumination controls" for the batch cohort **[AUTHOR: confirm the control
+  construct]**, the acute coupling labelled exploratory at n = 5, ChR2 laser-OFF trials disclosed.
+
+## 2026-09-08 — Fig 1g POOLED over Go + NoGo trials (Leon: "keep the figure the same but use all trials")
+Leon noticed 5/9 expert lines in panel g. Cause: the NoGo-only build draws a per-mouse line only for mice with
+≥3 delay-lick trials, and in the expert stage four mice (JawsM01/06/12/18: 1/0/2/2 unwarranted NoGo licks)
+fell below it. Definition check: a "delay lick" = `odr_choice` = 1 = a lick at the GNG response cue; defined
+on Go (≈80 % of trials, the required response) and NoGo (24 % naïve → 8 % expert) trials, undefined on DPA
+trials (no cue). Panel g now uses `d.tasks.isin(['DualGo','DualNoGo'])`; the model is unchanged
+(GEE `testlick ~ licked`, exchangeable, clustered by mouse) plus a printed trial-type-adjusted OR.
+**New numbers (script prints, verified against a standalone recomputation):**
+- Naïve: OR 2.32 p = 4×10⁻⁴ (adjusted 2.81); FA arm (unpaired) 2.34 p = .004; paired arm 3.08 p = .02;
+  interaction p = .60; delay-lick rate 0.51 (NoGo 0.24); 9/9 lines.
+- Expert: OR 1.48 p = .004 (adjusted 1.88); FA arm 1.48 p = .02; paired arm 4.52 p < 10⁻⁴; interaction
+  p = .009; delay-lick rate 0.45 (NoGo 0.08); 9/9 lines.
+**CONSEQUENCE:** the expert propagation is NO LONGER "not detectable" — it persists, weaker, and becomes
+pairing-selective (hit arm persists, false-alarm arm attenuated). Manuscript v12.11 rewords §1, intro,
+§4, Methods, Fig 1 + Fig 4 legends ("weakening", not "vanishing" lick chain) and the Discussion. The
+NoGo-only numbers (naïve OR 3.10 p = .006; expert 1.50 p = .42) are retired. Go-trial caveat, logged: on
+Go trials "no delay lick" = a miss and the delay lick is rewarded, so the Go contrast alone is confounded
+by engagement/reward (Go-only naïve OR 3.17, expert 2.25 — not reported).
+
+**2026-09-08 (later) — cross-stage interaction (Leon: "we need the interaction between naive and expert").**
+One GEE over both stages (`testlick ~ licked * expert`, exchangeable, by mouse): lick × stage OR ratio
+0.68 [0.45, 1.04] p = .074 (TREND; p = .16 with C(tasks); per-mouse log-OR lower in 6/9, Wilcoxon p = .13);
+FA-arm-only lick × stage p = .19; hit-arm-only p = .038 (rises); **lick × stage × pairing OR ratio 0.39
+p = 1e-4** — the pairing SELECTIVITY is what changes with learning, not the overall strength. Printed by the
+script (`G cross-stage:` line), drawn in-panel ("lick × stage p=0.074" between the stage groups), in the
+legend, §1 and Methods (draft v12.12). Wording: the propagation PERSISTED but became pairing-selective.
+
+**2026-09-08 — DECISION: Fig 1g stays the POOLED Go+NoGo panel (Leon: "ok keep the pooled panel").**
+Unpaired-only variant explored and NOT adopted (numbers for the record; outcome = P(false alarm)):
+naïve 0.40→0.63, OR 2.34 p = .004 (trial-type-adjusted 2.47 p = .018), 9/9 lines, 8/9 mice up; expert
+0.16→0.26, OR 1.48 p = .020 (adjusted 1.38 p = .37 — fragile: unpaired-Go "no delay lick" = misses), 9/9
+lines, 6/9 up; lick × stage OR ratio 0.74 [0.47, 1.16] p = .19 (adjusted .27), per-mouse 6/9 Wilcoxon p = .13.
+Reason to keep pooled: it retains the paired (hit) arm = the propagation-vs-memory-corruption control,
+and the lick × stage × pairing interaction (p = 1e-4), the only significant learning effect; the FA arm
+alone is a trend across stages. The unpaired-only numbers ARE the "false-alarm arm" already quoted in
+the legend/§1. NoGo-only unpaired would leave 3/9 expert lines — dead end.

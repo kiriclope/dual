@@ -41,6 +41,13 @@ EYE = np.eye(3, dtype=bool)
 Y2 = np.r_[np.zeros(K), np.ones(K)]
 RNG = np.random.RandomState(0)
 o = set_options(); W_LD, W_TE, W_MD = np.asarray(o['bins_LD']), np.asarray(o['bins_TEST']), np.asarray(o['bins_MD'])
+W_DEC = np.arange(57, 66)                    # Fig 2 'decision' state (bins 57-65 = 9.5-11.0 s), for --mddec
+W_MD2, W_TE2 = np.arange(36, 39), np.arange(57, 60)   # pca bins (6.0-6.5 s, 9.5-10.0 s), for --pcabins
+W_CAN_S, W_CAN_C = np.arange(36, 39), np.arange(54, 63)   # CANONICAL axes since 2026-09-08 (sample 36-38, choice/test 54-62)
+_AXENV = os.environ.get('DUAL_AXSUF')                # env-driven windows (DUAL_SAMPLE_BINS / DUAL_CHOICE_BINS, inclusive)
+if _AXENV:
+    _sb = [int(v) for v in os.environ['DUAL_SAMPLE_BINS'].split('-')]; _cb = [int(v) for v in os.environ['DUAL_CHOICE_BINS'].split('-')]
+    W_ENVS, W_ENVC = np.arange(_sb[0], _sb[1] + 1), np.arange(_cb[0], _cb[1] + 1)
 
 print('loading pseudo-population …')
 X = np.asarray(pkl_load('X_all_nan_', path='../data/pca'))
@@ -50,14 +57,33 @@ VALID = pkl_load('weights_log_generalizing_overlaps_none_l1_ratio_0.0_raw_target
 MOUSE = y.mouse.to_numpy(); LEARN = y.learning.to_numpy(); LAS = y.laser.to_numpy(); TSK = y.tasks.to_numpy()
 print('pre-averaging activity per window (once) …')
 AW = {'LD': np.nanmean(X[:, :, W_LD], axis=2), 'TE': np.nanmean(X[:, :, W_TE], axis=2),
-      'MD': np.nanmean(X[:, :, W_MD], axis=2)}                                            # 9216×3319 each
+      'MD': np.nanmean(X[:, :, W_MD], axis=2), 'DEC': np.nanmean(X[:, :, W_DEC], axis=2),
+      'MD2': np.nanmean(X[:, :, W_MD2], axis=2), 'TE2': np.nanmean(X[:, :, W_TE2], axis=2),
+      'CANS': np.nanmean(X[:, :, W_CAN_S], axis=2), 'CANC': np.nanmean(X[:, :, W_CAN_C], axis=2)}   # 9216×3319 each
+if _AXENV:
+    AW['ENVS'] = np.nanmean(X[:, :, W_ENVS], axis=2); AW['ENVC'] = np.nanmean(X[:, :, W_ENVC], axis=2)
 del X                                                                                    # free the 20 GB tensor
 
-VARS = [('sample', 'sample_odor', 'LD'), ('choice', 'choice', 'TE'), ('test', 'test_odor', 'TE')]
-if '--test' in sys.argv[1:]:
+VARS = [('sample', 'sample_odor', 'CANS'), ('choice', 'choice', 'CANC'), ('test', 'test_odor', 'CANC')]   # canonical (2026-09-08)
+if _AXENV:
+    VARS = [('sample', 'sample_odor', 'ENVS'), ('choice', 'choice', 'ENVC'), ('test', 'test_odor', 'ENVC')]
+    SUF, WINLAB = _AXENV, f'sample @ bins {_sb[0]}–{_sb[1]} · choice/test @ bins {_cb[0]}–{_cb[1]}'
+elif '--test' in sys.argv[1:]:
     VARS = [(lab, col, 'TE') for lab, col, _ in VARS]; SUF, WINLAB = '_test', 'all codes @ TEST epoch'
+elif '--pcabins' in sys.argv[1:]:            # pca bins in both pipelines (Leon 2026-09-08): sample @ 36-38, choice/test @ 57-59
+    VARS = [('sample', 'sample_odor', 'MD2'), ('choice', 'choice', 'TE2'), ('test', 'test_odor', 'TE2')]
+    SUF, WINLAB = '_pb', 'sample @ 6.0–6.5 s · choice/test @ 9.5–10.0 s (pca bins)'
+elif '--mdte' in sys.argv[1:]:               # event windows (Leon 2026-09-08): sample @ mid-delay, choice/test @ test odor
+    VARS = [('sample', 'sample_odor', 'MD'), ('choice', 'choice', 'TE'), ('test', 'test_odor', 'TE')]
+    SUF, WINLAB = '_mdte', 'sample @ mid-delay (5.5–6.5 s) · choice/test @ test odor (9.0–10.0 s)'
+elif '--mddec' in sys.argv[1:]:              # Fig 2 windows (Leon 2026-09-08): sample @ mid-delay, choice/test @ decision
+    VARS = [('sample', 'sample_odor', 'MD'), ('choice', 'choice', 'DEC'), ('test', 'test_odor', 'DEC')]
+    SUF, WINLAB = '_mddec', 'sample @ mid-delay (6.0–6.5 s) · choice/test @ decision (9.5–11.0 s)'
+elif '--legacyaxes' in sys.argv[1:]:
+    VARS = [('sample', 'sample_odor', 'LD'), ('choice', 'choice', 'TE'), ('test', 'test_odor', 'TE')]
+    SUF, WINLAB = '_legacy', 'sample @ late delay · choice/test @ TEST'
 else:
-    SUF, WINLAB = '', 'sample @ late delay · choice/test @ TEST'
+    SUF, WINLAB = '', 'sample @ 6.0–6.5 s · choice/test @ 9.0–10.5 s'
 NOPCA = '--nopca' in sys.argv[1:]           # drop the PCA denoising step (robustness variant)
 PSUF = '_nopca' if NOPCA else ''
 PIPE = (lambda: make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=3000))) if NOPCA \
@@ -157,7 +183,7 @@ def gng_matrix(stage, wkey='MD'):
 # leakage). Above-chance off-diagonal ⇒ a single action/lick axis serves both readouts. This is the robust,
 # generalization-based version of the (weak, ~0.18) cos(DPA-lick · GNG-axis) — noise dims dilute cosine but
 # not cross-decoding.
-ACT_CODES = ['GNG', 'choice']; ACT_WIN = {'GNG': 'MD', 'choice': 'TE'}
+ACT_CODES = ['GNG', 'choice']; ACT_WIN = ({'GNG': 'MD', 'choice': 'TE'} if '--legacyaxes' in sys.argv[1:] else {'GNG': 'CANS', 'choice': 'CANC'})   # same windows as the axes
 
 
 def dpa_choice_cond(cls, stage):                          # DPA lick(1)/no-lick(0) at test

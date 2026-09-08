@@ -41,7 +41,7 @@ plt.rcParams.update({          # shared house style (matches fig_overlaps_main_n
 TITLE_FS = 8
 PATH = '/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
-ACT = np.arange(57, 63); LD = np.asarray(set_options()['bins_LD']); BL = np.arange(0, 12); DELAY = (7.0, 7.5)
+ACT = np.arange(54, 63); LD = np.arange(45, 54); BL = np.arange(0, 12); DELAY = (7.0, 7.5)   # LD 45-53 = the main figure's BINS_LATE (T_WINDOW=0); fixed 2026-09-08 (was set_options 48-53 / 45-52)
 SAMPLES = [('A', [0, 1]), ('B', [2, 3])]
 _pal = sns.color_palette('tab10', n_colors=len(MICE)); MC = {m: _pal[i] for i, m in enumerate(MICE)}
 

@@ -44,7 +44,7 @@ TITLE_FS = 8
 DATA = '../data/overlaps'
 BDUM = 'log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
-BL = np.arange(0, 12); LD = np.arange(45, 53); ACT = np.arange(57, 63); SAMPLES = [('A', [0, 1]), ('B', [2, 3])]
+BL = np.arange(0, 12); LD = np.arange(45, 54); ACT = np.arange(54, 63); SAMPLES = [('A', [0, 1]), ('B', [2, 3])]   # LD 45-53 = the main figure's BINS_LATE (T_WINDOW=0); fixed 2026-09-08 (was set_options 48-53 / 45-52)
 RNG = np.random.default_rng(0)
 
 y = pkl_load(f'labels_{BDUM}', path=DATA); X = np.asarray(pkl_load(f'X_{BDUM}', path=DATA))

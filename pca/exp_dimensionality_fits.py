@@ -23,7 +23,13 @@ if ALTWIN:                                                                # dela
     WINS = {'delay': np.asarray(o['bins_DELAY']), 'decision': np.asarray(o['bins_TEST']),
             'delay+dec': np.concatenate([np.asarray(o['bins_DELAY']), np.asarray(o['bins_TEST'])])}
 else:                                                                     # default: delay = LD (48-53); decision = 57-65
-    WINS = {'delay': np.asarray(o['bins_LD']), 'decision': np.arange(57, 66), 'delay+dec': np.arange(48, 66)}
+    WINS = {'delay': np.asarray(o['bins_LD']), 'decision': np.arange(54, 63), 'delay+dec': np.arange(48, 63)}   # decision = canonical choice window (9.0–10.5 s) since 2026-09-08
+# DUAL_AXSUF + DUAL_FITS_WINS='name:a-b,name2:c-d' (2026-09-08): extra/overriding windows for a variant cache
+# fits_inputs{SUF}.pkl / results{SUF}.pkl (one raw-tensor pass for several candidate windows).
+if os.environ.get('DUAL_AXSUF'):
+    SUF = os.environ['DUAL_AXSUF']
+    for _spec in [t for t in os.environ.get('DUAL_FITS_WINS', '').split(',') if t]:
+        _nm, _rng = _spec.split(':'); _a, _b = [int(v) for v in _rng.split('-')]; WINS[_nm] = np.arange(_a, _b + 1)
 # Persistent cache of the window-averaged pseudo-population matrices + labels, so re-analysis never reloads
 # the 20 GB X. Separate cache file per window-set. Built once (first run), then loaded in seconds.
 AWPKL = f'figures/pseudo/dimensionality/fits_inputs{SUF}.pkl'

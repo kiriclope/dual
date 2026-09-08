@@ -33,6 +33,8 @@ warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from decoders import fit_axis, SUF                 # THE shared decoder (see decoders.py)
+MDDEC = '--mddec' in sys.argv[1:]                  # Fig 2 windows for section d (Leon 2026-09-08): sample @ md,
+                                                   # choice/test @ decision (57-65); merged as PM_GEN_mddec+SUF only
 
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 STAGES = ['Naive', 'Expert']
@@ -138,7 +140,9 @@ for stage in STAGES:
         # windows/filters MATCH the pooled panel-D matrices (lick @ bins_TEST, GNG side on ALL
         # dual trials — see docstring); threshold+sign re-fit on the train half stays (per-mouse
         # axes carry arbitrary sign/offset; re-fitting on the held-IN half is the fold-safe fix)
-        Mte_c = AW['test']; sdt_c = zscale(AW['test'], val, allc)
+        # 2026-09-08: the lick side reads the CANONICAL choice window (AW['decision'], the same window the pooled
+        # Fig 4a matrix uses via ACT_WIN['choice']); it used to read AW['test'] (57-59), a different moment.
+        Mte_c = AW['decision']; sdt_c = zscale(AW['decision'], val, allc)
         rng_c = np.random.RandomState(12)          # own stream — edits here can't shift PM_GEN draws
         got = {k: [] for k in ['w_g', 'w_l', 'g2l', 'l2g']}
         for _ in range(NREP):
@@ -166,7 +170,7 @@ for stage in STAGES:
         # overlaps/fig_ccgp_matrices_pseudo.py:58 uses sample @ LATE DELAY and choice/test @ TEST.
         # (An earlier version used md / 57-65 here, so the per-mouse scatters were measuring the
         #  same variables at different times than the matrices above them.)
-        Mld, Mte = AW['delay'], AW['test']
+        Mld, Mte = (AW['md'], AW['decision']) if MDDEC else (AW['delay'], AW['test'])
         sdl, sdt = zscale(Mld, val, allc), zscale(Mte, val, allc)
         rng = np.random.RandomState(13)            # own stream (see rng_c note above)
         VARS = {'sample': (Mld, sdl, lambda t: (sel(mo, stage, perf=1, task=t, samp=1),
@@ -215,6 +219,10 @@ for stage in STAGES:
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
-d['PM_COS' + SUF] = PM_COS; d['PM_ACT' + SUF] = PM_ACT; d['PM_GEN' + SUF] = PM_GEN
-pickle.dump(d, open(RES, 'wb'))
-print('merged PM_COS/PM_ACT/PM_GEN' + SUF + ' into', RES)
+if MDDEC:
+    d['PM_GEN_mddec' + SUF] = PM_GEN
+    pickle.dump(d, open(RES, 'wb')); print('merged PM_GEN_mddec' + SUF + ' into', RES)
+else:
+    d['PM_COS' + SUF] = PM_COS; d['PM_ACT' + SUF] = PM_ACT; d['PM_GEN' + SUF] = PM_GEN
+    pickle.dump(d, open(RES, 'wb'))
+    print('merged PM_COS/PM_ACT/PM_GEN' + SUF + ' into', RES)

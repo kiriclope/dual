@@ -285,7 +285,7 @@ axF.set_xlim(-0.6, len(cond_recs) - 0.4)
 axF.set_ylabel('LMM β (Δ performance)')
 axF.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='condition'),
                     mlines.Line2D([0], [0], marker='s', color=BLUE, mfc='white', ls='none', ms=5, label='condition×day')],
-           frameon=False, fontsize=PS*6.5, loc='upper right')
+           frameon=False, fontsize=PS*6.5, loc='lower left')
 
 # ── G: the intrusive CUE lick propagates to the test lick — NoGo trials ─────────
 #   REBUILT 2026-09-01 (predictor audit): the old build split DPA performance by
@@ -296,8 +296,11 @@ axF.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms
 #   intrusive delay lick), outcome = P(lick at test). Naive: cue lick triples the
 #   odds of licking again at test (propagation -> FA on unpaired trials); Expert:
 #   propagation gone, and the cue licks themselves largely vanish.
+#   2026-09-08 (Leon): ALL cue trials — Go AND NoGo pooled (DPA trials carry no cue, so no
+#   delay lick is recorded on them). With Go trials in, every expert mouse clears the ≥3-trial
+#   minimum (9/9 lines) and the expert propagation persists (OR≈1.5) but turns pairing-dependent.
 axG = fig.add_subplot(gs[2, 4:8])
-ng = d[d.tasks == 'DualNoGo'].copy()
+ng = d[d.tasks.isin(['DualGo', 'DualNoGo'])].copy()
 ng['licked'] = (pd.to_numeric(ng.odr_choice, errors='coerce') > 0).astype(float)
 ng['testlick'] = (pd.to_numeric(ng.choice, errors='coerce') > 0).astype(float)
 NOLICK_C, LICK_C = '#888888', '#1f77b4'
@@ -329,10 +332,18 @@ for stage, (x0, x1) in STAGE_X.items():
     si = s.assign(unp=s.odor_pair.isin([1, 3]).astype(int))
     gi = smf.gee('testlick ~ licked * unp', groups=si['mouse'], data=si,
                  family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
-    print(f'G {stage}: propagation OR={orr:.2f} p={pv:.4f} | FA arm (unpaired) '
-          f'OR={np.exp(gf.params["licked"]):.2f} p={gf.pvalues["licked"]:.4f} | '
+    sp_ = s[~s.odor_pair.isin([1, 3])]
+    gp = smf.gee('testlick ~ licked', groups=sp_['mouse'], data=sp_,
+                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
+    gt = smf.gee('testlick ~ licked + C(tasks)', groups=s['mouse'], data=s,
+                 family=sm.families.Binomial(), cov_struct=sm.cov_struct.Exchangeable()).fit()
+    print(f'G {stage}: n={len(s)} propagation OR={orr:.2f} p={pv:.4f} | FA arm (unpaired) '
+          f'OR={np.exp(gf.params["licked"]):.2f} p={gf.pvalues["licked"]:.4f} | paired arm '
+          f'OR={np.exp(gp.params["licked"]):.2f} p={gp.pvalues["licked"]:.4f} | '
           f'interaction lick x pairing p={gi.pvalues["licked:unp"]:.3f} | '
-          f'cue-lick rate={s.licked.mean():.2f}')
+          f'delay-lick rate={s.licked.mean():.2f} | trial-type-adjusted OR={np.exp(gt.params["licked"]):.2f} '
+          f'p={gt.pvalues["licked"]:.4f} | NoGo delay-lick rate={s[s.tasks == "DualNoGo"].licked.mean():.2f} | '
+          f'lines={sum(np.isfinite(lk))}/9')
     # significance bracket + star / ns
     ybr = 0.99
     axG.plot([x0, x0, x1, x1], [ybr - 0.012, ybr, ybr, ybr - 0.012], color='k', lw=1.3, zorder=6)
@@ -341,10 +352,27 @@ for stage, (x0, x1) in STAGE_X.items():
              fontsize=PS*12 if star(pv) else 8, fontweight='bold', color='k')
     axG.text((x0 + x1) / 2, 1.13, stage, ha='center', va='bottom',
              transform=axG.get_xaxis_transform(), clip_on=False, fontsize=PS*8,
-             fontweight='bold', color=STAGE_SHADE if stage == 'Expert' else '0.4')
-    axG.text((x0 + x1) / 2, 0.04, f'OR={orr:.2f}\np={pv:.3f}',
+             color=STAGE_SHADE if stage == 'Expert' else '0.4')
+    axG.text((x0 + x1) / 2, 0.04, f'OR={orr:.2f}\n' + ('p<0.001' if pv < 0.001 else f'p={pv:.3f}'),
              ha='center', va='bottom', fontsize=PS*8, color='0.3')
-axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no cue\nlick', 'cue\nlick', 'no cue\nlick', 'cue\nlick'])
+# cross-stage tests (2026-09-08, Leon: "we need the interaction between naive and expert"): one GEE over
+# both stages, lick x stage tests whether the propagation changes with learning (trend only), and the
+# three-way lick x stage x pairing tests whether its pairing selectivity changes (it does).
+sx = ng.dropna(subset=['licked', 'testlick']).assign(expert=lambda t: (t.stage == 'Expert').astype(int),
+                                                     unp=lambda t: t.odor_pair.isin([1, 3]).astype(int))
+def _gee(df, f):
+    return smf.gee(f, groups=df['mouse'], data=df, family=sm.families.Binomial(),
+                   cov_struct=sm.cov_struct.Exchangeable()).fit()
+gx, gxt, gx3 = _gee(sx, 'testlick ~ licked * expert'), _gee(sx, 'testlick ~ licked * expert + C(tasks)'), _gee(sx, 'testlick ~ licked * expert * unp')
+_ci = np.exp(gx.conf_int().loc['licked:expert'])
+print(f'G cross-stage: lick x stage OR-ratio={np.exp(gx.params["licked:expert"]):.2f} [{_ci[0]:.2f}, {_ci[1]:.2f}] '
+      f'p={gx.pvalues["licked:expert"]:.4f} | + trial type p={gxt.pvalues["licked:expert"]:.4f} | '
+      f'lick x stage x pairing OR-ratio={np.exp(gx3.params["licked:expert:unp"]):.2f} p={gx3.pvalues["licked:expert:unp"]:.4f} '
+      f'| FA-arm lick x stage p={_gee(sx[sx.unp == 1], "testlick ~ licked * expert").pvalues["licked:expert"]:.3f} '
+      f'| hit-arm lick x stage p={_gee(sx[sx.unp == 0], "testlick ~ licked * expert").pvalues["licked:expert"]:.3f}')
+axG.text(1.7, 0.975, f'lick × stage\np={gx.pvalues["licked:expert"]:.3f}', ha='center', va='top',
+         fontsize=PS*6, color='0.3')
+axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no delay\nlick', 'delay\nlick', 'no delay\nlick', 'delay\nlick'])
 axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.0, 1.03); axG.set_ylabel('P(lick at test)')
 # (legend dropped at print scale — the marker colours restate the x-axis categories)
 
@@ -365,15 +393,15 @@ xs = np.array([xd[m] for m in ALL_MICE]); ys = np.array([yd[m] for m in ALL_MICE
 ok = np.isfinite(xs) & np.isfinite(ys)
 r_p, p_p = pearsonr(xs[ok], ys[ok]); r_s, p_s = spearmanr(xs[ok], ys[ok])
 gap = np.mean(1.0 - np.minimum(xs[ok], ys[ok]))          # mean shortfall from ceiling
-axH.text(0.035, 0.965, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n={ok.sum()})\n'
-         f'gap to optimal: {gap:.2f}', transform=axH.transAxes, ha='left', va='top',
+axH.text(0.035, 0.03, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n={ok.sum()})\n'
+         f'gap to optimal: {gap:.2f}', transform=axH.transAxes, ha='left', va='bottom',   # off the data (review 2026-09-07)
          fontsize=PS*6.5, color='0.3')
 axH.set_xlim(lim); axH.set_ylim(lim); axH.set_aspect('equal')
 axH.set_xlabel('DPA performance'); axH.set_ylabel('GNG performance')
 axH.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='Jaws'),
                     mlines.Line2D([0], [0], marker='^', color='k', ls='none', ms=7, label='ChR'),
                     mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=7, label='ACC')],
-           frameon=False, fontsize=PS*6.5, loc='lower left', handletextpad=0.2)
+           frameon=False, fontsize=PS*6.5, loc='lower right', handletextpad=0.2)
 
 # ── panel letters (a on the setup cartoon, then b–h) ──────────────────────────
 # bottom-row letters get extra clearance: f's significance stars, g's stage headers and h's
@@ -404,12 +432,19 @@ CAP_PARAS = [
     'offset; open squares, condition × day slope; random intercept per mouse). GNG−DPA β = +0.037 '
     '(p = 0.045), with the gap narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paired '
     '−0.185 (p < 10⁻⁴), narrowing over days; Go−DPA −0.073 (p = 0.038).',
-    'g, Where the interference acts. Probability of licking at the DPA test on NoGo trials, split '
-    'by whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice '
-    'a delay lick tripled the odds of licking again at the test (trial-level GEE, OR = 3.10, p = '
-    '.006). The propagation does not depend on pairing (lick × pairing interaction p = .61): on unpaired trials that test lick is the false alarm (OR = 2.7, p = .09), on paired trials it '
-    'is a hit (OR = 9.9, p = .001). In expert mice the propagation is absent (OR = 1.50, p = .42) '
-    'and delay licks are rare (rate 0.24 → 0.08). This is the chain of delay lick and test lick that the no-lick repositioning in Fig. 4 closes.',
+    'g, Where the interference acts. Probability of licking at the DPA test on Go and NoGo trials, '
+    'split by whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice '
+    'a delay lick more than doubled the odds of licking again at the test (trial-level GEE, OR = 2.32, '
+    'p = 4 × 10⁻⁴; adjusting for trial type, OR = 2.81), whichever answer was correct (lick × pairing '
+    'interaction p = .60): on unpaired trials that test lick is the false alarm (OR = 2.34, p = .004), '
+    'on paired trials it is a hit (OR = 3.08, p = .02). In expert mice the propagation persisted '
+    '(OR = 1.48, p = .004; adjusted OR = 1.88) but had become pairing-dependent (interaction p = .009): '
+    'strong where the test lick is a hit (OR = 4.52, p < 10⁻⁴), weak where it would be a false alarm '
+    '(OR = 1.48, p = .02). Across stages the overall propagation fell only as a trend (lick × stage '
+    'interaction, OR ratio 0.68 [0.45, 1.04], p = .074; lower in 6/9 mice), whereas its pairing '
+    'selectivity changed (lick × stage × pairing interaction p = 10⁻⁴). Unwarranted delay licks on NoGo '
+    'trials fall from 0.24 to 0.08 of trials. Learning did not abolish the chain of delay lick and test '
+    'lick; it disconnected its false-alarm arm, the arm the no-lick repositioning in Fig. 4 acts on.',
     'h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each '
     'animal (color, mouse; marker, opsin group; star, the corner where both tasks are optimal). '
     'No animal reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across '

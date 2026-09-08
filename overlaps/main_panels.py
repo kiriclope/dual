@@ -177,6 +177,43 @@ if ANTACT:
 ROBUST = '--robust' in sys.argv[1:]                                       # robust sample-separation units (÷ per-mouse A-B sample sep) — no pooled-evoked per-mouse amplification
 if ROBUST:
     FILE_SUF += '_robust'
+# --fig2axes (2026-09-08, Leon: one axis definition for the whole paper = the Fig-2 windows): every code is
+# read on the per-bin decoders of the cross-temporal tensor averaged over the Fig-2 state window —
+# sample @ mid-delay bins 36-38, choice/test @ decision bins 57-65, dist @ 36-38 — instead of the legacy
+# sample 16-48 / choice 57-62 / test 58-83 / gng 33-38. No retraining: the tensor holds all train bins.
+FIG2AX = '--fig2axes' in sys.argv[1:]
+if FIG2AX:
+    FILE_SUF += '_f2'
+    AXIS_LABEL = 'Fig-2 windows: sample 36–38, choice 57–65'
+# --evwin (2026-09-08, Leon): EVENT-defined windows for every axis — sample = post-distractor, pre-cue
+# (5.5-6.5 s, bins 33-38), choice/test = test odor onset to offset (9.0-10.0 s, bins 54-59), dist = 33-38.
+EVWIN = '--evwin' in sys.argv[1:]
+if EVWIN:
+    FILE_SUF += '_ev'
+    AXIS_LABEL = 'event windows: sample 5.5–6.5 s, choice 9.0–10.0 s'
+# --pcabins (2026-09-08, Leon): the pca pipeline's bin indices in BOTH pipelines, the first 0.5 s of each
+# event window dropped for the GCaMP rise — sample/dist @ bins 36-38 (6.0-6.5 s), choice/test @ 57-59
+# (9.5-10.0 s, the second half of the test odor).
+LEGACY = '--legacyaxes' in sys.argv[1:]     # pre-2026-09-08 axes: sample 16-47 avg, choice 57-62, test 58-83, gng 33-38
+if LEGACY:
+    FILE_SUF += '_legacy'
+    AXIS_LABEL = 'legacy axes: sample 16–47 avg, choice 57–62'
+# CANONICAL since 2026-09-08 (Leon): sample/dist axes = bins 36-38 (6.0-6.5 s, post-distractor pre-cue, after the
+# GCaMP rise); choice/test axes = bins 54-62 (9.0–10.5 s); identical bin indices in the pca pipeline.
+PCABINS = '--pcabins' in sys.argv[1:]
+if PCABINS:
+    FILE_SUF += '_pb'
+    AXIS_LABEL = 'pca bins: sample 36–38 (6.0–6.5 s), choice 57–59 (9.5–10.0 s)'
+# DUAL_AXSUF / DUAL_SAMPLE_BINS / DUAL_CHOICE_BINS (2026-09-08): environment-driven axis windows for variant
+# builds — inclusive bin ranges 'a-b'; the suffix names every output/cache key of the build.
+_AXENV = __import__('os').environ.get('DUAL_AXSUF')
+ENV_SAM = ENV_CHO = None
+if _AXENV:
+    _sb = [int(v) for v in __import__('os').environ['DUAL_SAMPLE_BINS'].split('-')]
+    _cb = [int(v) for v in __import__('os').environ['DUAL_CHOICE_BINS'].split('-')]
+    ENV_SAM, ENV_CHO = np.arange(_sb[0], _sb[1] + 1), np.arange(_cb[0], _cb[1] + 1)
+    FILE_SUF += _AXENV
+    AXIS_LABEL = f'env windows: sample {_sb[0]}–{_sb[1]}, choice {_cb[0]}–{_cb[1]}'
 # Both modes now load ONE bundled tensor holding all four codes (sample/choice/test/gng),
 # mirroring the run_overlaps `--targets sample choice test gng` layout. (Ridge: assembled by
 # concatenating the legacy main + gng files, which many other scripts still load separately.)
@@ -211,12 +248,14 @@ print(f'  X {X.shape}  y {y.shape}')
 # trained at the DPA lick moment, bins 57–62 incl. = last 0.5 s TEST + first 0.5 s CHOICE); GNG below.
 _sam_rows  = (y.target == 'sample').to_numpy(); _tst_rows = (y.target == 'test').to_numpy()
 _cho_rows  = (y.target == 'choice').to_numpy()
-_ACT_DPA   = np.arange(48, 63) if ANTACT else (np.arange(54, 60) if TESTWIN else np.arange(57, 63))  # antact = single anticipatory+action axis (48-62)
-SAMPLE_R   = X[_sam_rows][:, 1, np.arange(16, 48), :].mean(1).astype(float); Y_SAM = y[_sam_rows].reset_index(drop=True)
-TEST_R     = X[_tst_rows][:, 1, np.arange(58, 84), :].mean(1).astype(float); Y_TST = y[_tst_rows].reset_index(drop=True)
+_ACT_DPA   = (ENV_CHO if ENV_CHO is not None else np.arange(57, 60) if PCABINS else np.arange(54, 60) if EVWIN else np.arange(57, 66) if FIG2AX else np.arange(48, 63) if ANTACT else np.arange(54, 60) if TESTWIN else np.arange(57, 63) if LEGACY else np.arange(54, 63))  # antact = single anticipatory+action axis (48-62)
+_SAM_TRAIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.arange(16, 48) if LEGACY else np.arange(36, 39)     # sample axis train bins
+_TST_TRAIN = ENV_CHO if ENV_CHO is not None else np.arange(57, 60) if PCABINS else np.arange(54, 60) if EVWIN else np.arange(57, 66) if FIG2AX else np.arange(58, 84) if LEGACY else np.arange(54, 63)     # test axis train bins
+SAMPLE_R   = X[_sam_rows][:, 1, _SAM_TRAIN, :].mean(1).astype(float); Y_SAM = y[_sam_rows].reset_index(drop=True)
+TEST_R     = X[_tst_rows][:, 1, _TST_TRAIN, :].mean(1).astype(float); Y_TST = y[_tst_rows].reset_index(drop=True)
 LICK_R     = X[_cho_rows][:, 1, _ACT_DPA, :].mean(1).astype(float);           Y_LCK = y[_cho_rows].reset_index(drop=True)
 del X                                                                  # free ~1.9 GB
-_GNG_WIN = np.asarray(options['bins_MD'])                              # 33–38, GNG mid-delay memory axis
+_GNG_WIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.asarray(options['bins_MD']) if LEGACY else np.arange(36, 39)   # 33-38 (event) / 36-38 (Fig-2) / bins_MD
 _gm = (yb.target == 'gng').to_numpy(); Xg = Xb[_gm]; yg = yb[_gm].reset_index(drop=True); del Xb
 GNG_R = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float); Y_GNG = yg; del Xg
 

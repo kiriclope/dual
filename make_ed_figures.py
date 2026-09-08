@@ -202,7 +202,7 @@ build('ed_fig3', [
     'partially decodable from the DPA geometry (close to, but not fully, orthogonal).',
     'g, Learning removes the premature choice signal from the dual delay: in naïve mice the '
     'upcoming match/nonmatch choice is decodable from the dual delay state from early through late '
-    'delay (0.64–0.66 vs shuffle ≈ 0.59), and in Expert the same signal sits at chance '
+    'delay (0.64–0.66 vs shuffle ≈ 0.53, matched null), and in Expert the same signal sits at chance '
     'throughout (0.47–0.49) while post-test decoding is intact (0.96); DPA shows no such '
     'signal at either stage (control). Decodability already before the distractor marks a '
     'trial-history/bias state rather than premature deliberation. Caveats: on correct trials '
@@ -236,15 +236,15 @@ build('ed_fig5', [
     [(f'{C}/overlaps_common_axis_control.png', 'b'), (f'{C}/overlaps_coupling_battery.png', 'c')],
     [(f'{C}/overlaps_lick_control.png', 'd')],
 ], [
-    'Extended Data Fig. 5 | The learning coupling and push are estimator-robust, and not movement '
+    'Extended Data Fig. 5 | The learning coupling holds across normalizations, is estimator-sensitive, and is not movement '
     '(companion to Fig. 4b,c). a, Normalization robustness: the between-mouse '
     'Δdepth↔ΔDPA-accuracy coupling is significant under every normalization '
-    '(Spearman ρ = −0.83 to −0.90, including raw), while the within-mouse push is '
-    'normalization-sensitive. b, Fixed common axis: projecting both stages on one axis preserves '
-    'the coupling (ρ = −0.72) while the push attenuates to a trend — the coupling '
-    'is not a decoder-rotation artifact. c, Resampling battery for the coupling: Mundlak '
-    'β = −0.041 (p = 0.006), jackknife 9/9, bootstrap CI [−1.00, −0.26], '
-    'permutation p = 0.008; the ΔGNG arm is null throughout. d, Movement control: late-delay '
+    '(Spearman ρ = −0.67 to −0.80, all p ≤ 0.05, including raw), while the within-mouse push is '
+    'normalization-sensitive. b, Fixed common axis: projecting both stages on one axis weakens '
+    'the coupling to a trend (pooled axis ρ = −0.63, p = 0.067) and the push to n.s. — part of both '
+    'is carried by the per-stage decoder axis. c, Resampling battery for the coupling: Mundlak '
+    'β = −0.028 (p = 0.028), jackknife significant in 4/9 folds, bootstrap CI [−0.98, −0.16], '
+    'permutation p = 0.039; the ΔGNG arm is null throughout. d, Movement control: late-delay '
     'licking is rare, the choice-code depth does not track it (ρ = +0.07), and the push and '
     'coupling are unchanged with a lick covariate.',
 ], W=7200)
@@ -256,8 +256,10 @@ build('ed_fig6', [
     [(f'{M}/fig_overlaps_main_ab_l1.png', 'c'), (f'{M}/fig_overlaps_main_ab_lda.png', None)],
     [(f'{C}/overlaps_codes_gng_trials.png', 'd')],
     [('pca/figures/pseudo/dimensionality/png/fig_ooc_plane_ed_nopca.png', 'e')],
+    [('pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png', 'f')],
+    [('pca/figures/pseudo/dimensionality/png/fig_manifold_permouse_plane.png', 'g')],
 ], [
-    'Extended Data Fig. 6 | The factorized geometry is robust (companion to Fig. 3e and Fig. 2g). '
+    'Extended Data Fig. 6 | The factorized geometry is robust (companion to Fig. 3d and Fig. 2g). '
     'a, Cross-temporal cosine matrices: cross-code |cos| sits at the ≈0.05 chance floor at '
     'all time pairs, within-code diagonals 0.4–0.9; choice × GNG is the one '
     'least-orthogonal pair (≈0.29). b, Modular, not mixed, selectivity: per-neuron '
@@ -277,6 +279,19 @@ build('ed_fig6', [
     'each mouse\'s out-of-context cells (line, median). The plane carries the codes everywhere; where the '
     'unchanged decoder fails and the refit does not (expert NoGo trials after the distractor), the code has '
     'moved within the plane.',
+    'f, Per-mouse companions of Figs 2e and 3 (internal panels A–C). A, The four codes over time on '
+    'their own decoder axes (sample, distractor, test, choice; naïve | expert), the definitional '
+    'reference for the distractor and test codes used in Fig. 3c–e. B, Per-mouse cross-condition '
+    'generalization (CCGP), naïve against expert, for each variable: abstraction is present from the '
+    'first sessions; the test code nudges upward (p = .04, uncorrected across four variables) and carries no '
+    'verdict. C, Per-mouse cross-task generalization (sample at mid-delay, test and choice at decision, as in Fig. 2e,f), within-task against cross-task accuracy (expert), '
+    'in raw accuracies because the chance-referenced ratio is unusable per animal; distance below the '
+    'unity line is the generalization loss.',
+    'g, The plane ablation of Fig. 3c in every animal (naïve x against expert y; rows, spaces; columns, '
+    'variables; Δ, mean change; p, paired Wilcoxon, n = 9). The pattern of Fig. 3c holds mouse by mouse, '
+    'and the grid carries the one learning effect: the distractor’s plane-only accuracy grows '
+    '(0.56 → 0.64, p = .027, 8/9 mice up; starred). Learning '
+    'pulls the distractor code into the plane, which Fig. 4a quantifies.',
 ], W=6800)
 
 # ── ED 7 — opto: chronic vs transient behaviour ───────────────────────────────

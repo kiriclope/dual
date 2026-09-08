@@ -55,7 +55,11 @@ from decoders import SUF, NOPCA, NPC               # the shared decoder config (
 assert NOPCA or NPC == 20, (f'--npc {NPC}: no matching overlaps caches (they are PCA-20 only); '
                             'build matrices/ccgp/ORIG_TRACES at that NPC first')
 ANTACT = '--antact' in sys.argv[1:]                # variant: choice axis = ANTICIPATORY action
-ASUF = '_antact' if ANTACT else ''                 #   axis (overlaps train bins 48-62, vs 57-62)
+FIG2AX = '--fig2axes' in sys.argv[1:]              # Fig-2 windows for the CCGD axes (sample 36-38, choice 57-65)
+EVWIN = '--evwin' in sys.argv[1:]                  # event windows (sample 33-38, choice/test 54-59) — pca caches from DUAL_RES
+PCABINS = '--pcabins' in sys.argv[1:]              # pca bins in both pipelines (sample 36-38, choice/test 57-59) — DUAL_RES
+AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant (see main_panels)
+ASUF = ('_antact' if ANTACT else ('_f2' if FIG2AX else ('_ev' if EVWIN else ('_pb' if PCABINS else '')))) + AXENV
 FIGSUF = ('' if NOPCA else f'_pca{NPC}') + ASUF    # filename: plain = no denoising
 
 sns.set_context('notebook'); sns.set_style('ticks')
@@ -82,7 +86,7 @@ CODE_NAME = {'sample': 'sample', 'GNG': 'dist', 'gng': 'dist', 'distractor': 'di
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 # (the overlaps matrices/ccgp caches are no longer read here — the cross-decode panel lives in
 #  Fig 4, the generalisation matrices in Fig 2, and CCGP in fig_manifold_supp.py)
-RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
+RES = pickle.load(open(__import__('os').environ.get('DUAL_RES', 'figures/pseudo/dimensionality/results.pkl'), 'rb'))   # DUAL_RES = variant cache
 AXF = RES['AXIS_FRAME' + SUF]
 assert 'PM_PLANE' + SUF in RES, ('missing PM_PLANE' + SUF +
                                  ' — run: python exp_permouse_plane.py' +
@@ -118,8 +122,8 @@ TASKM = {'DPA': 'o', 'DualGo': '^', 'DualNoGo': 's'}
 # LATE DELAY is essential for the dual set: it is the only plotted window AFTER the Go/NoGo cue
 # (6.5-7 s) and its lick, and it is where the Go state actually crosses into the action region.
 # Mid-delay alone is PRE-cue, so Go is still short of the boundary there.
-B_SPECS = [('DPA', 'md'), ('DPA', 'decision'),
-           ('dual', 'md'), ('dual', 'delay'), ('dual', 'decision')]
+B_SPECS = [('DPA', 'md'), ('DPA', 'decision'), ('dual', 'md'), ('dual', 'decision')]
+#   (the dual late-delay column was removed 2026-09-08, Leon)
 
 FS_KEY = ('FRAME_STATES' if NOPCA else 'FRAME_STATES_pca20') + ASUF
 assert FS_KEY in RES, (f'missing {FS_KEY} — run: cd /home/leon/dual/pca && python '
@@ -239,7 +243,7 @@ def panel_a(fig, gsA):
 #   (baseline zero, ramp included) while each storyboard window is re-centred on its own mean
 #   state — so trace SEPARATIONS match cloud separations window by window, but the trace value
 #   is not the cloud's crosshair offset. t = bin/6 - 0.5 s (exact).
-TBIN = lambda b: np.asarray(b) / 6.0 - 0.5
+TBIN = lambda b: np.asarray(b) / 6.0          # bin b = [b/6, (b+1)/6) s from trial start — same clock as Figs 1/2/6 (the old −0.5 s shift was wrong)
 EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
           ('cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
 # cue is 6.5-7.0 s; the reward window 7.0-7.5 s is deliberately unshaded (as everywhere else)
@@ -307,23 +311,23 @@ def panel_traj(fig, gsT):
 
 # ══ b — the frame's geometry: corrected |cos| between the three axes ══════════
 def panel_b(fig, gsB):
-    labs = ['sample', 'choice', 'dist']
+    labs = ['sample', 'choice']                     # dist dropped from the matrices (Leon 2026-09-08)
     axes = []
     for j, stage in enumerate(['Naive', 'Expert']):
         ax = fig.add_subplot(gsB[0, j]); axes.append(ax)
-        C = np.asarray(AXF[stage]['cos'])
+        C3 = np.asarray(AXF[stage]['cos']); C = C3[:2, :2]
         Cm = C.copy(); np.fill_diagonal(Cm, np.nan)
         ax.imshow(np.ma.masked_invalid(Cm), cmap='Oranges', vmin=0, vmax=1, aspect='equal')
-        for i in range(3):
-            for k in range(3):
+        for i in range(2):
+            for k in range(2):
                 if i == k:                              # 1 by construction — shown, greyed
                     ax.add_patch(Rectangle((k - .5, i - .5), 1, 1, fc='0.93', ec='none'))
                     ax.text(k, i, '1', ha='center', va='center', fontsize=PS*6.4, color='0.45')
                     continue
                 ax.text(k, i, f'{C[i, k]:.2f}', ha='center', va='center', fontsize=PS*6.4,
                         color='w' if C[i, k] > 0.55 else 'k')
-        ax.set_xticks(range(3)); ax.set_xticklabels(labs, fontsize=PS*6.2, rotation=35, ha='right')
-        ax.set_yticks(range(3))
+        ax.set_xticks(range(2)); ax.set_xticklabels(labs, fontsize=PS*6.2, rotation=35, ha='right')
+        ax.set_yticks(range(2))
         ax.set_yticklabels(labs if j == 0 else [], fontsize=PS*6.2)
         ax.set_anchor('C')                              # vertically centred with the scatters
         ax.set_title(stage, loc='left', fontsize=TITLE_FS)
@@ -331,13 +335,13 @@ def panel_b(fig, gsB):
             ax.set_ylabel('axis geometry\n|cos|', fontsize=PS*7)
         # the attenuation correction divides by sqrt(rel_i*rel_j) — disclose the reliabilities
         # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
-        ax.text(1.0, 1.26, 'rel ' +                      # above the stage title line
-                '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])),
+        ax.text(1.0, 1.10, 'rel ' +                      # just above the stage title line
+                '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])[:2]),
                 transform=ax.transAxes, fontsize=PS*6.0, color='0.3', ha='right', va='bottom')
         for sp in ax.spines.values():
             sp.set_visible(True)
-        print(f'b: {stage} sample-action {C[0,1]:.2f}  sample-distr {C[0,2]:.2f}  '
-              f'action-distr {C[1,2]:.2f}  (reliab {np.round(AXF[stage]["rel"],2)})')
+        print(f'b: {stage} sample-action {C3[0,1]:.2f}  sample-distr {C3[0,2]:.2f}  '
+              f'action-distr {C3[1,2]:.2f}  (reliab {np.round(AXF[stage]["rel"],2)})')
     return axes[0]
 
 
@@ -371,12 +375,12 @@ def panel_xstage(fig, gsX):
         ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=PS*6.2)
         ax.set_yticks([0, 1])
         ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=PS*6.2)
-        ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)
+        ax.set_title(f'{vn} axis   T/W {(off - .5) / (dia - .5):.2f}', loc='left', fontsize=TITLE_FS)   # ratio in the title (2026-09-08)
         ax.set_anchor('C')                              # vertically centred with the scatters
         if k == 0:
             ax.set_ylabel('train stage', fontsize=PS*7)
         ax.set_xlabel('test stage', fontsize=PS*7)
-        ax.text(0.5, -0.44, f'transfer/within {(off - .5) / (dia - .5):.2f}',
+        if False: ax.text(0.5, -0.44, f'transfer/within {(off - .5) / (dia - .5):.2f}',   # moved into the title
                 transform=ax.transAxes, ha='center', va='top', fontsize=PS*6.2, color='0.3')
         for sp in ax.spines.values():
             sp.set_visible(True)
@@ -389,7 +393,7 @@ def panel_xstage(fig, gsX):
 #   drawn: the choice x dist increase is starred in Fig 4A (drawing it here would double-report).
 #   (Returned to the main 2026-08-31 at user request; the ED copies were removed.) ══
 def panel_e_pm(fig, gs):
-    PAIRS = [('sa', 'sample × choice'), ('sd', 'sample × dist'), ('ad', 'choice × dist')]
+    PAIRS = [('sa', 'sample × choice')]   # sample × dist and choice × dist dropped 2026-09-08 (Leon); choice × dist = Fig 4a
     lo, hi = 0.0, 0.25
     axes = []
     for j, (key, lab) in enumerate(PAIRS):
@@ -410,7 +414,7 @@ def panel_e_pm(fig, gs):
         ax.set_title(lab, loc='left', fontsize=PS*6.5)
         if j == 0:
             ax.set_ylabel('raw |cos|\nExpert', fontsize=PS*6.8)
-        if j == 1:
+        if j == len(PAIRS) // 2:
             ax.set_xlabel('raw |cos| — Naive', fontsize=PS*7)
         print(f'e-pm: {key} raw |cos| {np.mean(nv):.3f} -> {np.mean(ev):.3f}')
     return axes[0]
@@ -568,8 +572,8 @@ def panel_f_spaces(fig, gsF):
         b0 = gtop[gi] + 0.025                       # brackets stacked ABOVE the group's bars
         bracket(gi, 'plane', 'out', b0)
         bracket(gi, 'out', 'full', b0 + 0.045)
-        bracket(gi, 'plane', 'full', b0 + 0.095,
-                mode='dagger' if E_VARS[gi] == 'choice' else 'verdict')
+        bracket(gi, 'plane', 'full', b0 + 0.095)     # 2026-09-08: verdicts only — the pca20 decoder variant is
+                                                     # no longer consulted (Leon), so no † anywhere
         ytop = max(ytop, b0 + 0.095)
     ax.axhline(0.5, ls='--', color='0.6', lw=0.8, zorder=1)
     ax.set_xticks(range(len(E_VARS))); ax.set_xticklabels(E_VARS, fontsize=PS*7)
@@ -597,36 +601,32 @@ def panel_f_spaces(fig, gsF):
 # scatter point-for-point.
 # Row 1 deliberately SHORTER than its content suggests: the shared y-range is set by the decision
 # licks (+9 z), so tall frames leave the mid-delay panels mostly empty — compressing fills the band.
-fig = plt.figure(figsize=(12.4, 14.6))
-outer = fig.add_gridspec(4, 12, height_ratios=[1.45, 1.55, 1.65, 0.95], hspace=0.28,
+fig = plt.figure(figsize=(12.4, 12.4))
+outer = fig.add_gridspec(3, 12, height_ratios=[1.45, 1.55, 1.55], hspace=0.28,
                          left=0.062, right=0.982, top=0.978, bottom=0.028, wspace=0.9)
 gsT = outer[0, 0:12].subgridspec(2, 6, wspace=0.42, hspace=0.18)
 axT = panel_traj(fig, gsT)
-gsA = outer[1, 0:12].subgridspec(2, 5, wspace=0.16, hspace=0.10)
+gsA = outer[1, 0:12].subgridspec(2, 4, wspace=0.16, hspace=0.10)
 axA = panel_a(fig, gsA)
-gsC = outer[2, 0:4].subgridspec(1, 1)                # C = the proof: summary bars
+gsC = outer[2, 0:3].subgridspec(1, 1)                # C = the proof: summary bars
 axC = panel_f_spaces(fig, gsC)
-gsD = outer[2, 4:12].subgridspec(3, 4, wspace=0.08, hspace=0.20)   # D = per-mouse 3x4
-axD = panel_e_plane(fig, gsD)
-# bottom row = E (2 matrices + 3 per-mouse scatters) · F (2 matrices + 2 per-mouse scatters);
-# 12 slots: EQUAL panel widths (all nine axes are aspect-locked squares of the same size,
-# anchored 'C' — matrices and scatters share a common vertical centre line), thin spacers
-# between the pooled and per-mouse halves, a wider one between the E and F blocks
-gsBot = outer[3, 0:12].subgridspec(
-    1, 12, wspace=0.42,
-    width_ratios=[1, 1, 0.15, 1, 1, 1, 0.5, 1, 1, 0.15, 1, 1])
-gsE = gsBot[0, 0:2].subgridspec(1, 2, wspace=0.28)   # E = cosine matrices
+# D (cosine matrices + 2 per-mouse scatters) and E (cross-stage 2x2s + 2 per-mouse scatters) share
+# the rest of row 2; the per-mouse plane grid (old d) is rendered on its own for ED 6g (2026-09-08).
+# All eight axes are aspect-locked squares of the same size on one centre line.
+gsR = outer[2, 4:12].subgridspec(2, 1, hspace=0.45)      # D above E, where the old d grid was (col 3 = air for the y-labels)
+gsDrow = gsR[0, 0].subgridspec(1, 5, wspace=0.42, width_ratios=[1, 1, 0.15, 1, 1])
+gsE = gsDrow[0, 0:2].subgridspec(1, 2, wspace=0.28)      # D = cosine matrices
 axE = panel_b(fig, gsE)
-gsE2 = gsBot[0, 3:6].subgridspec(1, 3, wspace=0.45)  # E right = per-mouse raw-|cos| scatters
+gsE2 = gsDrow[0, 3:4].subgridspec(1, 1)                  # D right = per-mouse raw sample × choice |cos| (slot 5 empty, aligned with E)
 panel_e_pm(fig, gsE2)
-gsF = gsBot[0, 7:9].subgridspec(1, 2, wspace=0.30)   # F = cross-stage identity 2x2s
+gsErow = gsR[1, 0].subgridspec(1, 5, wspace=0.42, width_ratios=[1, 1, 0.15, 1, 1])
+gsF = gsErow[0, 0:2].subgridspec(1, 2, wspace=0.30)      # E = cross-stage identity 2x2s
 axF = panel_xstage(fig, gsF)
-gsF2 = gsBot[0, 10:12].subgridspec(1, 2, wspace=0.45)  # F right = per-mouse transfer scatters
+gsF2 = gsErow[0, 3:5].subgridspec(1, 2, wspace=0.45)     # E right = per-mouse transfer scatters
 panel_f_pm(fig, gsF2)
 
 plabel(axT, 'A', dx=-0.05); plabel(axA, 'B', dx=-0.10)
-plabel(axC, 'C', dx=-0.14); plabel(axD, 'D', dx=-0.34)
-plabel(axE, 'E', dx=-0.30); plabel(axF, 'F', dx=-0.24)
+plabel(axC, 'C', dx=-0.14); plabel(axE, 'D', dx=-0.30); plabel(axF, 'E', dx=-0.24)
 
 # ── CAPTION (justified, drawn below — same mechanism as Fig 2; edit CAP_PARAS + re-render) ──
 CAP_PARAS = [
@@ -644,9 +644,9 @@ CAP_PARAS = [
     'correct Go trial licks at the cue), and the lick/no-lick split opens only at the test; the '
     'expert NoGo trace runs below baseline through the late delay (7/9 mice), consistent with '
     'active withholding. Distractor and test codes are shown in Extended Data.',
-    'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.3 '
-    's), late delay (7.5–8.8 s) and decision (10–11 s); the choice axis is trained at the lick '
-    'moment (9.5–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
+    'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.5 '
+    's) and decision (10.0–11.2 s, the response window); the choice axis is trained '
+    'during the test (9.0–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
     'it shows the geometry of the conditions rather than their absolute position (the shared ramp '
     'and the push are carried by a and by Fig. 4b). Dots, per-mouse condition means (at least '
     'three correct trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
@@ -655,28 +655,32 @@ CAP_PARAS = [
     'c, What lives in the plane. Each variable is decoded from the two '
     'coordinates of the plane, from the residual population after the plane is removed, and from '
     'the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired '
-    'Wilcoxon tests, all comparisons drawn). Sample and '
-    'choice decode as well from the plane as from the full population and collapse without it (p '
-    '= .004), as they must, since the plane is built from their own decoder axes; the test code is at chance from the plane and untouched without it (p = .004), so '
-    'it lives outside the manifold; the distractor’s share is real but partial (p = .004). The '
-    'dagger marks the one comparison that depends on the decoder variant.',
-    'd, The same pattern holds in every animal (naïve x against expert y; rows, spaces; columns, '
-    'variables), and it carries the one learning effect: the distractor’s plane-only accuracy '
-    'grows (0.57 → 0.65, p = .020/.027 across decoder variants, 8/9 and 7/9 mice up; starred). '
-    'Learning pulls the distractor code into the plane, which Fig. 4a quantifies.',
-    'e, The axes are nearly orthogonal. |cos| between the decoder axes, corrected for attenuation '
-    'using the split-half reliabilities printed above each matrix (0 = orthogonal). The memory '
-    'axis is orthogonal to both the choice and the distractor code (≈0.07–0.09 at both stages), the static layer of '
-    'protection, while the overlap between choice and distractor is partial and grows (0.32 → '
-    '0.47). Right, the raw within-mouse |cos|, naïve against expert; the increase for choice × '
-    'distractor is the starred per-animal test of Fig. 4a. No tests are drawn here.',
-    'f, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
-    'of the other stage (registered neurons) at about 90% of the within-stage ceiling '
-    '(transfer/within 0.90 for sample, 0.87 for choice; cross-stage accuracy 0.88 ± 0.03–0.05; '
-    'robust across decoder variants, resampling and a common-scaling check, with ratios shifting '
-    'by at most 0.02). Right, the same test within each animal. This is within-manifold learning: '
+    'Wilcoxon tests, all comparisons drawn). Sample and choice decode as well from the plane as from '
+    'the full population, as they must, since the plane is built from their own decoder axes, and '
+    'removing the plane reduces the sample’s decoding without abolishing it (0.70 → 0.55, p = .004) and leaves a trend '
+    'for the choice (0.60 → 0.56, p = .098), whose full-population readout at this window is itself modest; the test code is at chance from the plane and untouched without it (p = .008), so '
+    'it lives outside the manifold; the distractor’s share is real but partial (p = .004).',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation using the split-half reliabilities printed above each matrix (0 = orthogonal): 0.10 in naïve and 0.10 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
+    'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
+    '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; '
+    'robust to resampling and to a common-scaling check, with ratios shifting '
+    'by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.78 for choice). This is within-manifold learning: '
     'the state moves inside the frame (Fig. 4b), and the frame does not rotate.',
 ]
+if AXENV:
+    CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/distractor axes on bins '
+                     f'{__import__("os").environ["DUAL_SAMPLE_BINS"]}, choice/test axes on bins '
+                     f'{__import__("os").environ["DUAL_CHOICE_BINS"]} in every panel; panel annotations carry this '
+                     'build’s statistics, the entries quote the canonical build.]')
+if PCABINS:
+    CAP_PARAS[0] += (' [BUILD VARIANT _pb: every axis on the pca bins — sample 6.0–6.5 s (post-distractor, pre-cue, '
+                     'after the GCaMP rise), choice and test 9.5–10.0 s (second half of the test odor); panel '
+                     'annotations carry this build’s statistics, the entries quote the canonical build.]')
+if EVWIN:
+    CAP_PARAS[0] += (' [BUILD VARIANT _ev: every axis on event windows — sample 5.5–6.5 s (post-distractor, '
+                     'pre-cue), choice and test 9.0–10.0 s (test odor); panel annotations carry this build’s '
+                     'statistics, the numbers quoted in the entries are the canonical build’s.]')
 if ANTACT:
     CAP_PARAS = [p + (' [AXIS VARIANT: the choice axis in a (choice trace) and b (y-axis) is '
                       'the ANTICIPATORY action axis — decoders trained over overlaps bins 48–62 '
@@ -691,5 +695,13 @@ OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/fig_manifold_main{FIGSUF}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/fig_manifold_main{FIGSUF}.svg', bbox_inches='tight')
+
+# ── ED 6g: the per-mouse plane grid (Fig 3's former panel d), rendered on its own (2026-09-08) ──
+figD = plt.figure(figsize=(7.6, 5.6))
+gsD2 = figD.add_gridspec(3, 4, wspace=0.10, hspace=0.22, left=0.10, right=0.98, top=0.93, bottom=0.10)
+panel_e_plane(figD, gsD2)
+figD.savefig(f'{OUT}/png/fig_manifold_permouse_plane{FIGSUF}.png', bbox_inches='tight')
+figD.savefig(f'{OUT}/svg/fig_manifold_permouse_plane{FIGSUF}.svg', bbox_inches='tight')
+print('saved', os.path.abspath(f'{OUT}/png/fig_manifold_permouse_plane{FIGSUF}.png'))
 print('saved', os.path.abspath(f'{OUT}/png/fig_manifold_main{FIGSUF}.png'),
       '(NO PCA in the decoder)' if NOPCA else '')

@@ -1,5 +1,7 @@
 # Overlaps Subproject Overview
 
+> **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
+
 > **Fig. 3 REPLACED (2026-08-30): the adopted main Fig. 3 is now `pca/fig_manifold_main.py`**
 > (`pca/figures/pseudo/dimensionality/png/fig_manifold_main.png`, + `_nopca` robustness variant) —
 > ONE frame: **a** code traces (sample/dist/test/choice × Naive|Expert, from the overlaps CCGD
@@ -938,3 +940,24 @@ p=.005 ∗ / GNG null; D FA/CR n.s. (p=.27/.47); E d′ 0.80→1.07 p=.25 unchan
   submission build and `make_submission_figs.py` exports 183 mm vector PDFs.
 - **Print scale**: each main defines `PS` (Fig 1 1.45 · Fig 2 1.15 · Fig 3 1.30 · Fig 4 1.10 via
   `main_panels.py` · Fig 6 1.35) so printed text lands at 5–7 pt. Convention in CLAUDE.md.
+
+## 2026-09-07 (late) — SDT decomposition of the push↔accuracy coupling + Fig 4 legibility fixes
+**New script `overlaps/exp_push_sdt_coupling.py`** (reviewer objection: a lick-trained axis could track a
+global criterion shift toward withholding). Per mouse × stage on the Fig-4c laser-OFF DPA trials: H, FA
+(log-linear corrected), d′ = z(H)−z(FA), c = −(z(H)+z(FA))/2; then the Fig-4c per-mouse n = 9 Spearman of
+Δdepth (Expert−Naive) against each Δ:
+- Δdepth vs **ΔFA rate ρ = +0.71 p = .032** (deeper into no-lick ⇒ fewer false alarms) · vs ΔH +0.23 p = .56
+  · vs Δd′ −0.50 p = .17 · vs Δc −0.50 p = .17 → the coupling is CARRIED BY THE FALL IN FALSE ALARMS; the
+  sensitivity-vs-criterion split is undecided at n = 9 (both −0.50).
+- Regression-to-the-mean check: partial rank correlation of Δdepth vs ΔDPA accuracy controlling naive
+  accuracy r = −0.83 p = .006 (naive accuracy vs Δaccuracy ρ = −0.57; naive accuracy vs Δdepth ρ = +0.20 n.s.).
+- LEVEL-WISE (not change–change): expert depth vs expert accuracy ρ = −0.32 p = .41 n.s. — the coupling is a
+  relationship between CHANGES, stated as such in Results §4.
+- Written into Results §4 (draft v12.10) together with the disclosed dependences: per-stage axis + logistic
+  decoder required (single shared axis ρ = −0.72; L1 / LDA n.s.; ED 5b/6c), no replication on the dPCA axis,
+  push significant only in evoked-s.d. units (ED 5a,b).
+**Fig 4 (`fig_overlaps_main_native.py`) legibility**: panel-b depth-strip key moved BELOW the axes
+(`bbox_to_anchor=(0.5,−0.16)`), its ★ to the top-right, stats text clear; panel-c legend REMOVED (the b key
+directly above defines filled = sample A / open = sample B; caption says so); letter c raised (`dy=0.04`)
+off the long y-label; title "Naive unpaired trials"; AD/BC labels non-bold; depth y-axis on the right of
+the strip. No numbers changed.
