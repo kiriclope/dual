@@ -1168,8 +1168,7 @@ must, since the plane is built from their own decoder axes, and removing the pla
 outside the manifold; the distractor’s share is real but partial (p = .004).
 
 d, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes,
-corrected for attenuation using the split-half reliabilities printed above each matrix (0 =
-orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the
+corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the
 raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a.
 No tests are drawn here.
 

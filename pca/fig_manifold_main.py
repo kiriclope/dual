@@ -201,8 +201,7 @@ def panel_a(fig, gsA):
                 ax.plot([sx, sx + 2], [sy, sy], '-', color='0.3', lw=1.1)
                 ax.text(sx + 1.0, sy + 0.015 * (y1 - y0), '2 z', ha='center', va='bottom',
                         fontsize=PS*6.0, color='0.3')
-                if j == 2:                           # one shared x-label, centred under the grid
-                    ax.set_xlabel('sample axis   A ← · → B', fontsize=PS*7)
+                ax.set_xlabel('sample axis   A ← · → B', fontsize=PS*7)   # under every expert-row panel (Leon 2026-09-08)
             if j == 0:
                 yax = 'antic. action axis' if ANTACT else 'choice axis'
                 ax.set_ylabel(f'{stage}\n{yax}\n← no-lick · lick →', fontsize=PS*7)
@@ -335,9 +334,7 @@ def panel_b(fig, gsB):
             ax.set_ylabel('axis geometry\n|cos|', fontsize=PS*7)
         # the attenuation correction divides by sqrt(rel_i*rel_j) — disclose the reliabilities
         # (sample/choice sit at 0.23-0.39; only dist is comfortably high). Review 2026-08-31.
-        ax.text(1.0, 1.10, 'rel ' +                      # just above the stage title line
-                '/'.join(f'{r:.2f}'.lstrip('0') for r in np.asarray(AXF[stage]['rel'])[:2]),
-                transform=ax.transAxes, fontsize=PS*6.0, color='0.3', ha='right', va='bottom')
+        # (2026-09-08, Leon: no 'rel' annotation on the panel — the reliabilities are printed to stdout and stated in Methods)
         for sp in ax.spines.values():
             sp.set_visible(True)
         print(f'b: {stage} sample-action {C3[0,1]:.2f}  sample-distr {C3[0,2]:.2f}  '
@@ -375,7 +372,7 @@ def panel_xstage(fig, gsX):
         ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=PS*6.2)
         ax.set_yticks([0, 1])
         ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=PS*6.2)
-        ax.set_title(f'{vn} axis   T/W {(off - .5) / (dia - .5):.2f}', loc='left', fontsize=TITLE_FS)   # ratio in the title (2026-09-08)
+        ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)   # T/W ratio stated in the legend, not the panel (Leon 2026-09-08)
         ax.set_anchor('C')                              # vertically centred with the scatters
         if k == 0:
             ax.set_ylabel('train stage', fontsize=PS*7)
@@ -447,8 +444,7 @@ def panel_f_pm(fig, gs):
         if k:
             ax.tick_params(labelleft=False)
         ax.set_title(vn, loc='left', fontsize=PS*6.5)
-        ax.text(0.05, 0.96, f'T/W {np.mean(rat):.2f}', transform=ax.transAxes, va='top',
-                ha='left', fontsize=PS*6.0, color='0.3')
+        # (2026-09-08, Leon: no T/W text on the per-mouse scatters — the ratio is in the legend)
         if k == 0:
             ax.set_ylabel('cross-stage\naccuracy', fontsize=PS*6.8)
             ax.set_xlabel('within-stage accuracy', fontsize=PS*7, loc='left')
@@ -660,7 +656,7 @@ CAP_PARAS = [
     'removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; '
     'choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so '
     'it lives outside the manifold; the distractor’s share is real but partial (p = .004).',
-    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation using the split-half reliabilities printed above each matrix (0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
     '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; '
