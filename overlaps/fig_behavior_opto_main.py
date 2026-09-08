@@ -673,10 +673,10 @@ for ax, key, ylab, msg in [
     r_p, p_p = pearsonr(xdep[ok], yv[ok]); rho, ps = spearmanr(xdep[ok], yv[ok])
     _b, _p, _nm, _no = _gi_lmm(key)                 # mouse-respecting LMM — logged caveat, NOT drawn
     print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
-    ax.text(0.5, 0.02, f'n={ok.sum()}: r={r_p:+.2f} p={p_p:.3f}  ρ={rho:+.2f} p={ps:.3f}',
+    ax.text(0.5, 0.02, f'n={ok.sum()}: Spearman ρ={rho:+.2f}, p={ps:.3f}',   # Spearman only (Leon 2026-09-08)
             transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
-    ax.text(0.85, 0.93, '*' if _p < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',        # verdict = mouse-clustered model
-            va='top', fontsize=PS*12, fontweight='bold', color='k' if _p < 0.05 else '0.55')
+    ax.text(0.85, 0.93, '*' if ps < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
+            va='top', fontsize=PS*12, fontweight='bold', color='k' if ps < 0.05 else '0.55')
     ax.set_xlabel('Δ choice-code depth (on−off)' if POSTER          # short: narrow poster cells
                   else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})'); ax.set_ylabel(ylab)
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
@@ -771,10 +771,10 @@ _ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
 _rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
 _gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logged caveat, NOT drawn
 print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
-axL.text(0.5, 0.02, f'n={_ok.sum()}: r={_rp:+.2f} p={_pp:.3f}  ρ={_rs:+.2f} p={_ps:.3f}',
+axL.text(0.5, 0.02, f'n={_ok.sum()}: Spearman ρ={_rs:+.2f}, p={_ps:.3f}',   # Spearman only (Leon 2026-09-08)
          transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
-axL.text(0.85, 0.93, '*' if _gp < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = mouse-clustered model (review 2026-09-07)
-         va='top', fontsize=PS*12, fontweight='bold', color='k' if _gp < 0.05 else '0.55')
+axL.text(0.85, 0.93, '*' if _ps < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
+         va='top', fontsize=PS*12, fontweight='bold', color='k' if _ps < 0.05 else '0.55')
 axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
 axL.set_box_aspect(1)
@@ -885,9 +885,9 @@ if not POSTER:
         'The direction of the shift differs across mice (two toward no-lick, three toward lick), so the mean shift is small relative to its spread.',
         'g–i, The displacement, read on the learned choice axis, predicts behavior. Δdepth (ON−OFF) '
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
-        'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay). The joint trade-off (g) is not significant '
-        '(r = +0.34, p = .15; mouse-clustered model p = .24). Its arms are ΔDPA (h, n.s.) and ΔGNG '
-        '(i, r = −0.56, p = .011; ρ = −0.61, p = .004), the latter surviving the mouse-clustered model '
+        'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay). The joint trade-off (g) is significant by rank '
+        '(Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). '
+        'Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model '
         '(β = −0.011, p = .009).',
         'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (r = +0.44, p = .20).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
