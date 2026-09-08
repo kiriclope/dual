@@ -3,7 +3,7 @@
 coordinates of that mouse's own sample x choice plane and (ii) its full population.
 
 Per (mouse, stage), NREP reps: split every trial pool into disjoint halves; fit the mouse's sample
-axis (@md, samp 1v0, correct trials) and behavioural choice axis (@decision, DPA lick v no-lick)
+axis (@md, samp 1v0, correct trials) and behavioural choice axis (@decision, lick v no-lick, ALL trial types since 2026-09-08; --dpachoice = DPA only)
 on half 1 (decoders.fit_axis — respects --nopca); Q = orthonormalised [w_s, w_l]. Each variable's
 classifier is trained on half 1 and tested on held-out half 2, either on X@Q (plane, 2 features)
 or on X (full). Balanced accuracy.
@@ -24,6 +24,9 @@ from decoders import fit_axis, make_clf, SUF
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 STAGES = ['Naive', 'Expert']
 NREP = 10
+# 2026-09-08 (Leon): the behavioural choice classes pool ALL trial types (DPA, Go, NoGo) — lick vs no-lick at the
+# test — like the CCGD choice axis; --dpachoice restores the former DPA-only classes.
+CH = {'task': 'DPA'} if '--dpachoice' in sys.argv[1:] else {}
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']
@@ -75,8 +78,8 @@ for stage in STAGES:
                                  lambda: sel(mo, stage, perf=1, samp=0)),
             ('test',   Mdc, sdd, lambda: sel(mo, stage, perf=1, test=1),
                                  lambda: sel(mo, stage, perf=1, test=0)),
-            ('choice', Mdc, sdd, lambda: sel(mo, stage, task='DPA', lick=True),
-                                 lambda: sel(mo, stage, task='DPA', lick=False)),
+            ('choice', Mdc, sdd, lambda: sel(mo, stage, lick=True, **CH),
+                                 lambda: sel(mo, stage, lick=False, **CH)),
             ('dist',   Mmd, sdm, lambda: sel(mo, stage, task='DualGo'),
                                  lambda: sel(mo, stage, task='DualNoGo')),
         ]
@@ -86,8 +89,8 @@ for stage in STAGES:
             # the mouse's own frame, fit on half 1 of the axis pools
             sP1, sP2 = halves(rng, sel(mo, stage, perf=1, samp=1))
             sN1, sN2 = halves(rng, sel(mo, stage, perf=1, samp=0))
-            lP1, lP2 = halves(rng, sel(mo, stage, task='DPA', lick=True))
-            lN1, lN2 = halves(rng, sel(mo, stage, task='DPA', lick=False))
+            lP1, lP2 = halves(rng, sel(mo, stage, lick=True, **CH))
+            lN1, lN2 = halves(rng, sel(mo, stage, lick=False, **CH))
             if min(len(sP1), len(sN1), len(lP1), len(lN1)) < 3:
                 continue
             Xs = np.vstack([Mmd[np.ix_(sP1, val)] / sdm, Mmd[np.ix_(sN1, val)] / sdm])

@@ -28,6 +28,7 @@ MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
                                              ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
 MATCH = (SAMP == TESTO)
 LICK = np.where(PERF == 1, MATCH, ~MATCH)          # behavioural lick (error trials included)
+DPACH = '--dpachoice' in sys.argv[1:]              # 2026-09-08: choice classes pool ALL trial types unless --dpachoice
 
 
 def zscale(M, val, idx):
@@ -50,8 +51,9 @@ def pools(mo, st, vn):
     if vn == 'sample':
         return 'md', np.where(base & (PERF == 1) & (SAMP == 1))[0], \
                      np.where(base & (PERF == 1) & (SAMP == 0))[0]
-    return 'decision', np.where(base & (TSK == 'DPA') & LICK)[0], \
-                       np.where(base & (TSK == 'DPA') & ~LICK)[0]
+    tk = (TSK == 'DPA') if DPACH else np.ones_like(LICK, bool)
+    return 'decision', np.where(base & tk & LICK)[0], \
+                       np.where(base & tk & ~LICK)[0]
 
 
 PM_XSTAGE = {}

@@ -657,15 +657,15 @@ CAP_PARAS = [
     'the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired '
     'Wilcoxon tests, all comparisons drawn). Sample and choice decode as well from the plane as from '
     'the full population, as they must, since the plane is built from their own decoder axes, and '
-    'removing the plane reduces the sample’s decoding without abolishing it (0.70 → 0.55, p = .004) and leaves a trend '
-    'for the choice (0.60 → 0.56, p = .098), whose full-population readout at this window is itself modest; the test code is at chance from the plane and untouched without it (p = .008), so '
+    'removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; '
+    'choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so '
     'it lives outside the manifold; the distractor’s share is real but partial (p = .004).',
-    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation using the split-half reliabilities printed above each matrix (0 = orthogonal): 0.10 in naïve and 0.10 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation using the split-half reliabilities printed above each matrix (0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
     '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; '
     'robust to resampling and to a common-scaling check, with ratios shifting '
-    'by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.78 for choice). This is within-manifold learning: '
+    'by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.59 for choice). This is within-manifold learning: '
     'the state moves inside the frame (Fig. 4b), and the frame does not rotate.',
 ]
 if AXENV:

@@ -339,18 +339,18 @@ if __name__ == '__main__':
 
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
-        'Figure 4 | Learning edits the geometry, not the code. The distractor code rotates onto the '
+        'Figure 4 | Learning edits the geometry, not the code. The distractor code aligns further with the '
         'choice axis, and the memory state is pushed along that axis to an output-suppressing no-lick '
         'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
         'negative values lie toward no-lick.',
-        'a, The distractor code rotates onto the choice axis. Cross-'
-        'decoding between the two codes (balanced accuracy; diagonal, within-code; off-diagonal, '
-        'transfer). The chance-referenced transfer grows from 0.42 [0.11, 0.64] in naïve to 0.50 '
-        '[0.29, 0.70] in expert mice. Right, the same convergence within each animal, naïve against '
-        'expert: per-mouse |cos| 0.063 → 0.100 (∗ p = .012) and cross-decode 0.53 → 0.60 (∗ p = '
-        '.020), drawn from fixed canonical caches in every '
-        'build. The distractor’s demand becomes readable as what it is for the animal, a choice.',
+        'a, The distractor code aligns further with the choice axis. Cross-'
+        'decoding between the two codes on dual-task trials (Go vs NoGo at mid-delay; lick vs no-lick at the test; balanced accuracy; diagonal, within-code; off-diagonal, '
+        'transfer). The chance-referenced transfer grows from 0.31 [0.16, 0.51] in naïve to 0.47 '
+        '[0.25, 0.67] in expert mice. Right, the same convergence within each animal, naïve against '
+        'expert: per-mouse |cos| 0.072 → 0.112 and cross-decode 0.56 → 0.60, each rising in 6/9 mice '
+        'but not significantly (Wilcoxon p = .20 each; n.s.), drawn from fixed canonical caches in every '
+        'build. The distractor’s demand is becoming readable as what it is for the animal, a choice.',
         'b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay '
         'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-'
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '

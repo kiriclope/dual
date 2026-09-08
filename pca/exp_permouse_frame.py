@@ -39,6 +39,9 @@ MDDEC = '--mddec' in sys.argv[1:]                  # Fig 2 windows for section d
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 STAGES = ['Naive', 'Expert']
 TASKS3 = ['DPA', 'DualGo', 'DualNoGo']
+# 2026-09-08 (Leon): the behavioural choice classes pool ALL trial types (DPA, Go, NoGo) — lick vs no-lick at the
+# test — like the CCGD choice axis; --dpachoice restores the former DPA-only classes.
+CH = {'task': 'DPA'} if '--dpachoice' in sys.argv[1:] else {}
 NREP = 12                    # logistic fits are far costlier than the old mean-difference axes
 REL_FLOOR = 0.15             # min split-half axis reliability for the attenuation-corrected cosine
 
@@ -104,29 +107,37 @@ for stage in STAGES:
         rng = np.random.RandomState(11)
 
         # ── b: axis cosines (split-half, attenuation-corrected) ──────────────
-        acc_raw = {k: [] for k in ['sa', 'sd', 'ad']}; rel = {k: [] for k in ['s', 'a', 'd']}
+        acc_raw = {k: [] for k in ['sa', 'sd', 'ad']}; rel = {k: [] for k in ['s', 'a', 'd', 'g']}
+        # 'a' = choice axis on ALL trial types (Fig 3d, sample x choice); 'g' = choice axis on DUAL trials only
+        # (Fig 4a, choice x distractor; Leon 2026-09-08). 'g' draws its halves from its own stream so that
+        # adding it leaves the 's'/'a'/'d' draws (and Fig 3d) untouched.
+        DT = 'DPA' if '--dpaact' in sys.argv[1:] else ['DualGo', 'DualNoGo']
+        rng_g = np.random.RandomState(14)
         for _ in range(NREP):
             W = {}
             for key, M, val_, sd_, pos, neg in [
                     ('s', Mmd, val, sdm, sel(mo, stage, perf=1, samp=1), sel(mo, stage, perf=1, samp=0)),
-                    ('a', Mdc, val, sdd, sel(mo, stage, task='DPA', lick=True),
-                     sel(mo, stage, task='DPA', lick=False)),
+                    ('a', Mdc, val, sdd, sel(mo, stage, lick=True, **CH),
+                     sel(mo, stage, lick=False, **CH)),
                     ('d', Mmd, val, sdm, sel(mo, stage, perf=1, task='DualGo'),
-                     sel(mo, stage, perf=1, task='DualNoGo'))]:
-                p1, p2 = halves(rng, pos); n1, n2 = halves(rng, neg)
+                     sel(mo, stage, perf=1, task='DualNoGo')),
+                    ('g', Mdc, val, sdd, sel(mo, stage, task=DT, lick=True),
+                     sel(mo, stage, task=DT, lick=False))]:
+                rr = rng_g if key == 'g' else rng
+                p1, p2 = halves(rr, pos); n1, n2 = halves(rr, neg)
                 w1 = axis_mid(M, val_, sd_, p1, n1)[0]; w2 = axis_mid(M, val_, sd_, p2, n2)[0]
                 W[key] = (w1, w2)
             if any(v[0] is None or v[1] is None for v in W.values()):
                 continue
             for k in rel:
                 rel[k].append(abs(W[k][0] @ W[k][1]))
-            for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')), ('ad', ('a', 'd'))]:
+            for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')), ('ad', ('g', 'd'))]:
                 acc_raw[lab].append(0.5 * (abs(W[i][0] @ W[j][1]) + abs(W[i][1] @ W[j][0])))
         if not acc_raw['ad']:
             continue
         R = {k: float(np.mean(v)) for k, v in rel.items()}
         ent = {}
-        for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')), ('ad', ('a', 'd'))]:
+        for lab, (i, j) in [('sa', ('s', 'a')), ('sd', ('s', 'd')), ('ad', ('g', 'd'))]:
             raw = float(np.mean(acc_raw[lab]))
             ent[lab + '_raw'] = raw
             # corrected value only when BOTH axes are reliable enough for the correction to be
@@ -147,7 +158,7 @@ for stage in STAGES:
         got = {k: [] for k in ['w_g', 'w_l', 'g2l', 'l2g']}
         for _ in range(NREP):
             gP, gN = sel(mo, stage, task='DualGo'), sel(mo, stage, task='DualNoGo')
-            lP, lN = sel(mo, stage, task='DPA', lick=True), sel(mo, stage, task='DPA', lick=False)
+            lP, lN = sel(mo, stage, task=DT, lick=True), sel(mo, stage, task=DT, lick=False)   # Fig 4a lick side on DUAL trials (DT above)
             gP1, gP2 = halves(rng_c, gP); gN1, gN2 = halves(rng_c, gN)
             lP1, lP2 = halves(rng_c, lP); lN1, lN2 = halves(rng_c, lN)
             wg, tg = axis_mid(Mmd, val, sdm, gP1, gN1)

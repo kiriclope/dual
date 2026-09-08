@@ -12,8 +12,7 @@ We set out to ask how prefrontal cortex composes a new task out of computations 
 already performs. Three results answer the question. First, the memory and the choice are
 carried by one two-dimensional sample × choice plane, the same plane on every trial type and
 before and after learning; the test code lies outside it, and the distractor is drawn into it
-as learning proceeds (Figs 2e, 3c–f). Second, learning acts within this fixed subspace. It
-rotates the distractor code onto the choice axis and moves the working-memory state along it,
+as learning proceeds (Figs 2e, 3c–f). Second, learning acts within this fixed subspace. It draws the distractor code toward the choice axis and moves the working-memory state along it,
 and the size of each animal's shift predicts how much its memory improves (Fig. 4). Third, a
 defined top-down input, the ACC→mPFC projection, shifts the position of the state on the
 subspace while sparing the discriminability of the code, and its silencing during training
@@ -67,8 +66,7 @@ build coding dimensions; it re-parameterizes a fixed geometry. This is also the 
 network models of multitask computation converge on, since recurrent networks trained on
 families of tasks solve new tasks by composing shared, reusable dynamical motifs rather than by
 growing new ones [Yang 2019; Driscoll 2024]. Our data place that solution in cortex during real
-learning and identify what the composition physically is, a rotation and a repositioning inside
-a conserved subspace.
+learning and identify what the composition physically is, a realignment and a repositioning inside a conserved subspace.
 
 The mPFC delay activity our task depends on is known to matter most during learning [Liu 2014].
 Our chronic-versus-acute dissociation sharpens this. Removing the ACC input throughout training

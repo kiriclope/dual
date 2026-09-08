@@ -35,7 +35,8 @@ MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
 
 # the three axes of the frame: (label, window, condition set, contrast)
 AXES = [('sample', 'md', DPA4, lambda cs: np.array([2 * c[1] - 1 for c in cs], float)),
-        ('action', 'decision', DPA4, lambda cs: np.array([2 * (c[1] == c[2]) - 1 for c in cs], float)),
+        ('action', 'decision', (DPA4 if '--dpachoice' in sys.argv[1:] else ALL12),   # 2026-09-08: lick axis on ALL trial types (Leon)
+         lambda cs: np.array([2 * (c[1] == c[2]) - 1 for c in cs], float)),
         ('distractor', 'md', DUAL, lambda cs: np.array([1.0 if c[0] == 'DualGo' else -1.0 for c in cs]))]
 
 

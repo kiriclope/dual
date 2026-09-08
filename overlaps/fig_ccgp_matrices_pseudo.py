@@ -186,8 +186,10 @@ def gng_matrix(stage, wkey='MD'):
 ACT_CODES = ['GNG', 'choice']; ACT_WIN = ({'GNG': 'MD', 'choice': 'TE'} if '--legacyaxes' in sys.argv[1:] else {'GNG': 'CANS', 'choice': 'CANC'})   # same windows as the axes
 
 
-def dpa_choice_cond(cls, stage):                          # DPA lick(1)/no-lick(0) at test
-    base = (LEARN == stage) & (LAS == 0) & (TSK == 'DPA') & (y['choice'].to_numpy() == cls)
+def dpa_choice_cond(cls, stage):                          # lick(1)/no-lick(0) at test on DUAL trials (Go + NoGo)
+    # 2026-09-08 (Leon): the Fig 4a choice side is read on the same dual trials as the Go/NoGo side; --dpaact = DPA only (former)
+    tk = (TSK == 'DPA') if '--dpaact' in sys.argv[1:] else np.isin(TSK, ['DualGo', 'DualNoGo'])
+    base = (LEARN == stage) & (LAS == 0) & tk & (y['choice'].to_numpy() == cls)
     return {m: np.where(base & (MOUSE == m))[0] for m in ALL_MICE}
 
 

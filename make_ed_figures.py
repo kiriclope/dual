@@ -290,7 +290,8 @@ build('ed_fig6', [
     'g, The plane ablation of Fig. 3c in every animal (naïve x against expert y; rows, spaces; columns, '
     'variables; Δ, mean change; p, paired Wilcoxon, n = 9). The pattern of Fig. 3c holds mouse by mouse, '
     'and the grid carries the one learning effect: the distractor’s plane-only accuracy grows '
-    '(0.56 → 0.64, p = .027, 8/9 mice up; starred). Learning '
+    '(0.58 → 0.65, p = .027, 8/9 mice up; starred), while the test’s plane-only accuracy, already at chance, falls '
+    'slightly (0.53 → 0.50, p = .039). Learning '
     'pulls the distractor code into the plane, which Fig. 4a quantifies.',
 ], W=6800)
 

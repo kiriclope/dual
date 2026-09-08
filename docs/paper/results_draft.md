@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.21 (2026-09-08): Fig. 3c–e CHOICE DECODERS ON ALL TRIAL TYPES** (Leon: "we need to compute that on all trials not just dpa"): the per-mouse choice classes (lick vs no-lick at the test) now pool DPA, Go and NoGo trials in the plane ablation (c), the cosines (d, pooled and per mouse) and the per-mouse cross-stage test (e), like the CCGD choice axis; the DPA-only classes are behind `--dpachoice`. Fig. 3c choice brackets are now starred (0.63 → 0.56, p = .012); the test's plane-vs-full comparison is a trend (p = .055); per-mouse sample × choice |cos| 0.06/0.08; per-mouse choice cross-stage T/W 0.59. Fig. 4a's choice side now reads lick vs no-lick on the DUAL trials (Go + NoGo), the same trials as its Go/NoGo side, in both the pooled matrix and the per-mouse scatter (`--dpaact` restores DPA-only). RESULT: the per-animal convergence is now a TREND — |cos| 0.072 → 0.112 and cross-decode 0.56 → 0.60, each up in 6/9 mice, Wilcoxon p = .20 (paired t .12/.10); pooled transfer 0.31 [0.16, 0.51] → 0.47 [0.25, 0.67]. "Rotates onto the choice axis" is softened to "aligns further with" in the Abstract, Introduction, §3, §4, the Fig. 4 legend and the Discussion; the §4 first movement is stated as a trend.
+
 > **v12.20 (2026-09-08): CANONICAL AXIS WINDOWS UNIFIED** (Leon: "same windows for all panels", then "I like from test onset to 0.5 s after test offset"): sample and distractor axes on bins 36–38 (6.0–6.5 s) and choice and test axes on bins 54–62 (9.0–10.5 s) in BOTH pipelines (was overlaps 16–47 / 57–62 / 58–83 / 33–38 and pseudo-population 36–38 / 57–65). Every axis-dependent number in §§2–4, §6, Methods and the legends is re-derived from the rebuilt caches (Figs 2c–g, 3c–e, 4a–e, 6g–i; ED 5; ED 6e–g). Consequences, stats verbatim: push stronger (β = −1.15, p = .007; per-animal p = .055), coupling weaker but starred (ρ = −0.72, p = .030; all six normalizations p ≤ .05; leave-one-out 4/9; permutation .039); Fig. 3c choice out-vs-full is a trend (p = .098); Fig. 3e choice transfer 0.72; NoGo-only arm a positive trend (ρ = +0.65, p = .060); false-alarm arm n.s. (ρ = +0.59, p = .097); out-of-context plane: sample 1.02/0.82, choice 0.77/0.54; Fig. 6 ΔGNG arm stronger (clustered p = .009) and the raw trade-off null. The five-window comparison (A–E) is in memory `project_axis_windows.md`; variant pages A–E remain published.
 
 > **v12.19 (2026-09-08): Fig. 3d keeps ONE per-mouse scatter (sample × choice)**; the sample × dist scatter is gone
@@ -370,8 +372,7 @@ show that mouse medial prefrontal cortex accommodates a second task by moving ac
 an existing representation rather than building a new one. We imaged prelimbic neurons as mice
 learned a delayed paired association with an embedded Go/NoGo discrimination. Memory,
 distractor and choice occupied nearly orthogonal axes of one low-dimensional subspace, shared across trial types and already present when dual task training began. Learning added no
-detectable coding dimension. Instead, the distractor code rotated onto the choice axis and the
-memory state moved along it to a no-lick set-point whose depth predicted each animal's
+detectable coding dimension. Instead, the distractor code aligned further with the choice axis and the memory state moved along it to a no-lick set-point whose depth predicted each animal's
 improvement. Silencing anterior cingulate input displaced the state without degrading its code.
 Learning and top-down control act on where the state sits within a fixed geometry.
 
@@ -417,8 +418,7 @@ activity in medial prefrontal cortex (mPFC) is required for learning this class 
 mPFC does not build a new representation for the composition. The memory and the choice are
 carried on nearly orthogonal axes of a low-dimensional subspace that is already present, with
 the same axes, when dual task training begins, and learning adds no dimension that we could
-detect. What learning changes lies inside that subspace: the distractor code aligns with the
-pre-existing choice axis, and the working-memory state moves along that axis into the half that
+detect. What learning changes lies inside that subspace: the distractor code aligns further with the pre-existing choice axis, and the working-memory state moves along that axis into the half that
 suppresses licking. This shift accompanies the uncoupling of the delay lick from the false
 alarms it produced, predicts memory performance animal by animal, and is itself moved by
 top-down input from the anterior cingulate cortex (ACC), a projection whose silencing during
@@ -624,8 +624,8 @@ directions reduces every trial to a pair of numbers, and projecting it onto ever
 orthogonal to them leaves the rest of the population with the plane removed. We decoded each
 variable from the plane, from the residual, and from the full population (withheld trials;
 paired Wilcoxon tests, n = 9; Fig. 3c and Extended Data Fig. 6g). For the sample and the choice this is a consistency
-check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.017 accuracy in every mouse and stage; sample within 0.002). Removing the plane reduced the sample's decoding from 0.70 to 0.55 (p = .004) but did not abolish it, as expected for a redundant population code in which many directions carry the same information; for the choice, whose full-population readout at this window is modest (0.58 in naïve and 0.62 in expert mice), the reduction was a trend (0.60 to 0.56, p = .098). The informative results concern the other two variables.
-The test code lay entirely outside the plane, at chance from its two coordinates and untouched when the plane was removed (p = .008). The distractor fell between the two, with a real but
+check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.001 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.70 to 0.56 for the sample (p = .004) and from 0.63 to 0.56 for the choice (p = .012), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
+The test code lay outside the plane: its two coordinates decoded it at 0.52, against 0.57 from the full population (p = .055), and removing the plane left it untouched (p = .82). The distractor fell between the two, with a real but
 partial share of the plane (p = .004). The pooled population gave the same verdict for the
 memory subspace as a whole: read from the top three principal components of the DPA state, the
 distractor decoded at only 0.61 at mid-delay (permutation p = 0.031; Methods).
@@ -635,15 +635,14 @@ of one stage read the sample and the choice on every other stage, trial type and
 trial as well as a plane fitted in that context for the sample (Extended Data Fig. 6e; median 1.02 of the in-context signal with the two-dimensional readout refit in place, 0.82 with the reference decoder applied unchanged), and at 0.77 of it for the choice (0.54 unchanged), whose signal at the decision window is the weaker of the two; per mouse, medians 0.81 and 0.73. Where the unchanged decoder failed and the refit did not, on dual-task trials after the distractor, the sample code had moved within the plane rather than left it.
 
 The same pattern held in every animal (Extended Data Fig. 6g), and it carried the one change
-with learning in this section. The distractor's plane-only accuracy rose (0.56 → 0.64, p = .027, 8/9 mice), faster than its full-population decodability (0.78 → 0.86, p = .055), so that the share of the distractor signal carried by the plane grew from 0.18 to 0.32 (chance-referenced, p = .074, 7/9 mice): animal by animal, learning drew the distractor code toward the plane, a change we return to in the next section. The sample axis
-lay at the level expected for independent directions relative to the choice axis (Fig. 3d; |cos| = 0.10 at both stages) and to the distractor axis (0.09; same analysis, Methods), against a floor of ≈0.05 for random directions in these populations, whereas the overlap between choice and distractor was partial and growing (0.29 → 0.42 after correction for split-half reliabilities, pooled; the per-animal raw counterpart is tested in Fig. 4a).
+with learning in this section. The distractor's plane-only accuracy rose (0.58 → 0.65, p = .027, 8/9 mice) while its full-population decodability rose less reliably (0.79 → 0.86, p = .13), so that the share of the distractor signal carried by the plane grew from 0.28 to 0.37 (chance-referenced, 7/9 mice, p = .16): animal by animal the distractor code moved toward the plane, a change we quantify in the next section. The sample axis
+lay at the level expected for independent directions relative to the choice axis (Fig. 3d; |cos| = 0.06 in naïve and 0.08 in expert mice) and to the distractor axis (0.09; same analysis, Methods), against a floor of ≈0.05 for random directions in these populations, whereas the overlap between choice and distractor was partial and growing (0.29 → 0.42 after correction for split-half reliabilities, pooled; the per-animal raw counterpart is tested in Fig. 4a).
 
-Finally, the plane was the same plane before and after learning (Fig. 3e). Decoder axes trained in one stage read the withheld activity of the other stage at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72, robust to scoring both stages under one common scaling), and within each animal the transfer was 0.86 of the within-stage ceiling for the sample and 0.78 for the choice. Construction could
+Finally, the plane was the same plane before and after learning (Fig. 3e). Decoder axes trained in one stage read the withheld activity of the other stage at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72, robust to scoring both stages under one common scaling), and within each animal the transfer was 0.86 of the within-stage ceiling for the sample and 0.59 for the choice. Construction could
 still have survived the dimension count by rotating the memory and choice axes into a new
 arrangement, and this test leaves it no room there: axes fitted before learning read the
 activity after it, so the memory and choice axes neither gained a dimension nor turned
-detectably. What did turn, the next section shows, was the distractor axis, and it turned
-within this plane. In the vocabulary of brain-computer-interface learning [Sadtler 2014; Golub
+detectably. What moved, the next section shows, was the distractor axis, which drew closer to the choice axis within this plane. In the vocabulary of brain-computer-interface learning [Sadtler 2014; Golub
 2018], what remains is within-manifold learning, in which the subspace is a fixed constraint
 and learning moves states inside it.
 
@@ -660,8 +659,7 @@ described in hippocampus and prefrontal cortex [Bernardi 2020].
 That leaves editing, which predicts that learning moves states within the fixed frame, so we
 asked what moves. Two things did, and both concerned the choice axis. The first was the
 distractor code. In naïve mice the distractor code and the choice code were only partly
-aligned, and with learning the distractor code rotated onto the choice axis (Fig. 4a). A decoder trained on one code read the other with a chance-referenced transfer of 0.42 [0.11, 0.64] in naïve animals and 0.50 [0.29, 0.70] in expert animals, and within animals both the raw cosine between the two axes (0.063 → 0.100, p = .012) and the cross-decoding (0.53 → 0.60, p = .020) increased. The distractor's demand had become readable
-as what it is for the animal, a choice.
+aligned, and with learning the distractor code drew closer to the choice axis (Fig. 4a). On the dual-task trials that carry both codes, a decoder trained on one code read the other with a chance-referenced transfer of 0.31 [0.16, 0.51] in naïve animals and 0.47 [0.25, 0.67] in expert animals, and within animals the raw cosine between the two axes (0.072 → 0.112) and the cross-decoding (0.56 → 0.60) rose in 6 of 9 mice, a trend at this n (Wilcoxon p = 0.20 for each). The distractor's demand was becoming readable as what it is for the animal, a choice.
 
 The second was the memory itself. Learning moved the working-memory state along that same axis,
 toward the no-lick side. In expert mice the delay state of DPA trials sat further into the
@@ -970,8 +968,7 @@ later than the 54–62 axis-training window) and re-center each window per mouse
 cross-condition mean state, so they display condition geometry, not absolute position (ellipses
 = 1 SEM of the across-mouse mean). Plane ablation (Fig. 3c and Extended Data Fig. 6g): per
 mouse, the plane is the QR-orthonormalized span of that mouse's sample axis (mid-delay) and
-behavioral choice axis (decision window, lick vs no-lick including errors), fit on one half of
-the trials; each variable was then decoded from (i) only the two plane coordinates, (ii) the
+behavioral choice axis (decision window, lick vs no-lick at the test on all three trial types, errors included), fit on one half of the trials; each variable was then decoded from (i) only the two plane coordinates, (ii) the
 residual after projecting the plane out, and (iii) the full population — training on the same
 half and scoring the held-out half, 10 random half-splits, paired Wilcoxon across mice (n = 9);
 the plane-vs-full equivalence is additionally bounded per cell (|Δ| ≤ 0.012 accuracy in every
@@ -1002,10 +999,7 @@ codes are redundant, so the test makes no necessity claim.
 
 ### Repositioning and couplings (Fig. 4)
 
-The distractor↔choice alignment (Fig. 4a) is quantified per mouse as the raw axis cosine and as
-symmetric cross-decoding between the two codes (train on one, test held-out on the other), each
-compared Naïve vs Expert by Wilcoxon (n = 9) and required to replicate across both decoder
-pipelines. Delay-state depth (Fig. 4b) is the choice-axis projection of DPA delay states (late
+The distractor↔choice alignment (Fig. 4a) is quantified on the dual-task trials, which carry both codes (distractor: Go vs NoGo at mid-delay; choice: lick vs no-lick at the test), per mouse as the raw axis cosine and as symmetric cross-decoding between the two codes (train on one, test held-out on the other), each compared Naïve vs Expert by Wilcoxon (n = 9); the Fig. 3 choice decoders instead pool all three trial types. Delay-state depth (Fig. 4b) is the choice-axis projection of DPA delay states (late
 delay bins 45–53, per-mouse evoked-SD units, all laser-OFF trials); the stage effect is a mixed
 model — depth ~ stage + sample with a random intercept per mouse, over 36 mouse × stage ×
 sample observations from 9 mice — with a per-animal Wilcoxon companion on the nine
@@ -1170,28 +1164,24 @@ c, What lives in the plane. Each variable is decoded from the two coordinates of
 from the residual population after the plane is removed, and from the full population (mean ±
 SEM, n = 9, stages averaged; withheld trial halves; paired Wilcoxon tests, all comparisons
 drawn). Sample and choice decode as well from the plane as from the full population, as they
-must, since the plane is built from their own decoder axes, and removing the plane reduces the sample's decoding without abolishing it (0.70 → 0.55, p = .004) and leaves a trend for the choice (0.60 → 0.56, p = .098), whose full-population readout at this window is itself modest;
-the test code is at chance from the plane and untouched without it (p = .008), so it lives
+must, since the plane is built from their own decoder axes, and removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so it lives
 outside the manifold; the distractor’s share is real but partial (p = .004).
 
 d, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes,
 corrected for attenuation using the split-half reliabilities printed above each matrix (0 =
-orthogonal): 0.10 in naïve and 0.10 in expert mice, the static layer of protection. Right, the
+orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the
 raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a.
 No tests are drawn here.
 
-e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; robust to resampling and to a common-scaling check, with ratios shifting by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.78 for choice). This is within-manifold learning: the state moves inside the frame (Fig. 4b), and
+e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; robust to resampling and to a common-scaling check, with ratios shifting by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.59 for choice). This is within-manifold learning: the state moves inside the frame (Fig. 4b), and
 the frame does not rotate.
 
-Figure 4 | Learning edits the geometry, not the code. The distractor code rotates onto the choice
-axis, and the memory state is pushed along that axis to an output-suppressing no-lick set-point
+Figure 4 | Learning edits the geometry, not the code. The distractor code aligns further with the choice axis, and the memory state is pushed along that axis to an output-suppressing no-lick set-point
 whose depth predicts each animal’s memory gain. Code depth is the projection onto the choice (lick)
 decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; negative values lie toward no-
 lick.
 
-a, The distractor code rotates onto the choice axis. Cross-decoding between the two codes
-(balanced accuracy; diagonal, within-code; off-diagonal, transfer). The chance-referenced transfer grows from 0.42 [0.11, 0.64] in naïve to 0.50 [0.29, 0.70] in expert mice. Right, the same convergence within each animal, naïve against expert: per-mouse |cos| 0.063 → 0.100 (∗ p = .012) and cross-decode 0.53 → 0.60 (∗ p = .020), drawn from fixed canonical caches in every build. The distractor’s demand becomes readable as what it
-is for the animal, a choice.
+a, The distractor code aligns further with the choice axis. Cross-decoding between the two codes on dual-task trials (Go vs NoGo at mid-delay; lick vs no-lick at the test; balanced accuracy; diagonal, within-code; off-diagonal, transfer). The chance-referenced transfer grows from 0.31 [0.16, 0.51] in naïve to 0.47 [0.25, 0.67] in expert mice. Right, the same convergence within each animal, naïve against expert: per-mouse |cos| 0.072 → 0.112 and cross-decode 0.56 → 0.60, each rising in 6/9 mice but not significantly (Wilcoxon p = .20 each; n.s.), drawn from fixed canonical caches in every build. The distractor’s demand is becoming readable as what it is for the animal, a choice.
 
 b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay
 trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-delay
