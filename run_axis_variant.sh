@@ -12,8 +12,11 @@
 #   ./run_axis_variant.sh _t1 54-65 decision_t1 _tewin
 #     $1 V       file/key suffix                 (_te | _tc | _t1 | _td | _f2)
 #     $2 CB      choice/test axis bins 'a-b'     (54-59 | 54-62 | 54-65 | 57-62 | 57-65)
-#     $3 FK      window key inside fits_inputs$FITSUF.pkl   (e.g. decision_t1)
+#     $3 FK      window key inside fits_inputs$FITSUF.pkl   (e.g. decision_t1); '-' = leave the
+#                decision window canonical (for a SAMPLE-only variant, with SEED_MD below)
 #     $4 FITSUF  which candidate-window fits cache to read  (default _tewin)
+#     env SEED_MD  optional: pickle {'bins','AW'} replacing the SAMPLE window AW['md']
+#                  (build one with a nanmean over the bins you want; see the block below)
 #
 # The five variants (sample/GNG axis is 36-38 in every one; test odor is 9.0-10.0 s):
 #     A _te  54-59  9.0-10.0  test odor only
@@ -50,6 +53,9 @@ echo "== $(date) [$V] step 2: sandbox pca caches"
 cp "$D/results.pkl" "$S/results_canon.pkl"; cp "$D/fits_inputs.pkl" "$S/fits_inputs_canon.pkl"
 restore() { echo "== $(date) [$V] restoring canonical caches"; cp "$S/results_canon.pkl" "$D/results.pkl"; cp "$S/fits_inputs_canon.pkl" "$D/fits_inputs.pkl"; }
 trap restore EXIT
+if [ "$FK" = "-" ]; then
+  echo "== $(date) [$V] decision window unchanged (FK '-'): canonical AW/FITDATA kept"
+else
 FK=$FK FITSUF=$FITSUF $PY - <<'EOF'
 import pickle, os
 D = '/home/leon/dual/pca/figures/pseudo/dimensionality'; FK = os.environ['FK']; FITSUF = os.environ['FITSUF']
@@ -61,6 +67,27 @@ for (s, w, st), v in A.items():
     if w == FK: R['FITDATA'][(s, 'decision', st)] = v; n += 1
 pickle.dump(R, open(f'{D}/results.pkl', 'wb')); print(f'seeded: AW decision:={FK}; FITDATA decision from results{FITSUF} ({n} keys)')
 EOF
+fi
+
+# Optional SAMPLE-window change (SEED_MD=<pickle with {'bins','AW'}>, e.g. figures/.../aw_md_full.pkl).
+# The decision seeding above pulls its window from a prebuilt candidate cache; the sample axis has no such
+# cache, so pass one. AW['md'] is replaced and every downstream job in the loop recomputes on it: panel b
+# (exp_cdec_support), panel c (exp_dpca_count), panel d (exp_pceta_cv), the plane/per-mouse caches, and the
+# overlaps side follows DUAL_SAMPLE_BINS on its own. NOTE the raw FITDATA md keys (cm_var / pceta, the
+# UNCROSS-VALIDATED fallback and the ED PR ladder) are NOT recomputed here and stay on the old window.
+if [ -n "${SEED_MD:-}" ]; then
+  SEED_MD=$SEED_MD $PY - <<'EOF'
+import pickle, os, numpy as np
+D = '/home/leon/dual/pca/figures/pseudo/dimensionality'
+src = pickle.load(open(os.environ['SEED_MD'], 'rb')); b = np.asarray(src['bins'])
+fi = pickle.load(open(f'{D}/fits_inputs.pkl', 'rb'))
+assert fi['AW']['md'].shape == src['AW'].shape, (fi['AW']['md'].shape, src['AW'].shape)
+fi['AW']['md'] = src['AW']; pickle.dump(fi, open(f'{D}/fits_inputs.pkl', 'wb'))
+print(f'seeded: AW md := bins {b[0]}-{b[-1]} ({b[0]/6:.2f}-{(b[-1]+1)/6:.2f} s)')
+EOF
+  # A failed seed must ABORT: continuing would silently produce a variant on the canonical window.
+  if [ $? -ne 0 ]; then echo "== [$V] SEED_MD FAILED — aborting"; restore; exit 1; fi
+fi
 
 cd pca
 export DUAL_DPCA_WINS=md,decision
