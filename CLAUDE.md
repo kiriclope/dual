@@ -116,6 +116,9 @@ Rules that go with it:
   memory index — for claims the change makes stale. The authoritative source (`overview.md` + memory) and
   the reproduction/routines guides must AGREE; if an older guide describes a superseded build, at minimum
   add a staleness pointer to the authoritative file rather than leaving wrong numbers.
+- **Never guess what a rebuild costs.** Measured runtimes are in `docs/rebuild_timings.md`, appended by
+  `log_timings.py` (`parse` a run log / `time` a command / `add` a number measured elsewhere). Record new
+  ones as you go, and read it before telling the user how long something will take.
 - Before finishing a task that changed a figure/analysis, do a quick pass: memory updated? every relevant
   doc updated or redirected? If unsure which docs are affected, `grep` the changed concepts across
   `docs/` and check each hit.
