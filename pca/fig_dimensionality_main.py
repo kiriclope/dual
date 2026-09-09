@@ -94,7 +94,8 @@ elif PCABINS:
 elif EVWIN:
     SAM_BINS, DEC_BINS = np.arange(33, 39), np.arange(54, 60)      # 5.5-6.5 s, 9.0-10.0 s
 else:
-    SAM_BINS, DEC_BINS = np.arange(36, 39), np.arange(54, 63)      # CANONICAL since 2026-09-08
+    SAM_BINS, DEC_BINS = np.arange(33, 39), np.arange(54, 63)      # CANONICAL: sample/GNG 33-38 (5.5-6.5 s,
+    #   widened 2026-09-09 to the whole post-GNG pre-cue gap), choice/test 54-62 (since 2026-09-08)
 
 
 def win_s(bins):
@@ -660,7 +661,7 @@ if CDEC:
         'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
         'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
         'change the dimensionality.',
-        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 against its own null) that disappears with learning.',
+        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the anticipatory choice signal in the naïve mid-delay state on Go and NoGo trials (0.66, fourteen points above its own null), which disappears with learning; on DPA trials the mid-delay choice reaches 0.55 in expert against a null of 0.54, a one-point margin we read as marginal rather than as a second anticipatory code.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
         'the trials and both the η² and the row percentages are measured on the other (30 random '

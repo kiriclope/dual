@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.28 (2026-09-09): CANONICAL SAMPLE/GNG AXIS WIDENED TO THE WHOLE MID-DELAY, bins 33–38 (5.5–6.5 s)** (Leon: "why did you take the 0.5s last seconds of middle delay; I want all the middle delay for sample"). The old window 36–38 was the last 0.5 s of the post-GNG pre-cue gap, following the codebase convention of offsetting every epoch by 0.5 s for the GCaMP rise; the concern with widening it was that bins 33–35 sit right after the Go/NoGo odor and could leak GNG signal into the sample axis. Tested as a sample-only variant first: it does not. Sample decoding IMPROVES in all four cells (DPA 0.89→0.91 expert, 0.86→0.88 naïve; dual 0.81→0.83, 0.80→0.83), GNG is unchanged at ceiling (1.00, 0.99), the sample × GNG cosine is unchanged (0.09 naïve, 0.08 expert), and panel d gets cleaner (dual mid-delay PC1 GNG 0.99 with PC2 sample 0.81→0.84, its share of the reliable variance 7%→10%; DPA PC1 sample 0.94→0.95). Fig. 4 is bit-identical, as it must be — the push and the coupling live on the choice axis, which did not move. ONE CLAIM CHANGES: the expert DPA mid-delay choice now clears its null by one point (0.55 vs 0.54, p = .040), so §2 and the Fig. 2c legend no longer call the naïve signal "the single exception" and report the expert one as marginal. Flip trap recorded: promoting a variant cache to canonical dropped three DPCA_COUNT windows (the variant loop computes only md+decision), which broke ED 3g until `exp_dpca_count.py` was re-run unrestricted.
+
 > **v12.27 (2026-09-09): Fig. 2d IS NOW CROSS-VALIDATED** (Leon: "ok then we should cross validate panel d"). Panel d used to PCA the condition means estimated from ALL the trials, so its row percentages were raw condition-mean variance and looked like they contradicted panel b: the DPA delay read 41/30/28% with coded-looking second and third rows, while the cross-validated spectrum of b said one axis (1.00/0/0). New `pca/exp_pceta_cv.py` fits the components on one trial half and measures BOTH the variance and the η² on the other (30 half-splits × 2 directions), merging `pceta_cv` / `cm_var_cv` into `results.pkl`; `panelD_mats` prefers them and falls back to the raw keys. The row labels are now panel b's reliable fractions (DPA delay 100/0/0, DPA decision 44/38/18, dual delay 92/7/0, dual decision 84/12/3) and the reliable rows keep their coding (sample 0.94; GNG 0.99; choice 0.73 DPA / 0.89 dual; sample 0.81 dual delay) while the non-replicating rows go flat at the 1/3 chance level. One trap found and fixed: the DPA decision spectrum is 0.44/0.38, so those two components swapped from split to split and naive averaging blended the choice row with the sample row (0.67 choice + 0.30 sample against 0.57 sample + 0.35 choice); each split's components are now matched to the full-data axes by maximum |cosine| (Hungarian) before averaging, which is a relabelling only. §2, Methods and the Fig. 2d legend rewritten; ED 3d keeps the uncross-validated matrices and is now labelled as the demonstration of the artifact.
 
 > **v12.26 (2026-09-09): draft↔figure alignment audit.** Re-ran all five mains and checked every printed statistic against the text and legends. Everything matched except three items, now fixed: (i) §2's decision-period reliable-variance fractions were pre-flip (0.66/0.17/0.17 and 0.61/0.30/0.05) — they are 0.41/0.40/0.20 on DPA trials and 0.84/0.12/0.02 on Go and NoGo trials; (ii) §3's pooled choice × GNG cosine read 0.42, the figure prints 0.43; (iii) Fig. 2b's "≈3 reliable axes" was HARDCODED on both decision columns — it is now COUNTED from the data (an axis is reliable when its jackknife interval clears the shuffle null), which gives 3 on DPA trials and 2 on Go and NoGo trials, and §2 plus the legend now say that instead of "about three".
@@ -541,16 +543,17 @@ maintained memory is a line in population space.
 Each of these dimensions corresponded to one task variable, and it was occupied only when the
 task called for that variable. We trained a decoder along each variable's own axis and tested
 it on withheld pseudo-trials, scoring balanced accuracy against a shuffle null and a chance
-level of 0.5 (Fig. 2c). In the delay only the sample could be read out (0.89 on DPA trials,
-0.81 on Go and NoGo trials), together with the GNG code on Go and NoGo trials (1.00), and the
-test odor and the choice stayed at chance until the test arrived, when all of them became
+level of 0.5 (Fig. 2c). In the delay the sample was read out well (0.91 on DPA trials,
+0.83 on Go and NoGo trials), together with the GNG code on Go and NoGo trials (1.00); the test
+odor stayed at chance and the choice was at or just above it (0.47 on Go and NoGo trials, 0.55 on
+DPA trials, one point above its own null), until the test arrived and all of them became
 decodable (choice 0.81–0.85, test 0.60–0.62). The principal components were themselves the task
 variables, each loading on a single factor of the design (Fig. 2d; η², the share of a
 component's held-out variance explained by one factor, where 1 means the component codes that
 factor alone; the components are fitted on one half of the trials and both their size and their
-coding are read on the other, as in Fig. 2b). The memory line was the sample axis (η² = 0.94). In
-the delay of Go and NoGo trials the state held one large GNG axis (η² = 0.99, 92% of the reliable
-variance) beside a smaller sample axis (0.81, 7%), and the decision period added a choice axis
+coding are read on the other, as in Fig. 2b). The memory line was the sample axis (η² = 0.95). In
+the delay of Go and NoGo trials the state held one large GNG axis (η² = 0.99, 90% of the reliable
+variance) beside a smaller sample axis (0.84, 10%), and the decision period added a choice axis
 (0.73 on DPA trials, 0.89 on Go and NoGo trials) and a weaker test axis (0.38), with some mixing
 of sample, test and choice on the smallest components. Cross-validation is what makes this
 readable: on condition means estimated from all the trials the three DPA delay components look
@@ -799,7 +802,7 @@ on GNG alone, and only then on the dual task, in which DPA, Go and NoGo trials w
 interleaved; all six dual task sessions were imaged, so "naïve" and "expert" refer to early
 versus late dual task sessions in animals that had already learned each task separately
 **[AUTHOR: sessions per stage, criterion at each stage, shaping steps]**. Trials are analyzed
-in 84 bins over 14 s (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). The decoder axes use one definition in both pipelines: sample and GNG axes on bins 36–38 (6.0–6.5 s, after the Go/NoGo odor and before the cue, allowing the ≈0.5-s GCaMP rise) and choice and test axes on bins 54–62 (9.0–10.5 s, from test onset to 0.5 s after test offset). Two read-out window conventions coexist in the codebase and are stated per analysis below: the single-trial (overlaps) pipeline indexes epochs directly (baseline bins 0–11; mid-delay 33–38; late delay 45–53), whereas the pseudo-population pipeline offsets each epoch onset by 0.5 s (mid-delay bins 36–38; late delay 48–53).
+in 84 bins over 14 s (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). The decoder axes use one definition in both pipelines: sample and GNG axes on bins 33–38 (5.5–6.5 s, the whole interval between the Go/NoGo odor and the cue) and choice and test axes on bins 54–62 (9.0–10.5 s, from test onset to 0.5 s after test offset). Two read-out window conventions coexist in the codebase and are stated per analysis below: the single-trial (overlaps) pipeline indexes epochs directly (baseline bins 0–11; mid-delay 33–38; late delay 45–53), whereas the pseudo-population pipeline offsets each epoch onset by 0.5 s (mid-delay bins 36–38; late delay 48–53).
 
 ### Behavioral statistics (Fig. 1)
 
@@ -871,7 +874,7 @@ of that stage, and every trial's decision function was evaluated cross-temporall
 odor-pair × task × day), so that every projected trial is scored out-of-fold — trials from
 other conditions or laser-ON trials are never in any training set. Decision functions
 (normalized by the weight-vector norm per train bin) were averaged over the training window of
-the relevant axis: sample code, bins 36–38; test code, bins 54–62; choice ("action") code, the test window, bins 54–62; GNG code, bins 36–38 (the shared axis definition above). Per mouse, each code's
+the relevant axis: sample code, bins 33–38; test code, bins 54–62; choice ("action") code, the test window, bins 54–62; GNG code, bins 33–38 (the shared axis definition above). Per mouse, each code's
 projections were then baseline-centered (subtracting the pooled mean over baseline bins 0–11)
 and expressed in evoked-SD units — divided by the temporal standard deviation of that mouse's
 baseline-centered, class-signed mean trajectory (all laser-OFF trials, both stages;
@@ -916,7 +919,7 @@ flagged noise-limited, drawn open, and excluded from the paired memory-vs-decisi
 Extended Data Fig. 3c). The null is a label-shuffled realization of
 the full pipeline (condition labels permuted within mouse, trial counts preserved), normalized
 by the real spectrum's positive total. Windows (pseudo-population convention): mid-delay
-(bins 36–38 — the final third of the 5.5–6.5-s post-GNG epoch, closing at the Go/NoGo
+(bins 33–38 — the whole 5.5–6.5-s post-GNG epoch, from the Go/NoGo odor's offset to the
 cue onset, so no cue or lick has occurred) and decision (bins 54–62, from test onset to 0.5 s after test offset); the legacy PR analyses additionally use late delay (bins 48–53). 95% CIs are leave-one-mouse-out jackknife
 with a t(8) = 2.306 multiplier on the jackknife SE (fractions clipped to [0, 1]; the PR floored
 at 1); the "unchanged with learning" statement applies the same jackknife to Δ(Naïve − Expert),
@@ -1116,7 +1119,7 @@ is required to produce.
 Figure 2 | The population geometry is minimal and factorized. The working memory occupies a
 single dimension, each task variable has its own nearly orthogonal coding axis, and the memory
 and choice axes are shared across trial types. All panels use the pseudo-population (3,319
-neurons, nine mice, 12 conditions). The memory state is the mid-delay window (6.0–6.5 s, after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).
+neurons, nine mice, 12 conditions). The memory state is the mid-delay window (5.5–6.5 s, between the Go/NoGo odor and the cue, so before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).
 
 a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). Condition
 means are estimated on one half of the trials and evaluated on the other half (30 random half-
@@ -1132,8 +1135,10 @@ and expert spectra are near-identical; learning does not change the dimensionali
 c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy
 along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles),
 against the expert label-shuffle null (95th percentile of a null matched to the plotted
-statistic, short line). The dagger marks the single exception, an anticipatory choice signal in
-the naïve mid-delay state (0.66 against its own null) that disappears with learning.
+statistic, short line). The dagger marks the anticipatory choice signal in the naïve mid-delay state on Go and NoGo
+trials (0.66, fourteen points above its own null), which disappears with learning. On DPA trials
+the mid-delay choice reaches 0.55 in expert against a null of 0.54 (p = .040), a one-point margin
+we read as marginal rather than as a second anticipatory code.
 
 d, The principal components are the task variables. η² of each condition-mean PC against the
 design contrasts, cross-validated exactly as in b: the components are fitted on one half of the

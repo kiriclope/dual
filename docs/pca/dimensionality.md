@@ -47,6 +47,17 @@ sample+sample:test subspace, so "top-2 ≈ 94% / PR ≈ 2.2" was ~built in. Thes
 dimensionality on the raw pseudo-population with cross-validation, so only structure that replicates
 across independent trial halves counts.
 
+> **CANONICAL SAMPLE/GNG AXIS = bins 33–38 (5.5–6.5 s) since 2026-09-09** (Leon: "I want all the middle
+> delay for sample"). Was 36–38, the last 0.5 s of the post-GNG pre-cue gap, per the codebase's habit of
+> offsetting every epoch by 0.5 s for the GCaMP rise. Widening does NOT leak GNG into the sample axis:
+> sample decoding rises in all four cells (DPA 0.89→0.91 E / 0.86→0.88 N; dual 0.81→0.83 / 0.80→0.83),
+> GNG stays at ceiling (1.00 / 0.99), the sample × GNG cosine is unchanged (0.09 / 0.08), and panel d is
+> cleaner (dual md PC2 sample 0.81→0.84, 7%→10% of the reliable variance). Choice/test axis unchanged at
+> 54–62, so Fig 4 is bit-identical. One claim moved: expert DPA mid-delay choice now clears its null by a
+> single point (0.55 vs 0.54, p .040) — reported as marginal, not as a second anticipatory code.
+> FLIP TRAP: promoting a variant cache to canonical drops the DPCA_COUNT windows the variant loop skips
+> (it runs md+decision only), which broke ED 3g until `exp_dpca_count.py` was re-run unrestricted.
+
 ## Scripts & data flow (all under `pca/`, run from `pca/`)
 - **`cvpca.py` — THE cvPCA estimator, one implementation (added 2026-09-09).** `neuron_scale`,
   `cond_means`, `split_means`, `fold_means`, `cvpca_spectrum`, `spectra`, `avg_spec`, `avg_frac`,

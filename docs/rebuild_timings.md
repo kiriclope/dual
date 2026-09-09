@@ -49,3 +49,22 @@ place or from somewhere less direct.
 | 2026-09-09 14:34 | axis variant _t1 (2026-09-09 rebuild) | **TOTAL** | 21.9 | measured, parsed from the run log |
 | 2026-09-09 14:38 | cross-task matrices, variant _t1 (--acc --nopca) | COLD: cache empty, 20.5 GB tensor loaded | 3.1 | measured |
 | 2026-09-09 14:40 | cross-task matrices, variant _t1 (--acc --nopca) | WARM: cache hit, tensor NOT loaded | 2.3 | measured |
+| 2026-09-09 15:37 | axis variant _fmd (sample = full mid-delay) | step 0: overlaps traces/states | 0.2 | measured, parsed from the run log |
+| 2026-09-09 15:40 | axis variant _fmd (sample = full mid-delay) | step 1: pooled cross-task matrices | 2.3 | measured, parsed from the run log |
+| 2026-09-09 15:40 | axis variant _fmd (sample = full mid-delay) | step 2: sandbox pca caches | 0.0 | measured, parsed from the run log |
+| 2026-09-09 15:40 | axis variant _fmd (sample = full mid-delay) | decision window unchanged (FK '-'): canonical AW/FITDATA kept | 0.0 | measured, parsed from the run log |
+| 2026-09-09 15:43 | axis variant _fmd (sample = full mid-delay) | running exp_dpca_count.py | 3.5 | measured, parsed from the run log |
+| 2026-09-09 15:44 | axis variant _fmd (sample = full mid-delay) | running exp_axis_frame.py --nopca | 0.8 | measured, parsed from the run log |
+| 2026-09-09 15:44 | axis variant _fmd (sample = full mid-delay) | running exp_permouse_frame.py --nopca | 0.5 | measured, parsed from the run log |
+| 2026-09-09 15:45 | axis variant _fmd (sample = full mid-delay) | running exp_permouse_frame.py --nopca --mddec | 0.4 | measured, parsed from the run log |
+| 2026-09-09 15:45 | axis variant _fmd (sample = full mid-delay) | running exp_permouse_plane.py --nopca | 0.3 | measured, parsed from the run log |
+| 2026-09-09 15:45 | axis variant _fmd (sample = full mid-delay) | running exp_permouse_xstage.py --nopca | 0.1 | measured, parsed from the run log |
+| 2026-09-09 15:46 | axis variant _fmd (sample = full mid-delay) | running exp_plane_frame.py --nopca | 1.3 | measured, parsed from the run log |
+| 2026-09-09 15:47 | axis variant _fmd (sample = full mid-delay) | running exp_parallelism.py --nopca | 0.1 | measured, parsed from the run log |
+| 2026-09-09 15:47 | axis variant _fmd (sample = full mid-delay) | running exp_neuron_sel.py --nopca | 0.1 | measured, parsed from the run log |
+| 2026-09-09 15:53 | axis variant _fmd (sample = full mid-delay) | running exp_cdec_support.py | 5.9 | measured, parsed from the run log |
+| 2026-09-09 15:53 | axis variant _fmd (sample = full mid-delay) | running exp_pceta_cv.py | 0.4 | measured, parsed from the run log |
+| 2026-09-09 15:53 | axis variant _fmd (sample = full mid-delay) | variant caches saved to results_fmd.pkl | 0.0 | measured, parsed from the run log |
+| 2026-09-09 15:53 | axis variant _fmd (sample = full mid-delay) | restoring canonical caches | 0.0 | measured, parsed from the run log |
+| 2026-09-09 15:54 | axis variant _fmd (sample = full mid-delay) | step 3: renders | 0.7 | measured, parsed from the run log |
+| 2026-09-09 15:54 | axis variant _fmd (sample = full mid-delay) | **TOTAL** | 16.7 | measured, parsed from the run log |

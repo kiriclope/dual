@@ -249,13 +249,13 @@ print(f'  X {X.shape}  y {y.shape}')
 _sam_rows  = (y.target == 'sample').to_numpy(); _tst_rows = (y.target == 'test').to_numpy()
 _cho_rows  = (y.target == 'choice').to_numpy()
 _ACT_DPA   = (ENV_CHO if ENV_CHO is not None else np.arange(57, 60) if PCABINS else np.arange(54, 60) if EVWIN else np.arange(57, 66) if FIG2AX else np.arange(48, 63) if ANTACT else np.arange(54, 60) if TESTWIN else np.arange(57, 63) if LEGACY else np.arange(54, 63))  # antact = single anticipatory+action axis (48-62)
-_SAM_TRAIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.arange(16, 48) if LEGACY else np.arange(36, 39)     # sample axis train bins
+_SAM_TRAIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.arange(16, 48) if LEGACY else np.arange(33, 39)     # sample axis train bins 33-38 (5.5-6.5 s) since 2026-09-09
 _TST_TRAIN = ENV_CHO if ENV_CHO is not None else np.arange(57, 60) if PCABINS else np.arange(54, 60) if EVWIN else np.arange(57, 66) if FIG2AX else np.arange(58, 84) if LEGACY else np.arange(54, 63)     # test axis train bins
 SAMPLE_R   = X[_sam_rows][:, 1, _SAM_TRAIN, :].mean(1).astype(float); Y_SAM = y[_sam_rows].reset_index(drop=True)
 TEST_R     = X[_tst_rows][:, 1, _TST_TRAIN, :].mean(1).astype(float); Y_TST = y[_tst_rows].reset_index(drop=True)
 LICK_R     = X[_cho_rows][:, 1, _ACT_DPA, :].mean(1).astype(float);           Y_LCK = y[_cho_rows].reset_index(drop=True)
 del X                                                                  # free ~1.9 GB
-_GNG_WIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.asarray(options['bins_MD']) if LEGACY else np.arange(36, 39)   # 33-38 (event) / 36-38 (Fig-2) / bins_MD
+_GNG_WIN = ENV_SAM if ENV_SAM is not None else np.arange(36, 39) if PCABINS else np.arange(33, 39) if EVWIN else np.arange(36, 39) if FIG2AX else np.asarray(options['bins_MD']) if LEGACY else np.arange(33, 39)   # 33-38 canonical since 2026-09-09 (was 36-38)
 _gm = (yb.target == 'gng').to_numpy(); Xg = Xb[_gm]; yg = yb[_gm].reset_index(drop=True); del Xb
 GNG_R = Xg[:, 1, _GNG_WIN, :].mean(1).astype(float); Y_GNG = yg; del Xg
 

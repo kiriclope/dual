@@ -43,7 +43,8 @@ RNG = np.random.RandomState(0)
 o = set_options(); W_LD, W_TE, W_MD = np.asarray(o['bins_LD']), np.asarray(o['bins_TEST']), np.asarray(o['bins_MD'])
 W_DEC = np.arange(57, 66)                    # Fig 2 'decision' state (bins 57-65 = 9.5-11.0 s), for --mddec
 W_MD2, W_TE2 = np.arange(36, 39), np.arange(57, 60)   # pca bins (6.0-6.5 s, 9.5-10.0 s), for --pcabins
-W_CAN_S, W_CAN_C = np.arange(36, 39), np.arange(54, 63)   # CANONICAL axes since 2026-09-08 (sample 36-38, choice/test 54-62)
+W_CAN_S, W_CAN_C = np.arange(33, 39), np.arange(54, 63)   # CANONICAL axes: sample/GNG 33-38 (5.5-6.5 s, whole
+#   post-GNG pre-cue gap; widened from 36-38 on 2026-09-09), choice/test 54-62 (9.0-10.5 s, since 2026-09-08)
 _AXENV = os.environ.get('DUAL_AXSUF')                # env-driven windows (DUAL_SAMPLE_BINS / DUAL_CHOICE_BINS, inclusive)
 if _AXENV:
     _sb = [int(v) for v in os.environ['DUAL_SAMPLE_BINS'].split('-')]; _cb = [int(v) for v in os.environ['DUAL_CHOICE_BINS'].split('-')]
