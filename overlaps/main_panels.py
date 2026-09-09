@@ -358,7 +358,12 @@ def _perf_delta_by_sample(perf_col, task_mask):
     return out
 
 
-delta_dpa_perf_sample = _perf_delta_by_sample('performance', y.tasks == 'DPA')
+# 2026-09-09 (Leon): panel c's DPA arm = change in DPA accuracy on the distractor-free DPA trials (kept: ρ −0.72 p .030;
+# on the dual trials or all trials the same ranks give ρ −0.63 p .067 — stated in the text). --dualperf draws the dual-trial arm.
+DUALPERF = '--dualperf' in sys.argv[1:]
+if DUALPERF:
+    FILE_SUF += '_dualperf'
+delta_dpa_perf_sample = _perf_delta_by_sample('performance', (y.tasks != 'DPA') if DUALPERF else (y.tasks == 'DPA'))
 delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
 
 

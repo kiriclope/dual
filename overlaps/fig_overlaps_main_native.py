@@ -148,7 +148,7 @@ if __name__ == '__main__':
         ah = fig.add_subplot(gsB[0, ci * 2 + 1], sharey=at)
         ax0 = at if ax0 is None else ax0
         _draw_traj_B(at, stage, xlimB, ylimB)
-        at.set_title(stage, pad=4, fontsize=TITLE_FS)
+        at.set_title(f'{stage} · DPA trials', pad=4, fontsize=TITLE_FS)   # trial set in the title (Leon 2026-09-09)
         at.set_xlabel('Sample code\n← odor A            odor B →')
         if ci == 0:
             at.set_ylabel('Choice code\n← no lick            lick →')
@@ -232,9 +232,10 @@ if __name__ == '__main__':
     # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) ──
     gsC = gs[2, 0:6].subgridspec(1, 2, wspace=0.55)
     axC = [fig.add_subplot(gsC[0, 0]), fig.add_subplot(gsC[0, 1])]
-    C_specs = [(delta_dpa_perf_sample, 'Δ DPA accuracy (Exp−Naive)', 'Δ depth vs Δ DPA accuracy',
+    _pl = 'dual trials' if _MP.DUALPERF else 'DPA trials'
+    C_specs = [(delta_dpa_perf_sample, f'Δ DPA accuracy, {_pl}', 'Δ depth vs Δ DPA accuracy',
                 _panelC_coupling(delta_dpa_perf_sample)),
-               (delta_gng_perf_sample, 'Δ GNG accuracy (Exp−Naive)', 'Δ depth vs Δ GNG accuracy',
+               (delta_gng_perf_sample, 'Δ GNG accuracy, dual trials', 'Δ depth vs Δ GNG accuracy',
                 _panelC_coupling(delta_gng_perf_sample))]
     _allyC = np.array([d[(m, c)] for d, _, _, _ in C_specs for m in ALL_MICE for c in (0, 1)], float)
     _allyC = _allyC[~np.isnan(_allyC)]
@@ -305,7 +306,7 @@ if __name__ == '__main__':
     axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
     axD.set_xlim(-0.5, 3.2)
     axD.set_ylabel('choice-code depth', fontsize=PS*7.5)
-    axD.set_title('Naive unpaired trials', loc='left', fontsize=TITLE_FS)
+    axD.set_title('Naive unpaired DPA trials', loc='left', fontsize=TITLE_FS)
     axD.set_box_aspect(1)
 
     # ── E: within-task choice-code d′ (Naive vs Expert) — decodability UNCHANGED ⇒ the push (B) is a
@@ -322,7 +323,7 @@ if __name__ == '__main__':
     axDp.set_xlim(_lim); axDp.set_ylim(_lim); axDp.set_box_aspect(1)
     # canonical code name ("choice", as in Fig 3); the verdict lives in the n.s./Δ/p annotations,
     # not hardcoded in the title
-    axDp.set_title('choice-code d′', fontsize=TITLE_FS, loc='left')
+    axDp.set_title('choice-code d′, DPA trials', fontsize=TITLE_FS, loc='left')
     axDp.set_xlabel('Naive d′', fontsize=PS*7.5); axDp.set_ylabel('Expert d′', fontsize=PS*7.5)
     axDp.text(0.06, 0.95, '*' if _dp_sig else 'n.s.', transform=axDp.transAxes, ha='left', va='top',
               fontsize=PS*11 if _dp_sig else 8, fontweight='bold', color='k' if _dp_sig else '0.55')
@@ -361,7 +362,8 @@ if __name__ == '__main__':
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
-        'state, the more its DPA accuracy improves (ρ = −0.72, p = .030 ∗), whereas the same change '
+        'state, the more its DPA accuracy improves (distractor-free DPA trials, ρ = −0.72, p = .030 ∗; on the dual trials '
+        'or on all trials the same ranks give ρ = −0.63, p = .067), whereas the same change '
         'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone a trend of the opposite sign, ρ = +0.65, p = .060). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
