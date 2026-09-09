@@ -673,7 +673,7 @@ for ax, key, ylab, msg in [
     r_p, p_p = pearsonr(xdep[ok], yv[ok]); rho, ps = spearmanr(xdep[ok], yv[ok])
     _b, _p, _nm, _no = _gi_lmm(key)                 # mouse-respecting LMM — logged caveat, NOT drawn
     print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
-    ax.text(0.5, 0.02, f'n={ok.sum()}: Spearman ρ={rho:+.2f}, p={ps:.3f}',   # Spearman only (Leon 2026-09-08)
+    ax.text(0.5, 0.02, f'{len(JAWS)} mice, {ok.sum()} obs\nSpearman ρ={rho:+.2f}, p={ps:.3f}',   # Spearman only; unit named as in Fig 4 (Leon)
             transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if ps < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
             va='top', fontsize=PS*12, fontweight='bold', color='k' if ps < 0.05 else '0.55')
@@ -771,7 +771,7 @@ _ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
 _rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
 _gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logged caveat, NOT drawn
 print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
-axL.text(0.5, 0.02, f'n={_ok.sum()}: Spearman ρ={_rs:+.2f}, p={_ps:.3f}',   # Spearman only (Leon 2026-09-08)
+axL.text(0.5, 0.02, f'{len(JAWS)} mice, {_ok.sum()} obs\nSpearman ρ={_rs:+.2f}, p={_ps:.3f}',   # Spearman only; unit named as in Fig 4 (Leon)
          transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _ps < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
          va='top', fontsize=PS*12, fontweight='bold', color='k' if _ps < 0.05 else '0.55')
@@ -794,7 +794,7 @@ def _dprime_scatter(ax, dfw, lmm, title):
     ax.set_xlim(lo, hi); ax.set_ylim(lo, hi); ax.set_box_aspect(1)
     ax.set_xlabel("d′  laser OFF"); ax.set_ylabel("d′  laser ON")
     ax.set_title(title, loc='left', fontsize=TITLE_FS)
-    ax.text(0.97, 0.03, f'LMM laser p={lmm[1]:.2f}\n(10 OFF/ON pairs, 20 obs.)', transform=ax.transAxes,
+    ax.text(0.97, 0.03, f'LMM laser p={lmm[1]:.2f}\n({len(JAWS)} mice, {2 * len(dfw)} obs)', transform=ax.transAxes,
             ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
 
 
@@ -835,13 +835,14 @@ if not POSTER:
         fc = MOUSE_COLOR[m] if st == 'Expert' else 'w'       # Expert filled / Naive open
         axBal.scatter(xd, yd, marker='o', s=34, facecolors=fc, edgecolors=MOUSE_COLOR[m], lw=1.2, zorder=5)
     _brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
-    axBal.text(0.5, 0.02, f'ON: r={_brp:+.2f} p={_bpp:.2f}  ρ={_brs:+.2f} p={_bps:.2f}',
+    axBal.text(0.5, 0.02, f'{len(JAWS)} mice, {int(_bok.sum())} obs\nON: r={_brp:+.2f} p={_bpp:.2f}  ρ={_brs:+.2f} p={_bps:.2f}',
                transform=axBal.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
     axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
-    axBal.set_xlabel('DPA performance (laser ON)'); axBal.set_ylabel('GNG performance (laser ON)')
+    axBal.set_xlabel('DPA performance, DPA trials (laser ON)')      # trial sets named as in g–i (Leon 2026-09-09)
+    axBal.set_ylabel('GNG performance, dual trials (laser ON)')
     axBal.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', mfc='k', ls='none', ms=7, label='Expert'),
                           mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=7, label='Naive')],
-                 frameon=False, fontsize=PS*7, loc='lower left', handletextpad=0.3)
+                 frameon=False, fontsize=PS*7, loc='upper left', handletextpad=0.3)   # clear of the 2-line stat block
 
 
 # ── panel letters + row banners ───────────────────────────────────────────────
@@ -890,10 +891,11 @@ if not POSTER:
         '(Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). '
         'Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model '
         '(β = −0.011, p = .009).',
-        'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (r = +0.44, p = .20).',
+        'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser '
+        '(10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; r = +0.44, p = .20).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
-        'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 20 '
-        'observations, 10 OFF/ON pairs) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
+        'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, 5 mice, 20 '
+        'observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '
         'the position of the code on the subspace (f–i) without degrading its content, the same '
         'position-not-fidelity principle that governs learning itself (Fig. 4).',
     ]

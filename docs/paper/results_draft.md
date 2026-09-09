@@ -1228,12 +1228,10 @@ g–i, The displacement, read on the learned choice axis, predicts behavior. Δd
 against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B;
 depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay on DPA trials; ΔDPA accuracy is measured on DPA trials and ΔGNG accuracy on dual trials, as in Fig. 4c). The joint trade-off (g) is significant by rank (Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model (β = −0.011, p = .009).
 
-j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as
-without laser (r = +0.44, p = .20).
+j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; r = +0.44, p = .20).
 
 k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line for
-the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, n = 20 observations, 10
-OFF/ON pairs) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets
+the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, 5 mice, 20 observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets
 the position of the code on the subspace (f–i) without degrading its content, the same
 position-not-fidelity principle that governs learning itself (Fig. 4).
 

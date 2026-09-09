@@ -260,7 +260,7 @@ if __name__ == '__main__':
         ax.axhline(0, ls=':', color='k', lw=0.7); ax.axvline(0, ls=':', color='k', lw=0.7)
         ax.set_ylim(ylimC)
         sig = pv < 0.05
-        ax.text(0.03, 0.03, f'per-mouse (n={n_mice})\nSpearman ρ={rho:+.2f}, p={pv:.3f}',
+        ax.text(0.03, 0.03, f'{n_mice} mice\nSpearman ρ={rho:+.2f}, p={pv:.3f}',   # unit named, as in b (Leon 2026-09-09)
                 transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
         ax.text(0.80, 0.94, '*' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top',
                 fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
