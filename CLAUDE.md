@@ -83,7 +83,7 @@ print ≤7 pt; every main takes `--nocap` (no in-figure caption — the submissi
 `figures/paper_share/submission/` (spec: nature.com/documents/nature-final-artwork.pdf — 5–7 pt
 text, 247 mm max depth, editable vector, RGB).
 Rules that go with it:
-- **Panel titles** (2026-09-03, Nature style): main figures carry NO claim-sentence titles — the legend's first sentence and its `a,` entries make the claims. Keep only ORIENTATION labels (condition / window / axis names such as `DPA · sample code`, `Naive`, `mid-delay`), left-aligned, `fontsize=TITLE_FS`, NOT bold. Supplements/ED components may keep descriptive titles. **Panel letters** (A/B/C…) are the only
+- **Panel titles** (2026-09-03, Nature style): main figures carry NO claim-sentence titles — the legend's first sentence and its `a,` entries make the claims. Keep only ORIENTATION labels (condition / window / axis names such as `DPA · sample code`, `Naive`, `mid-delay`), left-aligned, `fontsize=TITLE_FS`, NOT bold. **Give every panel one when its content isn't obvious from its axes** (2026-09-09, Leon: Figs 1b–e,h and 6b–j — `GNG: Go vs NoGo`, `DPA: paired vs unpaired`, `choice-code depth: OFF vs ON`, `DPA arm`), parallel in shape across a row; skip it where in-panel labels already orient the reader and a title would collide with them (Fig 1g's Naive/Expert labels sit above the axes). Supplements/ED components may keep descriptive titles. **Panel letters** (A/B/C…) are the only
   bold text: `fig.text(..., fontsize=11, fontweight='bold')`.
 - **Significance markers**: `fontsize=12 if sig else 8, fontweight='bold', color='k' if sig else '0.55'`
   (`*` when p<.05 else `n.s.`). **Stats text** (β/ρ/p lines): `fontsize=6.5, color='0.3'`.
