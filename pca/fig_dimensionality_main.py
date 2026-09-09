@@ -77,6 +77,29 @@ CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cros
 EVWIN = '--evwin' in sys.argv[1:]                 # event-window variant: caches from DUAL_RES, matrices _mdte, stem _ev
 PCABINS = '--pcabins' in sys.argv[1:]             # pca-bins variant: caches from DUAL_RES, matrices _pb, stem _pb
 AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant: caches from DUAL_RES, matrices/stem AXENV
+
+# ── THE TWO ANALYSED WINDOWS, DERIVED (2026-09-09, Leon: "you did not edit panel fig 2a") ──
+# Panel a's brackets and the caption's window text used to be literal strings, so EVERY variant build
+# drew the CANONICAL window on its own timeline — the _t1 page said 9.0-10.5 s while its axes were
+# 9.0-11.0 s. (The old comment even told the reader to "patch the bracket by hand when the window
+# changes"; a hand-patched label is a hardcoded label.) Both now come from the bins. bin b spans
+# [b/6, (b+1)/6) s, so bins 54-62 -> 9.0-10.5 s and bins 54-65 -> 9.0-11.0 s.
+# The drawn bracket also used to sit at 5.6-6.4 while labelled 6.0-6.5; it now marks what it names.
+if AXENV:
+    _e = __import__('os').environ
+    _sb = [int(v) for v in _e['DUAL_SAMPLE_BINS'].split('-')]; _cb = [int(v) for v in _e['DUAL_CHOICE_BINS'].split('-')]
+    SAM_BINS, DEC_BINS = np.arange(_sb[0], _sb[1] + 1), np.arange(_cb[0], _cb[1] + 1)
+elif PCABINS:
+    SAM_BINS, DEC_BINS = np.arange(36, 39), np.arange(57, 60)      # 6.0-6.5 s, 9.5-10.0 s
+elif EVWIN:
+    SAM_BINS, DEC_BINS = np.arange(33, 39), np.arange(54, 60)      # 5.5-6.5 s, 9.0-10.0 s
+else:
+    SAM_BINS, DEC_BINS = np.arange(36, 39), np.arange(54, 63)      # CANONICAL since 2026-09-08
+
+
+def win_s(bins):
+    """(start, end) in seconds of an inclusive bin range, on the 6 Hz grid."""
+    return float(bins[0]) / 6.0, float(bins[-1] + 1) / 6.0
 RES = pickle.load(open(__import__('os').environ.get('DUAL_RES', 'figures/pseudo/dimensionality/results.pkl'), 'rb'))
 CV, FITDATA = RES['CV'], RES['FITDATA']
 # panel E (cross-task generalisation) reads the CANONICAL no-PCA overlaps cache — deliberately
@@ -111,8 +134,9 @@ def schematic(ax):
         ax.add_patch(Rectangle((lo, y0), hi - lo, h, fc=col, alpha=0.75, lw=0))
         ax.text((lo + hi) / 2, y0 + h + 0.025, nm, ha='center', va='bottom', fontsize=PS*6.0, color=col)
     ax.text(0.1, y0 + h + 0.025, 'trial', ha='left', va='bottom', fontsize=PS*6.0, color='0.4')
-    brackets = ([(5.6, 6.4, 'memory / delay state (6.0–6.5 s)', 'right', 5.5),   # bins_MD 36–38
-                 (9.0, 10.5, 'decision state\n(9.0–10.5 s)', 'left', 9.1)] if CDEC else   # bins 54–62 (canonical 2026-09-08)
+    _m0, _m1 = win_s(SAM_BINS); _d0, _d1 = win_s(DEC_BINS)                     # derived, never literal
+    brackets = ([(_m0, _m1, f'memory / delay state ({_m0:.1f}–{_m1:.1f} s)', 'right', _m0 - 0.1),
+                 (_d0, _d1, f'decision state\n({_d0:.1f}–{_d1:.1f} s)', 'left', _d0 + 0.1)] if CDEC else
                 [(8.0, 8.9, 'memory / delay state', 'right', 7.9),      # legacy: late delay
                  (9.5, 11.0, 'decision state', 'left', 10.0)])
     for lo, hi, lab, hal, xt in brackets:
@@ -621,8 +645,10 @@ if CDEC:
     CAP_PARAS = [
         'Figure 2 | The population geometry is minimal and factorized. The working memory occupies a '
         'single dimension, each task variable has its own nearly orthogonal coding axis, and the memory and choice axes are shared across trial types. All panels use the pseudo-population (3,319 '
-        'neurons, nine mice, 12 conditions). The memory state is the mid-delay window (6.0–6.5 s, '
-        'after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).',
+        'neurons, nine mice, 12 conditions). The memory state is the mid-delay window '
+        f'({win_s(SAM_BINS)[0]:.1f}–{win_s(SAM_BINS)[1]:.1f} s, '
+        'after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to '
+        f'{win_s(DEC_BINS)[1] - 10.0:.1f} s after test offset ({win_s(DEC_BINS)[0]:.1f}–{win_s(DEC_BINS)[1]:.1f} s).',
         'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
         'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
         'random half-splits, both directions averaged), so only structure that replicates across '
