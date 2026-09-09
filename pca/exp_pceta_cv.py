@@ -102,15 +102,8 @@ def eta2(zk, C, order):
 def ref_basis(stage, conds, M, nk):
     """LABELLING basis only: the full-data PCs of the same normalised condition means."""
     sd = cvpca.neuron_scale(stage, M)
-    R = np.zeros((len(conds), N))
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx):
-                R[ci][val] = np.nanmean(M[np.ix_(idx, val)], 0)
-    S = R / sd[None, :]; S = S - S.mean(0, keepdims=True)
+    S = cvpca.cond_means(stage, M, conds) / sd[None, :]
+    S = S - S.mean(0, keepdims=True)
     return np.linalg.svd(S, full_matrices=False)[2][:nk]
 
 
