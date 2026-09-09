@@ -382,6 +382,16 @@ if __name__ == '__main__':
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
+    # ── panel b geometry (Leon 2026-09-09: "the distributions go further away than the y axis"): the KDE strips
+    # SHARE y with the trajectory panels, but the trajectories carry set_aspect('equal', adjustable='box'), which
+    # shrinks their box vertically at draw time. At identical y-limits the strips therefore rendered TALLER, so
+    # their distributions ran past the trajectory's y axis. Draw once to apply the aspect, then match each strip's
+    # box to its partner's active box (x position/width untouched).
+    fig.canvas.draw()
+    for _at, _ah in zip(axB_traj, axB_hist):
+        _pt, _ph = _at.get_position(), _ah.get_position()
+        _ah.set_position([_ph.x0, _pt.y0, _ph.width, _pt.height])
+
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
     for ext in ('png', 'svg'):
