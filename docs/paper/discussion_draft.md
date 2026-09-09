@@ -11,8 +11,8 @@
 We set out to ask how prefrontal cortex composes a new task out of computations the animal
 already performs. Three results answer the question. First, the memory and the choice are
 carried by one two-dimensional sample × choice plane, the same plane on every trial type and
-before and after learning; the test code lies outside it, and the distractor is drawn into it
-as learning proceeds (Figs 2e, 3c–f). Second, learning acts within this fixed subspace. It rotates the distractor code onto the choice axis and moves the working-memory state along it,
+before and after learning; the test code lies outside it, and the GNG code is drawn into it
+as learning proceeds (Figs 2e, 3c–f). Second, learning acts within this fixed subspace. It rotates the GNG code onto the choice axis and moves the working-memory state along it,
 and the size of each animal's shift predicts how much its memory improves (Fig. 4). Third, a
 defined top-down input, the ACC→mPFC projection, shifts the position of the state on the
 subspace while sparing the discriminability of the code, and its silencing during training
@@ -39,14 +39,14 @@ of single cells.
 In auditory cortex, memories are protected from incoming sensory drive by rotational dynamics
 that move the memory into a dimension orthogonal to the sensory response [Libby 2021]. In our
 task, mPFC uses a different, two-layered scheme. The memory axis is statically orthogonal to
-both the choice and the distractor code throughout the trial (Fig. 3d), a stable rather than a
+both the choice and the GNG code throughout the trial (Fig. 3d), a stable rather than a
 dynamic memory code [Murray 2017; Spaak 2017], and learning adds a second layer, a positional
 offset along the choice axis itself, which holds the delay state at an increasingly
 output-suppressing set-point on the no-lick side (Fig. 4b). The set-point is close to, but
 distinct from, the output-null principle of motor cortex [Kaufman 2014]. Preparatory activity
 there is held where it cannot drive output; the memory here is held where the readout of the
 same axis is no-lick, a displacement along the potent axis rather than a retreat into the null
-space. Several observations fit a protective function. The behavioral cost of the distractor is
+space. Several observations fit a protective function. The behavioral cost of the Go/NoGo task is
 an evoked lick that propagates to the test response, the false-alarm route (Fig. 1g); the
 animals that push deeper improve more (Fig. 4c); and the false-alarm arm of that propagation is
 selectively weakened, relative to its hit arm, over the same period of learning in which the
@@ -61,7 +61,7 @@ genuinely new dimensions accessible only slowly and with effort [Oby 2019]. Our 
 the same principle to the natural acquisition of a composite task. The subspace and its axes
 are unchanged by dual task learning, under equivalence bounds (Fig. 2f) and by cross-stage
 decoding (Fig. 3e; transfer at 90% of the within-stage ceiling for the sample axis and 72% for the choice axis), while the position of
-the state and the alignment of the distractor code change (Fig. 4). Learning here does not
+the state and the alignment of the GNG code change (Fig. 4). Learning here does not
 build coding dimensions; it re-parameterizes a fixed geometry. This is also the solution that
 network models of multitask computation converge on, since recurrent networks trained on
 families of tasks solve new tasks by composing shared, reusable dynamical motifs rather than by
@@ -77,8 +77,8 @@ content than like an input that biases where the population state sits on the le
 This is top-down control acting on the same variable that learning acts on, the position of the
 state, in the spirit of executive inputs that configure a computation rather than carry it
 [Mante 2013; Panichello 2021]. The contrast between the two couplings is telling. Learning's
-repositioning buys memory accuracy at no cost to the distractor task (Fig. 4c), whereas the
-acute displacement is coupled to the distractor task (Fig. 6g–i). The slow process arrives at a
+repositioning buys memory accuracy at no cost to the GNG task (Fig. 4c), whereas the
+acute displacement is coupled to the GNG task (Fig. 6g–i). The slow process arrives at a
 solution that the brief perturbation does not reproduce.
 
 Three features of the design set the scope of these conclusions. The pooled pseudo-population

@@ -58,10 +58,10 @@ def plabel(ax, s, dx=-0.10):
 
 # ══ A — the four codes over time (moved from main Fig 3 panel A, 2026-08-31) ══════════════════
 SAMPC = {0: '#332288', 1: '#44AA99'}
-CODE_ORDER = ['sample', 'dist', 'test', 'choice']
-CODE_NAME = {'sample': 'sample', 'GNG': 'dist', 'gng': 'dist', 'distractor': 'dist',
+CODE_ORDER = ['sample', 'GNG', 'test', 'choice']
+CODE_NAME = {'sample': 'sample', 'GNG': 'GNG', 'gng': 'GNG', 'distractor': 'GNG',
              'test': 'test', 'lick': 'choice', 'action': 'choice', 'choice': 'choice'}
-EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
+EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('GNG', 4.5, 5.5, '#cc3311'),
           ('GNG cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
 
 
@@ -90,7 +90,7 @@ def panel_traj(fig, gsT):
             for nm, lo, hi, col in EVENTS:
                 ax.axvspan(lo, hi, color=col, alpha=0.10, lw=0)
                 if r == 0 and k == 0:
-                    yl = 0.905 if nm == 'distractor' else 0.98
+                    yl = 0.905 if nm == 'GNG' else 0.98
                     ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
                             ha='center', va='top', fontsize=6.0, color=col)
             for lv, lab, col in zip(spec['levels'], spec['labels'], spec['colors']):

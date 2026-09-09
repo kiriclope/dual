@@ -80,8 +80,8 @@ VAR_COL = {'sample': '#332288', 'test': '#377eb8', 'choice': '#4daf4a',
            'tasks': '#cc3311', 'gng': '#ee7733', 'dist': '#ee7733'}   # house palette, as in Fig 2
 # ONE name per code across every panel. The four task variables are sample / dist / test / choice;
 # "lick", "action" and "GNG" are the legacy aliases that used to appear panel-to-panel.
-CODE_ORDER = ['sample', 'dist', 'test', 'choice']
-CODE_NAME = {'sample': 'sample', 'GNG': 'dist', 'gng': 'dist', 'distractor': 'dist',
+CODE_ORDER = ['sample', 'GNG', 'test', 'choice']
+CODE_NAME = {'sample': 'sample', 'GNG': 'GNG', 'gng': 'GNG', 'distractor': 'GNG',
              'test': 'test', 'lick': 'choice', 'action': 'choice', 'choice': 'choice'}
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 # (the overlaps matrices/ccgp caches are no longer read here — the cross-decode panel lives in
@@ -243,7 +243,7 @@ def panel_a(fig, gsA):
 #   state — so trace SEPARATIONS match cloud separations window by window, but the trace value
 #   is not the cloud's crosshair offset. t = bin/6 - 0.5 s (exact).
 TBIN = lambda b: np.asarray(b) / 6.0          # bin b = [b/6, (b+1)/6) s from trial start — same clock as Figs 1/2/6 (the old −0.5 s shift was wrong)
-EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('distractor', 4.5, 5.5, '#cc3311'),
+EVENTS = [('sample', 2.0, 3.0, SAMPC[0]), ('GNG', 4.5, 5.5, '#cc3311'),
           ('cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
 # cue is 6.5-7.0 s; the reward window 7.0-7.5 s is deliberately unshaded (as everywhere else)
 
@@ -284,7 +284,7 @@ def panel_traj(fig, gsT):
             for nm, lo, hi, col in EVENTS:
                 ax.axvspan(lo, hi, color=col, alpha=0.10, lw=0)
                 if r == 0 and k == 0:
-                    yl = 0.905 if nm == 'distractor' else 0.98
+                    yl = 0.905 if nm == 'GNG' else 0.98
                     ax.text((lo + hi) / 2, yl, nm, transform=ax.get_xaxis_transform(),
                             ha='center', va='top', fontsize=PS*6.0, color=col)
             for lv, lab, col in zip((0, 1), labs, cols):
@@ -457,7 +457,8 @@ def panel_f_pm(fig, gs):
 #   PM_PLANE (exp_permouse_plane.py): per mouse & stage, each variable decoded from (i) only the
 #   2 coordinates of that mouse's OWN sample x choice plane, (ii) the out-of-plane residual
 #   (plane component removed), (iii) the full population. Held-out halves, canonical windows.
-E_VARS = ['sample', 'dist', 'test', 'choice']      # canonical timeline order (dist added 2026-08-31)
+E_VARS = ['sample', 'dist', 'test', 'choice']        # CACHE KEYS (PM_PLANE) — do not rename
+E_LABEL = {'dist': 'GNG'}                            # display name (Leon 2026-09-09)      # canonical timeline order (dist added 2026-08-31)
 E_SPACES = [('plane only (2-D)', 0), ('out-of-plane', 2), ('full space', 1)]
 
 
@@ -572,7 +573,8 @@ def panel_f_spaces(fig, gsF):
                                                      # no longer consulted (Leon), so no † anywhere
         ytop = max(ytop, b0 + 0.095)
     ax.axhline(0.5, ls='--', color='0.6', lw=0.8, zorder=1)
-    ax.set_xticks(range(len(E_VARS))); ax.set_xticklabels(E_VARS, fontsize=PS*7)
+    ax.set_xticks(range(len(E_VARS)))
+    ax.set_xticklabels([E_LABEL.get(v, v) for v in E_VARS], fontsize=PS*7)   # 'dist' is the cache key; GNG is the name
     ax.set_ylim(0.45, ytop + 0.045); ax.set_yticks([0.5, 0.6, 0.7, 0.8, 0.9])
     ax.set_ylabel('accuracy (mean ± SEM, n = 9)', fontsize=PS*7)
     ax.legend(handles=[Patch(fc='0.35', ec='0.35', label='plane (2-D)'),
@@ -633,13 +635,13 @@ CAP_PARAS = [
     'evoked s.d.; correct laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
     'a, The two axes of the frame, read in each task (columns, DPA | Go | NoGo × sample / choice; '
     'rows, naïve | expert). The DPA sample code is maintained across the delay. On dual trials '
-    'the same readout decays after the distractor, the code-morphing signature that follows an '
+    'the same readout decays after the Go/NoGo odor, the code-morphing signature that follows an '
     'interfering stimulus (lower in 9/9 naïve and 8/9 expert mice); whether the memory itself '
     'survives, or only this readout, is answered by the transfer in Fig. 2e. On the choice axis '
     'the Go trace rises at the cue in both trial classes, a motor and reward transient (every '
     'correct Go trial licks at the cue), and the lick/no-lick split opens only at the test; the '
     'expert NoGo trace runs below baseline through the late delay (7/9 mice), consistent with '
-    'active withholding. Distractor and test codes are shown in Extended Data.',
+    'active withholding. GNG and test codes are shown in Extended Data.',
     'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.5 '
     's) and decision (10.0–11.2 s, the response window); the choice axis is trained '
     'during the test (9.0–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
@@ -655,8 +657,8 @@ CAP_PARAS = [
     'the full population, as they must, since the plane is built from their own decoder axes, and '
     'removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; '
     'choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so '
-    'it lives outside the manifold; the distractor’s share is real but partial (p = .004).',
-    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × distractor overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'it lives outside the manifold; the GNG code’s share is real but partial (p = .004).',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
     '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; '
@@ -665,16 +667,16 @@ CAP_PARAS = [
     'the state moves inside the frame (Fig. 4b), and the frame does not rotate.',
 ]
 if AXENV:
-    CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/distractor axes on bins '
+    CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/GNG axes on bins '
                      f'{__import__("os").environ["DUAL_SAMPLE_BINS"]}, choice/test axes on bins '
                      f'{__import__("os").environ["DUAL_CHOICE_BINS"]} in every panel; panel annotations carry this '
                      'build’s statistics, the entries quote the canonical build.]')
 if PCABINS:
-    CAP_PARAS[0] += (' [BUILD VARIANT _pb: every axis on the pca bins — sample 6.0–6.5 s (post-distractor, pre-cue, '
+    CAP_PARAS[0] += (' [BUILD VARIANT _pb: every axis on the pca bins — sample 6.0–6.5 s (post-GNG, pre-cue, '
                      'after the GCaMP rise), choice and test 9.5–10.0 s (second half of the test odor); panel '
                      'annotations carry this build’s statistics, the entries quote the canonical build.]')
 if EVWIN:
-    CAP_PARAS[0] += (' [BUILD VARIANT _ev: every axis on event windows — sample 5.5–6.5 s (post-distractor, '
+    CAP_PARAS[0] += (' [BUILD VARIANT _ev: every axis on event windows — sample 5.5–6.5 s (post-GNG, '
                      'pre-cue), choice and test 9.0–10.0 s (test odor); panel annotations carry this build’s '
                      'statistics, the numbers quoted in the entries are the canonical build’s.]')
 if ANTACT:

@@ -75,12 +75,12 @@ if __name__ == '__main__':
             for _k in range(2):
                 _ax.text(_k, _i, f'{_M[_i, _k]:.2f}', ha='center', va='center', fontsize=PS*6.6,
                          color='w' if _M[_i, _k] > 0.82 else 'k')
-        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['dist', 'choice'], fontsize=PS*6.0)
+        _ax.set_xticks([0, 1]); _ax.set_xticklabels(['GNG', 'choice'], fontsize=PS*6.0)
         _ax.set_yticks([0, 1])
-        _ax.set_yticklabels(['dist', 'choice'] if _j == 0 else [], fontsize=PS*6.0)
+        _ax.set_yticklabels(['GNG', 'choice'] if _j == 0 else [], fontsize=PS*6.0)
         _ax.set_title(_stage, loc='left', fontsize=TITLE_FS)
         if _j == 0:
-            _ax.set_ylabel('dist ↔ choice\ncross-dec. (bal. acc.)', fontsize=PS*7)
+            _ax.set_ylabel('GNG ↔ choice\ncross-dec. (bal. acc.)', fontsize=PS*7)
         _S = _MATC['ACT_SUMM'][_stage]
         _ax.text(0.5, -0.30, f"off/within {_S['offdiag']:.2f}\n[{_S['offdiag_lo']:.2f}, {_S['offdiag_hi']:.2f}]",
                  transform=_ax.transAxes, ha='center', va='top', fontsize=PS*6.0, color='0.3')
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     _pm_scatter(_axc,
                 {m: _PMC[(m, 'Naive')]['ad_raw'] for m in ALL_MICE if (m, 'Naive') in _PMC},
                 {m: _PMC[(m, 'Expert')]['ad_raw'] for m in ALL_MICE if (m, 'Expert') in _PMC},
-                0.0, 0.3, 'raw |cos| Naive', 'raw |cos| Expert', 'choice × dist')
+                0.0, 0.3, 'raw |cos| Naive', 'raw |cos| Expert', 'choice × GNG')
     _axd = fig.add_subplot(gsAL[0, 3])
     _axd.axhline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
     _axd.axvline(0.5, ls=':', color='0.85', lw=0.6, zorder=0)
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                  for m in ALL_MICE if (m, 'Naive') in _PMA},
                 {m: np.nanmean([_PMA[(m, 'Expert')]['g2l'], _PMA[(m, 'Expert')]['l2g']])
                  for m in ALL_MICE if (m, 'Expert') in _PMA},
-                0.40, 0.85, 'cross-dec. Naive', 'cross-dec. Expert', 'dist ↔ choice')
+                0.40, 0.85, 'cross-dec. Naive', 'cross-dec. Expert', 'GNG ↔ choice')
 
     # ── B: the no-lick push (full row: Naive traj|kde, Expert traj|kde, per-mouse depth deepening) ──
     gsB = gs[1, 0:12].subgridspec(1, 5, width_ratios=[5, 1.2, 5, 1.2, 4.4], wspace=0.3)
@@ -340,18 +340,18 @@ if __name__ == '__main__':
 
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
-        'Figure 4 | Learning edits the geometry, not the code. The distractor code rotates onto the '
+        'Figure 4 | Learning edits the geometry, not the code. The GNG code rotates onto the '
         'choice axis, and the memory state is pushed along that axis to an output-suppressing no-lick '
         'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in units of evoked s.d.; '
         'negative values lie toward no-lick.',
-        'a, The distractor code rotates onto the choice axis. Cross-'
-        'decoding between the two codes (distractor, Go vs NoGo at mid-delay on dual trials; choice, lick vs no-lick at the test on distractor-free DPA trials; balanced accuracy; diagonal, within-code; off-diagonal, '
+        'a, The GNG code rotates onto the choice axis. Cross-'
+        'decoding between the two codes (GNG, Go vs NoGo at mid-delay on dual trials; choice, lick vs no-lick at the test on GNG-free DPA trials; balanced accuracy; diagonal, within-code; off-diagonal, '
         'transfer). The chance-referenced transfer grows from 0.42 [0.11, 0.64] in naïve to 0.50 '
         '[0.29, 0.70] in expert mice. Right, the same convergence within each animal, naïve against '
         'expert: per-mouse |cos| 0.063 → 0.104 (∗ p = .004, 9/9 mice) and cross-decode 0.53 → 0.60 (∗ p = '
         '.020), drawn from fixed canonical caches in every '
-        'build. The distractor’s demand becomes readable as what it is for the animal, a choice.',
+        'build. The Go/NoGo demand becomes readable as what it is for the animal, a choice.',
         'b, The no-lick push: the memory state is repositioned along the choice axis. DPA delay '
         'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-'
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '
@@ -362,7 +362,7 @@ if __name__ == '__main__':
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
-        'state, the more its DPA accuracy improves (distractor-free DPA trials, ρ = −0.72, p = .030 ∗; on the dual trials '
+        'state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.72, p = .030 ∗; on the dual trials '
         'or on all trials the same ranks give ρ = −0.63, p = .067), whereas the same change '
         'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone ρ = +0.65, p = .060, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '

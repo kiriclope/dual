@@ -1,5 +1,14 @@
 # Behaviour — data structures, laser encoding, and learning-curve figures
 
+> **NAMING CANON since 2026-09-09 (Leon).** The Go/NoGo trials are NOT called "distractors" any more: prose says the
+> **Go/NoGo odor** / **Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read
+> `dist` now reads **GNG**, and the trial-timeline event in Figs 2a/3a is **GNG**. CACHE KEYS ARE UNCHANGED — `dist`
+> (PM_PLANE, E_VARS) and `gng` (dPCA / CCGD caches) are still the keys; scripts map key → label at draw time
+> (`CODE_NAME`/`CODE_ORDER` in the manifold scripts, `E_LABEL` in Fig 3c, the `'gng'→'GNG'` maps in Fig 2). Older
+> "distractor" wording below is pre-rename; only the two sentences citing distractor studies (Jacob 2014,
+> Parthasarathy 2017) and that reference title keep the word on purpose.
+
+
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 
 Reference for the behavioural analyses (DPA + DualGo/DualNoGo). Covers **two distinct

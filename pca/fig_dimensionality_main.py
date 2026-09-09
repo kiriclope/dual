@@ -3,14 +3,14 @@
 ADOPTED 2026-08-10 (user decision): the DECODE build IS main Fig 2 — B/C/D share one grid,
 DPA vs dual (x) mid-delay vs decision. Three claims:
   1. B cvPCA reliable spectra (+ leave-one-mouse-out jackknife 95% CIs, SPEC_JK): the memory state is
-     a single reliable component; dual adds exactly the distractor axis (~7%); decision ~3 components.
+     a single reliable component; dual adds exactly the GNG axis (~7%); decision ~3 components.
   2. C per-variable DECODING POWER (held-out pseudo-trials along each variable's demixed axis, vs
      shuffle nulls; DPCA_COUNT / DPA_GNG_C): a variable decodes only when in play — the amplitude-free
      existence metric (Kobak et al. 2016), replacing the variance-weighted PR bars. Each stage is
      drawn against ITS OWN null (Expert solid, Naive dashed); the dist-cross verdict uses the
      1000-draw permutation null (2026-08-30; at 100 draws the margin was seed-flippable).
   3. D eta^2 PC-coding matrices (Expert; DPA then dual, PC1-4 both) + the boxed 'dist x' cross-decode
-     column on DPA: the axes ARE the variables; the DPA geometry carries the distractor code only
+     column on DPA: the axes ARE the variables; the DPA geometry carries the GNG code only
      weakly. Naive overlaid in B/C; Naive matrices identical (Extended Data). Row fade rank =
      cumulative-95%-of-reliable-variance rule (see _rank_b). NB the dual eta^2 rows do NOT sum to 1
      exactly (4 of 7 centred contrasts shown; dual-md PC2 leaks ~6% to unshown interactions) —
@@ -29,7 +29,7 @@ DPA vs dual (x) mid-delay vs decision. Three claims:
      both pipeline variants, pooled bootstrap Δ n.s. Generalisation is in place from the start;
      learning changes the state's position (Fig 4), not the shared geometry. Per-mouse full
      companions in ED (fig_manifold_supp.py).
-Windows: mid-delay = bins_MD 36-38 (post-distractor, PRE-cue/PRE-lick), decision = 57-65; B/C/D all
+Windows: mid-delay = bins_MD 36-38 (post-GNG, PRE-cue/PRE-lick), decision = 57-65; B/C/D all
 share these two windows. The 'all tasks' set and its context contrasts are OFF this figure.
 
 --pr: the PREVIOUS build (all-tasks spectra + PR bars + jackknife CIs, dual-first D, no gng column)
@@ -94,10 +94,10 @@ def schematic(ax):
     ax.set_xlim(0, 14); ax.set_ylim(0, 1); ax.axis('off')
     y0, h = 0.82, 0.10                                                     # timeline bar
     ax.add_patch(Rectangle((0, y0), 14, h, fc='#f4f4f4', ec='0.5', lw=0.7))
-    # data epochs (s): sample 2-3 | distractor 4.5-5.5 | MD 5.5-6.5 | GNG cue 6.5-7, reward 7-7.5 |
+    # data epochs (s): sample 2-3 | GNG odor 4.5-5.5 | MD 5.5-6.5 | GNG cue 6.5-7, reward 7-7.5 |
     # LD 7.5-9 | test 9-10.  The GNG cue/lick is AFTER the mid-delay window — show it, or the
     # "pre-cue, pre-lick" justification for MD is invisible to the reader.
-    for nm, lo, hi, col in [('sample', 2.0, 3.0, VAR_COL['sample']), ('distractor', 4.5, 5.5, VAR_COL['tasks']),
+    for nm, lo, hi, col in [('sample', 2.0, 3.0, VAR_COL['sample']), ('GNG', 4.5, 5.5, VAR_COL['tasks']),
                             ('cue', 6.5, 7.0, VAR_COL['gng']),   # honest length (cue = 6.5-7.0 s;
                             ('test', 9.0, 10.0, VAR_COL['test']),    #  7.0-7.5 is the reward window)
                             ('lick', 10.0, 11.5, VAR_COL['choice'])]:
@@ -188,7 +188,7 @@ def panelC(ax, show_title=True):
 
 
 # ══ B (--cdecode) — cvPCA reliable spectra in the SAME grid as C and D: DPA vs dual (cols) ×
-#     mid-delay vs decision (rows). Mid-delay (bins_MD 36-38, post-distractor PRE-cue/PRE-lick — the
+#     mid-delay vs decision (rows). Mid-delay (bins_MD 36-38, post-GNG PRE-cue/PRE-lick — the
 #     clean maintenance window, no consummatory residue) from MD_CHECK; decision from FITDATA. ══
 def panelB_sets(fig, gsB2):
     SJ = RES['SPEC_JK']; SN = RES.get('SPEC_NULL', {})
@@ -226,12 +226,12 @@ def panelB_sets(fig, gsB2):
                         ha='right', va='top', fontsize=PS*6.0, color='0.25')
                 # (the line/plane cartoon glyphs were removed 2026-09-01 — they overlapped the
                 #  spectra and were unreadable at panel scale; the text callouts carry the message)
-            if r == 0 and c == 1:                    # dual mid-delay: 2 axes = distractor × sample.
+            if r == 0 and c == 1:                    # dual mid-delay: 2 axes = GNG × sample.
                 # VERIFIED by projecting held-out cond means on the cvPCA basis (2026-08-12): comp1
-                # (0.93) carries gng η²=0.99, comp2 (0.07) carries sample η²=0.78 — the DISTRACTOR
+                # (0.93) carries gng η²=0.99, comp2 (0.07) carries sample η²=0.78 — the GNG
                 # dominates and the memory line survives as the small axis. Do NOT swap these.
                 _fd = np.asarray(SJ[('dual', 'md', 'Expert')]['frac'])   # drawn values, not hardcoded
-                ax.text(0.96, 0.84, f'2 axes: distractor ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
+                ax.text(0.96, 0.84, f'2 axes: GNG ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
                         transform=ax.transAxes, ha='right', va='top', fontsize=PS*6.0, color='0.25')
             if r == 1:                               # decision: ~3 reliable axes
                 ax.text(0.96, 0.84, '≈3 reliable axes', transform=ax.transAxes,
@@ -251,13 +251,13 @@ def panelC_decode(fig, gsC):
     """2×2 grid in panel-b format (Leon 2026-09-08): DPA | dual columns × mid-delay | decision rows, each
     its own axes. Expert bars, naive open circles, one null mark per bar (expert 95th pct of the MATCHED
     label-shuffle null), † = naive above its own null (the anticipatory choice; explained in the caption).
-    The DPA-subspace distractor cross-decode is printed (→ panel d's orange column), not drawn."""
+    The DPA-subspace GNG cross-decode is printed (→ panel d's orange column), not drawn."""
     DC = RES['DPCA_COUNT']; GC = RES['DPA_GNG_C']
     setsvars = [('DPA', ['sample', 'test', 'choice']), ('dual', ['sample', 'gng', 'test', 'choice'])]
     for wn in ('md', 'decision'):
         for st in STAGES:
             _g = GC[(wn, st)]
-            print(f'C-dec: DPA-subspace distractor cross-decode {wn:9s} {st:6s} acc={_g["acc"]:.2f} '
+            print(f'C-dec: DPA-subspace GNG cross-decode {wn:9s} {st:6s} acc={_g["acc"]:.2f} '
                   f'null95={_g["null95"]:.2f} sig={_g["sig"]} p={_g.get("p", float("nan")):.3f}')
     axes = []
     for r, (wn, wlab) in enumerate([('md', 'mid-delay'), ('decision', 'decision')]):
@@ -281,7 +281,7 @@ def panelC_decode(fig, gsC):
                 ax.set_title(sname, loc='left', fontsize=PS*7)
                 ax.tick_params(labelbottom=False)
             else:
-                ax.set_xticklabels([('dist' if v == 'gng' else v) for v in vs],
+                ax.set_xticklabels([('GNG' if v == 'gng' else v) for v in vs],
                                    fontsize=PS*6.0, rotation=35, ha='right')
             if c == 1:
                 ax.tick_params(labelleft=False)
@@ -335,7 +335,7 @@ def _rank_b(ts, wn):
 
 
 DCROSS = False      # 2026-09-08 (Leon): the DPA 'dist × (cross-dec)' column is OUT of panel d — the
-                    # distractor-in-the-memory-subspace result lives in Fig 3c (per mouse) and the pooled
+                    # GNG-in-the-memory-subspace result lives in Fig 3c (per mouse) and the pooled
                     # number (0.61 @ md, p=.031) is quoted in §3; DPA_GNG stays cached and printed.
 
 
@@ -350,8 +350,8 @@ def panelD_mats(fig, gsD):
         rk = _rank_b(ts, wn) if CDEC else nk
         if DCROSS and ts == 'DPA':                  # dist CROSS-decode column (DPA_GNG, above-chance frac)
             g = np.asarray(RES['DPA_GNG'][(wn, 'Expert')])[:nk]
-            M = np.insert(M, 1, g, axis=1); FO = FO[:1] + ['dist ×\n(cross-dec)'] + FO[1:]
-        FO = ['dist' if f == 'gng' else f for f in FO]   # canonical code names (as in Figs 3-4)
+            M = np.insert(M, 1, g, axis=1); FO = FO[:1] + ['GNG ×\n(cross-dec)'] + FO[1:]
+        FO = ['GNG' if f == 'gng' else f for f in FO]   # canonical code names (as in Figs 3-4)
         ax.imshow(M, cmap='Purples', vmin=0, vmax=1, aspect='auto')   # square BOX (Leon 2026-09-08)
         ax.set_box_aspect(1)
         if DCROSS and ts == 'DPA':
@@ -596,7 +596,7 @@ if CDEC:
         'Figure 2 | The population geometry is minimal and factorized. The working memory occupies a '
         'single dimension, each task variable has its own nearly orthogonal coding axis, and the memory and choice axes are shared across trial types. All panels use the pseudo-population (3,319 '
         'neurons, nine mice, 12 conditions). The memory state is the mid-delay window (6.0–6.5 s, '
-        'after the distractor and before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).',
+        'after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).',
         'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
         'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
         'random half-splits, both directions averaged), so only structure that replicates across '
@@ -604,7 +604,7 @@ if CDEC:
         'b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA '
         'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse '
         'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
-        'tasks add exactly one, the distractor axis (0.92 against sample 0.07), and the decision '
+        'tasks add exactly one, the GNG axis (0.92 against sample 0.07), and the decision '
         'state spreads to about three. Naïve and expert spectra are near-identical; learning does not '
         'change the dimensionality.',
         'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 against its own null) that disappears with learning.',
@@ -612,7 +612,7 @@ if CDEC:
         'design contrasts (rows, PCs labeled with their percentage of condition-mean variance; a '
         'cell near 1 means that the PC codes that variable alone). The geometry is factorized rather '
         'than mixed. Rows beyond the reliable rank of panel b are faded; dual rows show 4 of the 7 centered contrasts.',
-        'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the distractor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
+        'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the Go/NoGo odor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
         'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy (same windows as e), naïve against expert; points on the unity line indicate no change. The sample is unchanged (Δ = 0.00, 95% CI [−0.05, +0.05], Wilcoxon p = 1.00, n = 9), and so are the test (+0.01, [−0.01, +0.03], p = .43) and the choice (+0.01, [−0.03, +0.06], p = .82); the fraction transferred is unchanged (per-mouse medians 0.41–0.88, all p ≥ .65).',
         'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '
         'mouse) for sample at mid-delay against choice at decision (n = 3,319; gray square, label-'
@@ -622,16 +622,16 @@ if CDEC:
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
     if AXENV:
-        CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/distractor axes on bins '
+        CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/GNG axes on bins '
                          f'{__import__("os").environ["DUAL_SAMPLE_BINS"]}, choice/test axes on bins '
                          f'{__import__("os").environ["DUAL_CHOICE_BINS"]} in every panel; panel annotations carry '
                          'this build’s statistics, the entries quote the canonical build.]')
     if PCABINS:
-        CAP_PARAS[0] += (' [BUILD VARIANT _pb: sample axis 6.0–6.5 s (post-distractor, pre-cue, after the GCaMP rise), '
+        CAP_PARAS[0] += (' [BUILD VARIANT _pb: sample axis 6.0–6.5 s (post-GNG, pre-cue, after the GCaMP rise), '
                          'choice and test axes 9.5–10.0 s (second half of the test odor) in every panel; panel annotations '
                          'carry this build’s statistics, the entries quote the canonical build.]')
     if EVWIN:
-        CAP_PARAS[0] += (' [BUILD VARIANT _ev: sample axis 5.5–6.5 s (post-distractor, pre-cue), choice and test axes '
+        CAP_PARAS[0] += (' [BUILD VARIANT _ev: sample axis 5.5–6.5 s (post-GNG, pre-cue), choice and test axes '
                          '9.0–10.0 s (test odor) in every panel; panel annotations carry this build’s statistics, the '
                          'numbers quoted in the entries are the canonical build’s.]')
     if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the figure

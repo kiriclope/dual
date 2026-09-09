@@ -3,10 +3,11 @@ fig_behavior_main.py — behavioural MAIN figure (recorded cohort, 9 mice, laser
 
 Combines the full behaviour_learning panel set with the new mechanistic panels.
 
-  A  Task scheme (DPA + GNG trial structure; dual_task_scheme.svg).
+  A  Head-fixed mouse portrait (drawn, mouse_cartoon.py) + task scheme (DPA + GNG trial structure,
+     dual_task_scheme.svg) + curriculum.
   ── learning curves (per-mouse/day accuracy, mean ± SEM; LMM stats) ──
   B  DPA vs GNG performance vs session.
-  C  GNG: Go vs NoGo distractor.
+  C  GNG: Go vs NoGo discrimination.
   D  DPA: paired vs unpaired.
   E  DPA unpaired, by task context (DPA / Go / NoGo).
   F  LMM fixed-effect coefficients (condition + condition×day, 95% CI).
@@ -41,6 +42,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.lines as mlines
 from matplotlib.gridspec import GridSpec
+from mouse_cartoon import draw_headfixed_mouse
 import seaborn as sns
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -89,10 +91,8 @@ if not os.path.exists(SCHEME):
 TRAIN = f'{OUT}/assets/dual_training_scheme.png'
 subprocess.run(['rsvg-convert', '-w', '1600', '/home/leon/dual/dual_training_scheme_vector.svg',
                 '-o', TRAIN], check=True)
-# Panel-A cartoon: continuous-line B&W vector traced from the original ~/dual/mouse.svg,
-# flipped to face the task. Regenerate the SVG with `make_mouse_lineart.py`.
-MOUSE = f'{OUT}/assets/mouse_lineart.png'
-subprocess.run(['rsvg-convert', '-w', '1800', '/home/leon/dual/mouse_lineart.svg', '-o', MOUSE], check=True)
+# Panel-A cartoon (Leon 2026-09-09): a drawn head-fixed-mouse portrait, pure matplotlib vector
+# (`mouse_cartoon.py`) — replaces the traced mouse_lineart.svg raster.
 
 
 def show_scheme(ax, path, blank_tl=None):
@@ -216,7 +216,7 @@ def panel_letter(ax, L, dx=0.020, dy=0.016):
 
 # ── A: setup cartoon + task scheme + curriculum training ──────────────────────
 axAm = fig.add_subplot(gs[0, 0:2])
-show_scheme(axAm, MOUSE)
+draw_headfixed_mouse(axAm, ps=PS)
 axA = fig.add_subplot(gs[0, 2:8])
 show_scheme(axA, SCHEME, blank_tl=(0.16, 0.085))
 axAt = fig.add_subplot(gs[0, 8:12])
@@ -414,18 +414,18 @@ for _ax, _L, _dy in [(axAm, 'A', 0.016), (axB, 'B', 0.016), (axC, 'C', 0.016),
 # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3; replaces the old footnote) ──
 CAP_PARAS = [
     'Figure 1 | Combining working memory with an embedded action is costly, and the cost comes '
-    'from the delay lick rather than from the distractor odor. Recorded cohort, nine mice, '
+    'from the delay lick rather than from the Go/NoGo odor. Recorded cohort, nine mice, '
     'laser-off trials. Curves show the mean ± SEM across mice; ∗ p < .05, ∗∗ p < .01, ∗∗∗ p < '
     '.001 (per-day linear mixed models, uncorrected; day 6 n = 4).',
     'a, Task design. Each trial is a delayed paired-association (DPA) problem. A sample odor (A '
     'or B) is followed by a 6-s delay and then a test odor (C or D); the mouse licks if the pair '
     'matches (A→C, B→D) and withholds otherwise, so the sample has to be held in working memory '
     'across the delay. On two thirds of trials a Go/NoGo (GNG) discrimination is embedded inside '
-    'that delay: a distractor odor, then a response cue, with a lick required on Go trials and withheld on NoGo trials. The remaining trials are pure DPA. All three trial '
-    'types are interleaved within every session, so the memory must survive both the distractor '
+    'that delay: a Go/NoGo odor, then a response cue, with a lick required on Go trials and withheld on NoGo trials. The remaining trials are pure DPA. All three trial '
+    'types are interleaved within every session, so the memory must survive both the Go/NoGo '
     'odor and the act of responding to it. Right, the training curriculum.',
     'b–e, Learning curves, per-mouse and per-day accuracy. b, DPA and GNG performance. c, GNG '
-    'split by distractor identity. d, DPA paired and unpaired trials. e, DPA unpaired trials by '
+    'split by Go/NoGo identity. d, DPA paired and unpaired trials. e, DPA unpaired trials by '
     'the task context surrounding them. The difficulty is not licking to the right odor but not '
     'licking while a lick-demanding task runs through the middle of the memory period.',
     'f, Linear mixed model over panels b–e (fixed effects ± 95% CI; filled circles, condition '
@@ -433,7 +433,7 @@ CAP_PARAS = [
     '(p = 0.045), with the gap narrowing over days; NoGo−Go +0.072 (p = 0.034); unpaired−paired '
     '−0.185 (p < 10⁻⁴), narrowing over days; Go−DPA −0.073 (p = 0.038).',
     'g, Where the interference acts. Probability of licking at the DPA test on Go and NoGo trials, '
-    'split by whether the animal licked at the distractor cue (thin lines, single mice). In naïve mice '
+    'split by whether the animal licked at the GNG cue (thin lines, single mice). In naïve mice '
     'a delay lick more than doubled the odds of licking again at the test (trial-level GEE, OR = 2.32, '
     'p = 4 × 10⁻⁴; adjusting for trial type, OR = 2.81), whichever answer was correct (lick × pairing '
     'interaction p = .60): on unpaired trials that test lick is the false alarm (OR = 2.34, p = .004), '

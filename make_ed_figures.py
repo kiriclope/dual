@@ -164,7 +164,7 @@ build('ed_fig2', [
     '−0.03; per-mouse view) and the within-trial DPA × GNG coupling positive '
     '(Δ = +0.097, p = 0.025). d, The trial-level GEE companion: the dual-vs-pure cost '
     'is n.s. within stage, while GNG-correct trials carry better DPA memory (OR = 2.03, '
-    'p = 0.001, Expert) — performing the distractor task well predicts a better, not worse, '
+    'p = 0.001, Expert) — performing the GNG task well predicts a better, not worse, '
     'memory outcome.',
     'e, Trial-history effects (sub-panels A–H): a preceding dual trial lowers current-Go DPA '
     'accuracy (OR = 0.81, p = 0.047); GNG is history-independent. f, The blocked-design switch '
@@ -185,7 +185,7 @@ build('ed_fig3', [
     '12-condition all-tasks spectra, and the participation-ratio ladder — memory 1.0 '
     '[1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8] (jackknife 95% CI '
     'across mice); the full delay state’s two large dimensions are its context contrasts '
-    '(distractor presence and identity). b, Reduced-rank test: held-out fit rises smoothly with no '
+    '(Go/NoGo presence and identity). b, Reduced-rank test: held-out fit rises smoothly with no '
     'elbow at 2 (rank-2 = 62–67% of full) — the geometry, not the dynamics, is rank-2. '
     'c, The per-mouse cvPCA companion: the memory spectrum is one-dimensional animal by animal on '
     'each mouse’s own simultaneously recorded population (top-1 reliable fraction, medians '
@@ -198,13 +198,13 @@ build('ed_fig3', [
     'variables undetermined at that point in the trial — sampling noise stripped by cvPCA, '
     'not anticipatory coding (the gotcha flagged in Fig. 2d). e, Window robustness: the same DPA '
     'fit on full-delay / test windows — the DPA-delay participation ratio stays 1.0–1.1. '
-    'f, The Go/NoGo cross-decode column from the DPA subspace, per window: the distractor is '
+    'f, The Go/NoGo cross-decode column from the DPA subspace, per window: the GNG code is '
     'partially decodable from the DPA geometry (close to, but not fully, orthogonal).',
     'g, Learning removes the premature choice signal from the dual delay: in naïve mice the '
     'upcoming match/nonmatch choice is decodable from the dual delay state from early through late '
     'delay (0.64–0.66 vs shuffle ≈ 0.53, matched null), and in Expert the same signal sits at chance '
     'throughout (0.47–0.49) while post-test decoding is intact (0.96); DPA shows no such '
-    'signal at either stage (control). Decodability already before the distractor marks a '
+    'signal at either stage (control). Decodability already before the Go/NoGo odor marks a '
     'trial-history/bias state rather than premature deliberation. Caveats: on correct trials '
     'choice ≡ trial completion, so state-dependent selection contributes to the naïve '
     'separation; and the learning difference is pooled-level (per-mouse jackknife CI '
@@ -268,20 +268,20 @@ build('ed_fig6', [
     'c, Decoder-variant robustness: the push-figure build under L1-regularised logistic '
     'regression (left) and whitened LDA (right) — the geometry and orthogonality are '
     'decoder-invariant; the push/coupling statistics are clearest under the canonical L2 '
-    'logistic. d, The codes are robust to the Go/NoGo distractor: the code time courses split by '
+    'logistic. d, The codes are robust to the Go/NoGo odor: the code time courses split by '
     'Go vs NoGo trials — sample and test codes unperturbed; the action code carries the '
-    'distractor lick.',
+    'GNG lick.',
     'e, The out-of-context plane test. A sample × choice plane fitted on the naïve DPA trials is read in '
     'every other stage, trial type and moment against a plane fitted in that context (pooled '
     'pseudo-population): captured fraction (fixed − 0.5)/(in-context − 0.5) with the 2-D readout refit in '
     'context (left) and with the reference decoder applied unchanged (middle); boxed, the within-context '
     'check; grey, in-context ceiling below 0.60; hatched, ratio above 1.2. Right, the per-mouse ratio over '
     'each mouse\'s out-of-context cells (line, median). The plane carries the codes everywhere; where the '
-    'unchanged decoder fails and the refit does not (expert NoGo trials after the distractor), the code has '
+    'unchanged decoder fails and the refit does not (expert NoGo trials after the Go/NoGo odor), the code has '
     'moved within the plane.',
     'f, Per-mouse companions of Figs 2e and 3 (internal panels A–C). A, The four codes over time on '
-    'their own decoder axes (sample, distractor, test, choice; naïve | expert), the definitional '
-    'reference for the distractor and test codes used in Fig. 3c–e. B, Per-mouse cross-condition '
+    'their own decoder axes (sample, GNG, test, choice; naïve | expert), the definitional '
+    'reference for the GNG and test codes used in Fig. 3c–e. B, Per-mouse cross-condition '
     'generalization (CCGP), naïve against expert, for each variable: abstraction is present from the '
     'first sessions; the test code nudges upward (p = .04, uncorrected across four variables) and carries no '
     'verdict. C, Per-mouse cross-task generalization (sample at mid-delay, test and choice at decision, as in Fig. 2e,f), within-task against cross-task accuracy (expert), '
@@ -289,10 +289,10 @@ build('ed_fig6', [
     'unity line is the generalization loss.',
     'g, The plane ablation of Fig. 3c in every animal (naïve x against expert y; rows, spaces; columns, '
     'variables; Δ, mean change; p, paired Wilcoxon, n = 9). The pattern of Fig. 3c holds mouse by mouse, '
-    'and the grid carries the one learning effect: the distractor’s plane-only accuracy grows '
+    'and the grid carries the one learning effect: the GNG code’s plane-only accuracy grows '
     '(0.58 → 0.65, p = .027, 8/9 mice up; starred), while the test’s plane-only accuracy, already at chance, falls '
     'slightly (0.53 → 0.50, p = .039). Learning '
-    'pulls the distractor code into the plane, which Fig. 4a quantifies.',
+    'pulls the GNG code into the plane, which Fig. 4a quantifies.',
 ], W=6800)
 
 # ── ED 7 — opto: chronic vs transient behaviour ───────────────────────────────
