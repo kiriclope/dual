@@ -48,7 +48,7 @@ zero, so a self-normalised null would be meaningless). Windows:
 mid-delay (bins 36–38, data 5.5–6.3 s: it opens at distractor offset (4.5–5.5 s) and closes before
 the Go/NoGo response cue (6.5–7 s) and its reward (7–7.5 s), so no Go/NoGo lick has yet occurred —
 the clean maintenance window; used throughout Fig. 2b–d; the distractor odour's sensory tail may
-contribute at its start) and decision (bins 57–65, fully post-test-onset); legacy analyses (the Extended-Data PR build) additionally use late delay
+contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); legacy analyses (the Extended-Data PR build) additionally use late delay
 (bins 48–53; a 0.5-s trailing-window convention, data 7.5–8.8 s, closing 0.17 s before test onset). The time-resolved (trajectory) dimensionality
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
@@ -61,9 +61,12 @@ of 1). Mice, not trial
 splits, are the exchangeable unit (neurons partition by mouse); split-level percentiles quantify only
 trial-split stability and are anti-conservative as population error bars. The "unchanged with
 learning" statement is quantified with the same jackknife applied to Δ(Naïve − Expert): the 95% CI
-spans zero for every reliable-spectrum component (|Δ fraction| ≤ 0.22) and every decodable variable
-(|Δ accuracy| ≤ 0.19) at both windows. We report this as absence of detectable change at the stated
-precision (CI half-widths 0.03–0.30), not as strict equivalence.
+spans zero for every reliable-spectrum component (|Δ fraction| ≤ 0.15) and for every decodable
+variable at both windows (|Δ accuracy| ≤ 0.19) with one exception — the choice code at the decision
+window on DPA trials, which is stronger in expert (Δ = −0.20, CI [−0.36, −0.04]), the same
+strengthening reported in Fig. 4. We report this as absence of detectable change at the stated
+precision (CI half-widths 0.03–0.37), not as strict equivalence. (Decision-window values re-run on
+the canonical window, bins 54–62, 2026-09-09; mid-delay values unchanged.)
 
 **Per-variable decoding power (Fig. 2c).** For each condition set (DPA: 4 conditions; dual: 8) and
 window, each task variable's demixed axis was computed by applying its orthogonal design contrast to

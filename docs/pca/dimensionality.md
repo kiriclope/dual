@@ -36,7 +36,7 @@ jackknife 95% CIs (`SPEC_JK`), xlim 6 components, LINEAR fraction axis (log axis
 shuffle-null 95th pct, `DPCA_COUNT`; hatched gng× bar = Go/NoGo cross-decoded from the DPA subspace,
 `DPA_GNG_C`) · **d** η² PC-coding matrices, DPA-first, PC1–4, mid-delay + decision, with the boxed
 gng× cross-decode column on DPA (`DPA_GNG`). [Historical: the pre-adoption composition — three
-all-tasks mini spectra + PR bars 1→2→3 (`PR_JK`) — is the `--pr` legacy build, kept as the ED/caption
+all-tasks mini spectra + PR bars 1→2→2.5 (`PR_JK`) — is the `--pr` legacy build, kept as the ED/caption
 source for the PR numbers.] Off-message and therefore OUT of the
 figure: shattering (→ ED 3 + cited from Results §3, where it pairs with CCGP), dPCA trajectories /
 axis-mixing / linking plane (→ ED 9), Naive matrices + per-task-set fits (→ ED 3), PR bars (→ ED).
@@ -75,9 +75,9 @@ across independent trial halves counts.
 - `exp_dimensionality_jk.py` — **the Fig-2c error bars** (`PR_JK`): leave-one-mouse-out jackknife of
   the averaged-spectrum PR (mice = the exchangeable unit; neurons partition by mouse), 95% CI
   clipped at the PR floor of 1. Values: memory 1.0 [1.0, 1.1] Expert / 1.2 [1.0, 1.8] Naive · delay
-  2.0 [1.6, 2.5] / 2.0 [1.4, 2.7] · decision 3.3 [2.8, 3.8] / 3.3 [2.3, 4.3]. The Expert memory CI
-  hugging the floor is itself informative: every leave-out stays ≈1. ⚠ The DECISION values here are
-  STALE (pre-flip window 57–65; the canonical 54–62 gives ≈2.5) — see the box in "Settled numbers".
+  2.0 [1.6, 2.5] / 2.0 [1.4, 2.7] · decision 2.5 [1.9, 3.1] / 2.5 [1.7, 3.3]. The Expert memory CI
+  hugging the floor is itself informative: every leave-out stays ≈1. (Decision entries re-run on the
+  canonical window 54–62 on 2026-09-09; memory/delay entries are bit-identical to the pre-flip run.)
 - `exp_dpca_count.py` — **significant-axis COUNT** (2026-08-10, cache-only ~2 min, from
   `fits_inputs.pkl`): Kobak-style dPCA-marginalization significance per (set × window ED/MD/LD/TEST/
   decision × stage) — each design contrast's demixed axis (from leakage-free train condition-means),
@@ -160,7 +160,8 @@ misalignment). The 30 random halvings play the "repeats" role of repeated k-fold
 **Shattering dimension (Bernardi/Fusi 2020).** All 462 balanced 6-vs-6 dichotomies of the 12 conditions,
 each decoded by a leakage-free pseudo-population decoder (disjoint train/test trial halves → K=24
 pseudo-trials/cond → StandardScaler+PCA(30) fit on train → LDA), at the post-test decision window
-(bins 57–65). SD = mean balanced accuracy over dichotomies; shuffle null = 0.50.
+(bins 54–62 since 2026-09-09; 57–65 before). SD = mean balanced accuracy over dichotomies; shuffle
+null = 0.50.
 
 **PC coding (η²).** Condition-mean PCA (neurons std-normalised across the condition means), each PC's
 across-condition variance decomposed onto orthogonal factor contrasts (sample / gng / test / choice
@@ -189,25 +190,21 @@ panel b's cross-validated 1.00/0/0. The matching is not optional — DPA-decisio
 at 0.44/0.38 and swap between splits, and unmatched averaging blended the choice row into the sample row.
 
 ## Settled numbers (results.pkl, verified 2026-08-10)
-> ⚠ **THE DECISION-WINDOW PR NUMBERS BELOW ARE STALE (found 2026-09-09).** `PR_JK`, `PR_CI` and the
-> decision entries of `LEARN_DELTA` were never re-run after the 2026-09-08 axis flip, so they still
-> describe the OLD decision window (bins 57–65). `FITDATA` WAS reseeded and is correct. Under the
-> canonical decision window (54–62) the 12-condition PR is **2.49 naive / 2.50 expert**, not 3.3, and
-> the delay entries are unaffected (they agree across all three caches to three decimals). The stale
-> 3.3 is quoted in the ED 3a caption (`make_ed_figures.py`), in the ED inventory of the results draft
-> and twice in this file. FIX: re-run `exp_dimensionality_jk.py`, `exp_dimensionality_ci.py` and
-> `exp_learning_delta.py`, then update those three places. `SD_FULL` (shattering over 462 dichotomies)
-> is computed on `AW['decision']` in the same script and is stale for the same reason.
-> Found while unifying the estimator into `cvpca.py`: the new module reproduced every delay/md cached
-> value bit-for-bit and only the decision ones disagreed — which is exactly the drift that having one
-> copy prevents.
+> **2026-09-09 — the decision entries below were re-run on the canonical window (bins 54–62).**
+> `PR_JK`, `PR_CI`, `SD_FULL` and the decision entries of `LEARN_DELTA` had been left on the pre-flip
+> window (57–65) by the 2026-09-08 axis change; re-running `exp_dimensionality_jk.py`,
+> `exp_dimensionality_ci.py` and `exp_learning_delta.py` refreshed them. Every delay / mid-delay /
+> DPA-delay entry came back bit-identical, so only the decision column moved (12-condition PR
+> 3.3 → 2.5, shattering 0.69/0.70 → 0.667/0.673). Found while unifying the estimator into `cvpca.py`:
+> the new module reproduced every delay/md cached value bit-for-bit and only the decision ones
+> disagreed — which is exactly the drift that having one copy prevents.
 
 | quantity | Naive | Expert |
 |---|---|---|
 | delay PR (12 conds) | 2.04 [1.96, 2.12] | 2.03 [2.00, 2.06] |
-| decision PR (12 conds) | 3.28 [3.06, 3.44] | 3.29 [3.26, 3.43] |  ← STALE, see the box above (2.49 / 2.50)
+| decision PR (12 conds) | 2.50 [2.31, 2.62] | 2.50 [2.46, 2.60] |
 | **DPA-delay PR (memory)** | 1.11 [1.00, 1.76] | **1.00 [1.00, 1.47]** |
-| shattering (462 dich.) | 0.687 [.671, .698] | 0.697 [.688, .711] (null 0.50) |
+| shattering (462 dich.) | 0.667 [.656, .677] | 0.673 [.667, .687] (null 0.50) |
 
 PC coding → **Fig 2d = the η² MATRICES, Expert row of four** (DPA-md · DPA-decision · dual-md ·
 dual-decision). CROSS-VALIDATED NUMBERS (2026-09-09, the ones on the current figure; row % = share of
@@ -241,7 +238,7 @@ Everything ~stable Naive→Expert (the Naive grid shows the same one-variable-pe
    the ED 3d grid (`plot_dimensionality_fits.py`), which is deliberately left uncross-validated as the
    demonstration. When averaging split-half PCs, ALWAYS match components to a fixed reference first —
    near-degenerate components swap order and unmatched averaging silently blends their rows.
-5. **Shattering window must be post-test (57–65)** — earlier windows leave test undecodable.
+5. **Shattering window must be post-test (54–62)** — earlier windows leave test undecodable.
 6. **Trajectory (time-resolved) PR stays excluded** — its shuffle null retains ~46–50% of the variance
    (the condition-independent time ramp).
 7. **Clobber protection (fixed 2026-08-10)**: `exp_dimensionality.py` merge-dumps `results.pkl` and

@@ -32,7 +32,7 @@ DPA vs dual (x) mid-delay vs decision. Three claims:
      both pipeline variants, pooled bootstrap Δ n.s. Generalisation is in place from the start;
      learning changes the state's position (Fig 4), not the shared geometry. Per-mouse full
      companions in ED (fig_manifold_supp.py).
-Windows: mid-delay = bins_MD 36-38 (post-GNG, PRE-cue/PRE-lick), decision = 57-65; B/C/D all
+Windows: mid-delay = bins_MD 36-38 (post-GNG, PRE-cue/PRE-lick), decision = 54-62; B/C/D all
 share these two windows. The 'all tasks' set and its context contrasts are OFF this figure.
 
 --pr: the PREVIOUS build (all-tasks spectra + PR bars + jackknife CIs, dual-first D, no gng column)
@@ -159,7 +159,7 @@ def panelB(fig, gsB):
     return axes[0]
 
 
-# ══ C — dimensionality = # variables in play: 1 (memory) → 2 (delay) → 3 (decision); Naive ≈ Expert.
+# ══ C — dimensionality = # variables in play: 1 (memory) → 2 (delay) → 2.5 (decision); Naive ≈ Expert.
 #     Error bars = 95% CI from a LEAVE-ONE-MOUSE-OUT JACKKNIFE (mice are the exchangeable unit; the
 #     split-half percentiles only measure trial-split stability and are anti-conservative). ══
 def panelC(ax, show_title=True):

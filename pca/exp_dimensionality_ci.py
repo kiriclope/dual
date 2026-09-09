@@ -2,7 +2,7 @@
 (no 20 GB X reload):
 
   1. FULL shattering: all 462 balanced dichotomies of the 12 conditions at the decision window
-     (57-65), Naive & Expert, real + shuffle null, B=8 pseudo-population resamples. The published SD
+     (canonical 54-62 since 2026-09-08), Naive & Expert, real + shuffle null, B=8 pseudo-population resamples. The published SD
      was a 150-dichotomy sample; the full set removes the sampling footnote and gives a per-resample
      spread for a descriptive CI.
   2. PR bootstrap CIs: the cvPCA participation ratio recomputed on each of 30 random half-splits →
@@ -88,7 +88,7 @@ def shatter_full(stage, dich, K=24, B=8, null=False):
     return acc
 
 
-print('\n══ 1. FULL shattering (462 dichotomies, decision 57-65) ══')
+print('\n══ 1. FULL shattering (462 dichotomies, decision 54-62) ══')
 DICH462 = all_dich()
 SD_FULL = {}
 for stage in STAGES:

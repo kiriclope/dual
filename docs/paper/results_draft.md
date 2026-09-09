@@ -664,8 +664,8 @@ and learning moves states inside it.
 The abstract character of the format, its generalization across conditions [Bernardi 2020], was
 likewise present in the first dual task sessions and preserved. Per-mouse cross-condition
 generalization sat on the naïve = expert line for the sample and choice codes; only the test code nudged upward (p = .04, uncorrected across the four variables), which we report without a verdict (Extended Data Fig. 6f). Decoding all 462 balanced dichotomies of the 12
-conditions, the shattering dimension, gave 0.67–0.68 against a shuffle floor of 0.50 and an
-unstructured ceiling of 1 (Extended Data Fig. 3), unchanged by learning (Δ = +0.01). High
+conditions, the shattering dimension, gave 0.67 at both stages against a shuffle floor of 0.50 and an
+unstructured ceiling of 1 (Extended Data Fig. 3), unchanged by learning (Δ = +0.006). High
 generalization with moderate shattering is the abstract, compressed regime that Bernardi et al.
 described in hippocampus and prefrontal cortex [Bernardi 2020].
 
@@ -920,8 +920,10 @@ by the real spectrum's positive total. Windows (pseudo-population convention): m
 cue onset, so no cue or lick has occurred) and decision (bins 54–62, from test onset to 0.5 s after test offset); the legacy PR analyses additionally use late delay (bins 48–53). 95% CIs are leave-one-mouse-out jackknife
 with a t(8) = 2.306 multiplier on the jackknife SE (fractions clipped to [0, 1]; the PR floored
 at 1); the "unchanged with learning" statement applies the same jackknife to Δ(Naïve − Expert),
-whose CI spans zero for every component and variable — reported as absence of detectable change
-at the stated precision (CI half-widths 0.03–0.30), not strict equivalence.
+whose CI spans zero for every component and for every variable except the choice code at the
+decision window on DPA trials, which is stronger in expert (Δ = −0.20, CI [−0.36, −0.04]) — reported
+as absence of detectable change at the stated precision (CI half-widths 0.03–0.37), not strict
+equivalence.
 
 ### Per-variable decoding power and PC coding (Fig. 2c,d)
 
@@ -1356,8 +1358,8 @@ history-independent); (f) the blocked-design switch-cost mirrors it (into-dual O
 
 **ED Fig. 3 | Dimensionality: provenance & robustness (Fig. 2b–d).** (a) the previous build of
 Fig. 2 (`fig_dimensionality_main_pr.png`, sub-panels A–D): cvPCA schematic, full 12-condition
-"all-tasks" spectra + the PR ladder memory 1.0 [1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3
-[2.8, 3.8] (jackknife CIs); the full-state delay's two large dimensions are its context contrasts
+"all-tasks" spectra + the PR ladder memory 1.0 [1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 2.5
+[1.9, 3.1] (jackknife CIs); the full-state delay's two large dimensions are its context contrasts
 (Go/NoGo presence and identity); (b) reduced-rank test — held-out fit rises smoothly with no
 elbow at 2 (rank-2 = 62–67% of full), backing the "rank-2 geometry, not rank-2 dynamics" caveat;
 (c) **the per-mouse cvPCA companion** (`fig_permouse_cvpca.png`, built 2026-09-02): the Fig. 2b
@@ -1385,7 +1387,7 @@ choice ≡ trial completion, so state-dependent selection contributes to the na�
 at the mouse level the learning difference is not individually resolved (Δ accuracy +0.19,
 leave-one-mouse-out jackknife CI [−0.09, +0.46], n = 9) — established at the pooled-population
 level, where it replicates across three independent pipelines. The shattering dimension (all 462
-balanced dichotomies, 0.69 → 0.70 vs shuffle 0.50) is cited from main Fig. 2c and reappears in the
+balanced dichotomies, 0.667 naïve → 0.673 expert vs shuffle 0.50) is cited from main Fig. 2c and reappears in the
 per-fit grids (d–f); the descriptive dPCA scree, per-marginal variance, and shared-memory d′
 scatter are in **ED 9** (no standalone renders — the old (a)/(b)/(f) sub-entries of this figure).
 

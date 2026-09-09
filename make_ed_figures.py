@@ -183,7 +183,7 @@ build('ed_fig3', [
     'Extended Data Fig. 3 | Dimensionality: provenance and robustness (companion to Fig. 2b–d). '
     'a, The previous build of Fig. 2 (sub-panels A–D): the cvPCA method schematic, the full '
     '12-condition all-tasks spectra, and the participation-ratio ladder — memory 1.0 '
-    '[1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 3.3 [2.8, 3.8] (jackknife 95% CI '
+    '[1.0, 1.1] → delay 2.0 [1.6, 2.5] → decision 2.5 [1.9, 3.1] (jackknife 95% CI '
     'across mice); the full delay state’s two large dimensions are its context contrasts '
     '(Go/NoGo presence and identity). b, Reduced-rank test: held-out fit rises smoothly with no '
     'elbow at 2 (rank-2 = 62–67% of full) — the geometry, not the dynamics, is rank-2. '

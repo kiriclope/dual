@@ -1,5 +1,5 @@
 """Per-fit dimensionality: for each (task-set × window × stage) compute the condition-mean scree + PR and the
-shattering SD (mean balanced-accuracy over balanced dichotomies). Windows: delay(48-53), decision(57-65),
+shattering SD (mean balanced-accuracy over balanced dichotomies). Windows: delay(48-53), decision(54-62),
 delay+dec wide(48-65). Task-sets: dual (8 conds), DPA (4 conds). Merges FITDATA into results.pkl."""
 import sys, os, warnings, pickle
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
@@ -23,7 +23,7 @@ SUF = '_altwin' if ALTWIN else ''
 if ALTWIN:                                                                # delay = full delay (21-53); decision = test (57-59)
     WINS = {'delay': np.asarray(o['bins_DELAY']), 'decision': np.asarray(o['bins_TEST']),
             'delay+dec': np.concatenate([np.asarray(o['bins_DELAY']), np.asarray(o['bins_TEST'])])}
-else:                                                                     # default: delay = LD (48-53); decision = 57-65
+else:                                                                     # default: delay = LD (48-53); decision = 54-62
     WINS = {'delay': np.asarray(o['bins_LD']), 'decision': np.arange(54, 63), 'delay+dec': np.arange(48, 63)}   # decision = canonical choice window (9.0–10.5 s) since 2026-09-08
 # DUAL_AXSUF + DUAL_FITS_WINS='name:a-b,name2:c-d' (2026-09-08): extra/overriding windows for a variant cache
 # fits_inputs{SUF}.pkl / results{SUF}.pkl (one raw-tensor pass for several candidate windows).
