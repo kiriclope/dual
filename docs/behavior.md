@@ -17,6 +17,8 @@ Reference for the behavioural analyses (DPA + DualGo/DualNoGo). Covers **two dis
 > 2 stages × sample A/B; x = Δ choice-code depth on **DPA trials** (late delay, no correctness filter), y = ΔDPA
 > accuracy on **DPA trials** (h), ΔGNG accuracy on **dual trials** (i), and their difference (g). Axis labels and
 > the caption now say so.
+> **2026-09-09 (latest) — panel j is Spearman-only too**: ρ = +0.24, p = 0.51 in the panel, §6 and the legend
+> (the Pearson r = +0.44 is still printed to stdout). All four scatter panels g–j now report Spearman only.
 > **2026-09-09 — Fig. 6 g–i report SPEARMAN ONLY (Leon), and the verdict marker comes from it.** Pearson r is no
 > longer printed in those three panels or in the text. g joint trade-off ρ = +0.46, p = .041 (∗); h ΔDPA ρ = +0.30,
 > p = .19 (n.s.); i ΔGNG ρ = −0.61, p = .004 (∗). The mouse-clustered model stays in the legend as the clustering

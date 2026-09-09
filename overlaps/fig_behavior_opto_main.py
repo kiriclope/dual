@@ -835,7 +835,7 @@ if not POSTER:
         fc = MOUSE_COLOR[m] if st == 'Expert' else 'w'       # Expert filled / Naive open
         axBal.scatter(xd, yd, marker='o', s=34, facecolors=fc, edgecolors=MOUSE_COLOR[m], lw=1.2, zorder=5)
     _brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
-    axBal.text(0.5, 0.02, f'{len(JAWS)} mice, {int(_bok.sum())} obs\nON: r={_brp:+.2f} p={_bpp:.2f}  ρ={_brs:+.2f} p={_bps:.2f}',
+    axBal.text(0.5, 0.02, f'{len(JAWS)} mice, {int(_bok.sum())} obs\nSpearman ρ={_brs:+.2f}, p={_bps:.2f}',   # Spearman only, as in g–i (Leon 2026-09-09)
                transform=axBal.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
     axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
     axBal.set_xlabel('DPA performance, DPA trials (laser ON)')      # trial sets named as in g–i (Leon 2026-09-09)
@@ -892,7 +892,7 @@ if not POSTER:
         'Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model '
         '(β = −0.011, p = .009).',
         'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser '
-        '(10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; r = +0.44, p = .20).',
+        '(10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; ρ = +0.24, p = .51).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '
         'for the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, 5 mice, 20 '
         'observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets '

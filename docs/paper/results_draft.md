@@ -731,7 +731,7 @@ no gross change in behavior (Fig. 6d,e; DPA p = 0.40, GNG p = 0.24), yet it disp
 choice code in each mouse (Fig. 6f), in a direction that differed between animals. Across the
 five animals, the displacement predicted the change in GNG accuracy (Fig. 6i; Spearman ρ = −0.61, p = 0.004 over the 20 points; mouse-clustered model over 20 mouse × stage × sample observations, β = −0.011, p = 0.009). The joint DPA−GNG trade-off was significant by rank (Fig. 6g; ρ = +0.46, p = 0.041 over n = 20 points that cluster within five mice; clustered model p = 0.24), and the DPA arm was not (Fig. 6h; ρ = +0.30, p = 0.19). Under
 laser, DPA and GNG accuracy remained unrelated across the mouse × stage points, as they were
-without laser (Fig. 6j; r = +0.44, p = 0.20). With five animals, the acute coupling is
+without laser (Fig. 6j; ρ = +0.24, p = 0.51). With five animals, the acute coupling is
 exploratory.
 
 Finally, we asked whether the input changed what the subspace encoded, and found no evidence
@@ -1228,7 +1228,7 @@ g–i, The displacement, read on the learned choice axis, predicts behavior. Δd
 against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B;
 depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay on DPA trials; ΔDPA accuracy is measured on DPA trials and ΔGNG accuracy on dual trials, as in Fig. 4c). The joint trade-off (g) is significant by rank (Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model (β = −0.011, p = .009).
 
-j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; r = +0.44, p = .20).
+j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser (10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; ρ = +0.24, p = .51).
 
 k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line for
 the memory code (k; sample-axis d′ at late delay; LMM laser p = .34, 5 mice, 20 observations) and for the GNG code (l; choice-axis d′ at mid-delay; p = .74). The input sets
