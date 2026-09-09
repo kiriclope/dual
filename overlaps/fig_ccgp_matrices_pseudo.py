@@ -186,9 +186,10 @@ def gng_matrix(stage, wkey='MD'):
 ACT_CODES = ['GNG', 'choice']; ACT_WIN = ({'GNG': 'MD', 'choice': 'TE'} if '--legacyaxes' in sys.argv[1:] else {'GNG': 'CANS', 'choice': 'CANC'})   # same windows as the axes
 
 
-def dpa_choice_cond(cls, stage):                          # lick(1)/no-lick(0) at test on DUAL trials (Go + NoGo)
-    # 2026-09-08 (Leon): the Fig 4a choice side is read on the same dual trials as the Go/NoGo side; --dpaact = DPA only (former)
-    tk = (TSK == 'DPA') if '--dpaact' in sys.argv[1:] else np.isin(TSK, ['DualGo', 'DualNoGo'])
+def dpa_choice_cond(cls, stage):                          # lick(1)/no-lick(0) at test on distractor-free DPA trials
+    # 2026-09-08 (Leon, option 2): the Fig 4a choice axis is fitted on DPA trials so its alignment with the Go/NoGo axis
+    # cannot be inherited from distractor-evoked activity in the same trials; --dualact = lick side on the dual trials
+    tk = np.isin(TSK, ['DualGo', 'DualNoGo']) if '--dualact' in sys.argv[1:] else (TSK == 'DPA')
     base = (LEARN == stage) & (LAS == 0) & tk & (y['choice'].to_numpy() == cls)
     return {m: np.where(base & (MOUSE == m))[0] for m in ALL_MICE}
 

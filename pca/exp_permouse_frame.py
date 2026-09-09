@@ -90,6 +90,28 @@ def bal_acc(M, val, sd, w, thr, pos, neg, sign=1):
     return 0.5 * (np.mean(sign * (pp - thr) > 0) + np.mean(sign * (nn - thr) < 0))
 
 
+STRAT = '--strat' in sys.argv[1:]           # 2026-09-08 (Leon, 'the clean fix', tried, OFF by default — it did not change the
+                                            # verdict: |cos| p .30, cross-decode p .25): when the Fig 4a lick axis is fitted on dual
+                                            # trials, balance Go and NoGo counts inside each lick class and each half, so a
+                                            # chance Go/NoGo imbalance cannot leak the distractor signal into the lick axis
+
+
+def strat_halves(rng, idx):
+    """Disjoint halves of `idx` with EQUAL DualGo and DualNoGo counts in each half (the larger group is
+    subsampled to the smaller); trials of other tasks are split plainly. Falls back to halves() when a group is empty."""
+    groups = [idx[TSK[idx] == t] for t in ['DualGo', 'DualNoGo']]
+    rest = idx[~np.isin(TSK[idx], ['DualGo', 'DualNoGo'])]
+    k = min(len(g) for g in groups)
+    if k == 0:
+        return halves(rng, idx)
+    h1, h2 = [], []
+    for g in groups:
+        g = rng.permutation(g)[:k]; h1.append(g[:k // 2]); h2.append(g[k // 2:])
+    if len(rest):
+        r = rng.permutation(rest); h1.append(r[:len(r) // 2]); h2.append(r[len(r) // 2:])
+    return np.concatenate(h1), np.concatenate(h2)
+
+
 def halves(rng, idx):
     p = rng.permutation(idx); h = len(p) // 2
     return p[:h], p[h:]
@@ -111,7 +133,8 @@ for stage in STAGES:
         # 'a' = choice axis on ALL trial types (Fig 3d, sample x choice); 'g' = choice axis on DUAL trials only
         # (Fig 4a, choice x distractor; Leon 2026-09-08). 'g' draws its halves from its own stream so that
         # adding it leaves the 's'/'a'/'d' draws (and Fig 3d) untouched.
-        DT = 'DPA' if '--dpaact' in sys.argv[1:] else ['DualGo', 'DualNoGo']
+        DT = ['DualGo', 'DualNoGo'] if '--dualact' in sys.argv[1:] else 'DPA'   # option 2 (Leon 2026-09-08): DPA default, --dualact = dual trials
+        TK = {} if '--allact' in sys.argv[1:] else {'task': DT}          # --allact: Fig 4a lick side on ALL trial types
         rng_g = np.random.RandomState(14)
         for _ in range(NREP):
             W = {}
@@ -121,10 +144,11 @@ for stage in STAGES:
                      sel(mo, stage, lick=False, **CH)),
                     ('d', Mmd, val, sdm, sel(mo, stage, perf=1, task='DualGo'),
                      sel(mo, stage, perf=1, task='DualNoGo')),
-                    ('g', Mdc, val, sdd, sel(mo, stage, task=DT, lick=True),
-                     sel(mo, stage, task=DT, lick=False))]:
+                    ('g', Mdc, val, sdd, sel(mo, stage, lick=True, **TK),
+                     sel(mo, stage, lick=False, **TK))]:
                 rr = rng_g if key == 'g' else rng
-                p1, p2 = halves(rr, pos); n1, n2 = halves(rr, neg)
+                hv = strat_halves if (key == 'g' and STRAT) else halves
+                p1, p2 = hv(rr, pos); n1, n2 = hv(rr, neg)
                 w1 = axis_mid(M, val_, sd_, p1, n1)[0]; w2 = axis_mid(M, val_, sd_, p2, n2)[0]
                 W[key] = (w1, w2)
             if any(v[0] is None or v[1] is None for v in W.values()):
@@ -158,9 +182,10 @@ for stage in STAGES:
         got = {k: [] for k in ['w_g', 'w_l', 'g2l', 'l2g']}
         for _ in range(NREP):
             gP, gN = sel(mo, stage, task='DualGo'), sel(mo, stage, task='DualNoGo')
-            lP, lN = sel(mo, stage, task=DT, lick=True), sel(mo, stage, task=DT, lick=False)   # Fig 4a lick side on DUAL trials (DT above)
+            lP, lN = sel(mo, stage, lick=True, **TK), sel(mo, stage, lick=False, **TK)   # Fig 4a lick side: DUAL trials (default) / DPA (--dpaact) / all (--allact)
             gP1, gP2 = halves(rng_c, gP); gN1, gN2 = halves(rng_c, gN)
-            lP1, lP2 = halves(rng_c, lP); lN1, lN2 = halves(rng_c, lN)
+            hv = strat_halves if STRAT else halves
+            lP1, lP2 = hv(rng_c, lP); lN1, lN2 = hv(rng_c, lN)
             wg, tg = axis_mid(Mmd, val, sdm, gP1, gN1)
             wl, tl = axis_mid(Mte_c, val, sdt_c, lP1, lN1)
             if wg is None or wl is None:
