@@ -58,3 +58,18 @@ Data-collection functions that are overlaps-specific (`group_mean_trajs`, `grand
 - **Patch text with assert-counted, whitespace-tolerant matches** (scratchpad `flip_text_patch.py`): the wrapped .md needs
   `\s+` between words; caption literals need exact matches; every anchor asserted, then grep-verified.
 - **Do not consult decoder variants Leon has dropped** (pca20): verdicts come from the canonical no-PCA build only.
+
+## 2026-09-09 — three more lessons
+- **Equal-aspect panel + shared-y marginal strip = mismatched boxes.** `set_aspect('equal', adjustable='box')`
+  shrinks the axes box at DRAW time; a neighbouring strip that only shares the y LIMITS keeps the full cell height
+  and renders taller, so its distributions run past the partner's y axis. Fix: `fig.canvas.draw()`, then copy the
+  partner's ACTIVE position (`get_position()` after the draw) onto the strip. Same trap for any joint-plot layout.
+- **Never leave build files in a Claude job tmp dir.** The three shared-artifact pages and their builders lived in
+  `$CLAUDE_JOB_DIR/tmp`; the job was cleaned up between sessions and took them with it. Builders now live in the
+  repo root (tracked: `build_draft_artifact.py`, `build_ed_artifact.py`, `swap_figure_embeds.py`), pages in
+  `figures/paper_share/artifact_build/` (gitignored, durable). A lost page is recoverable with the Artifact tool's
+  `action: "read"` on its URL — strip the `<!doctype …><body>` skeleton, which is re-added at publish time.
+- **At n = 9, Wilcoxon and paired t can disagree, and a change measure can be a ceiling.** The signed-rank floor at
+  n = 9 is p = .0039, so three small sign flips park it near .10 whatever the magnitudes (Fig 3c choice: Wilcoxon
+  .098 vs paired t .038 under the old build). And before reporting "Δx predicts Δy", regress Δy on its own baseline:
+  the Fig 4c NoGo arm's ρ = +0.65 vanished (partial +0.27) once naïve NoGo accuracy was controlled.

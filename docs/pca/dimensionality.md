@@ -4,6 +4,13 @@
 
 > **2026-09-08 (later) — choice-decoder TRIAL SETS.** Fig 3c–e per-mouse choice classes (lick vs no-lick at the test) now pool ALL trial types (`--dpachoice` = former DPA-only); Fig 4a's choice side stays on the distractor-free DPA trials (Leon, option 2, after the dual-trial version proved heterogeneous across animals even with Go/NoGo-balanced classes; `--dualact` / `--allact` / `--strat` reproduce the alternatives). Fig 3c choice brackets ∗ (p = .012); Fig 4a per-mouse |cos| 0.063 → 0.104 (9/9, p = .004), cross-decode 0.53 → 0.60 (p = .020). Details: memory `project_dimensionality.md` / `project_overlaps_main_native.md`; draft banner v12.21.
 
+
+> **2026-09-09 — Fig. 3 panel annotations (Leon).** Panel d no longer prints the `rel .xx/.xx` split-half
+> reliabilities above the cosine matrices (they stay in the printed output and in Methods; the legend says the
+> correction uses them), panel e no longer prints `T/W` in the matrix titles or on the per-mouse scatters (the
+> transfer/within ratios stay in the legend), and panel b labels the sample axis under ALL FOUR expert-row panels
+> instead of only the third.
+
 **The non-circular dimensionality analysis of the dual-task pseudo-population, and — since 2026-08-10 —
 main Fig 2** (`pca/fig_dimensionality_main.py`, which replaced `fig_dpca_story_main.py`; that dPCA build
 is now ED Fig 9). **Fig 2 is built around ONE message: "one dedicated axis per task variable — the

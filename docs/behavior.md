@@ -3,6 +3,13 @@
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 
 Reference for the behavioural analyses (DPA + DualGo/DualNoGo). Covers **two distinct
+
+> **2026-09-09 — Fig. 6 g–i report SPEARMAN ONLY (Leon), and the verdict marker comes from it.** Pearson r is no
+> longer printed in those three panels or in the text. g joint trade-off ρ = +0.46, p = .041 (∗); h ΔDPA ρ = +0.30,
+> p = .19 (n.s.); i ΔGNG ρ = −0.61, p = .004 (∗). The mouse-clustered model stays in the legend as the clustering
+> disclosure (g p = .24; i survives it, β = −0.011, p = .009). This REVERSES the 2026-09-07 "g verdict from the
+> clustered model" decision. Panel j keeps its r/ρ line unchanged.
+
 datasets** that must not be confused, the on-disk `.mat` structure of the training
 batches, how the `Trials` array decodes, how the laser is (and is not) encoded, and the
 figures built from all of it.

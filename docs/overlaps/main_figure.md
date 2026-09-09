@@ -3,6 +3,28 @@
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 
 > **SPLIT (2026-08-04; Fig 3 panels updated 2026-08-05) — the overlaps main figure is now TWO paper
+
+> **2026-09-09 — Fig. 4 TRIAL SETS, panel by panel (Leon).** The choice AXIS is the CCGD decoder trained on all
+> laser-off trials; what each panel READS is now named in its title:
+> **a** distractor code = Go vs NoGo at mid-delay on dual trials, choice code = lick vs no-lick at the test on the
+> **distractor-free DPA trials** ("option 2", so the alignment cannot be inherited from distractor-evoked activity in
+> the same trials; `--dualact` / `--allact` on `fig_ccgp_matrices_pseudo.py` + `pca/exp_permouse_frame.py` reproduce
+> the alternatives, `--strat` balances Go/NoGo inside the lick classes). Pooled transfer 0.42 [0.11,0.64] → 0.50
+> [0.29,0.70]; per-mouse |cos| 0.063 → 0.104 (9/9, p = .004), cross-decode 0.53 → 0.60 (7/9, p = .020). On dual
+> trials the same change is heterogeneous across animals (6/9, p = .20) — real, not a class-imbalance artifact
+> (balancing changed nothing).
+> **b** DPA trials, late delay (bins 45–53). **c** left arm = Δ DPA accuracy on the distractor-free DPA trials
+> (ρ = −0.72, p = .030; on dual trials or all trials the same ranks give ρ = −0.63, p = .067 — `--dualperf` draws
+> that version, `exp_push_nogo_coupling.py` prints every slice); right arm = Δ GNG accuracy on dual trials
+> (ρ = +0.13). The NoGo-only arm's positive trend is a CEILING effect, not a cost (`exp_push_nogo_ceiling.py`:
+> naïve NoGo accuracy predicts the NoGo gain ρ = −0.87 p = .002; partial rank correlation with the push +0.27
+> p = .49; levels unrelated at either stage). **d** naïve unpaired DPA trials, correct rejection vs false alarm.
+> **e** DPA trials, d′ at the axis window (bins 54–62).
+> Panel-b geometry gotcha: the KDE strips share y with the trajectory panels, but the trajectories carry
+> `set_aspect('equal', adjustable='box')`, which shrinks their box at draw time — the strips rendered TALLER and
+> their distributions ran past the trajectory's y axis. `fig_overlaps_main_native.py` now draws once and copies each
+> trajectory axes' active y0/height onto its strip before saving.
+
 > figures.** Geometry / abstraction → **`fig_overlaps_manifold.py` = paper Fig. 3**, CURRENT panels: a code
 > traces / b within-vs-cross-task generalization matrix / **c shared action axis (Go/NoGo↔DPA-lick cross-
 > decode)** / **d cross-context generalization summary** / e CCGP-across-learning scatters. The dPCA linking
