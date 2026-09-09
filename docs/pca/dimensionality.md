@@ -48,6 +48,21 @@ dimensionality on the raw pseudo-population with cross-validation, so only struc
 across independent trial halves counts.
 
 ## Scripts & data flow (all under `pca/`, run from `pca/`)
+- **`cvpca.py` — THE cvPCA estimator, one implementation (added 2026-09-09).** `neuron_scale`,
+  `cond_means`, `split_means`, `fold_means`, `cvpca_spectrum`, `spectra`, `avg_spec`, `avg_frac`,
+  `pr_of`. It was previously copy-pasted into seven producers; `neuron_scale` and `cvpca_spectrum` were
+  byte-identical in all of them and `split_means` differed only by the optional `mice` subset and the
+  `shuffle` switch, so changing the estimator meant changing it seven times or letting the caches
+  disagree. Call `cvpca.bind(...)` (or `bind_cache(_c, MICE)`) once after loading `fits_inputs.pkl`,
+  then call the functions. **(nsplits, seed) are passed explicitly at every call site, never defaulted**,
+  because those choices are baked into the cached numbers: Fig 2b + jackknife 30/seed 7 (null seed 11),
+  `FITDATA` spectrum and PR 25/seed 0, PR jackknife and learning-delta 20/seed 7, split-level PR CI
+  30/seed 0. rng consumption is identical to the old copies, verified bit-for-bit against `results.pkl`.
+  Converted: `exp_dimensionality_fits`, `exp_cdec_support`, `exp_pceta_cv`, `exp_dimensionality_ci`,
+  `exp_dimensionality_jk`, `exp_dimensionality_md`, `exp_learning_delta`. NOT converted:
+  `exp_dimensionality.py` (superseded 12-condition build, different signatures). Still duplicated
+  elsewhere and NOT part of this module: `contrasts` / `eta2` (the design-contrast helpers) and the
+  many small `neuron_scale` copies in the trajectory/plane exploratory scripts.
 - `exp_dimensionality.py` — the compute (~12 min, reloads the 20 GB `X_all_nan_`): cvPCA (A), shattering
   (B), per-variable coding (C), PC×factor η² (D). MERGE-dumps into
   `figures/pseudo/dimensionality/results.pkl`; saves a quick-look `dimensionality_qc.png` only.
@@ -61,7 +76,8 @@ across independent trial halves counts.
   the averaged-spectrum PR (mice = the exchangeable unit; neurons partition by mouse), 95% CI
   clipped at the PR floor of 1. Values: memory 1.0 [1.0, 1.1] Expert / 1.2 [1.0, 1.8] Naive · delay
   2.0 [1.6, 2.5] / 2.0 [1.4, 2.7] · decision 3.3 [2.8, 3.8] / 3.3 [2.3, 4.3]. The Expert memory CI
-  hugging the floor is itself informative: every leave-out stays ≈1.
+  hugging the floor is itself informative: every leave-out stays ≈1. ⚠ The DECISION values here are
+  STALE (pre-flip window 57–65; the canonical 54–62 gives ≈2.5) — see the box in "Settled numbers".
 - `exp_dpca_count.py` — **significant-axis COUNT** (2026-08-10, cache-only ~2 min, from
   `fits_inputs.pkl`): Kobak-style dPCA-marginalization significance per (set × window ED/MD/LD/TEST/
   decision × stage) — each design contrast's demixed axis (from leakage-free train condition-means),
@@ -173,10 +189,23 @@ panel b's cross-validated 1.00/0/0. The matching is not optional — DPA-decisio
 at 0.44/0.38 and swap between splits, and unmatched averaging blended the choice row into the sample row.
 
 ## Settled numbers (results.pkl, verified 2026-08-10)
+> ⚠ **THE DECISION-WINDOW PR NUMBERS BELOW ARE STALE (found 2026-09-09).** `PR_JK`, `PR_CI` and the
+> decision entries of `LEARN_DELTA` were never re-run after the 2026-09-08 axis flip, so they still
+> describe the OLD decision window (bins 57–65). `FITDATA` WAS reseeded and is correct. Under the
+> canonical decision window (54–62) the 12-condition PR is **2.49 naive / 2.50 expert**, not 3.3, and
+> the delay entries are unaffected (they agree across all three caches to three decimals). The stale
+> 3.3 is quoted in the ED 3a caption (`make_ed_figures.py`), in the ED inventory of the results draft
+> and twice in this file. FIX: re-run `exp_dimensionality_jk.py`, `exp_dimensionality_ci.py` and
+> `exp_learning_delta.py`, then update those three places. `SD_FULL` (shattering over 462 dichotomies)
+> is computed on `AW['decision']` in the same script and is stale for the same reason.
+> Found while unifying the estimator into `cvpca.py`: the new module reproduced every delay/md cached
+> value bit-for-bit and only the decision ones disagreed — which is exactly the drift that having one
+> copy prevents.
+
 | quantity | Naive | Expert |
 |---|---|---|
 | delay PR (12 conds) | 2.04 [1.96, 2.12] | 2.03 [2.00, 2.06] |
-| decision PR (12 conds) | 3.28 [3.06, 3.44] | 3.29 [3.26, 3.43] |
+| decision PR (12 conds) | 3.28 [3.06, 3.44] | 3.29 [3.26, 3.43] |  ← STALE, see the box above (2.49 / 2.50)
 | **DPA-delay PR (memory)** | 1.11 [1.00, 1.76] | **1.00 [1.00, 1.47]** |
 | shattering (462 dich.) | 0.687 [.671, .698] | 0.697 [.688, .711] (null 0.50) |
 

@@ -48,6 +48,7 @@ import pickle
 import sys
 
 import numpy as np
+import cvpca                       # THE cvPCA estimator — one implementation (2026-09-09)
 from scipy.optimize import linear_sum_assignment
 
 sys.path.insert(0, '/home/leon/dual/')
@@ -72,6 +73,8 @@ AW, VALIDIX, N = _c['AW'], _c['VALIDIX'], _c['N']
 MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
                                              ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
 MICE = sorted({m for m, _ in VALIDIX})
+cvpca.bind(MOUSE=MOUSE, LEARN=LEARN, LAS=LAS, PERF=PERF, TSK=TSK, SAMP=SAMP, TESTO=TESTO,
+           VALIDIX=VALIDIX, N=N, MICE=MICE)   # the cvPCA estimator lives in cvpca.py (one copy)
 
 
 def contrasts(conds):
@@ -94,33 +97,11 @@ def eta2(zk, C, order):
     return [(C[f] @ zc) ** 2 / ((C[f] @ C[f]) * sst) for f in order]
 
 
-def neuron_scale(stage, M):
-    sd = np.ones(N)
-    for m in MICE:
-        val = VALIDIX[(m, stage)]; tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1))[0]
-        if len(tr):
-            s = np.nanstd(M[np.ix_(tr, val)], axis=0)
-            sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
-    return sd
-
-
-def split_means(stage, conds, M, rng):
-    R1 = np.zeros((len(conds), N)); R2 = np.zeros((len(conds), N))
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx) < 2:
-                continue
-            p = rng.permutation(idx); h = len(p) // 2
-            R1[ci][val] = np.nanmean(M[np.ix_(p[:h], val)], 0); R2[ci][val] = np.nanmean(M[np.ix_(p[h:], val)], 0)
-    return R1, R2
 
 
 def ref_basis(stage, conds, M, nk):
     """LABELLING basis only: the full-data PCs of the same normalised condition means."""
-    sd = neuron_scale(stage, M)
+    sd = cvpca.neuron_scale(stage, M)
     R = np.zeros((len(conds), N))
     for m in MICE:
         val = VALIDIX[(m, stage)]
@@ -133,37 +114,19 @@ def ref_basis(stage, conds, M, nk):
     return np.linalg.svd(S, full_matrices=False)[2][:nk]
 
 
-def fold_means(stage, conds, M, rng, K):
-    """K disjoint (test-fold mean, rest-of-the-trials mean) pairs of condition means."""
-    TE = [np.zeros((len(conds), N)) for _ in range(K)]
-    TR = [np.zeros((len(conds), N)) for _ in range(K)]
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx) < K:
-                continue                                      # cannot fill K folds — leave this cell empty
-            parts = np.array_split(rng.permutation(idx), K)   # sizes differ by at most 1
-            for f in range(K):
-                rest = np.concatenate([parts[g] for g in range(K) if g != f])
-                TE[f][ci][val] = np.nanmean(M[np.ix_(parts[f], val)], 0)
-                TR[f][ci][val] = np.nanmean(M[np.ix_(rest, val)], 0)
-    return list(zip(TR, TE))
-
 
 def cv_pc(stage, conds, M, C, order, nk):
     """cross-validated (variance fraction, eta² matrix): basis from one half, both read on the other,
     components matched to a fixed reference so that averaging across splits compares like with like."""
-    sd = neuron_scale(stage, M); rng = np.random.RandomState(0)
+    sd = cvpca.neuron_scale(stage, M); rng = np.random.RandomState(0)
     Vref = ref_basis(stage, conds, M, nk)
     var = np.zeros(nk); eta = np.zeros((nk, len(order))); n = 0; nperm = 0
     for _ in range(NSPLIT if KFOLD == 2 else NREP):
         if KFOLD == 2:                                          # repeated 2-fold, both directions
-            R1, R2 = split_means(stage, conds, M, rng)
+            R1, R2 = cvpca.split_means(stage, conds, M, rng)
             pairs = [(R1, R2), (R2, R1)]
         else:                                                   # K-fold: fit on K-1, measure on 1
-            pairs = fold_means(stage, conds, M, rng, KFOLD)
+            pairs = cvpca.fold_means(stage, conds, M, rng, KFOLD)
         for RA, RB in pairs:
             A, B = RA / sd[None, :], RB / sd[None, :]
             A = A - A.mean(0, keepdims=True); B = B - B.mean(0, keepdims=True)

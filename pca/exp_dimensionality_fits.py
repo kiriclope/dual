@@ -5,6 +5,7 @@ import sys, os, warnings, pickle
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir('/home/leon/dual/pca')
 import numpy as np
+import cvpca                       # THE cvPCA estimator — one implementation (2026-09-09)
 from itertools import combinations
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -56,6 +57,9 @@ else:
                        'TESTO': TESTO, 'PERF': PERF}}, open(AWPKL, 'wb'))
     print('cached fits inputs →', os.path.abspath(AWPKL))
 
+cvpca.bind(MOUSE=MOUSE, LEARN=LEARN, LAS=LAS, PERF=PERF, TSK=TSK, SAMP=SAMP, TESTO=TESTO,
+           VALIDIX=VALIDIX, N=N, MICE=MICE)   # the cvPCA estimator lives in cvpca.py (one copy)
+
 TASKS3 = ['DPA', 'DualGo', 'DualNoGo']
 DUAL = [(t, s, te) for t in ['DualGo', 'DualNoGo'] for s in (0, 1) for te in (0, 1)]
 DPA = [('DPA', s, te) for s in (0, 1) for te in (0, 1)]
@@ -79,17 +83,6 @@ def contrasts(conds):
 
 TASKSETS = {'DPA': DPA, 'dual': DUAL, 'all': ALL12}
 
-
-def cond_means(stage, M, conds):
-    R = np.zeros((len(conds), N))
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx):
-                R[ci][val] = np.nanmean(M[np.ix_(idx, val)], axis=0)
-    return R
 
 
 def eta2(zk, C, order):
@@ -144,48 +137,9 @@ def shatter(stage, conds, M, dich, K=24, B=8):
     return acc.mean(1)
 
 
-# ── cross-validated (cvPCA) reliable-variance scree per fit — the honest dimensionality (matches main panel) ──
-def neuron_scale(stage, M):
-    sd = np.ones(N)
-    for m in MICE:
-        val = VALIDIX[(m, stage)]; tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1))[0]
-        if len(tr):
-            s = np.nanstd(M[np.ix_(tr, val)], axis=0)
-            sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
-    return sd
+# ── cross-validated (cvPCA) reliable-variance scree per fit: cvpca.avg_spec, 25 splits, seed 0 ──
 
 
-def split_means(stage, conds, M, rng):
-    R1 = np.zeros((len(conds), N)); R2 = np.zeros((len(conds), N))
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx) < 2:
-                continue
-            p = rng.permutation(idx); h = len(p) // 2
-            R1[ci][val] = np.nanmean(M[np.ix_(p[:h], val)], 0); R2[ci][val] = np.nanmean(M[np.ix_(p[h:], val)], 0)
-    return R1, R2
-
-
-def cvpca_spectrum(S1, S2):
-    S1 = S1 - S1.mean(0, keepdims=True); S2 = S2 - S2.mean(0, keepdims=True)
-
-    def one(A, B):
-        Vt = np.linalg.svd(A, full_matrices=False)[2]
-        return ((A @ Vt.T) * (B @ Vt.T)).sum(0)
-    a, b = one(S1, S2), one(S2, S1); k = min(len(a), len(b))
-    return 0.5 * (a[:k] + b[:k])
-
-
-def cvpca_fit(stage, conds, M, nsplits=25):
-    sd = neuron_scale(stage, M); rng = np.random.RandomState(0); spec = None
-    for _ in range(nsplits):
-        R1, R2 = split_means(stage, conds, M, rng)
-        c = cvpca_spectrum(R1 / sd[None, :], R2 / sd[None, :])
-        spec = c if spec is None else spec + c
-    return spec / nsplits
 
 
 FITDATA = {}
@@ -193,12 +147,12 @@ for tsname, conds in TASKSETS.items():
     C, order = contrasts(conds); dich = bal_dich(len(conds))
     for wn, M in AW.items():
         for stage in STAGES:
-            R = cond_means(stage, M, conds); Rc = (R - R.mean(0)) / (R.std(0) + 1e-9); Rc = Rc - Rc.mean(0)
+            R = cvpca.cond_means(stage, M, conds); Rc = (R - R.mean(0)) / (R.std(0) + 1e-9); Rc = Rc - Rc.mean(0)
             sv, Vt = np.linalg.svd(Rc, full_matrices=False)[1:]; Z = Rc @ Vt.T
             cm_var = sv ** 2 / (sv ** 2).sum()                             # condition-mean var (matches pceta PCs)
             nk = len(conds) - 1
             pceta = np.array([eta2(Z[:, k], C, order) for k in range(nk)])
-            cv = cvpca_fit(stage, conds, M)                                # cross-validated reliable-variance spectrum
+            cv = cvpca.avg_spec(stage, conds, M, nsplits=25, seed=0)       # cross-validated reliable-variance spectrum
             pos = np.clip(cv, 0, None); cv_var = pos / pos.sum(); pr = float(pos.sum() ** 2 / (pos ** 2).sum())
             sd = shatter(stage, conds, M, dich)
             FITDATA[(tsname, wn, stage)] = dict(var=cv_var, cv=cv, cm_var=cm_var, pr=pr, sd=float(sd.mean()),

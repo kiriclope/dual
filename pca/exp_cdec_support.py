@@ -21,6 +21,7 @@ import sys, os, warnings, pickle
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
+import cvpca                       # THE cvPCA estimator — one implementation (2026-09-09)
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.metrics import balanced_accuracy_score
 
@@ -37,63 +38,13 @@ assert set(WINS) <= set(AW), (f'fits_inputs.pkl missing windows {sorted(set(WINS
                               'run exp_dimensionality_md.py first (merges ed/md/test into the cache)')
 MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
                                              ['MOUSE', 'LEARN', 'LAS', 'TSK', 'SAMP', 'TESTO', 'PERF'])
+cvpca.bind(MOUSE=MOUSE, LEARN=LEARN, LAS=LAS, PERF=PERF, TSK=TSK, SAMP=SAMP, TESTO=TESTO,
+           VALIDIX=VALIDIX, N=N, MICE=MICE)   # the cvPCA estimator lives in cvpca.py (one copy)
 
 
-def neuron_scale(stage, M):
-    sd = np.ones(N)
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1))[0]
-        if len(tr):
-            s = np.nanstd(M[np.ix_(tr, val)], axis=0)
-            sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
-    return sd
 
 
-def split_means(stage, conds, M, rng, mice, shuffle=False):
-    """shuffle=True permutes, within each mouse, the trial->condition assignment (label-shuffle null).
-    rng consumption for shuffle=False is IDENTICAL to the original (SPEC_JK values reproduce)."""
-    R1 = np.zeros((len(conds), N)); R2 = np.zeros((len(conds), N))
-    for m in mice:
-        val = VALIDIX[(m, stage)]
-        pools = [np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                          & (TSK == t) & (SAMP == s) & (TESTO == te))[0] for (t, s, te) in conds]
-        if shuffle:
-            allidx = np.concatenate(pools); perm = rng.permutation(allidx); k = 0
-            new = []
-            for p in pools:
-                new.append(perm[k:k + len(p)]); k += len(p)
-            pools = new
-        for ci, idx in enumerate(pools):
-            if len(idx) < 2:
-                continue
-            p = rng.permutation(idx); h = len(p) // 2
-            R1[ci][val] = np.nanmean(M[np.ix_(p[:h], val)], 0); R2[ci][val] = np.nanmean(M[np.ix_(p[h:], val)], 0)
-    return R1, R2
 
-
-def cvpca_spectrum(S1, S2):
-    S1 = S1 - S1.mean(0, keepdims=True); S2 = S2 - S2.mean(0, keepdims=True)
-
-    def one(A, B):
-        Vt = np.linalg.svd(A, full_matrices=False)[2]
-        return ((A @ Vt.T) * (B @ Vt.T)).sum(0)
-    a, b = one(S1, S2), one(S2, S1); k = min(len(a), len(b))
-    return 0.5 * (a[:k] + b[:k])
-
-
-def avg_spec(stage, conds, M, mice, nsplits=30, shuffle=False, seed=7):   # 30 = the figure/Methods count
-    sd = neuron_scale(stage, M); rng = np.random.RandomState(seed); spec = None
-    for _ in range(nsplits):
-        R1, R2 = split_means(stage, conds, M, rng, mice, shuffle=shuffle)
-        c = cvpca_spectrum(R1 / sd[None, :], R2 / sd[None, :])
-        spec = c if spec is None else spec + c
-    return spec / nsplits                          # RAW averaged cross-validated spectrum (can go <0)
-
-
-def avg_frac(stage, conds, M, mice, nsplits=30):
-    pos = np.clip(avg_spec(stage, conds, M, mice, nsplits), 0, None)
-    return pos / (pos.sum() + 1e-12)
 
 
 print('══ A. SPEC_JK: jackknife-across-mice CIs for the B spectra ══')
@@ -101,8 +52,9 @@ SPEC_JK = {}
 for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
     for wn in WINS:
         for stage in STAGES:
-            frac = avg_frac(stage, conds, AW[wn], MICE)
-            jk = np.array([avg_frac(stage, conds, AW[wn], [m for m in MICE if m != mo]) for mo in MICE])
+            frac = cvpca.avg_frac(stage, conds, AW[wn], nsplits=30, seed=7)
+            jk = np.array([cvpca.avg_frac(stage, conds, AW[wn], [m for m in MICE if m != mo],
+                                          nsplits=30, seed=7) for mo in MICE])
             n = len(MICE)
             se = np.sqrt((n - 1) / n * ((jk - jk.mean(0)) ** 2).sum(0))
             tcrit = 2.306                          # t(df=8) 97.5% — n=9 mice, not z=1.96
@@ -117,8 +69,8 @@ print('\n══ A2. SPEC_NULL: within-mouse label-shuffle null spectra for panel
 SPEC_NULL = {}
 for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
     for wn in WINS:
-        real = avg_spec('Expert', conds, AW[wn], MICE)
-        null = avg_spec('Expert', conds, AW[wn], MICE, shuffle=True, seed=11)
+        real = cvpca.avg_spec('Expert', conds, AW[wn], nsplits=30, seed=7)
+        null = cvpca.avg_spec('Expert', conds, AW[wn], nsplits=30, seed=11, shuffle=True)
         tot = np.clip(real, 0, None).sum() + 1e-12
         SPEC_NULL[(ts, wn)] = np.clip(null, 0, None) / tot
         print(f'  {ts:4s} {wn:9s} null frac {np.round(SPEC_NULL[(ts, wn)][:4], 3)}', flush=True)
@@ -126,16 +78,7 @@ for ts, conds in [('DPA', DPA4), ('dual', DUAL)]:
 # ── B. DPA_GNG_C: gng decoded from the DPA-state subspace (top-3 PCs), held-out, vs shuffle null ──
 
 
-def cond_means_all(stage, M, conds):
-    R = np.zeros((len(conds), N))
-    for m in MICE:
-        val = VALIDIX[(m, stage)]
-        for ci, (t, s, te) in enumerate(conds):
-            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
-                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
-            if len(idx):
-                R[ci][val] = np.nanmean(M[np.ix_(idx, val)], axis=0)
-    return R
+
 
 
 def dual_pools(stage, rng, shuffle=False):
@@ -172,7 +115,7 @@ def make_pseudo(pool, stage, K, rng, M):
 
 
 def gng_from_dpa(stage, M, rng, shuffle):
-    R = cond_means_all(stage, M, DPA4); mu = R.mean(0); sd = R.std(0) + 1e-9
+    R = cvpca.cond_means(stage, M, DPA4); mu = R.mean(0); sd = R.std(0) + 1e-9
     Rc = (R - mu) / sd; Rc = Rc - Rc.mean(0)
     Vt = np.linalg.svd(Rc, full_matrices=False)[2][:3]        # DPA-state subspace (drop degenerate PC4)
     trp, tep = dual_pools(stage, rng, shuffle=shuffle)
