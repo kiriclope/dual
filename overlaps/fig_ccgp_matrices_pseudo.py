@@ -9,7 +9,7 @@ off-diagonal = train task i → test task j. This is the field-standard way CCGP
 sample @ late delay · choice/test @ TEST  (--test = all @ TEST).  Expert.
 Output: figures/overlaps/ccgp/{png,svg}/overlaps_ccgp_matrices_pseudo[_test].{png,svg}
 """
-import sys, os, warnings
+import sys, os, warnings, json, hashlib
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np, pandas as pd
@@ -49,20 +49,10 @@ if _AXENV:
     _sb = [int(v) for v in os.environ['DUAL_SAMPLE_BINS'].split('-')]; _cb = [int(v) for v in os.environ['DUAL_CHOICE_BINS'].split('-')]
     W_ENVS, W_ENVC = np.arange(_sb[0], _sb[1] + 1), np.arange(_cb[0], _cb[1] + 1)
 
-print('loading pseudo-population …')
-X = np.asarray(pkl_load('X_all_nan_', path='../data/pca'))
-y = pkl_load('y_all_nan_', path='../data/pca')
-VALID = pkl_load('weights_log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test',
-                 path='../data/overlaps')['valid']
-MOUSE = y.mouse.to_numpy(); LEARN = y.learning.to_numpy(); LAS = y.laser.to_numpy(); TSK = y.tasks.to_numpy()
-print('pre-averaging activity per window (once) …')
-AW = {'LD': np.nanmean(X[:, :, W_LD], axis=2), 'TE': np.nanmean(X[:, :, W_TE], axis=2),
-      'MD': np.nanmean(X[:, :, W_MD], axis=2), 'DEC': np.nanmean(X[:, :, W_DEC], axis=2),
-      'MD2': np.nanmean(X[:, :, W_MD2], axis=2), 'TE2': np.nanmean(X[:, :, W_TE2], axis=2),
-      'CANS': np.nanmean(X[:, :, W_CAN_S], axis=2), 'CANC': np.nanmean(X[:, :, W_CAN_C], axis=2)}   # 9216×3319 each
+WBINS = {'LD': W_LD, 'TE': W_TE, 'MD': W_MD, 'DEC': W_DEC, 'MD2': W_MD2, 'TE2': W_TE2,
+         'CANS': W_CAN_S, 'CANC': W_CAN_C}
 if _AXENV:
-    AW['ENVS'] = np.nanmean(X[:, :, W_ENVS], axis=2); AW['ENVC'] = np.nanmean(X[:, :, W_ENVC], axis=2)
-del X                                                                                    # free the 20 GB tensor
+    WBINS['ENVS'], WBINS['ENVC'] = W_ENVS, W_ENVC
 
 VARS = [('sample', 'sample_odor', 'CANS'), ('choice', 'choice', 'CANC'), ('test', 'test_odor', 'CANC')]   # canonical (2026-09-08)
 if _AXENV:
@@ -84,6 +74,73 @@ elif '--legacyaxes' in sys.argv[1:]:
     SUF, WINLAB = '_legacy', 'sample @ late delay · choice/test @ TEST'
 else:
     SUF, WINLAB = '', 'sample @ 6.0–6.5 s · choice/test @ 9.0–10.5 s'
+# ── WINDOW-AVERAGE CACHE (2026-09-09) ─────────────────────────────────────────────────────────────
+# The pseudo-population tensor `data/pca/X_all_nan_.pkl` is 20.5 GB (9,216 trials × 3,319 neurons × 84
+# bins, float64) and this script used to unpickle ALL of it on every run just to average a few windows
+# out of it and immediately `del` it. Measured 2026-09-09: that load, not the decoding, was the cost —
+# the whole step took 19.7 min cold and 5.3 min warm, while the actual work inside it (2,600 logistic
+# fits 0.5 min, ~19k pseudo-trial resamples 1.1 min, ~13k condition lookups 0.4 min, the window averages
+# themselves 1.7 min) is under 4 min. Each window average is now stored as its own .npy keyed by its bin
+# range, and the tensor is loaded ONLY when a needed window is missing — the same trick
+# `pca/exp_dimensionality_fits.py` already used with fits_inputs.pkl. Numerically identical: the cached
+# array IS `np.nanmean(X[:, :, bins], axis=2)`.
+# The cache self-invalidates if X_all_nan_.pkl changes (size + mtime stamp in source.json). To force a
+# rebuild, delete figures/overlaps/ccgp/awcache/.
+AWDIR = 'figures/overlaps/ccgp/awcache'
+XPKL = '../data/pca/X_all_nan_.pkl'
+
+
+class _AWDict(dict):
+    def __missing__(self, k):
+        raise KeyError(f"window '{k}' is used but was not in NEEDED, so the cache never loaded it — "
+                       f"add it to NEEDED (have: {sorted(self)})")
+
+
+def _wsig(bins):
+    b = np.asarray(bins, int)
+    return f'w{b[0]}-{b[-1]}n{len(b)}_' + hashlib.md5(b.tobytes()).hexdigest()[:8]
+
+
+def load_windows(need):
+    """need = {name: bins}; returns {name: (n_trials, n_neurons)}. Loads the 20.5 GB tensor only if forced."""
+    os.makedirs(AWDIR, exist_ok=True)
+    st = os.stat(XPKL); stamp = {'size': st.st_size, 'mtime': int(st.st_mtime)}
+    sf = os.path.join(AWDIR, 'source.json')
+    if os.path.exists(sf) and json.load(open(sf)) != stamp:
+        print('X_all_nan_.pkl changed since the cache was built → clearing it')
+        for f in os.listdir(AWDIR):
+            os.remove(os.path.join(AWDIR, f))
+    json.dump(stamp, open(sf, 'w'))
+    out, miss = _AWDict(), {}
+    for nm, bins in need.items():
+        f = os.path.join(AWDIR, _wsig(bins) + '.npy')
+        if os.path.exists(f):
+            out[nm] = np.load(f)
+        else:
+            miss[nm] = (bins, f)
+    if miss:
+        print(f'window cache: {sorted(out)} hit, {sorted(miss)} MISSING → loading the 20.5 GB tensor (once) …')
+        X = np.asarray(pkl_load('X_all_nan_', path='../data/pca'))
+        for nm, (bins, f) in miss.items():
+            out[nm] = np.nanmean(X[:, :, np.asarray(bins)], axis=2)
+            np.save(f, out[nm]); print(f'   cached {nm} (bins {bins[0]}–{bins[-1]}) → {f}')
+        del X                                                                   # free the 20.5 GB tensor
+    else:
+        print(f'window cache: all {len(out)} windows hit — the 20.5 GB tensor is NOT loaded')
+    return out
+
+
+ACT_CODES = ['GNG', 'choice']
+ACT_WIN = ({'GNG': 'MD', 'choice': 'TE'} if '--legacyaxes' in sys.argv[1:]
+           else {'GNG': 'CANS', 'choice': 'CANC'})   # same windows as the axes. NB deliberately NOT
+#   env-driven: under DUAL_AXSUF the action block stays on the CANONICAL windows while VARS moves.
+NEEDED = {w for _, _, w in VARS} | {'MD'} | set(ACT_WIN.values())               # 'MD' = gng_matrix's default
+y = pkl_load('y_all_nan_', path='../data/pca')
+VALID = pkl_load('weights_log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test',
+                 path='../data/overlaps')['valid']
+MOUSE = y.mouse.to_numpy(); LEARN = y.learning.to_numpy(); LAS = y.laser.to_numpy(); TSK = y.tasks.to_numpy()
+AW = load_windows({nm: WBINS[nm] for nm in sorted(NEEDED)})
+
 NOPCA = '--nopca' in sys.argv[1:]           # drop the PCA denoising step (robustness variant)
 PSUF = '_nopca' if NOPCA else ''
 PIPE = (lambda: make_pipeline(StandardScaler(), LogisticRegression(C=1.0, max_iter=3000))) if NOPCA \
@@ -183,7 +240,6 @@ def gng_matrix(stage, wkey='MD'):
 # leakage). Above-chance off-diagonal ⇒ a single action/lick axis serves both readouts. This is the robust,
 # generalization-based version of the (weak, ~0.18) cos(DPA-lick · GNG-axis) — noise dims dilute cosine but
 # not cross-decoding.
-ACT_CODES = ['GNG', 'choice']; ACT_WIN = ({'GNG': 'MD', 'choice': 'TE'} if '--legacyaxes' in sys.argv[1:] else {'GNG': 'CANS', 'choice': 'CANC'})   # same windows as the axes
 
 
 def dpa_choice_cond(cls, stage):                          # lick(1)/no-lick(0) at test on distractor-free DPA trials

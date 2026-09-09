@@ -4,6 +4,11 @@
 # Durable home (2026-09-09): this and build_variant_page.py used to live in a Claude scratchpad, which is
 # cleaned up between sessions. They are now tracked in the repo root beside make_submission_figs.py.
 #
+#   VARIANT_LOG=.variant_tmp/variant_t1.log ./run_axis_variant.sh _t1 54-65 decision_t1 _tewin 2>&1 \
+#     | tee .variant_tmp/variant_t1.log
+#   (VARIANT_LOG is optional; when set, the per-step timings are appended to docs/rebuild_timings.md
+#    on exit. Never estimate a rebuild cost — read that file.)
+#
 #   ./run_axis_variant.sh _t1 54-65 decision_t1 _tewin
 #     $1 V       file/key suffix                 (_te | _tc | _t1 | _td | _f2)
 #     $2 CB      choice/test axis bins 'a-b'     (54-59 | 54-62 | 54-65 | 57-62 | 57-65)
@@ -79,3 +84,8 @@ cd ../overlaps
 $PY fig_overlaps_main_native.py 2>&1 | grep -E "^A depth|^B\[|^C|^D|saved|Traceback|Error"
 $PY fig_behavior_opto_main.py 2>&1 | grep -E "corr r=|LMM|trade-off|saved|Traceback|Error" | head -12
 echo "== $(date) [$V] VARIANT_DONE"
+
+# Record what this actually cost, so nobody has to guess next time (see docs/rebuild_timings.md).
+if [ -n "${VARIANT_LOG:-}" ] && [ -f "$VARIANT_LOG" ]; then
+  $PY "$R/log_timings.py" parse "$VARIANT_LOG" --run "axis variant $V" || true
+fi

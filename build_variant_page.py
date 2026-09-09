@@ -39,8 +39,8 @@ def grab(pat, default='n/a'):
     return m.group(1) if m else default
 
 
-def findall(pat):
-    out = re.findall(pat, log)
+def findall(pat, text=None):
+    out = re.findall(pat, log if text is None else text)
     if not out:
         MISSED.append(pat)
     return out

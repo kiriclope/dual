@@ -29,3 +29,23 @@ place or from somewhere less direct.
 | 2026-09-09 13:5 | stale decision-window refresh | exp_dimensionality_jk.py | 2.0 | approximate, reported by the agent that ran it |
 | 2026-09-09 13:5 | stale decision-window refresh | exp_dimensionality_ci.py | 10.0 | approximate, reported by the agent that ran it |
 | 2026-09-09 14:0 | stale decision-window refresh | exp_learning_delta.py | 4.0 | approximate, reported by the agent that ran it |
+| 2026-09-09 14:12 | axis variant _t1 (2026-09-09 rebuild) | step 0: overlaps traces/states | 0.3 | measured, parsed from the run log |
+| 2026-09-09 14:18 | axis variant _t1 (2026-09-09 rebuild) | step 1: pooled cross-task matrices | 5.3 | measured, parsed from the run log |
+| 2026-09-09 14:18 | axis variant _t1 (2026-09-09 rebuild) | step 2: sandbox pca caches | 0.1 | measured, parsed from the run log |
+| 2026-09-09 14:22 | axis variant _t1 (2026-09-09 rebuild) | running exp_dpca_count.py | 4.5 | measured, parsed from the run log |
+| 2026-09-09 14:24 | axis variant _t1 (2026-09-09 rebuild) | running exp_axis_frame.py --nopca | 1.8 | measured, parsed from the run log |
+| 2026-09-09 14:25 | axis variant _t1 (2026-09-09 rebuild) | running exp_permouse_frame.py --nopca | 0.5 | measured, parsed from the run log |
+| 2026-09-09 14:25 | axis variant _t1 (2026-09-09 rebuild) | running exp_permouse_frame.py --nopca --mddec | 0.4 | measured, parsed from the run log |
+| 2026-09-09 14:25 | axis variant _t1 (2026-09-09 rebuild) | running exp_permouse_plane.py --nopca | 0.3 | measured, parsed from the run log |
+| 2026-09-09 14:26 | axis variant _t1 (2026-09-09 rebuild) | running exp_permouse_xstage.py --nopca | 0.1 | measured, parsed from the run log |
+| 2026-09-09 14:27 | axis variant _t1 (2026-09-09 rebuild) | running exp_plane_frame.py --nopca | 1.3 | measured, parsed from the run log |
+| 2026-09-09 14:27 | axis variant _t1 (2026-09-09 rebuild) | running exp_parallelism.py --nopca | 0.2 | measured, parsed from the run log |
+| 2026-09-09 14:27 | axis variant _t1 (2026-09-09 rebuild) | running exp_neuron_sel.py --nopca | 0.1 | measured, parsed from the run log |
+| 2026-09-09 14:33 | axis variant _t1 (2026-09-09 rebuild) | running exp_cdec_support.py | 5.8 | measured, parsed from the run log |
+| 2026-09-09 14:33 | axis variant _t1 (2026-09-09 rebuild) | running exp_pceta_cv.py | 0.4 | measured, parsed from the run log |
+| 2026-09-09 14:33 | axis variant _t1 (2026-09-09 rebuild) | variant caches saved to results_t1.pkl | 0.0 | measured, parsed from the run log |
+| 2026-09-09 14:33 | axis variant _t1 (2026-09-09 rebuild) | restoring canonical caches | 0.0 | measured, parsed from the run log |
+| 2026-09-09 14:34 | axis variant _t1 (2026-09-09 rebuild) | step 3: renders | 0.7 | measured, parsed from the run log |
+| 2026-09-09 14:34 | axis variant _t1 (2026-09-09 rebuild) | **TOTAL** | 21.9 | measured, parsed from the run log |
+| 2026-09-09 14:38 | cross-task matrices, variant _t1 (--acc --nopca) | COLD: cache empty, 20.5 GB tensor loaded | 3.1 | measured |
+| 2026-09-09 14:40 | cross-task matrices, variant _t1 (--acc --nopca) | WARM: cache hit, tensor NOT loaded | 2.3 | measured |
