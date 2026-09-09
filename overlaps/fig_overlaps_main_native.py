@@ -364,7 +364,7 @@ if __name__ == '__main__':
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
         'state, the more its DPA accuracy improves (distractor-free DPA trials, ρ = −0.72, p = .030 ∗; on the dual trials '
         'or on all trials the same ranks give ρ = −0.63, p = .067), whereas the same change '
-        'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone a trend of the opposite sign, ρ = +0.65, p = .060). The coupling is specific to the memory task.',
+        'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone ρ = +0.65, p = .060, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
         'rejections from false alarms (sample A, Δ(CR−FA) = −1.05, p = .26; sample B, +1.17, p = '
