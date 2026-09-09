@@ -260,6 +260,11 @@ lean on trial-level GEE); coupling is associational, not a causal capacity manip
 Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-laser pickle,
 `target=='choice'`, `laser==0`). `figures/overlaps/behavior/{png,svg}/behavior_main.*`. Layout =
 `GridSpec(3,12)`; message-based panel titles _(titles REMOVED 2026-09-03 — see the Nature-style block at the end)_. Panels:
+> **2026-09-09 — Fig. 1 b–e carry ORIENTATION TITLES** (Leon: "they need some titles so it is easier to
+> understand what each panel describes"): b `both tasks: DPA vs GNG`, c `GNG: Go vs NoGo`,
+> d `DPA: paired vs unpaired`, e `DPA unpaired: by trial type` — left-aligned, TITLE_FS, not bold, and they
+> say what the panel CONTAINS, not what it claims (house style: the legend makes the claims).
+
 - **A** — schematics: (i) a setup cartoon, (ii) the DPA+GNG **task scheme** (`dual_task_scheme.svg`),
   (iii) the **Curriculum training** pipeline (`dual_training_scheme_vector.svg`, hand-authored vector,
   conventions colours: DPA red / GNG blue / dual orange; "shaping" = paired-trials-only task version,

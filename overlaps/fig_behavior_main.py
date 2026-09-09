@@ -257,6 +257,11 @@ for ax in (axB, axC, axD, axE):
     ax.set_ylim(0.18, 1.07); ax.set_xticks(DAYS); ax.set_xlabel('session')
     ax.legend(frameon=False, fontsize=PS*6.5, loc='lower right')
 axB.set_ylabel('performance')
+# orientation titles (Leon 2026-09-09: say what each learning panel shows) — house style: what the panel
+# CONTAINS, left-aligned, not a claim (the legend makes the claims)
+for _ax, _t in [(axB, 'both tasks: DPA vs GNG'), (axC, 'GNG: Go vs NoGo'),
+                (axD, 'DPA: paired vs unpaired'), (axE, 'DPA unpaired: by trial type')]:
+    _ax.set_title(_t, loc='left', fontsize=TITLE_FS)
 
 # no-lick thread — one subtle line tying B–E to the neural no-lick push
 
