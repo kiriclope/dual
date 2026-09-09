@@ -70,6 +70,10 @@ TITLE_FS = PS*8
 LEGACY = '--pr' in sys.argv          # previous PR/all-tasks build (ED source)
 CDEC = not LEGACY                    # the adopted main Fig 2
 
+CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cross-validation (exp_pceta_cv.py
+                                                  # --kfold 5): basis on 80% of the trials, eta^2 on the held-out
+                                                  # 20%, 12 partitions x 5 folds. Robustness variant of the
+                                                  # canonical repeated-2-fold build; stem _cv5 (Leon 2026-09-09)
 EVWIN = '--evwin' in sys.argv[1:]                 # event-window variant: caches from DUAL_RES, matrices _mdte, stem _ev
 PCABINS = '--pcabins' in sys.argv[1:]             # pca-bins variant: caches from DUAL_RES, matrices _pb, stem _pb
 AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant: caches from DUAL_RES, matrices/stem AXENV
@@ -364,10 +368,11 @@ def panelD_mats(fig, gsD):
         # eta^2 on the held-out half (30 splits x 2 directions), so the percentages are panel b's
         # reliable fractions and a row that does not replicate goes flat instead of looking coded.
         # The raw keys stay in the pickle as the fallback.
-        _cv = 'pceta_cv' in F and 'cm_var_cv' in F
-        M = np.asarray(F['pceta_cv' if _cv else 'pceta'])[:nk]
-        FO = list(F['pceta_cv_factors'] if _cv else F['factors'])
-        cmv = np.asarray(F['cm_var_cv' if _cv else 'cm_var'])[:nk]
+        _k = 'cv5' if CV5 else 'cv'
+        _cv = f'pceta_{_k}' in F and f'cm_var_{_k}' in F
+        M = np.asarray(F[f'pceta_{_k}' if _cv else 'pceta'])[:nk]
+        FO = list(F[f'pceta_{_k}_factors'] if _cv else F['factors'])
+        cmv = np.asarray(F[f'cm_var_{_k}' if _cv else 'cm_var'])[:nk]
         rk = _rank_b(ts, wn) if CDEC else nk
         if DCROSS and ts == 'DPA':                  # dist CROSS-decode column (DPA_GNG, above-chance frac)
             g = np.asarray(RES['DPA_GNG'][(wn, 'Expert')])[:nk]
@@ -649,6 +654,11 @@ if CDEC:
         'populations carry the two axes, which is the single-neuron basis of the factorized geometry.',
     ]
     from figcaption import draw_justified              # shared with fig_manifold_main.py
+    if CV5:
+        CAP_PARAS[0] += (' [BUILD VARIANT _cv5: panel d uses 5-fold cross-validation instead of repeated 2-fold — '
+                         'the components are fitted on the condition means of four folds (80% of the trials) and both '
+                         'the η² and the row percentages are measured on the held-out fold (20%), over 12 random '
+                         'partitions. Panels a–c and e–g are the canonical build.]')
     if AXENV:
         CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/GNG axes on bins '
                          f'{__import__("os").environ["DUAL_SAMPLE_BINS"]}, choice/test axes on bins '
@@ -666,7 +676,7 @@ if CDEC:
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
-STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV
+STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '')
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/{STEM}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{STEM}.svg', bbox_inches='tight')

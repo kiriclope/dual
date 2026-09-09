@@ -29,7 +29,19 @@ Averaged over splits and directions. Writes into each FITDATA entry of results.p
     cm_var_cv  (nk,)           cross-validated variance fractions, the panel-d row labels
 The uncross-validated `pceta` / `cm_var` stay in place so nothing that reads them breaks.
 
-Run from pca/:  /home/leon/mambaforge/envs/dual/bin/python exp_pceta_cv.py
+K-FOLD VARIANT (`--kfold 5`, Leon 2026-09-09: "try a five fold cv version of the same figure").
+Same estimator with a different train/test ratio: trials are partitioned per mouse × condition into
+K folds, the basis is fitted on the condition means of the other K-1 folds (80% of the trials at
+K=5) and both the cross-variance and the eta² are measured on the held-out fold (20%). NREP random
+partitions are averaged, chosen so the number of held-out measurements matches the default build
+(2-fold: 30 splits × 2 directions = 60; 5-fold: 12 repeats × 5 folds = 60). The trade is real and
+goes BOTH ways — a 4×-larger training set makes the basis cleaner, a 2.5×-smaller test set makes
+the held-out condition means noisier, and noise in the scores pushes eta² toward its 1/nfactor
+chance level. Smallest cell in the data is 6 trials per mouse × condition, so at K=5 a test fold
+can hold a single trial. Results go to SEPARATE keys (`pceta_cv5`, `cm_var_cv5`, …) and the figure
+draws them under its own `--cv5` flag; the canonical build is untouched.
+
+Run from pca/:  /home/leon/mambaforge/envs/dual/bin/python exp_pceta_cv.py [--kfold 5]
 """
 import os
 import pickle
@@ -41,7 +53,11 @@ from scipy.optimize import linear_sum_assignment
 sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-NSPLIT = 30
+KFOLD = int(sys.argv[sys.argv.index('--kfold') + 1]) if '--kfold' in sys.argv else 2
+assert KFOLD >= 2, '--kfold must be at least 2'
+NSPLIT = 30                       # 2-fold: 30 random half-splits, both directions -> 60 measurements
+NREP = max(1, round(60 / KFOLD))  # K-fold: NREP random partitions x K folds -> ~60 measurements
+SUF = '' if KFOLD == 2 else str(KFOLD)
 RES = 'figures/pseudo/dimensionality/results.pkl'
 AWPKL = 'figures/pseudo/dimensionality/fits_inputs.pkl'
 STAGES = ['Naive', 'Expert']
@@ -117,17 +133,40 @@ def ref_basis(stage, conds, M, nk):
     return np.linalg.svd(S, full_matrices=False)[2][:nk]
 
 
+def fold_means(stage, conds, M, rng, K):
+    """K disjoint (test-fold mean, rest-of-the-trials mean) pairs of condition means."""
+    TE = [np.zeros((len(conds), N)) for _ in range(K)]
+    TR = [np.zeros((len(conds), N)) for _ in range(K)]
+    for m in MICE:
+        val = VALIDIX[(m, stage)]
+        for ci, (t, s, te) in enumerate(conds):
+            idx = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
+                           & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
+            if len(idx) < K:
+                continue                                      # cannot fill K folds — leave this cell empty
+            parts = np.array_split(rng.permutation(idx), K)   # sizes differ by at most 1
+            for f in range(K):
+                rest = np.concatenate([parts[g] for g in range(K) if g != f])
+                TE[f][ci][val] = np.nanmean(M[np.ix_(parts[f], val)], 0)
+                TR[f][ci][val] = np.nanmean(M[np.ix_(rest, val)], 0)
+    return list(zip(TR, TE))
+
+
 def cv_pc(stage, conds, M, C, order, nk):
     """cross-validated (variance fraction, eta² matrix): basis from one half, both read on the other,
     components matched to a fixed reference so that averaging across splits compares like with like."""
     sd = neuron_scale(stage, M); rng = np.random.RandomState(0)
     Vref = ref_basis(stage, conds, M, nk)
     var = np.zeros(nk); eta = np.zeros((nk, len(order))); n = 0; nperm = 0
-    for _ in range(NSPLIT):
-        R1, R2 = split_means(stage, conds, M, rng)
-        S1, S2 = R1 / sd[None, :], R2 / sd[None, :]
-        S1 = S1 - S1.mean(0, keepdims=True); S2 = S2 - S2.mean(0, keepdims=True)
-        for A, B in ((S1, S2), (S2, S1)):                       # both directions, as in cvpca_spectrum
+    for _ in range(NSPLIT if KFOLD == 2 else NREP):
+        if KFOLD == 2:                                          # repeated 2-fold, both directions
+            R1, R2 = split_means(stage, conds, M, rng)
+            pairs = [(R1, R2), (R2, R1)]
+        else:                                                   # K-fold: fit on K-1, measure on 1
+            pairs = fold_means(stage, conds, M, rng, KFOLD)
+        for RA, RB in pairs:
+            A, B = RA / sd[None, :], RB / sd[None, :]
+            A = A - A.mean(0, keepdims=True); B = B - B.mean(0, keepdims=True)
             Vt = np.linalg.svd(A, full_matrices=False)[2][:nk]
             ri, ci = linear_sum_assignment(-np.abs(Vref @ Vt.T))  # ref slot ri <- fitted component ci
             nperm += int(not np.array_equal(ci, np.arange(nk)))
@@ -151,12 +190,14 @@ for tsname, conds in TASKSETS.items():
             if key not in F:
                 continue
             cmv, pce, fperm = cv_pc(stage, conds, M, C, order, nk)
-            F[key]['cm_var_cv'] = cmv; F[key]['pceta_cv'] = pce; F[key]['pceta_cv_factors'] = order
-            F[key]['pceta_cv_permfrac'] = fperm
+            F[key][f'cm_var_cv{SUF}'] = cmv; F[key][f'pceta_cv{SUF}'] = pce
+            F[key][f'pceta_cv{SUF}_factors'] = order; F[key][f'pceta_cv{SUF}_permfrac'] = fperm
             if wn in ('md', 'decision') and stage == 'Expert' and tsname != 'all':
                 raw = np.asarray(F[key]['cm_var'], float)[:3]
                 top = [f'{order[int(np.argmax(pce[k]))]} {pce[k].max():.2f}' for k in range(min(3, nk))]
                 print(f'{tsname:5s}{wn:10s}{stage:7s}{str([f"{v:.0%}" for v in raw]):24s}'
                       f'{str([f"{v:.0%}" for v in cmv[:3]]):24s}{fperm:5.2f}  {top}')
 pickle.dump(d, open(RES, 'wb'))
-print(f'\nmerged pceta_cv / cm_var_cv into {RES} ({NSPLIT} splits × 2 directions)')
+how = (f'{NSPLIT} half-splits × 2 directions' if KFOLD == 2
+       else f'{NREP} partitions × {KFOLD} folds, fit on {(KFOLD - 1) / KFOLD:.0%} / measured on {1 / KFOLD:.0%}')
+print(f'\nmerged pceta_cv{SUF} / cm_var_cv{SUF} into {RES} ({how})')

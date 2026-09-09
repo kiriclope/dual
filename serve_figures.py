@@ -55,6 +55,8 @@ MAIN = [
 # ── "Variants" — alternative builds of the mains (axis × normalisation × pipeline knobs).
 #    Moved out of MAIN 2026-09-01 (user: one canonical card per figure in Main).
 VARIANTS = [
+    ('Fig 2 — panel d from 5-FOLD CV  [basis on 80% of trials, eta2 on the held-out 20%; canonical d is repeated 2-fold]',
+     'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main_cv5.png'),
     ('Fig 3 — PCA-20 pipeline variant  [decoder-knob robustness companion]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_main_pca20.png'),
     ('Fig 3 — ANTACT axis variant  [choice axis trained 48–62 in A+B; centred storyboard near axis-invariant; C–F unchanged]',

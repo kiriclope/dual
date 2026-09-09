@@ -154,6 +154,18 @@ across-condition variance decomposed onto orthogonal factor contrasts (sample / 
 matrices and their row percentages now come from `pca/exp_pceta_cv.py`, not from the all-trial condition
 means: 30 random half-splits × both directions, components fitted on one half, variance AND η² measured
 on the other, components matched to the full-data axes by max |cos| (Hungarian) before averaging.
+**5-FOLD VARIANT** (`exp_pceta_cv.py --kfold 5` → `pceta_cv5` etc.; figure flag `--cv5` → stem
+`fig_dimensionality_main_cv5`, pinned in the gallery Variants tab). 12 random partitions × 5 folds,
+basis on 80% of the trials, variance and η² on the held-out 20% — same 60 held-out measurements as the
+default. VERDICT 2026-09-09: the two builds agree everywhere and every conclusion is identical
+(reliable cells differ by ≤0.06). 5-fold is slightly better on two counts — the faded rows land on
+exactly 1/3 (DPA md PC2 0.35/0.31/0.34 against 2-fold's 0.46/0.27/0.27; dual md PC3 0.11/0.18/0.18/0.14
+against 0.24/0.28/0.13/0.05) and the component ordering is far more stable (reordering rate 0.08–0.65
+against 0.28–0.83) — and slightly worse on one: the 2.5×-smaller test set attenuates the strongly coded
+cells (DPA md sample 0.92 vs 0.94, dual decision choice 0.83 vs 0.89, GNG 0.97 vs 0.98). CANONICAL STAYS
+REPEATED 2-FOLD because panel b's spectrum is repeated 2-fold and panel d's row labels are b's fractions;
+matching the estimator to the panel it quotes is worth more than the small gains. Smallest cell is 6
+trials per mouse × condition, so a 5-fold test fold can hold one trial.
 Merged into `results.pkl` as `pceta_cv` / `cm_var_cv` / `pceta_cv_factors` / `pceta_cv_permfrac`;
 `panelD_mats` prefers them and falls back to the raw `pceta` / `cm_var`. The raw keys stay for the ED
 grid. WHY: panel d's raw percentages counted noise (DPA md 41/30/28%) and looked like they contradicted
