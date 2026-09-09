@@ -233,8 +233,14 @@ def panelB_sets(fig, gsB2):
                 _fd = np.asarray(SJ[('dual', 'md', 'Expert')]['frac'])   # drawn values, not hardcoded
                 ax.text(0.96, 0.84, f'2 axes: GNG ({_fd[0]:.2f})\n× sample ({_fd[1]:.2f})',
                         transform=ax.transAxes, ha='right', va='top', fontsize=PS*6.0, color='0.25')
-            if r == 1:                               # decision: ~3 reliable axes
-                ax.text(0.96, 0.84, '≈3 reliable axes', transform=ax.transAxes,
+            if r == 1:                               # decision: COUNT the reliable axes (Leon 2026-09-09)
+                # was a hardcoded "≈3 reliable axes" on both columns; under the canonical axes only the
+                # DPA column has three. An axis counts as reliable when its jackknife lower bound clears
+                # the shuffle null, the same comparison the error bars and the dashed null line draw.
+                _e = SJ[(ts, 'decision', 'Expert')]; _nl = np.clip(np.asarray(SN[(ts, 'decision')], float), 0, None)
+                _lo = np.asarray(_e['lo'], float); _m = min(len(_lo), len(_nl))
+                _nax = int(sum(_lo[i] > _nl[i] for i in range(_m)))
+                ax.text(0.96, 0.84, f'{_nax} reliable axes', transform=ax.transAxes,
                         ha='right', va='top', fontsize=PS*6.0, color='0.25')
             if r == 1 and c == 0:
                 ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.3, loc='center right')
@@ -605,7 +611,8 @@ if CDEC:
         'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse '
         'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
         'tasks add exactly one, the GNG axis (0.92 against sample 0.07), and the decision '
-        'state spreads to about three. Naïve and expert spectra are near-identical; learning does not '
+        'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
+        'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
         'change the dimensionality.',
         'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 against its own null) that disappears with learning.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '

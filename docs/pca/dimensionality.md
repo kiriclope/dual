@@ -1,5 +1,10 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
+> **2026-09-09 — Fig 2b's decision annotation is DATA-DRIVEN.** It used to read a hardcoded "≈3 reliable axes"
+> on both decision columns; it now counts the components whose jackknife lower bound clears the shuffle null —
+> **3 on DPA trials, 2 on dual trials** (Expert). §2 and the Fig 2 legend follow. Fractions: DPA 0.41/0.40/0.20,
+> dual 0.84/0.12/0.02; the pre-flip 0.66/0.17/0.17 and 0.61/0.30/0.05 in older text were stale.
+
 > **NAMING CANON since 2026-09-09 (Leon).** The Go/NoGo trials are NOT called "distractors" any more: prose says the
 > **Go/NoGo odor** / **Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read
 > `dist` now reads **GNG**, and the trial-timeline event in Figs 2a/3a is **GNG**. CACHE KEYS ARE UNCHANGED — `dist`

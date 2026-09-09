@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.26 (2026-09-09): draft↔figure alignment audit.** Re-ran all five mains and checked every printed statistic against the text and legends. Everything matched except three items, now fixed: (i) §2's decision-period reliable-variance fractions were pre-flip (0.66/0.17/0.17 and 0.61/0.30/0.05) — they are 0.41/0.40/0.20 on DPA trials and 0.84/0.12/0.02 on Go and NoGo trials; (ii) §3's pooled choice × GNG cosine read 0.42, the figure prints 0.43; (iii) Fig. 2b's "≈3 reliable axes" was HARDCODED on both decision columns — it is now COUNTED from the data (an axis is reliable when its jackknife interval clears the shuffle null), which gives 3 on DPA trials and 2 on Go and NoGo trials, and §2 plus the legend now say that instead of "about three".
+
 > **v12.25 (2026-09-09): the Go/NoGo trials are no longer called "distractors"** (Leon: "stop calling go and nogo distractors — gng instead of dist, go/nogo instead of distractor"). Prose now says the **Go/NoGo odor / Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read `dist` reads **GNG**, and the trial-timeline event in Figs 2a/3a is **GNG**. Cache keys are deliberately untouched (`dist` in PM_PLANE/E_VARS, `gng` in the dPCA and CCGD caches) — the scripts map key → label at draw time, so no pickle is invalidated. Three uses of "distractor" are kept on purpose: the two sentences about distractors in the CITED literature (Jacob 2014; Parthasarathy 2017) and the Jacob 2014 reference title. The banners below are a changelog and keep their original wording. Fig. 1a's first slot is now a drawn head-fixed-mouse portrait (`overlaps/mouse_cartoon.py`), replacing the traced line-art raster.
 
 > **v12.24 (2026-09-09): NoGo ARM OF THE COUPLING = CEILING EFFECT, NOT A COST** (Leon: "I would have expected a negative correlation"). New `overlaps/exp_push_nogo_ceiling.py` (gallery controls/push_nogo_ceiling.png): the ρ = +0.65 ΔNoGo-vs-Δdepth trend is carried by the deep pushers having already withheld correctly on 82–95% of naïve NoGo trials (naïve NoGo accuracy vs ΔNoGo ρ = −0.87, p = .002; partial rank correlation of Δdepth with ΔNoGo controlling for it +0.27, p = .49; depth and NoGo accuracy unrelated at either stage, ρ +0.30 / +0.13; relative gain ρ +0.22, Δlogit +0.35). §4, the Fig. 4c legend and Methods now say so; the "possible cost, cannot be settled" wording is gone.
@@ -526,8 +528,7 @@ By this measure the memory occupied a single dimension. During the delay of DPA 
 component accounted for all of the reliable variance in the population state (Fig. 2b; fraction
 1.00, 95% CI [0.98, 1.00], jackknife across mice). Go and NoGo trials added one further
 dimension at the same moment (0.92 + 0.07 [0.01, 0.13]), which we identify below as the
-GNG axis, and the decision period spread the state over about three (reliable-variance
-fractions 0.66/0.17/0.17 on DPA trials and 0.61/0.30/0.05 on Go and NoGo trials). The same
+GNG axis, and the decision period spread the state over three reliable axes on DPA trials (reliable-variance fractions 0.41/0.40/0.20) and two on Go and NoGo trials (0.84/0.12), where the GNG axis still carried most of the reliable variance. The same
 picture held animal by animal, on each mouse's own simultaneously recorded neurons. Wherever
 the reliable variance could be resolved, one component dominated the delay spectrum (Extended
 Data Fig. 3c; median top-1 fraction 0.90 naïve, 0.93 expert, n = 7 resolvable mice per stage),
@@ -642,7 +643,7 @@ trial as well as a plane fitted in that context for the sample (Extended Data Fi
 
 The same pattern held in every animal (Extended Data Fig. 6g), and it carried the one change
 with learning in this section. The GNG code's plane-only accuracy rose (0.58 → 0.65, p = .027, 8/9 mice) while its full-population decodability rose less reliably (0.79 → 0.86, p = .13), so that the share of the GNG signal carried by the plane grew from 0.28 to 0.37 (chance-referenced, 7/9 mice, p = .16): animal by animal the GNG code moved toward the plane, a change we quantify in the next section. The sample axis
-lay at the level expected for independent directions relative to the choice axis (Fig. 3d; |cos| = 0.06 in naïve and 0.08 in expert mice) and to the GNG axis (0.09; same analysis, Methods), against a floor of ≈0.05 for random directions in these populations, whereas the overlap between choice and GNG was partial and growing (0.29 → 0.42 after correction for split-half reliabilities, pooled; the per-animal raw counterpart is tested in Fig. 4a).
+lay at the level expected for independent directions relative to the choice axis (Fig. 3d; |cos| = 0.06 in naïve and 0.08 in expert mice) and to the GNG axis (0.09; same analysis, Methods), against a floor of ≈0.05 for random directions in these populations, whereas the overlap between choice and GNG was partial and growing (0.29 → 0.43 after correction for split-half reliabilities, pooled; the per-animal raw counterpart is tested in Fig. 4a).
 
 Finally, the plane was the same plane before and after learning (Fig. 3e). Decoder axes trained in one stage read the withheld activity of the other stage at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72, robust to scoring both stages under one common scaling), and within each animal the transfer was 0.86 of the within-stage ceiling for the sample and 0.59 for the choice. Construction could
 still have survived the dimension count by rotating the memory and choice axes into a new
@@ -1105,7 +1106,7 @@ counts toward the geometry.
 b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA component
 (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse label-shuffle
 null). The DPA mid-delay state occupies a single reliable dimension. The dual tasks add exactly one,
-the GNG axis (0.92 against sample 0.07), and the decision state spreads to about three. Naïve
+the GNG axis (0.92 against sample 0.07), and the decision state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as reliable when its jackknife interval clears the shuffle null). Naïve
 and expert spectra are near-identical; learning does not change the dimensionality.
 
 c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy
