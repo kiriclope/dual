@@ -55,6 +55,10 @@ MAIN = [
 # ── "Variants" — alternative builds of the mains (axis × normalisation × pipeline knobs).
 #    Moved out of MAIN 2026-09-01 (user: one canonical card per figure in Main).
 VARIANTS = [
+    ('Fig 2 — SAMPLE axis on the FULL mid-delay 5.5-6.5 s (bins 33-38)  [canonical is 6.0-6.5; sample decoding +.014 to +.028, GNG unchanged]',
+     'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main_fmd.png'),
+    ('Fig 3 — SAMPLE axis on the FULL mid-delay 5.5-6.5 s (bins 33-38)',
+     'pca/figures/pseudo/dimensionality/png/fig_manifold_main_fmd.png'),
     ('Fig 2 — panel d from 5-FOLD CV  [basis on 80% of trials, eta2 on the held-out 20%; canonical d is repeated 2-fold]',
      'pca/figures/pseudo/dimensionality/png/fig_dimensionality_main_cv5.png'),
     ('Fig 3 — PCA-20 pipeline variant  [decoder-knob robustness companion]',
