@@ -1226,7 +1226,7 @@ shift is small relative to its spread.
 
 g–i, The displacement, read on the learned choice axis, predicts behavior. Δdepth (ON−OFF)
 against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B;
-depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay). The joint trade-off (g) is significant by rank (Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model (β = −0.011, p = .009).
+depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay on DPA trials; ΔDPA accuracy is measured on DPA trials and ΔGNG accuracy on dual trials, as in Fig. 4c). The joint trade-off (g) is significant by rank (Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model (β = −0.011, p = .009).
 
 j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as
 without laser (r = +0.44, p = .20).

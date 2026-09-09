@@ -652,9 +652,9 @@ pad = (ally.max() - ally.min()) * 0.15 or 0.05
 ylim = (ally.min() - pad, ally.max() + pad)
 _STMK = {'Expert': 'o', 'Naive': '^'}                       # Expert circle / Naive triangle
 for ax, key, ylab, msg in [
-        (axE, 'd_dpa', 'Δ DPA accuracy (on−off)',
+        (axE, 'd_dpa', 'Δ DPA accuracy, DPA trials (on−off)',
          ''),
-        (axF, 'd_gng', 'Δ GNG accuracy (on−off)',
+        (axF, 'd_gng', 'Δ GNG accuracy, dual trials (on−off)',
          '')]:
     xdep = np.array([r['d_depth'] for r in rows_ab])
     yv = np.array([r[key] for r in rows_ab])
@@ -775,8 +775,8 @@ axL.text(0.5, 0.02, f'n={_ok.sum()}: Spearman ρ={_rs:+.2f}, p={_ps:.3f}',   # S
          transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _ps < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
          va='top', fontsize=PS*12, fontweight='bold', color='k' if _ps < 0.05 else '0.55')
-axL.set_xlabel('Δ choice-code depth (on−off)' if POSTER else f'Δ choice-code depth (on−off, {AXIS_LBL})')
-axL.set_ylabel('Δ DPA − Δ GNG accuracy (on−off)')
+axL.set_xlabel('Δ DPA choice-code depth (on−off)' if POSTER else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})')
+axL.set_ylabel('Δ DPA (DPA trials) − Δ GNG (dual trials)')
 axL.set_box_aspect(1)
 
 # ── K, L: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
@@ -885,7 +885,8 @@ if not POSTER:
         'The direction of the shift differs across mice (two toward no-lick, three toward lick), so the mean shift is small relative to its spread.',
         'g–i, The displacement, read on the learned choice axis, predicts behavior. Δdepth (ON−OFF) '
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
-        'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay). The joint trade-off (g) is significant by rank '
+        'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay on DPA trials; '
+        'ΔDPA accuracy is measured on DPA trials and ΔGNG accuracy on dual trials, as in Fig. 4c). The joint trade-off (g) is significant by rank '
         '(Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). '
         'Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model '
         '(β = −0.011, p = .009).',
