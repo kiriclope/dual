@@ -283,12 +283,13 @@ Publication-ready assembly (recorded cohort, laser OFF, 9 mice; loads the non-la
 - **H** — **experts reach a suboptimal balance**: per-mouse DPA-vs-GNG scatter (Naive→Expert), y=x,
   Pearson/Spearman + mean gap-to-optimal.
 
-The panel-A cartoon is a **continuous-line B&W vector** traced from the original `~/dual/mouse.svg`
-illustration by `overlaps/make_mouse_lineart.py`: rsvg-render → darkness-threshold (L<135) to its own
-bold outlines → morphological close → erase baked-in labels + stray apparatus fragments → flip
-horizontal so the mouse faces the task → **vectorise with potrace** (`potracer`, pure-python; `pip
-install potracer` in env `dual`) → emit `mouse_lineart.svg` (traced path + vector labels
-Head-fixed/Odor/Water). Re-run the script to regenerate; the figure just renders the SVG.
+The panel-A cartoon is a **drawn head-fixed-mouse portrait** — pure matplotlib vector in
+`overlaps/mouse_cartoon.py` (`draw_headfixed_mouse(ax, ps=PS)`): head-plate + clamps, ears, big eyes,
+whiskers, front paws on the tube rim and the lick spout with its water droplet, drawn in axes coords 0–1 with
+an equal aspect. Preview it on its own with `python mouse_cartoon.py` (writes
+`figures/overlaps/behavior/assets/mouse_cartoon_preview.png`). It replaced the traced `mouse_lineart.svg`
+raster on 2026-09-09 (Leon: "draw a cute portrait of a head fixed mouse instead (cartoony)"); the old
+`make_mouse_lineart.py` potrace pipeline is retired but still in the repo.
 
 **Training batches** — `fig_behavior_learning_batch.py` (`figures/overlaps/behavior/batch/`):
 - `--batch <name> --group <control|opto|DPA|Dual>` → 5-panel per-group curves. Panels use

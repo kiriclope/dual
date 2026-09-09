@@ -89,6 +89,12 @@ Rules that go with it:
   (`*` when p<.05 else `n.s.`). **Stats text** (β/ρ/p lines): `fontsize=6.5, color='0.3'`.
 - **Per-mouse colour** = `sns.color_palette('tab10')` keyed by `ALL_MICE` (same mouse = same colour across
   panels); fill = category (sample A solid / B open, or cr/fa); scatter `s≈28–42`, thin `linewidths≈0.6–1.0`.
+- **Name the trial set** on any axis/title whose data come from a subset: `Δ DPA accuracy, DPA trials`,
+  `Δ GNG accuracy, dual trials`, `choice-code d′, DPA trials` (Figs 4b–e, 6g–j). A reader must not have to
+  reach the legend to learn which trials a panel used.
+- **n annotations**: name the UNIT, and add the observation count only when points are nested inside mice —
+  `9 mice` (per-mouse tests), `5 mice, 20 obs` (mouse × stage × sample points), `mixed model (9 mice, 36 obs)`.
+  Retired shapes: `per-mouse (n=9)`, `n=20:`, `(10 OFF/ON pairs, 20 obs.)`.
 - **Save BOTH** PNG and SVG for every figure (`savefig.dpi=400`; SVG carries `svg.fonttype='none'`, and `*.svg`
   is gitignored so only the PNG is committed). Axis/other font sizes: labels 8, ticks 7, small annotations 6–6.5.
 

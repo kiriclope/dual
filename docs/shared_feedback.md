@@ -73,3 +73,15 @@ Data-collection functions that are overlaps-specific (`group_mean_trajs`, `grand
   n = 9 is p = .0039, so three small sign flips park it near .10 whatever the magnitudes (Fig 3c choice: Wilcoxon
   .098 vs paired t .038 under the old build). And before reporting "Δx predicts Δy", regress Δy on its own baseline:
   the Fig 4c NoGo arm's ρ = +0.65 vanished (partial +0.27) once naïve NoGo accuracy was controlled.
+
+## 2026-09-09 (later) — renaming a term across the paper
+- **Never rename a cache key to fix a label.** "distractor" → GNG changed display strings only; `dist` (PM_PLANE,
+  E_VARS) and `gng` (dPCA/CCGD caches) are still the keys, mapped to labels at draw time. Renaming them would
+  have invalidated every pickle. Where a display name is also a sort key (`CODE_NAME` → `CODE_ORDER` in the two
+  manifold scripts) BOTH must move together, or the sort raises `ValueError: x not in list`.
+- **Protect quotations before a global replace.** The rename had to spare the two sentences about distractors in
+  the CITED literature and a reference title; the patch script blanked them to placeholders, replaced, restored.
+  Version banners were excluded too — they are a changelog of what was written at the time.
+- **Do it with assert-counted phrase rules, then list the leftovers.** ~110 occurrences fell into ~35 rules; the
+  script printed every unmatched line so the line-wrapped and split-string cases (`'…the distractor '` +
+  `'odor…'`) were handled by hand rather than silently missed.
