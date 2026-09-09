@@ -579,8 +579,8 @@ if POSTER:
                handletextpad=0.3, ncol=2, columnspacing=0.8)
 else:
   for ax, (short, col, mask), msg in [
-        (axB, REC_METRICS[0], 'DPA'),
-        (axC, REC_METRICS[1], 'GNG')]:
+        (axB, REC_METRICS[0], 'DPA: laser OFF vs ON'),
+        (axC, REC_METRICS[1], 'GNG: laser OFF vs ON')]:
     g = per_mouse_day_laser(col, mask)
     g = g[g.mouse.isin(JAWS)]
     lo, hi = [], []
@@ -637,6 +637,7 @@ if not POSTER:
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
     axK.set_ylabel('DPA choice-code depth')     # axis/window named in the caption (print-scale trim)
+    axK.set_title('choice-code depth: OFF vs ON', loc='left', fontsize=TITLE_FS)
     _klo, _khi = axK.get_ylim(); axK.set_ylim(_klo - 0.42 * (_khi - _klo), _khi)      # room for the key below the data
     axK.legend(frameon=False, fontsize=PS*6, loc='lower center', ncol=3, handletextpad=0.3,
                columnspacing=0.9, labelspacing=0.25, borderaxespad=0.1)
@@ -653,9 +654,9 @@ ylim = (ally.min() - pad, ally.max() + pad)
 _STMK = {'Expert': 'o', 'Naive': '^'}                       # Expert circle / Naive triangle
 for ax, key, ylab, msg in [
         (axE, 'd_dpa', 'Δ DPA accuracy, DPA trials (on−off)',
-         ''),
+         'DPA arm'),
         (axF, 'd_gng', 'Δ GNG accuracy, dual trials (on−off)',
-         '')]:
+         'GNG arm')]:
     xdep = np.array([r['d_depth'] for r in rows_ab])
     yv = np.array([r[key] for r in rows_ab])
     for mouse in JAWS:                                   # join A&B within each mouse×stage
@@ -723,6 +724,7 @@ for ax, (short, col, mask_fn), msg in [
     ax.legend(frameon=False, fontsize=PS*8, loc='lower right')
     ax.set_title(msg, loc='left', fontsize=TITLE_FS)
 axG.set_ylabel('performance')
+axG.set_title('DPA: control vs opto (chronic)', loc='left', fontsize=TITLE_FS)   # orientation titles (Leon 2026-09-09)
 
 # ── C: batch LMM group-effect forest (opto−control β ○ + group×day slope □) ────
 axJ = fig.add_subplot(POS['C'])              # C = batch LMM forest
@@ -744,6 +746,7 @@ axJ.set_xticks(range(len(BATCH_METRICS)))
 axJ.set_xticklabels([m[0] for m in BATCH_METRICS], rotation=15, ha='right')
 axJ.set_xlim(-0.6, len(BATCH_METRICS) - 0.4)
 axJ.set_ylabel('opto−control  (Δ perf.)')
+axJ.set_title('chronic effects: mixed model', loc='left', fontsize=TITLE_FS)
 axJ.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=7, label='group (at mean day)'),
                     mlines.Line2D([0], [0], marker='s', color='k', mfc='white', ls='none', ms=6, label='group×day (slope)')],
            frameon=False, fontsize=PS*7, loc='best')
@@ -777,6 +780,7 @@ axL.text(0.85, 0.93, '*' if _ps < 0.05 else 'n.s.', transform=axL.transAxes, ha=
          va='top', fontsize=PS*12, fontweight='bold', color='k' if _ps < 0.05 else '0.55')
 axL.set_xlabel('Δ DPA choice-code depth (on−off)' if POSTER else f'Δ DPA choice-code depth (on−off, {AXIS_LBL})')
 axL.set_ylabel('Δ DPA (DPA trials) − Δ GNG (dual trials)')
+axL.set_title('trade-off: ΔDPA − ΔGNG', loc='left', fontsize=TITLE_FS)
 axL.set_box_aspect(1)
 
 # ── K, L: neural d′ laser ON vs OFF (per mouse) — points on unity = spared ──────
@@ -837,6 +841,7 @@ if not POSTER:
     _brp, _bpp = pearsonr(_bx[_bok], _by[_bok]); _brs, _bps = spearmanr(_bx[_bok], _by[_bok])
     axBal.text(0.5, 0.02, f'{len(JAWS)} mice, {int(_bok.sum())} obs\nSpearman ρ={_brs:+.2f}, p={_bps:.2f}',   # Spearman only, as in g–i (Leon 2026-09-09)
                transform=axBal.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
+    axBal.set_title('task balance, laser ON', loc='left', fontsize=TITLE_FS)
     axBal.set_xlim(_blim); axBal.set_ylim(_blim); axBal.set_box_aspect(1)
     axBal.set_xlabel('DPA performance, DPA trials (laser ON)')      # trial sets named as in g–i (Leon 2026-09-09)
     axBal.set_ylabel('GNG performance, dual trials (laser ON)')

@@ -379,6 +379,8 @@ axG.text(1.7, 0.975, f'lick × stage\np={gx.pvalues["licked:expert"]:.3f}', ha='
          fontsize=PS*6, color='0.3')
 axG.set_xticks([0, 1, 2.4, 3.4]); axG.set_xticklabels(['no delay\nlick', 'delay\nlick', 'no delay\nlick', 'delay\nlick'])
 axG.set_xlim(-0.5, 3.9); axG.set_ylim(0.0, 1.03); axG.set_ylabel('P(lick at test)')
+# no title on g (Leon 2026-09-09): the Naive/Expert stage labels above the axes already orient it,
+# and a title has to clear them (they sit at y=1.13 in data coords), which pushed it into the row above
 # (legend dropped at print scale — the marker colours restate the x-axis categories)
 
 # ── H: suboptimal expert balance — DPA vs GNG per animal ──────────────────────
@@ -403,6 +405,7 @@ axH.text(0.035, 0.03, f'r={r_p:+.2f} p={p_p:.2f}\nρ={r_s:+.2f} p={p_s:.2f}  (n=
          fontsize=PS*6.5, color='0.3')
 axH.set_xlim(lim); axH.set_ylim(lim); axH.set_aspect('equal')
 axH.set_xlabel('DPA performance'); axH.set_ylabel('GNG performance')
+axH.set_title('DPA vs GNG balance (expert)', loc='left', fontsize=TITLE_FS)
 axH.legend(handles=[mlines.Line2D([0], [0], marker='o', color='k', ls='none', ms=5, label='Jaws'),
                     mlines.Line2D([0], [0], marker='^', color='k', ls='none', ms=7, label='ChR'),
                     mlines.Line2D([0], [0], marker='s', color='k', ls='none', ms=7, label='ACC')],
