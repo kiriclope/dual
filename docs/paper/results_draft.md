@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.27 (2026-09-09): Fig. 2d IS NOW CROSS-VALIDATED** (Leon: "ok then we should cross validate panel d"). Panel d used to PCA the condition means estimated from ALL the trials, so its row percentages were raw condition-mean variance and looked like they contradicted panel b: the DPA delay read 41/30/28% with coded-looking second and third rows, while the cross-validated spectrum of b said one axis (1.00/0/0). New `pca/exp_pceta_cv.py` fits the components on one trial half and measures BOTH the variance and the η² on the other (30 half-splits × 2 directions), merging `pceta_cv` / `cm_var_cv` into `results.pkl`; `panelD_mats` prefers them and falls back to the raw keys. The row labels are now panel b's reliable fractions (DPA delay 100/0/0, DPA decision 44/38/18, dual delay 92/7/0, dual decision 84/12/3) and the reliable rows keep their coding (sample 0.94; GNG 0.99; choice 0.73 DPA / 0.89 dual; sample 0.81 dual delay) while the non-replicating rows go flat at the 1/3 chance level. One trap found and fixed: the DPA decision spectrum is 0.44/0.38, so those two components swapped from split to split and naive averaging blended the choice row with the sample row (0.67 choice + 0.30 sample against 0.57 sample + 0.35 choice); each split's components are now matched to the full-data axes by maximum |cosine| (Hungarian) before averaging, which is a relabelling only. §2, Methods and the Fig. 2d legend rewritten; ED 3d keeps the uncross-validated matrices and is now labelled as the demonstration of the artifact.
+
 > **v12.26 (2026-09-09): draft↔figure alignment audit.** Re-ran all five mains and checked every printed statistic against the text and legends. Everything matched except three items, now fixed: (i) §2's decision-period reliable-variance fractions were pre-flip (0.66/0.17/0.17 and 0.61/0.30/0.05) — they are 0.41/0.40/0.20 on DPA trials and 0.84/0.12/0.02 on Go and NoGo trials; (ii) §3's pooled choice × GNG cosine read 0.42, the figure prints 0.43; (iii) Fig. 2b's "≈3 reliable axes" was HARDCODED on both decision columns — it is now COUNTED from the data (an axis is reliable when its jackknife interval clears the shuffle null), which gives 3 on DPA trials and 2 on Go and NoGo trials, and §2 plus the legend now say that instead of "about three".
 
 > **v12.25 (2026-09-09): the Go/NoGo trials are no longer called "distractors"** (Leon: "stop calling go and nogo distractors — gng instead of dist, go/nogo instead of distractor"). Prose now says the **Go/NoGo odor / Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read `dist` reads **GNG**, and the trial-timeline event in Figs 2a/3a is **GNG**. Cache keys are deliberately untouched (`dist` in PM_PLANE/E_VARS, `gng` in the dPCA and CCGD caches) — the scripts map key → label at draw time, so no pickle is invalidated. Three uses of "distractor" are kept on purpose: the two sentences about distractors in the CITED literature (Jacob 2014; Parthasarathy 2017) and the Jacob 2014 reference title. The banners below are a changelog and keep their original wording. Fig. 1a's first slot is now a drawn head-fixed-mouse portrait (`overlaps/mouse_cartoon.py`), replacing the traced line-art raster.
@@ -544,10 +546,16 @@ level of 0.5 (Fig. 2c). In the delay only the sample could be read out (0.89 on 
 test odor and the choice stayed at chance until the test arrived, when all of them became
 decodable (choice 0.81–0.85, test 0.60–0.62). The principal components were themselves the task
 variables, each loading on a single factor of the design (Fig. 2d; η², the share of a
-component's condition-mean variance explained by one factor, where 1 means the component codes
-that factor alone). The memory line was the sample axis (η² = 0.93). In the delay of Go and
-NoGo trials the state held one large GNG axis (η² = 0.98, 37% of condition-mean
-variance) beside a smaller sample axis (0.91, 14%), and the decision period added choice and test axes (0.84, 0.76), with some mixing of sample, test and choice on its smaller components. The
+component's held-out variance explained by one factor, where 1 means the component codes that
+factor alone; the components are fitted on one half of the trials and both their size and their
+coding are read on the other, as in Fig. 2b). The memory line was the sample axis (η² = 0.94). In
+the delay of Go and NoGo trials the state held one large GNG axis (η² = 0.99, 92% of the reliable
+variance) beside a smaller sample axis (0.81, 7%), and the decision period added a choice axis
+(0.73 on DPA trials, 0.89 on Go and NoGo trials) and a weaker test axis (0.38), with some mixing
+of sample, test and choice on the smallest components. Cross-validation is what makes this
+readable: on condition means estimated from all the trials the three DPA delay components look
+comparably large (41%, 30% and 28%) and the second and third look coded, whereas out of sample
+they carry no variance and no coding, leaving the single sample line. The
 memory axis is small but reliable, and it lies close to orthogonal to the larger GNG and
 choice axes that it has to withstand.
 
@@ -930,16 +938,26 @@ quoted in the plane section cross-decodes Go vs NoGo from held-out dual pseudo-t
 condition, disjoint train/test halves, 8 repeats) projected into the DPA-state subspace — the
 top-3 PCs of the DPA condition means, which are estimated from all DPA trials (the held-out
 split applies to the decoded dual trials) — with LDA on the 3-D projection and a 1,000-shuffle
-within-mouse label-permutation null. For Fig. 2d, each condition-mean PC's across-condition
-variance was decomposed as η² onto mutually orthogonal factor contrasts (sample, GNG,
-test, choice; plus a task contrast in the 12-condition set); the balanced design makes the
-shares exhaustive (chance 1/3 per contrast, Beta(½,1) under no signal — large η² on unreliable
-components is expected and is not evidence of coding, which is why decodability is tested
-directly in Fig. 2c). PCs beyond the reliable rank are faded; the rank is the number of leading
-components that individually exceed twice the shuffle floor, accumulated until 95% of the
-reliable variance is reached (DPA mid-delay 1, dual mid-delay 2, both decisions 3). Apparent
-delay-period test/choice η² in DPA cannot be anticipatory coding — the test odor is drawn
-independently of the sample — and fails cross-validation; it is condition-mean sampling noise.
+within-mouse label-permutation null. For Fig. 2d the η² decomposition is cross-validated on the
+same half-splits as the spectra of Fig. 2b (`pca/exp_pceta_cv.py`). In each of 30 random
+half-splits, and in both directions, the principal components were computed from the condition
+means of one half of the trials and the other half was projected onto them; each component's
+replicating variance and its η² onto mutually orthogonal factor contrasts (sample, GNG, test,
+choice; plus a task contrast in the 12-condition set) were both measured on that held-out
+projection. Because two components of nearly equal size change places from split to split, each
+split's components were matched to the full-data components by maximum absolute cosine (Hungarian
+assignment) before averaging; the matching only labels the components and enters neither the fit
+nor the measurement. The balanced design makes the η² shares exhaustive (chance 1/3 per contrast,
+Beta(½,1) under no signal). The row labels give each matched component's share of the reliable
+variance, so they agree with Fig. 2b. Components beyond the reliable rank are faded; the rank is
+the number of leading components that individually exceed twice the shuffle floor, accumulated
+until 95% of the reliable variance is reached (DPA mid-delay 1, dual mid-delay 2, DPA decision 3,
+dual decision 2). Cross-validation removes an artifact that the uncross-validated matrices show
+plainly: on condition means estimated from all the trials, delay-period test and choice η² in DPA
+reach 0.64 and 0.68 on the second and third components, which cannot be anticipatory coding
+because the test odor is drawn independently of the sample. Those components carry no variance out
+of sample and their η² falls back to the 1/3 chance level. The uncross-validated matrices are kept
+in Extended Data Fig. 3d as the demonstration.
 
 ### Generalization, parallelism, abstraction (Figs 2e–g, ED)
 
@@ -1116,10 +1134,15 @@ statistic, short line). The dagger marks the single exception, an anticipatory c
 the naïve mid-delay state (0.66 against its own null) that disappears with learning.
 
 d, The principal components are the task variables. η² of each condition-mean PC against the
-design contrasts (rows, PCs labeled with their percentage of condition-mean variance; a cell
-near 1 means that the PC codes that variable alone). The geometry is factorized rather than
-mixed. Rows beyond the reliable rank of panel b are faded; dual rows show 4 of the 7 centered
-contrasts.
+design contrasts, cross-validated exactly as in b: the components are fitted on one half of the
+trials and both the η² and the row percentages are measured on the other (30 random half-splits,
+both directions averaged; components are matched to the full-data axes before averaging, because
+two components of nearly equal size otherwise change places from split to split and their rows
+blend). Row labels therefore give each matched component's share of the reliable variance of b,
+and a cell near 1 means that the PC codes that variable alone. The geometry is factorized rather
+than mixed. Rows beyond the reliable rank of b are faded, and they are also flat by construction,
+since a component that does not replicate carries no coding on held-out trials; dual rows show 4
+of the 7 centered contrasts.
 
 e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at
 decision, the states of b–d; each decoder is trained and tested in the same window). Cells give
@@ -1343,9 +1366,10 @@ estimator) — top-1 reliable fraction, memory vs decision window, per stage; no
 (reliable-total < 5) drawn open and excluded from the test; medians 0.90/0.93 at mid-delay, expert
 memory-vs-decision Wilcoxon p = .047 (6/7), naïve directional p = .22; (d) the full per-fit grid
 for the all-tasks set (`dim_all.png`): cvPCA scree, cross-validated PR and shattering per window,
-and the per-PC η² coding matrices — condition-mean PCs beyond the reliable ones carry apparent η²
-for variables undetermined at that point (sampling noise stripped by cvPCA, not anticipatory
-coding: the gotcha flagged in Fig. 2d's footnote); (e) window robustness (`dim_DPA_altwin.png`) —
+and the per-PC η² coding matrices, UNCROSS-VALIDATED — condition-mean PCs beyond the reliable
+ones carry apparent η² for variables undetermined at that point (sampling noise, not anticipatory
+coding). Since 2026-09-09 this panel is the deliberate counterpart of main Fig. 2d, which
+cross-validates the same decomposition and leaves those rows flat; (e) window robustness (`dim_DPA_altwin.png`) —
 on full-delay / test windows the DPA-delay PR stays 1.0–1.1; (f) the Go/NoGo cross-decode column
 from the DPA subspace, per window (`dim_DPA_gng.png`; main Fig. 2c/d shows the clean mid-delay
 value 0.61; the late-delay ~0.7 figure is consummatory-inflated — the DPA geometry is close to,

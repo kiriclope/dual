@@ -194,9 +194,10 @@ build('ed_fig3', [
     'open and excluded from the test).',
     'd, The full per-fit grid for the all-tasks set (cvPCA scree, cross-validated participation '
     'ratio and shattering per window, and the per-PC η² coding matrices, Naïve and '
-    'Expert). Condition-mean PCs beyond the reliable ones carry apparent η² for '
-    'variables undetermined at that point in the trial — sampling noise stripped by cvPCA, '
-    'not anticipatory coding (the gotcha flagged in Fig. 2d). e, Window robustness: the same DPA '
+    'Expert). These matrices are NOT cross-validated, and are kept as the counterpart of main '
+    'Fig. 2d, which cross-validates the same decomposition: condition-mean PCs beyond the reliable '
+    'ones carry apparent η² for variables undetermined at that point in the trial — sampling '
+    'noise, not anticipatory coding — and in Fig. 2d those same rows are flat. e, Window robustness: the same DPA '
     'fit on full-delay / test windows — the DPA-delay participation ratio stays 1.0–1.1. '
     'f, The Go/NoGo cross-decode column from the DPA subspace, per window: the GNG code is '
     'partially decodable from the DPA geometry (close to, but not fully, orthogonal).',

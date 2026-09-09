@@ -9,9 +9,12 @@ DPA vs dual (x) mid-delay vs decision. Three claims:
      existence metric (Kobak et al. 2016), replacing the variance-weighted PR bars. Each stage is
      drawn against ITS OWN null (Expert solid, Naive dashed); the dist-cross verdict uses the
      1000-draw permutation null (2026-08-30; at 100 draws the margin was seed-flippable).
-  3. D eta^2 PC-coding matrices (Expert; DPA then dual, PC1-4 both) + the boxed 'dist x' cross-decode
+  3. D CROSS-VALIDATED eta^2 PC-coding matrices (Expert; DPA then dual) + the boxed 'dist x' cross-decode
      column on DPA: the axes ARE the variables; the DPA geometry carries the GNG code only
-     weakly. Naive overlaid in B/C; Naive matrices identical (Extended Data). Row fade rank =
+     weakly. Since 2026-09-09 the basis is fit on one trial half and the eta^2 AND the row-label
+     percentages are read on the other (exp_pceta_cv.py -> pceta_cv / cm_var_cv), so the labels ARE
+     panel b's reliable fractions and non-replicating rows go flat (~1/nfactor) instead of looking
+     coded. Naive overlaid in B/C; Naive matrices identical (Extended Data). Row fade rank =
      cumulative-95%-of-reliable-variance rule (see _rank_b). NB the dual eta^2 rows do NOT sum to 1
      exactly (4 of 7 centred contrasts shown; dual-md PC2 leaks ~6% to unshown interactions) —
      caption must not claim they do. Display names are canonical sample/dist/test/choice ('gng'
@@ -323,10 +326,14 @@ def _rank_b(ts, wn):
     passed by lo=0.012 vs the 1% constant, and switching the CI multiplier from z=1.96 to the
     t8=2.306 appropriate for n=9 flipped dual-md to rank 1 and collapsed DPA-decision 3->1 (its
     comp2 CI spans 0 while comp3 is solidly reliable — stop-at-first-failure). The cumulative rule
-    reproduces the same displayed ranks (DPA-md 1, DPA-dec 3, dual-md 2, dual-dec 3) with the CI
-    multiplier out of the decision entirely; margins: dual-md cum1=0.924 < 0.95 < cum2=0.995,
-    dual-dec cum2=0.909 < 0.95 < cum3=0.961 (the 0.961 is the tightest at 0.011 — consistent with
-    the drawn "~3 reliable axes" hedge)."""
+    keeps the CI multiplier out of the decision entirely.
+
+    RANKS UNDER THE CANONICAL AXES (re-measured 2026-09-09, post-flip; the pre-flip numbers this
+    docstring used to quote were stale): DPA-md 1, DPA-dec 3, dual-md 2, dual-dec 2. Margins:
+    dual-md cum1=0.924 < 0.95 < cum2=0.995, dual-dec cum1=0.837 < 0.95 < cum2=0.954 (the tightest,
+    0.004). The panel-b annotation uses the STRICTER CI rule instead (count of components whose
+    jackknife lower bound clears the shuffle null: DPA-dec 3, dual-dec 2 — same on the decision
+    rows it annotates; the two rules differ only on dual-md, 2 here vs 1 there)."""
     S = RES['SPEC_JK'][(ts, wn, 'Expert')]
     frac = np.clip(np.asarray(S['frac']), 0, None)
     null = np.clip(np.asarray(RES['SPEC_NULL'][(ts, wn)]), 0, None)
@@ -352,7 +359,15 @@ def panelD_mats(fig, gsD):
         F = FITDATA[(ts, wn, 'Expert')]
         nk = 3                                       # PC1-3 only (Leon 2026-09-08: PC4 removed — DPA PC4 is
                                                      # the degenerate 0% direction, dual PC4 sits below the rank)
-        M = np.asarray(F['pceta'])[:nk]; FO = list(F['factors']); cmv = np.asarray(F['cm_var'])[:nk]
+        # CROSS-VALIDATED cells + row labels (Leon 2026-09-09: "we should cross validate panel d").
+        # exp_pceta_cv.py fits the PC basis on one trial half and measures BOTH the variance and the
+        # eta^2 on the held-out half (30 splits x 2 directions), so the percentages are panel b's
+        # reliable fractions and a row that does not replicate goes flat instead of looking coded.
+        # The raw keys stay in the pickle as the fallback.
+        _cv = 'pceta_cv' in F and 'cm_var_cv' in F
+        M = np.asarray(F['pceta_cv' if _cv else 'pceta'])[:nk]
+        FO = list(F['pceta_cv_factors'] if _cv else F['factors'])
+        cmv = np.asarray(F['cm_var_cv' if _cv else 'cm_var'])[:nk]
         rk = _rank_b(ts, wn) if CDEC else nk
         if DCROSS and ts == 'DPA':                  # dist CROSS-decode column (DPA_GNG, above-chance frac)
             g = np.asarray(RES['DPA_GNG'][(wn, 'Expert')])[:nk]
@@ -616,9 +631,15 @@ if CDEC:
         'change the dimensionality.',
         'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the single exception, an anticipatory choice signal in the naïve mid-delay state (0.66 against its own null) that disappears with learning.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
-        'design contrasts (rows, PCs labeled with their percentage of condition-mean variance; a '
-        'cell near 1 means that the PC codes that variable alone). The geometry is factorized rather '
-        'than mixed. Rows beyond the reliable rank of panel b are faded; dual rows show 4 of the 7 centered contrasts.',
+        'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
+        'the trials and both the η² and the row percentages are measured on the other (30 random '
+        'half-splits, both directions averaged; components are matched to the full-data axes before '
+        'averaging, because two components of nearly equal size otherwise change places from split to '
+        'split and their rows blend). Row labels therefore give each matched component’s share of the '
+        'reliable variance of b, and a cell near 1 means that the PC codes that variable alone. The '
+        'geometry is factorized rather than mixed. Rows beyond the reliable rank of b are faded, and '
+        'they are also flat by construction, since a component that does not replicate carries no '
+        'coding on held-out trials; dual rows show 4 of the 7 centered contrasts.',
         'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the Go/NoGo odor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
         'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy (same windows as e), naïve against expert; points on the unity line indicate no change. The sample is unchanged (Δ = 0.00, 95% CI [−0.05, +0.05], Wilcoxon p = 1.00, n = 9), and so are the test (+0.01, [−0.01, +0.03], p = .43) and the choice (+0.01, [−0.03, +0.06], p = .82); the fraction transferred is unchanged (per-mouse medians 0.41–0.88, all p ≥ .65).',
         'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '

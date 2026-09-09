@@ -150,6 +150,16 @@ pseudo-trials/cond → StandardScaler+PCA(30) fit on train → LDA), at the post
 across-condition variance decomposed onto orthogonal factor contrasts (sample / gng / test / choice
 [/tasks]) — balanced 2×2×3 design so the η² are exhaustive per PC.
 
+**CROSS-VALIDATED since 2026-09-09** (Leon: "ok then we should cross validate panel d"). The panel-d
+matrices and their row percentages now come from `pca/exp_pceta_cv.py`, not from the all-trial condition
+means: 30 random half-splits × both directions, components fitted on one half, variance AND η² measured
+on the other, components matched to the full-data axes by max |cos| (Hungarian) before averaging.
+Merged into `results.pkl` as `pceta_cv` / `cm_var_cv` / `pceta_cv_factors` / `pceta_cv_permfrac`;
+`panelD_mats` prefers them and falls back to the raw `pceta` / `cm_var`. The raw keys stay for the ED
+grid. WHY: panel d's raw percentages counted noise (DPA md 41/30/28%) and looked like they contradicted
+panel b's cross-validated 1.00/0/0. The matching is not optional — DPA-decision components 1 and 2 sit
+at 0.44/0.38 and swap between splits, and unmatched averaging blended the choice row into the sample row.
+
 ## Settled numbers (results.pkl, verified 2026-08-10)
 | quantity | Naive | Expert |
 |---|---|---|
@@ -158,12 +168,16 @@ across-condition variance decomposed onto orthogonal factor contrasts (sample / 
 | **DPA-delay PR (memory)** | 1.11 [1.00, 1.76] | **1.00 [1.00, 1.47]** |
 | shattering (462 dich.) | 0.687 [.671, .698] | 0.697 [.688, .711] (null 0.50) |
 
-PC coding → **Fig 2d = the η² MATRICES, Expert row of four** (dual-delay · dual-decision · DPA-delay ·
-DPA-decision), with the message carried by the real data: dual-delay PC1 (40%) = gng .99, PC2 (12%) =
-sample .90; dual-decision PC1 = gng .94, PC2 = choice .92, PC3 = test .71, PC4 = sample .71; **DPA-delay
-PC1 = sample .98 (the 1-D memory line IS the sample axis; its PC2/PC3 η² lands on test/choice —
-undetermined at delay BY DESIGN (test drawn independently of sample), at chance in held-out decoding,
-failing cvPCA → SAMPLING NOISE, not anticipatory coding; gotcha 4 — flagged in the panel footnote)**; DPA-decision PC1 = choice .99. The FULL 2×4 grid (Naive &
+PC coding → **Fig 2d = the η² MATRICES, Expert row of four** (DPA-md · DPA-decision · dual-md ·
+dual-decision). CROSS-VALIDATED NUMBERS (2026-09-09, the ones on the current figure; row % = share of
+the RELIABLE variance, so they match panel b): DPA-md PC1 (100%) = sample .94, PC2/PC3 (0%) flat at the
+1/3 chance level; DPA-decision PC1 (44%) = choice .73, PC2 (38%) = sample .64, PC3 (18%) = test .38;
+dual-md PC1 (92%) = gng .99, PC2 (7%) = sample .81, PC3 (0%) flat; dual-decision PC1 (84%) = gng .98,
+PC2 (12%) = choice .89, PC3 (3%) flat. The corresponding RAW numbers (still in `pceta`/`cm_var`, still
+drawn in ED 3d) were DPA-md PC1 (41%) = sample .93 with PC2 = test .64 / PC3 = choice .68 — the
+sampling-noise gotcha 4, now removed by the cross-validation rather than only footnoted; DPA-decision
+PC1 (35%) = choice .84; dual-md PC1 (37%) = gng .98, PC2 (14%) = sample .91; dual-decision PC1 = gng
+.98, PC2 = choice .88, PC3 = sample .86. The FULL 2×4 grid (Naive &
 Expert, `plot_dimensionality_main.py` → `dimensionality.png`) is ED material. Design settled 2026-08-10
 after iterations: Expert/dual-only heatmaps hid the DPA/Naive evidence; the full 2×4 grid in the main
 buried the message; a derived "chips" summary panel was REJECTED (Leon: keep the matrices — show real
@@ -181,7 +195,11 @@ Everything ~stable Naive→Expert (the Naive grid shows the same one-variable-pe
 3. **DPA-delay PR ≈ 1 is partly definitional** (only the binary sample is encoded during maintenance) —
    phrase as "the memory is a line", not as an independent discovery.
 4. **Condition-mean PCs beyond ~PR are noise** — DPA-delay "PC2 = test / PC3 = choice" code FUTURE
-   variables; cvPCA strips them. Read every η² heatmap together with the PR.
+   variables; cvPCA strips them. Read every η² heatmap together with the PR. SINCE 2026-09-09 main
+   Fig 2d cross-validates the η² itself, so those rows come out flat there; the gotcha survives only in
+   the ED 3d grid (`plot_dimensionality_fits.py`), which is deliberately left uncross-validated as the
+   demonstration. When averaging split-half PCs, ALWAYS match components to a fixed reference first —
+   near-degenerate components swap order and unmatched averaging silently blends their rows.
 5. **Shattering window must be post-test (57–65)** — earlier windows leave test undecodable.
 6. **Trajectory (time-resolved) PR stays excluded** — its shuffle null retains ~46–50% of the variance
    (the condition-independent time ramp).
