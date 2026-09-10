@@ -70,3 +70,4 @@ place or from somewhere less direct.
 | 2026-09-09 15:54 | axis variant _fmd (sample = full mid-delay) | **TOTAL** | 16.7 | measured, parsed from the run log |
 | 2026-09-10 17:01 | Fig 2 panel b -> design-contrast basis | exp_contrast_var.py (CONTRAST_VAR + CONTRAST_NULL; 2 sets x 2 windows x 2 stages, 30 splits, leave-one-mouse-out jackknife + shuffle null; cache-only, no X reload) | 12.0 | measured |
 | 2026-09-10 17:01 | Fig 2 panel b -> design-contrast basis | fig_dimensionality_main.py re-render (any flag) | 2.0 | measured |
+| 2026-09-10 17:26 | Fig 2b contrast basis REVERTED | revert + re-render + verify byte-identical to d81c59c | 6.0 | measured |

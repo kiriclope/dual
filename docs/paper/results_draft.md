@@ -1,6 +1,6 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
-> **v12.30 (2026-09-10): FIG. 2b IS MEASURED ON THE DESIGN CONTRASTS, NOT ON A FITTED BASIS** (Leon: "I believe that pc2 in dual mid delay should be higher in real life, same for 2 and 3 in dual decision and that noise in the data is contaminating or something", then "can you not rerender the same figure as old panel b but with the fix?" and "let's go with build 2"). He was right about the direction. A fitted component is measured along a direction estimated from the same noisy half-means: because the held-out half enters linearly and its noise has zero mean, ALL the bias comes from the training half, and a component whose signal sits below the half-mean noise floor (at the Go/NoGo mid-delay, 133 against ≈400 units of noise energy per direction) cannot be located, so its variance is assigned elsewhere. Three measurements. (i) Ground-truth simulation with the real residuals, trial counts and neuron counts: a component whose true share is 10% is reported as 7% and one at 5% as 1%, with the bias gone by 20%, while the contrast readout recovers the same truths within about one point. (ii) On the real data the reported shares were still climbing with trial count (Go/NoGo mid-delay component 2: 6.4% at 45% of the trials to 10.1% at all of them) while the contrast readout was already flat (11.6% to 11.4%). (iii) The other suspects are not it — per-neuron scaling (pooled / noise-whitened / raw: 11.2, 9.8, 10.7%) and bigger training folds (a true 10% reads 7.7 at 2-fold, 8.6 at 5-fold and at leave-one-trial-out) change little. THE FIX keeps the panel's layout exactly and changes only the values: a component is now the k-th largest ±1 design contrast, and since those contrasts are a COMPLETE orthonormal basis of the condition space this is a change of basis and not a model. Sorting them is a spectrum exactly when the signal aligns with the contrasts, which is measured rather than assumed (the interaction contrasts carry ≤0.2%), and where alignment is approximate it over-states dimensionality, so it errs against the low-dimensionality claim. Each point is now coloured and labelled with the contrast it is. NEW EXPERT FRACTIONS: DPA mid-delay sample 1.00; DPA decision choice 0.46 / sample 0.41 / test 0.13 (was 0.41/0.40/0.20); Go and NoGo mid-delay GNG 0.89 / sample 0.11 (was 0.90/0.10); Go and NoGo decision GNG 0.81 / choice 0.13 / sample 0.04 (was 0.84/0.12/0.02). THREE CONSEQUENCES, all in the legend: the Go/NoGo decision state now has THREE reliable axes rather than two, because the third only clears the bar once the bias is removed; the newly unfaded panel-d row has a weak η² (strongest cell sample 0.40), so that axis is real but its fitted component mixes; and the DPA-decision intervals are wider than before, because sorting components by size stabilises a jackknife artificially while labelled contrasts cannot. Panel c needed no change — its demixed axes were already one per design contrast. Panel d keeps the η² matrices but its row percentages and fade rank now come from panel b, with a per-render check that each unfaded row's strongest contrast is the one b names for that slot. Panel a was corrected too, since it described a step that no longer happens; the legacy builds keep the old wording and Extended Data Fig. 3a is unaffected. New cache `pca/exp_contrast_var.py` (12 min); `--pcbasis` restores the fitted-basis panel and `--bvars` the rejected variables-on-the-x-axis layout. ALSO CORRECTED: the earlier claim that the memory has no reliable dimension left at the Go/NoGo decision was a basis artefact — the sample contrast carries 4% there, more than the test's 3%, but never enough to claim a slot ahead of the noise.
+> **v12.30 (2026-09-10): THE FITTED-BASIS SPECTRUM IN FIG. 2b IS BIASED LOW FOR SMALL COMPONENTS — MEASURED, DISCLOSED, AND KEPT** (Leon: "I believe that pc2 in dual mid delay should be higher in real life, same for 2 and 3 in dual decision and that noise in the data is contaminating or something"; after the alternative was built and reviewed, "I would revert"). He was right about the direction. A fitted component is measured along a direction estimated from the same noisy half-means; because the held-out half enters linearly and its noise has zero mean, ALL the bias comes from the training half, and a component whose signal sits below the half-mean noise floor (at the Go/NoGo mid-delay, 133 against ≈400 units of noise energy per direction) cannot be located, so its variance is assigned elsewhere. Three measurements size it. (i) Ground-truth simulation with the real residuals, trial counts and neuron counts: a component whose true share is 10% is reported as 7% and one at 5% as 1%, with the bias gone by 20%. (ii) On the real data the reported shares were still climbing with trial count (Go/NoGo mid-delay component 2: 6.4% at 45% of the trials to 10.1% at all of them) while an unbiased readout was already flat (11.6% to 11.4%). (iii) The other suspects are not responsible — per-neuron scaling (pooled / noise-whitened / raw: 11.2, 9.8, 10.7%) and bigger training folds (a true 10% reads 7.7 at 2-fold, 8.6 at 5-fold and at leave-one-trial-out) change little. THE UNBIASED ALTERNATIVE was built and rejected: measure the same cross-validated variance along the ±1 DESIGN CONTRASTS, which are a complete orthonormal basis of the condition space, so it is a change of basis and not a model. It was verified to be a genuine spectrum rather than a relabelling — the contrasts DIAGONALISE the cross-validated signal covariance, its eigenvalues matching the contrast variances to ~1.5 points in all eight cells (Expert DPA decision 47.6/39.5/12.8 against 46.4/39.8/13.8). DECISION: keep the standard estimator (Stringer 2019b), because EVERY CONCLUSION IS IDENTICAL UNDER BOTH — memory one dimension, the Go/NoGo tasks add one, the decision adds more, learning changes none of it — so the correction buys nothing the paper cashes while costing a non-standard method to defend. Panel b, its numbers and the legend are therefore unchanged (the figure re-renders pixel-identical). WHAT IS OWED TO A REFEREE, now in Methods: the fitted-basis per-component shares are biased low for components below the half-mean noise floor, by roughly a third at a true 10% share; the affected numbers are the small ones (Go/NoGo mid-delay sample 0.10 rather than ~0.11, Go/NoGo decision 0.12/0.02 rather than ~0.13/0.04, DPA decision 0.41/0.40/0.20 rather than ~0.46/0.41/0.13); no reported claim depends on them. The alternative renders from the committed script with `--bcon`, its cache is `pca/exp_contrast_var.py`, and the diagnostic figure is `cvpca_small_component_bias.png`.
 
 > **v12.29 (2026-09-09): CHOICE DEPTH IS THE RAW DECODER OUTPUT IN BOTH FIGS 4 AND 6** (Leon: "we need to unify the two figures and the way we compute that depth ... why do we scale in figure 4 ... let's go with raw for both figures"). Depth was computed two different ways: Fig. 4 divided each mouse's decision value by the class-signed pooled evoked SD of its OWN choice code and subtracted its baseline mean; Fig. 6 divided by the baseline SD. Both are now the raw fold-averaged logistic decision function (log-odds of lick) averaged over bins 45–53, with no per-mouse rescaling and no centring: zero is the decision boundary, the sign reads directly, log-odds are already a common unit across animals, and it is the only candidate with no free parameter. The old unit divided out the ~21× between-animal amplitude range that the panel-c and Fig. 6g–i correlations are computed OVER; the centring shifted the boundary by only 0.04 against a ±10 spread, so it was doing nothing. Dividing by the sample separation was considered and rejected (Leon: "choice depth is independent of sample code"). Panel b's x-axis moved to the same unit, since a raw-vs-normalised plane is incoherent. THREE CLAIMS CHANGE STATUS: the push is no longer significant (β −1.15 p .007 → −0.08 p .103; per-animal Wilcoxon .055 → .25; 6/9 mice directional under every unit) and is now written as a directional shift the statistics do not establish; the dual-trial coupling becomes significant (−0.63 p .067 → −0.70 p .036); and Fig. 6's ΔDPA arm becomes significant (+0.30 p .19 → +0.46 p .041, though p = .32 under the clustered model). Strengthened: Fig. 4c DPA arm −0.72 → −0.80 (p .010), Fig. 6 trade-off +0.46 → +0.58 (p .007), Fig. 6 ΔGNG −0.61 → −0.69 (p .001). The Abstract's "moved along it to a no-lick set-point" is now "sat at a no-lick set-point". Decision made on a measured 4-unit × 2-window grid for both figures (memory `project_overlaps_main_native`): every correlation-type result is robust (Fig. 4c DPA arm significant in 7/8 cells, its GNG arm null in 8/8, Fig. 6i significant in 8/8); only the push depends on the unit, surviving exactly the two units that equalise per-mouse amplitude. **NOT YET DONE: the seven supplement scripts that carry their own copy of the old normalisation (coupling battery, norm-robustness, common-axis, lick-control, codes-GNG, GNG-on-DPA-axis, laser-vector) still compute the evoked unit, so ED 5/6 and the §4 resampling sentence lag the main figures.** §4's normalisation sentence was replaced by the measured grid in the meantime.
 
@@ -528,23 +528,15 @@ To determine how much of the population's activity the memory occupies, and how 
 relative to the GNG code and the choice, we analyzed a pseudo-population of 3,319 neurons at
 two moments of the trial: mid-delay, after the Go/NoGo odor but before any cue or lick, and the
 decision period that follows the test odor (Fig. 2a). We counted dimensions with
-cross-validated PCA [Stringer 2019b], in which the condition means are estimated twice over on
-disjoint halves of the trials and only variance that agrees between the two independent
-estimates is counted. We measured that variance along the design contrasts rather than along
-axes fitted to the data, because a fitted axis is estimated from the same noisy means it is
-then measured on: a component whose signal falls below the noise in a half-mean cannot be
-located, and its variance is assigned elsewhere, which biases small components downward
-(Methods). The contrasts of a two-level factorial are a complete orthonormal basis of the
-condition space, so nothing can lie outside them.
+cross-validated PCA [Stringer 2019b], in which the axes are found on one half of the trials and
+the variance along them is measured on the other half, so that only structure that replicates
+across independent trials is counted.
 
 By this measure the memory occupied a single dimension. During the delay of DPA trials, one
 component accounted for all of the reliable variance in the population state (Fig. 2b; fraction
-1.00, 95% CI [0.97, 1.00], jackknife across mice), and that component was the sample contrast.
-Go and NoGo trials added one further dimension at the same moment (0.89 + 0.10 [0.01, 0.20]),
-which we identify below as the GNG axis, and the decision period spread the state over three
-reliable axes in both sets: choice, sample and test on DPA trials (0.46/0.41/0.13) and GNG,
-choice and sample on Go and NoGo trials (0.81/0.13/0.04), where the GNG axis still carried most
-of the reliable variance. The same
+1.00, 95% CI [0.98, 1.00], jackknife across mice). Go and NoGo trials added one further
+dimension at the same moment (0.92 + 0.07 [0.01, 0.13]), which we identify below as the
+GNG axis, and the decision period spread the state over three reliable axes on DPA trials (reliable-variance fractions 0.41/0.40/0.20) and two on Go and NoGo trials (0.84/0.12), where the GNG axis still carried most of the reliable variance. The same
 picture held animal by animal, on each mouse's own simultaneously recorded neurons. Wherever
 the reliable variance could be resolved, one component dominated the delay spectrum (Extended
 Data Fig. 3c; median top-1 fraction 0.90 naïve, 0.93 expert, n = 7 resolvable mice per stage),
@@ -1133,23 +1125,16 @@ single dimension, each task variable has its own nearly orthogonal coding axis, 
 and choice axes are shared across trial types. All panels use the pseudo-population (3,319
 neurons, nine mice, 12 conditions). The memory state is the mid-delay window (5.5–6.5 s, between the Go/NoGo odor and the cue, so before any cue or lick); the decision state runs from test onset to 0.5 s after test offset (9.0–10.5 s).
 
-a, Trial timeline, the two analyzed states, and the logic of the cross-validated variance (cvPCA).
-The condition means are estimated twice over, on one half of the trials and on the other half
-independently (30 random half-splits, both directions averaged), so only variance that agrees
-between two independent estimates counts toward the geometry.
+a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). Condition
+means are estimated on one half of the trials and evaluated on the other half (30 random half-
+splits, both directions averaged), so only structure that replicates across independent trial halves
+counts toward the geometry.
 
-b, The memory manifold is a line. Reliable condition-mean variance per component, ordered by size,
-where a component is one of the design contrasts and each point is labeled with the contrast it
-turns out to be (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse
-label-shuffle null). The contrasts of a two-level factorial are a complete orthonormal basis of the
-condition space, so this is a change of basis rather than a model, and unlike a basis fitted to the
-same noisy means it has no direction estimated from the data: a component whose signal falls below
-the noise in a half-mean cannot be located by a fitted basis, and its variance is then assigned
-elsewhere (Methods). The DPA mid-delay state occupies a single reliable dimension, the sample axis.
-The dual tasks add exactly one, the GNG axis (0.89 against sample 0.11), and the decision state
-spreads to three axes in both sets (an axis counts when it exceeds twice its shuffle level and is
-needed to reach 95% of the reliable variance). Naïve and expert spectra are near-identical; learning
-does not change the dimensionality.
+b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA component
+(error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse label-shuffle
+null). The DPA mid-delay state occupies a single reliable dimension. The dual tasks add exactly one,
+the GNG axis (0.92 against sample 0.07), and the decision state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as reliable when its jackknife interval clears the shuffle null). Naïve
+and expert spectra are near-identical; learning does not change the dimensionality.
 
 c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy
 along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles),
@@ -1164,15 +1149,11 @@ design contrasts, cross-validated exactly as in b: the components are fitted on 
 trials and both the η² and the row percentages are measured on the other (30 random half-splits,
 both directions averaged; components are matched to the full-data axes before averaging, because
 two components of nearly equal size otherwise change places from split to split and their rows
-blend). Row labels give the share of the reliable variance that b reports for the same slot, and a
-cell near 1 means that the PC codes that variable alone. In every unfaded row the fitted
-component's strongest contrast is the one b names for that slot, which is what licenses reading
-the two panels as one description of the same axes. The geometry is factorized rather than mixed.
-Rows beyond the reliable rank of b are faded, and they are also flat by construction, since a
-component that does not replicate carries no coding on held-out trials; dual rows show 4 of the 7
-centered contrasts. The third dual-decision axis is the one place where amount and identity come
-apart: it carries 4% of the reliable variance and is the sample contrast, but the fitted component
-in that slot is mixed rather than clean (its strongest cell is 0.40).
+blend). Row labels therefore give each matched component's share of the reliable variance of b,
+and a cell near 1 means that the PC codes that variable alone. The geometry is factorized rather
+than mixed. Rows beyond the reliable rank of b are faded, and they are also flat by construction,
+since a component that does not replicate carries no coding on held-out trials; dual rows show 4
+of the 7 centered contrasts.
 
 e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at
 decision, the states of b–d; each decoder is trained and tested in the same window). Cells give

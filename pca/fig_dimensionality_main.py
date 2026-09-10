@@ -74,11 +74,15 @@ BVARS = '--bvars' in sys.argv[1:]                 # panel b with the VARIABLES o
                                                   # component index — the same contrast numbers, laid out to
                                                   # read straight down onto panel c. Shown to Leon 2026-09-10
                                                   # alongside the default and not chosen; stem _bv
-BCON = None                                       # set below: True when panel b uses the contrast basis
-PCBASIS = '--pcbasis' in sys.argv[1:]             # panel b on the FITTED component basis — the build up to
-                                                  # 2026-09-09, kept for comparison. Default since 2026-09-10 is
-                                                  # the design-contrast decomposition (exp_contrast_var.py),
-                                                  # which is unbiased for the small components; stem _pcb
+BCON = '--bcon' in sys.argv[1:]                   # panel b on the DESIGN CONTRASTS instead of the fitted
+                                                  # component basis (exp_contrast_var.py). Built 2026-09-10 and
+                                                  # REVERTED the same day (Leon: "I would revert") — the fitted
+                                                  # basis is canonical again. The contrast estimator is unbiased
+                                                  # for the SMALL components, which the fitted one under-reports
+                                                  # (a true 10% reads 7%); every conclusion is identical under
+                                                  # both, which is why keeping the standard estimator costs
+                                                  # nothing. Kept renderable as the disclosure; stem _bc.
+                                                  # See docs/pca/dimensionality.md 2026-09-10.
 CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cross-validation (exp_pceta_cv.py
                                                   # --kfold 5): basis on 80% of the trials, eta^2 on the held-out
                                                   # 20%, 12 partitions x 5 folds. Robustness variant of the
@@ -86,8 +90,7 @@ CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cros
 EVWIN = '--evwin' in sys.argv[1:]                 # event-window variant: caches from DUAL_RES, matrices _mdte, stem _ev
 PCABINS = '--pcabins' in sys.argv[1:]             # pca-bins variant: caches from DUAL_RES, matrices _pb, stem _pb
 AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant: caches from DUAL_RES, matrices/stem AXENV
-BCON = CDEC and not PCBASIS   # panel b on the design contrasts (default since 2026-09-10);
-                             # the --pr and --pcbasis builds still fit a basis on trial half 1
+BCON = BCON and CDEC          # the --pr legacy build always fits its basis on trial half 1
 
 # ── THE TWO ANALYSED WINDOWS, DERIVED (2026-09-09, Leon: "you did not edit panel fig 2a") ──
 # Panel a's brackets and the caption's window text used to be literal strings, so EVERY variant build
@@ -386,7 +389,7 @@ def panelB_spectrum(fig, gsB2):
     return axes[0]
 
 
-# ══ B (legacy, --pcbasis) — cvPCA reliable spectra on the FITTED component basis. Superseded
+# ══ B (CANONICAL) — cvPCA reliable spectra on the FITTED component basis. Briefly superseded
 #     2026-09-10 by panelB_contrast (small components biased low); kept for the comparison. ══
 def panelB_sets(fig, gsB2):
     SJ = RES['SPEC_JK']; SN = RES.get('SPEC_NULL', {})
@@ -550,8 +553,13 @@ def _rank_b(ts, wn):
     one (its strongest cell is sample 0.40) - the third dual-decision axis is real, but the fitted
     PC does not isolate it.
     """
-    frac, _, null = _bsorted(ts, wn)
-    frac = np.clip(frac, 0, None)
+    if BCON:                                    # panel b is the contrast build: rank must match it
+        frac, _, null = _bsorted(ts, wn)
+        frac = np.clip(frac, 0, None)
+    else:                                       # canonical: the fitted-component spectrum panel b draws
+        S = RES['SPEC_JK'][(ts, wn, 'Expert')]
+        frac = np.clip(np.asarray(S['frac']), 0, None)
+        null = np.clip(np.asarray(RES['SPEC_NULL'][(ts, wn)]), 0, None)
     r, cum = 0, 0.0
     for i in range(len(frac)):
         if frac[i] <= 2 * null[i]:                  # indistinguishable from the shuffle level
@@ -585,7 +593,7 @@ def panelD_mats(fig, gsD):
         FO = list(F[f'pceta_{_k}_factors'] if _cv else F['factors'])
         cmv = np.asarray(F[f'cm_var_{_k}' if _cv else 'cm_var'])[:nk]
         rk = _rank_b(ts, wn) if CDEC else nk
-        if CDEC and 'CONTRAST_VAR' in RES:
+        if BCON and 'CONTRAST_VAR' in RES:
             # 2026-09-10: the row percentages come from panel b, which now measures the reliable
             # variance on the design contrasts rather than on the fitted basis. Row k is component k
             # of b, i.e. the k-th largest contrast; the eta^2 cells beside it are the evidence that
@@ -815,7 +823,7 @@ if CDEC and BVARS:
     # 3 contrasts on DPA against 7 on dual — the slots are sized by what they hold
     gsB2 = gs[0, 4:9].subgridspec(2, 2, wspace=0.20, hspace=0.25, width_ratios=[3, 6.2])
     axB0 = panelB_contrast(fig, gsB2)
-elif CDEC and not PCBASIS:
+elif CDEC and BCON:
     gsB2 = gs[0, 4:9].subgridspec(2, 2, wspace=0.20, hspace=0.25)
     axB0 = panelB_spectrum(fig, gsB2)
 elif CDEC:
@@ -859,39 +867,28 @@ if CDEC:
         f'({win_s(SAM_BINS)[0]:.1f}–{win_s(SAM_BINS)[1]:.1f} s, '
         'after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to '
         f'{win_s(DEC_BINS)[1] - 10.0:.1f} s after test offset ({win_s(DEC_BINS)[0]:.1f}–{win_s(DEC_BINS)[1]:.1f} s).',
-        'a, Trial timeline, the two analyzed states, and the logic of the cross-validated variance '
-        '(cvPCA). The condition means are estimated twice over, on one half of the trials and on the '
-        'other half independently (30 random half-splits, both directions averaged), so only variance '
-        'that agrees between two independent estimates counts toward the geometry.',
-        'b, The memory manifold is a line. Reliable condition-mean variance per component, ordered by '
-        'size, where a component is one of the design contrasts and each point is labeled with the '
-        'contrast it turns out to be (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed '
-        'gray, within-mouse label-shuffle null). The contrasts of a two-level factorial are a complete '
-        'orthonormal basis of the condition space, so this is a change of basis rather than a model, '
-        'and unlike a basis fitted to the same noisy means it has no direction estimated from the data: '
-        'a component whose signal falls below the noise in a half-mean cannot be located by a fitted '
-        'basis, and its variance is then assigned elsewhere (Methods). The DPA mid-delay state occupies '
-        'a single reliable dimension, the sample axis. The dual tasks add exactly one, the GNG axis '
-        '(0.89 against sample 0.11), and the decision state spreads to three axes in both sets (an axis '
-        'counts when it exceeds twice its shuffle level and is needed to reach 95% of the reliable '
-        'variance). Naïve and expert spectra are near-identical; learning does not change the '
-        'dimensionality.',
+        'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
+        'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
+        'random half-splits, both directions averaged), so only structure that replicates across '
+        'independent trial halves counts toward the geometry.',
+        'b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA '
+        'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse '
+        'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
+        'tasks add exactly one, the GNG axis (0.92 against sample 0.07), and the decision '
+        'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
+        'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
+        'change the dimensionality.',
         'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the anticipatory choice signal in the naïve mid-delay state on Go and NoGo trials (0.66, fourteen points above its own null), which disappears with learning; on DPA trials the mid-delay choice reaches 0.55 in expert against a null of 0.54, a one-point margin we read as marginal rather than as a second anticipatory code.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
         'the trials and both the η² and the row percentages are measured on the other (30 random '
         'half-splits, both directions averaged; components are matched to the full-data axes before '
         'averaging, because two components of nearly equal size otherwise change places from split to '
-        'split and their rows blend). Row labels give the share of the reliable variance that b '
-        'reports for the same slot, and a cell near 1 means that the PC codes that variable alone. In '
-        'every unfaded row the fitted component’s strongest contrast is the one b names for that slot, '
-        'which is what licenses reading the two panels as one description of the same axes. The '
+        'split and their rows blend). Row labels therefore give each matched component’s share of the '
+        'reliable variance of b, and a cell near 1 means that the PC codes that variable alone. The '
         'geometry is factorized rather than mixed. Rows beyond the reliable rank of b are faded, and '
         'they are also flat by construction, since a component that does not replicate carries no '
-        'coding on held-out trials; dual rows show 4 of the 7 centered contrasts. The third '
-        'dual-decision axis is the one place where amount and identity come apart: it carries 4% of '
-        'the reliable variance and is the sample contrast, but the fitted component in that slot is '
-        'mixed rather than clean (its strongest cell is 0.40).',
+        'coding on held-out trials; dual rows show 4 of the 7 centered contrasts.',
         'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the Go/NoGo odor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
         'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy (same windows as e), naïve against expert; points on the unity line indicate no change. The sample is unchanged (Δ = 0.00, 95% CI [−0.05, +0.05], Wilcoxon p = 1.00, n = 9), and so are the test (+0.01, [−0.01, +0.03], p = .43) and the choice (+0.01, [−0.03, +0.06], p = .82); the fraction transferred is unchanged (per-mouse medians 0.41–0.88, all p ≥ .65).',
         'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '
@@ -923,7 +920,7 @@ if CDEC:
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
-STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '') + ('_pcb' if PCBASIS else '') + ('_bv' if BVARS else '')
+STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '') + ('_bv' if BVARS else '') + ('_bc' if BCON else '')
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/{STEM}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{STEM}.svg', bbox_inches='tight')

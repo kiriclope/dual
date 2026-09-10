@@ -1,17 +1,18 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
-> **2026-09-10 — PANEL b IS ON THE DESIGN-CONTRAST BASIS (Leon: "let's go with build 2").** The layout is
-> unchanged — reliable variance against component index — but the values no longer come from a fitted PCA
-> basis. A component is now the k-th largest ±1 design contrast, and each point is coloured and labelled with
-> the contrast it is. REASON: a fitted direction is estimated from the same noisy half-means it is measured
-> on, so a component below the half-mean noise floor cannot be located and its variance is assigned elsewhere;
-> small components were biased LOW. See the 2026-09-10 block at the end of this file for the three
-> measurements that established it and `pca/exp_contrast_var.py` for the cache.
-> **Expert fractions now: DPA-md sample 1.00; DPA-dec choice 0.46 / sample 0.41 / test 0.13; dual-md GNG 0.89 /
-> sample 0.11; dual-dec GNG 0.81 / choice 0.13 / sample 0.04.** Reliable-axis counts: DPA-md 1, DPA-dec 3,
-> dual-md 2, **dual-dec 3 (was 2)** — the third dual-decision axis clears the bar only once the bias is removed.
-> The older figures (DPA 0.41/0.40/0.20, dual 0.84/0.12/0.02) are the fitted-basis build, still one flag away
-> as `--pcbasis`; the pre-flip 0.66/0.17/0.17 and 0.61/0.30/0.05 in yet older text were stale before that.
+> **2026-09-10 — PANEL b STAYS ON THE FITTED COMPONENT BASIS; its small-component bias is MEASURED and
+> DISCLOSED.** Leon asked whether the small components were understated ("pc2 in dual mid delay should be
+> higher in real life"). They are: a fitted direction is estimated from the same noisy half-means it is
+> measured on, so a component below the half-mean noise floor cannot be located and part of its variance is
+> assigned elsewhere. A contrast-basis alternative was built, validated (the contrasts diagonalise the signal
+> covariance — eigenvalues match the contrast variances to ~1.5 points everywhere) and then REVERTED by Leon
+> ("I would revert"), because every conclusion is identical under both and the standard estimator is easier to
+> defend. The canonical figure re-renders PIXEL-IDENTICAL to the pre-change build. Canonical Expert fractions
+> are unchanged: DPA-md 1.00/0/0; DPA-dec 0.41/0.40/0.20; dual-md 0.90/0.10; dual-dec 0.84/0.12/0.02.
+> Under the unbiased readout they would be 1.00; 0.46/0.41/0.13; 0.89/0.11; 0.81/0.13/0.04 — the difference
+> is disclosed in Methods and no claim rests on it. Alternative build: `--bcon` (stem `_bc`), cache
+> `pca/exp_contrast_var.py`, diagnostic `cvpca_small_component_bias.png`. Full account in the 2026-09-10
+> section at the end of this file.
 
 > **NAMING CANON since 2026-09-09 (Leon).** The Go/NoGo trials are NOT called "distractors" any more: prose says the
 > **Go/NoGo odor** / **Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read
@@ -39,10 +40,8 @@ is now ED Fig 9). **Fig 2 is built around ONE message: "one dedicated axis per t
 working memory is a line."** Panels (the DECODE build, adopted 2026-08-10): **a** trial-timeline +
 split-half cvPCA schematic (mid-delay bracket labelled 6.0–6.5 s = bins 36–38; the old 5.5–6.3 s label was wrong) · **b** 2×2 per-set reliable spectra —
 DPA | dual (columns) × mid-delay | decision (rows), Naive + Expert overlaid, leave-one-mouse-out
-jackknife 95% CIs, xlim 6 components, LINEAR fraction axis (log axis rejected). SINCE 2026-09-10 the
-values are the sorted DESIGN-CONTRAST variances (`CONTRAST_VAR` / `CONTRAST_NULL`, `exp_contrast_var.py`)
-and each point is coloured/labelled by its contrast; `SPEC_JK`/`SPEC_NULL` now feed only the `--pcbasis`
-comparison build ·
+jackknife 95% CIs (`SPEC_JK`, null `SPEC_NULL`), xlim 6 components, LINEAR fraction axis (log axis
+rejected). The design-contrast alternative built on 2026-09-10 lives behind `--bcon` ·
 **c** per-variable DECODING POWER (held-out pseudo-trials along each variable's demixed axis vs
 shuffle-null 95th pct, `DPCA_COUNT`; hatched gng× bar = Go/NoGo cross-decoded from the DPA subspace,
 `DPA_GNG_C`) · **d** η² PC-coding matrices, DPA-first, PC1–4, mid-delay + decision, with the boxed
@@ -975,7 +974,17 @@ enough to claim a slot ahead of the noise, so the fitted basis gave it none.
 means" for both halves (was "PCA basis" / "cross-projected variance") and the note now says the variance
 that agrees between the halves is split among the fixed design contrasts.
 
-**Builds:** default = contrast basis in the spectrum layout; `--pcbasis` = the pre-2026-09-10 fitted-basis
-panel (stem `_pcb`); `--bvars` = the same contrast numbers with the VARIABLES on the x-axis instead of the
-component index (stem `_bv`, shown to Leon and not chosen). Comparison set published to the gallery at
-`tmp/fig2_contrast_2026-09-10/`.
+**REVERTED THE SAME DAY (Leon: "I would revert").** Asked whether a referee would complain, the answer
+was three things: (1) sorting a chosen basis is a spectrum only if it is the principal axes — CLOSED
+empirically, the contrasts diagonalise the cross-validated signal covariance, eigenvalues matching the
+drawn diagonal to ~1.5 points in all eight cells (Expert DPA-dec 47.6/39.5/12.8 vs 46.4/39.8/13.8;
+gotcha in the check script: normalising off-diagonals by sqrt(diag) explodes for the near-zero
+interaction contrasts, quote the eigenvalue comparison instead); (2) panel b's jackknife intervals cross
+zero for DPA-decision sample and test while the rank rule says three axes, which is visible on the page;
+(3) "why not the standard cvPCA". Given that EVERY conclusion is identical under both estimators, Leon
+kept the standard one. The canonical figure re-renders PIXEL-IDENTICAL to the pre-change build (verified
+against `d81c59c`), §2 and the a/b/d caption copies were restored verbatim, and the bias is now stated in
+`methods_notes.md` as a disclosure with the unbiased numbers alongside.
+**Builds:** default = the fitted component basis (`SPEC_JK`/`SPEC_NULL`); `--bcon` = the contrast spectrum
+(stem `_bc`); `--bvars` = the same contrast numbers with the VARIABLES on the x-axis (stem `_bv`, shown to
+Leon and not chosen). Comparison set in the gallery at `tmp/fig2_contrast_2026-09-10/`.

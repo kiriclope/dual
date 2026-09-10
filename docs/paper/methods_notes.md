@@ -11,48 +11,46 @@
 cross-validated PCA (Stringer et al., 2019). For each of 30 random halvings, the trials of every
 (mouse, condition) pool were split into two disjoint halves, yielding two independent condition-mean
 pseudo-populations (neurons partition disjointly across the 9 mice, so the split is independent per
-mouse). The variance shared by the two halves was then read out along a basis of the centred
-condition space, as the inner product of the two halves' scores; the two directions were averaged.
-In expectation, trial-to-trial noise averages to zero in this cross-term and only variance that
-replicates across independent halves — signal — is retained.
-
-**The basis (changed 2026-09-10).** The reported spectrum uses the DESIGN CONTRASTS, not a fitted
-PCA basis. For a two-level factorial the ±1 contrasts (3 over the 4 DPA conditions: sample, test,
-sample×test = choice; 7 over the 8 Go/NoGo conditions, adding Go-vs-NoGo and its interactions) form
-a complete orthonormal basis of the centred condition space, so using them is a change of basis and
-not a model: nothing can lie outside them, and the parts sum to the same basis-free total. Because
-no direction is estimated from the data, each part is an unbiased estimate of that factor's signal
-variance. Components are reported in decreasing order, which makes the sorted contrast variances the
-eigenvalue spectrum exactly when the signal directions coincide with the contrasts — a condition we
-measure rather than assume, since the interaction contrasts carry ≤0.2% of the reliable variance in
-both Go/NoGo cells. Where alignment is only approximate this over-states dimensionality (a direction
-at 45° between two contrasts is split across both), so it errs against the low-dimensionality claim.
-The fitted-basis version is still used for the η² panel, whose question is which variable each
-empirical component codes. This reliable variance is distinct from ordinary explained variance, which is evaluated in
+mouse). A PCA basis was fit on one half and the variance of the other half was evaluated by
+cross-projection; the two directions were averaged. In expectation, trial-to-trial noise averages to
+zero in this cross-term and only variance that replicates across independent halves — signal — is
+retained. This reliable variance is distinct from ordinary explained variance, which is evaluated in
 the same data that defined the components and therefore includes sampling noise absorbed by the
 basis; on our data the two disagree qualitatively — the naive condition-mean scree is nearly
 identical for the one-dimensional mid-delay state and the three-dimensional decision state, whereas
 the reliable spectra separate them, and only ~9–24% of the condition-mean variance replicates.
-**Why not a fitted basis.** When the basis is fit on one noisy half, per-component values estimate
-the signal variance along the empirical axes rather than the true signal eigenvalues: the total is
-unbiased, but the allocation across components is not (Pospisil & Pillow, PNAS, "Revisiting the
-high-dimensional geometry of population responses in visual cortex"). The bias depends only on the
-noise in the TRAINING half, since the held-out half enters linearly and its noise has zero mean. In
-these data a half-mean carries roughly 400 units of noise energy per direction while the second
-Go/NoGo mid-delay component carries 133, so that direction sits below the threshold at which it can
-be located at all, and its variance is assigned elsewhere. Two measurements size the effect. In
-simulation, with the real residuals resampled within mouse and the real trial and neuron counts, a
-component whose true share is 10% is reported as 7% and one at 5% as 1%, while the bias is gone by
-20%; the contrast readout recovers the same truths within about one point throughout. On the real
-data, reported shares were still climbing with the number of trials used (Go/NoGo mid-delay
-component 2: 6.4% at 45% of trials to 10.1% at all of them) while the contrast readout was already
-flat (11.6% to 11.4%). Larger training folds shrink but do not remove the bias (a true 10% reads
-7.7% at 2-fold, 8.6% at 5-fold and at leave-one-trial-out; 10-fold is impossible, the smallest cell
-holds 6 trials), and the per-neuron scaling is not responsible (pooled, noise-whitened and raw
-scalings give the Go/NoGo mid-delay sample share as 11.2%, 9.8% and 10.7%). Pure-noise parts can
-come out slightly negative (unlike explained variance, which is non-negative by construction);
-fractions and the PR use the positive-clipped spectrum, and the unclipped total is quoted where the
-absolute reliable variance is reported. All of these estimators operate on condition means: they characterise the task-conditioned
+**Bias of the per-component shares, and what it does not affect.** Because the basis is fit on one
+noisy half, per-component values estimate the signal variance along the empirical axes rather than
+the true signal eigenvalues: the total is unbiased, but its allocation across components is not
+(Pospisil & Pillow, PNAS, "Revisiting the high-dimensional geometry of population responses in
+visual cortex"). The bias depends only on the noise in the TRAINING half, since the held-out half
+enters linearly and its noise has zero mean. In these data a half-mean carries roughly 400 units of
+noise energy per direction while the second Go/NoGo mid-delay component carries 133, so that
+direction sits below the threshold at which it can be located at all and part of its variance is
+assigned elsewhere; SMALL components are therefore reported LOW. We measured the size of this three
+ways. In simulation, with the real residuals resampled within mouse and the real trial and neuron
+counts, a component whose true share is 10% is reported as 7% and one at 5% as 1%, while the bias is
+gone by 20%. On the real data the reported shares were still climbing with the number of trials used
+(Go/NoGo mid-delay component 2: 6.4% at 45% of trials to 10.1% at all of them). Larger training
+folds shrink but do not remove it (a true 10% reads 7.7% at 2-fold, 8.6% at 5-fold and at
+leave-one-trial-out; 10-fold is impossible, the smallest cell holds 6 trials), and the per-neuron
+scaling is not responsible (pooled, noise-whitened and raw scalings give the Go/NoGo mid-delay
+sample share as 11.2%, 9.8% and 10.7%).
+
+An unbiased readout of the same quantity exists and we used it as the check. Measuring the identical
+cross-validated variance along the ±1 DESIGN CONTRASTS fits no direction at all, and for a two-level
+factorial those contrasts are a complete orthonormal basis of the centred condition space, so the
+substitution is a change of basis rather than a model. It is a spectrum and not a relabelling: the
+contrasts diagonalise the cross-validated signal covariance, its eigenvalues matching the contrast
+variances to within about 1.5 percentage points in every condition set, window and stage (Expert DPA
+decision, eigenvalues 47.6/39.5/12.8 against contrast variances 46.4/39.8/13.8). Under this readout
+the small shares rise as expected — Go/NoGo mid-delay sample 0.10 to 0.11, Go/NoGo decision 0.12 and
+0.02 to 0.13 and 0.04, DPA decision 0.41/0.40/0.20 to 0.46/0.41/0.13 — and every reported conclusion
+is unchanged: one reliable dimension in the DPA mid-delay state, one added by the Go/NoGo tasks,
+more at the decision, and no change with learning. We therefore report the standard estimator and
+state its bias here rather than adopting a non-standard one for numbers no claim rests on. Pure-noise
+components can come out slightly negative (unlike explained variance, which is non-negative by
+construction); fractions and the PR use the positive-clipped spectrum. All of these estimators operate on condition means: they characterise the task-conditioned
 state geometry, and are blind to trial-to-trial (within-condition) dimensions — the dimensionality
 claims are about the condition/state geometry, not the single-trial state space. Neurons were
 z-scored by a stage-level, condition-agnostic standard deviation before
