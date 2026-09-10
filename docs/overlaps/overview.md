@@ -9,6 +9,24 @@
 > Parthasarathy 2017) and that reference title keep the word on purpose.
 
 
+> **DEPTH UNIT = RAW since 2026-09-10 (Leon: "let's go with raw for both figures").** The choice-code
+> depth in BOTH Fig 4 and Fig 6 is now the raw fold-averaged logistic decision function (log-odds of
+> lick) averaged over bins 45–53 — no per-mouse rescaling, no baseline centring. Zero is the decision
+> boundary and the sign reads directly. Fig 4 used to divide by each mouse's class-signed pooled evoked
+> SD and subtract its baseline mean; Fig 6 divided by the baseline SD; every "pooled-evoked" statement
+> below is that pre-change convention. WHY: the old unit divided out the ~21× between-animal amplitude
+> range that the panel-c and Fig 6g–i correlations are computed OVER, and the centring moved the
+> boundary by 0.04 against a ±10 spread. Dividing by the sample separation was rejected (choice depth
+> is independent of the sample code). NUMBERS NOW: Fig 4 push β = −0.08 **p = .103 (n.s.)**, per-animal
+> Wilcoxon .25 with 6/9 mice directional; coupling ρ = −0.80 p = .010 (dual trials −0.70 p = .036; GNG
+> arm −0.07 p = .87); panel d CR-vs-FA −0.17 p = .11 / −0.02 p = .89; panel e d′ unchanged (scale-free).
+> Fig 6 g +0.58 p = .007, h +0.46 p = .041 (clustered .32), i −0.69 p = .001 (clustered β −0.070 p .017).
+> Decision made on a measured 4-unit × 2-window grid for both figures (memory
+> `project_overlaps_main_native`): every correlation is robust, only the push depends on the unit.
+> **STILL ON THE OLD UNIT:** the seven supplement scripts with their own copy of the normalisation
+> (coupling battery, norm-robustness, common-axis, lick-control, codes-GNG, GNG-on-DPA-axis,
+> laser-vector), so ED 5/6 lag the main figures.
+
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 
 > **2026-09-08 (later) — choice-decoder TRIAL SETS.** Fig 3c–e per-mouse choice classes (lick vs no-lick at the test) now pool ALL trial types (`--dpachoice` = former DPA-only); Fig 4a's choice side stays on the distractor-free DPA trials (Leon, option 2, after the dual-trial version proved heterogeneous across animals even with Go/NoGo-balanced classes; `--dualact` / `--allact` / `--strat` reproduce the alternatives). Fig 3c choice brackets ∗ (p = .012); Fig 4a per-mouse |cos| 0.063 → 0.104 (9/9, p = .004), cross-decode 0.53 → 0.60 (p = .020). Details: memory `project_dimensionality.md` / `project_overlaps_main_native.md`; draft banner v12.21.

@@ -307,9 +307,29 @@ TEST_D   = _norm_code(TEST_R,   Y_TST, 'test_odor',   1, 'DPA')
 LICK_D   = _norm_code(LICK_R,   Y_LCK, 'choice',      1, 'DPA')        # DPA action axis (the lick code)
 GNG_D    = _norm_code(GNG_R,    Y_GNG, 'gng',         1, 'Dual')
 
+# ── DEPTH UNIT = RAW (2026-09-09, Leon: "let's go with raw for both figures"). Identical in Fig 6. ──
+# Depth is the decoder's OWN output: the fold-averaged logistic decision function (log-odds of lick)
+# averaged over BINS_LATE. No per-mouse rescaling, no baseline centring.
+#   * zero is exactly the decision boundary and the sign reads directly (>0 lick, <0 no-lick);
+#   * log-odds are already a common unit across animals, so there is nothing left to normalise, and
+#     raw is the only candidate unit with no free parameter to justify;
+#   * it preserves the ~21x between-animal amplitude range, which is what the panel-c coupling and
+#     Fig 6 g-i are correlations OVER. Dividing by each mouse's own choice-code size (the old default,
+#     "evoked") removed exactly that variance; the baseline and sample-separation units were the other
+#     candidates. The per-mouse evoked and baseline scales are uncorrelated (rho +0.38, p .31).
+# MEASURED COST, disclosed rather than hidden: across a 4-unit x 2-window grid the panel-c DPA arm is
+# significant in 7/8 cells and its GNG arm null in 8/8, but the panel-b PUSH is significant only under
+# the two units that equalise per-mouse amplitude (evoked p .007, sample-sep .014) and not under raw
+# (.103) or baseline (.101). 6/9 mice move toward no-lick under every unit. Grid in the memory
+# (project_overlaps_main_native). --robust / --eqnorm still route the depth through _norm_code.
+LICK_Z = LICK_D if (ROBUST or EQNORM) else LICK_R      # depth axis (panels b-e); LICK_D stays the
+#   unit of panel A's four-code trace grid, where comparing amplitudes ACROSS codes needs them equalised.
+SAMPLE_Z = SAMPLE_D if (ROBUST or EQNORM) else SAMPLE_R   # panel b's x-axis must share the y-axis's unit:
+#   both are decision functions, so a raw-vs-normalised plane would be incoherent and mis-scaled.
+
 # lick-axis aliases used by B/C/D/E (the DPA action / lick code drives the push + depth panels)
 LICK_Y, Lm, LICK_TGT, LICK_TITLE = Y_LCK, Y_LCK, 'choice', 'choice'   # panel-A title = "choice code" (the DPA lick/no-lick decision axis)
-lick_depth = LICK_D[:, BINS_LATE].mean(1)
+lick_depth = LICK_Z[:, BINS_LATE].mean(1)
 L_laser = (Lm.laser == 0); L_tgt = (Lm.target == 'choice')
 L_correct = L_laser & (Lm.performance == 1) & (Lm.tasks == 'DPA')
 L_dpa     = L_laser & (Lm.tasks == 'DPA')                              # all DPA trials (push reads these)
@@ -469,8 +489,8 @@ def _mouse_trajs_B(stage, odor_pairs, D, YY, keep):
 trajB = {s: {} for s in STAGES}                                        # trajB[stage][sample] = (xs, ys)
 for stage in STAGES:
     for _slab, _pairs, _col in SAMPLE_TRAJ:
-        xs = _mouse_trajs_B(stage, _pairs, SAMPLE_D, Y_SAM, _sam_keep)           # sample axis (pooled pairs)
-        ys = _mouse_trajs_B(stage, _pairs, LICK_D,   Lm,    L_trials_B)          # DPA action (lick) axis
+        xs = _mouse_trajs_B(stage, _pairs, SAMPLE_Z, Y_SAM, _sam_keep)           # sample axis (pooled pairs) — DEPTH unit
+        ys = _mouse_trajs_B(stage, _pairs, LICK_Z,   Lm,    L_trials_B)          # DPA action (lick) axis — DEPTH unit
         trajB[stage][_slab] = (xs, ys)
 
 
@@ -638,7 +658,7 @@ COS_CHANCE = 1.0 / np.sqrt(np.mean([np.asarray(_WBLOB[(m, 'Naive', 'all', 'choic
 
 __all__ = [
     'SAMPLE_R', 'TEST_R', 'LICK_R', 'GNG_R',
-    'SAMPLE_D', 'TEST_D', 'LICK_D', 'GNG_D',
+    'SAMPLE_D', 'TEST_D', 'LICK_D', 'GNG_D', 'LICK_Z', 'SAMPLE_Z',
     'Y_SAM', 'Y_TST', 'Y_LCK', 'Y_GNG',
     'Lm', 'LICK_Y', 'LICK_TGT', 'LICK_TITLE',
     'lick_depth', 'depth_trial', 'y', 'L_laser',

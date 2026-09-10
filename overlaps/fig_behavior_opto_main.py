@@ -124,6 +124,7 @@ EQNORM = '--eqnorm' in sys.argv[1:]
 #            mouse's |A-B| SAMPLE separation (sample-sep units, from the sample tensor) instead of baseline std.
 ANTACT = '--antact' in sys.argv[1:]
 ACTION = '--action' in sys.argv[1:]                                        # pure action axis 57-62 (matches Fig 3/4's default axis)
+BLDEPTH = '--bldepth' in sys.argv[1:]     # former default: per-mouse baseline-SD depth
 ROBUST = '--robust' in sys.argv[1:]
 EVWIN = '--evwin' in sys.argv[1:]            # event windows: depth axis = test odor 54-59 (Leon 2026-09-08)
 PCABINS = '--pcabins' in sys.argv[1:]        # pca bins: depth axis = 57-59 (Leon 2026-09-08)
@@ -187,7 +188,10 @@ def _depth_on_axis(bins_train):
         mm = (y.mouse == m).values
         if ROBUST:                                             # --robust: normalise by SAMPLE separation later (needs the sample tensor)
             continue
-        sd = Xe[mm].std() if EQNORM else Xe[mm][:, BINS_BL].std()
+        # RAW by default since 2026-09-09 (Leon: "let's go with raw for both figures") — same unit as
+        # Fig 4: the decision function itself, no per-mouse rescaling. See main_panels' DEPTH UNIT note.
+        # --eqnorm (whole-trial std) and --bldepth (the former default, baseline std) remain available.
+        sd = Xe[mm].std() if EQNORM else Xe[mm][:, BINS_BL].std() if BLDEPTH else 1.0
         if sd > 0:
             Xe[mm] /= sd
     return Xe[:, BINS_LATE].mean(1)
@@ -893,9 +897,9 @@ if not POSTER:
         'against the accompanying change in accuracy (20 points = 5 mice × naïve/expert × sample A/B; '
         'depth on the choice axis trained on laser-OFF trials (bins 54–62, 9.0–10.5 s), read at late delay on DPA trials; '
         'ΔDPA accuracy is measured on DPA trials and ΔGNG accuracy on dual trials, as in Fig. 4c). The joint trade-off (g) is significant by rank '
-        '(Spearman ρ = +0.46, p = .041, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .24). '
-        'Its arms are ΔDPA (h, ρ = +0.30, p = .19, n.s.) and ΔGNG (i, ρ = −0.61, p = .004), the latter also surviving the mouse-clustered model '
-        '(β = −0.011, p = .009).',
+        '(Spearman ρ = +0.58, p = .007, n = 20; because the points cluster within five mice, a mouse-clustered model gives p = .18). '
+        'Its arms are ΔDPA (h, ρ = +0.46, p = .041, but p = .32 under the clustered model) and ΔGNG (i, ρ = −0.69, p = .001), the latter also surviving the mouse-clustered model '
+        '(β = −0.070, p = .017).',
         'j, Under laser ON, DPA and GNG accuracy remain unrelated across mouse × stage points, as without laser '
         '(10 points = 5 mice × stage; DPA accuracy on DPA trials, GNG accuracy on dual trials; ρ = +0.24, p = .51).',
         'k, l, Position, not fidelity, again. d′ under laser ON against OFF sits on the unity line '

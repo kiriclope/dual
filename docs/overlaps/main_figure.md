@@ -1,5 +1,10 @@
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
+> **STALE BELOW on the depth unit (2026-09-10):** choice-code depth in Figs 4 and 6 is now the RAW
+> decision function (no per-mouse scaling, no centring). Push β = −0.08 p = .103 n.s., coupling
+> ρ = −0.80 p = .010, Fig 6 g/h/i +0.58/.007, +0.46/.041, −0.69/.001. Authoritative: the box at the
+> top of `docs/overlaps/overview.md` and memory `project_overlaps_main_native`.
+
 > **NAMING CANON since 2026-09-09 (Leon).** The Go/NoGo trials are NOT called "distractors" any more: prose says the
 > **Go/NoGo odor** / **Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read
 > `dist` now reads **GNG**, and the trial-timeline event in Figs 2a/3a is **GNG**. CACHE KEYS ARE UNCHANGED — `dist`

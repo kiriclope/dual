@@ -356,19 +356,21 @@ if __name__ == '__main__':
         'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-'
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '
         'half of the axis whose readout is “do not lick”, away from the lick boundary, the geometric '
-        'counterpart of the weakening lick chain in Fig. 1g. Mixed model β = −1.15, p = .007 ∗ (9 '
-        'mice, 36 observations); per-animal trend, Wilcoxon p = .055, larger for sample A (Δ = −1.87, '
-        'p = .074) than for sample B (−0.44, p = .30); the A-versus-B difference itself is n.s., p = .098.',
+        'counterpart of the weakening lick chain in Fig. 1g. The group statistics do not establish the '
+        'shift at this sample size: mixed model β = −0.08, p = .103 (9 mice, 36 observations); '
+        'per-animal Wilcoxon p = .25, 6/9 mice in the expected direction; larger for sample A '
+        '(Δ = −0.14, p = .20) than for sample B (−0.02, p = .82); the A-versus-B difference itself '
+        'is n.s., p = .098.',
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
-        'state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.72, p = .030 ∗; on the dual trials '
-        'or on all trials the same ranks give ρ = −0.63, p = .067), whereas the same change '
-        'predicts nothing for GNG (ρ = +0.13, p = .73; Go trials alone ρ = −0.02, p = .97; NoGo trials alone ρ = +0.65, p = .060, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task.',
+        'state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.80, p = .010 ∗; on the '
+        'dual trials ρ = −0.70, p = .036 ∗), whereas the same change '
+        'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task.',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
-        'rejections from false alarms (sample A, Δ(CR−FA) = −1.05, p = .26; sample B, +1.17, p = '
-        '.49).',
+        'rejections from false alarms (sample A, Δ(CR−FA) = −0.17, p = .11; sample B, −0.02, p = '
+        '.89).',
         'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no-'
         'lick) is unchanged by learning (0.55 → 0.63, p = .57). Learning moves where the memory state '
         'sits on the axis (b), not how well the axis reads out.',
