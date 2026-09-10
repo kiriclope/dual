@@ -1,9 +1,17 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
-> **2026-09-09 — Fig 2b's decision annotation is DATA-DRIVEN.** It used to read a hardcoded "≈3 reliable axes"
-> on both decision columns; it now counts the components whose jackknife lower bound clears the shuffle null —
-> **3 on DPA trials, 2 on dual trials** (Expert). §2 and the Fig 2 legend follow. Fractions: DPA 0.41/0.40/0.20,
-> dual 0.84/0.12/0.02; the pre-flip 0.66/0.17/0.17 and 0.61/0.30/0.05 in older text were stale.
+> **2026-09-10 — PANEL b IS ON THE DESIGN-CONTRAST BASIS (Leon: "let's go with build 2").** The layout is
+> unchanged — reliable variance against component index — but the values no longer come from a fitted PCA
+> basis. A component is now the k-th largest ±1 design contrast, and each point is coloured and labelled with
+> the contrast it is. REASON: a fitted direction is estimated from the same noisy half-means it is measured
+> on, so a component below the half-mean noise floor cannot be located and its variance is assigned elsewhere;
+> small components were biased LOW. See the 2026-09-10 block at the end of this file for the three
+> measurements that established it and `pca/exp_contrast_var.py` for the cache.
+> **Expert fractions now: DPA-md sample 1.00; DPA-dec choice 0.46 / sample 0.41 / test 0.13; dual-md GNG 0.89 /
+> sample 0.11; dual-dec GNG 0.81 / choice 0.13 / sample 0.04.** Reliable-axis counts: DPA-md 1, DPA-dec 3,
+> dual-md 2, **dual-dec 3 (was 2)** — the third dual-decision axis clears the bar only once the bias is removed.
+> The older figures (DPA 0.41/0.40/0.20, dual 0.84/0.12/0.02) are the fitted-basis build, still one flag away
+> as `--pcbasis`; the pre-flip 0.66/0.17/0.17 and 0.61/0.30/0.05 in yet older text were stale before that.
 
 > **NAMING CANON since 2026-09-09 (Leon).** The Go/NoGo trials are NOT called "distractors" any more: prose says the
 > **Go/NoGo odor** / **Go/NoGo task**, and **GNG** for the code, axis and compact labels; every figure label that read
@@ -31,7 +39,10 @@ is now ED Fig 9). **Fig 2 is built around ONE message: "one dedicated axis per t
 working memory is a line."** Panels (the DECODE build, adopted 2026-08-10): **a** trial-timeline +
 split-half cvPCA schematic (mid-delay bracket labelled 6.0–6.5 s = bins 36–38; the old 5.5–6.3 s label was wrong) · **b** 2×2 per-set reliable spectra —
 DPA | dual (columns) × mid-delay | decision (rows), Naive + Expert overlaid, leave-one-mouse-out
-jackknife 95% CIs (`SPEC_JK`), xlim 6 components, LINEAR fraction axis (log axis rejected) ·
+jackknife 95% CIs, xlim 6 components, LINEAR fraction axis (log axis rejected). SINCE 2026-09-10 the
+values are the sorted DESIGN-CONTRAST variances (`CONTRAST_VAR` / `CONTRAST_NULL`, `exp_contrast_var.py`)
+and each point is coloured/labelled by its contrast; `SPEC_JK`/`SPEC_NULL` now feed only the `--pcbasis`
+comparison build ·
 **c** per-variable DECODING POWER (held-out pseudo-trials along each variable's demixed axis vs
 shuffle-null 95th pct, `DPCA_COUNT`; hatched gng× bar = Go/NoGo cross-decoded from the DPA subspace,
 `DPA_GNG_C`) · **d** η² PC-coding matrices, DPA-first, PC1–4, mid-delay + decision, with the boxed
@@ -896,3 +907,75 @@ GOTCHA: figure references wrapped across lines ("Fig.\n3e") escape plain-string 
 **2026-09-08 (Fig 3d, v12.19):** the per-mouse scatter block is ONE panel (sample × choice raw |cos|); `PAIRS`
 has one entry, `gsE2 = gsDrow[0, 3:4]` (slot 5 empty so the square aligns with E's third square). §3 cites Fig 3d
 for sample×choice (0.07–0.08) and gives sample×dist (0.09) as text.
+
+## 2026-09-10 — panel b switched to the design-contrast basis (the small-component bias)
+
+Leon: *"I believe that pc2 in dual mid delay should be higher in real life, same for 2 and 3 in dual
+decision and that noise in the data is contaminating or something."* He was right about the direction.
+Three measurements, then the fix.
+
+**Mechanism.** The value of component k is `(A v)·(B v)` with `v` fitted from the training half `A`.
+Since `E[B v | v] = mu v` exactly, the held-out half contributes variance but NO bias — all of it comes
+from the noise in `A`. At the dual mid-delay a half-mean carries ≈400 units of noise energy per
+direction while component 2 carries 133, so that direction is fitted below the detection threshold and
+its variance is assigned elsewhere. Component 1 (≈1240) is far above threshold and is fine. The TOTAL
+`tr(A^T B)` is exactly unbiased and basis-free; only the ALLOCATION is biased.
+
+**Evidence 1, ground-truth simulation** (real residuals resampled within mouse, real trial and neuron
+counts, signal on the mice's own measured contrast directions). True share of component 2 → reported:
+2%→0.3, 4%→0.7, 6%→2.3, 8%→4.5, 10%→7.1, 13%→10.8, 16%→14.3, 20%→18.6, 30%→28.5. The compression is
+confined to shares below ~15%. The contrast readout on the same simulated data returns 1.3 / 3.4 / 5.6 /
+7.7 / 9.7 / 12.8 / 15.8 / 19.8 / 29.4 — unbiased within ~1 point throughout.
+
+**Evidence 2, trial-count subsampling on the REAL data** (assumption-free, the decisive one). Reported
+share at 45% → 100% of the trials: Expert dual-md comp 2 **6.4 → 10.1** while the sample contrast sits
+flat at 11.6 → 11.4; Expert dual-dec comp 2 7.1 → 12.2 vs choice flat 12.5 → 13.5; Naive dual-dec comp 2
+8.1 → 14.8 vs choice flat 18.8 → 19.2; Expert DPA-dec comp 3 23.3 → 18.6 (FALLING — the tail-inflation
+side of the same bias) vs test flat ~15. The fitted curve has not converged at the trials we have; the
+fixed-basis curve already has. Figure: `figures/pseudo/dimensionality/png/cvpca_small_component_bias.png`.
+
+**Evidence 3, the other suspects are not it.** Per-neuron scaling: pooled (current) / within-condition
+noise SD / raw give Expert dual-md sample 11.2 / 9.8 / 10.7 % — no meaningful difference. Bigger training
+folds help only a little: a true 10% reads 7.7 at 2-fold, 8.6 at 5-fold, 8.6 at leave-one-trial-out
+(10-fold is impossible, the smallest cell holds 6 trials).
+
+**The fix.** `cvpca.contrast_basis` / `contrast_var` / `contrast_frac` + `exp_contrast_var.py` →
+`CONTRAST_VAR` / `CONTRAST_NULL` in results.pkl (30 splits seed 7, leave-one-mouse-out t(8) CI, shuffle
+null seed 11; ~12 min, cache-only). Both normalisations are stored: `frac` divides by the unbiased total
+`tr(A^T B)` (a single contrast can exceed 1 when others are negative — DPA-md sample reads 110%), and
+`fracp` clips negatives and renormalises, the convention `avg_frac` already used, which is what the panel
+draws. The design contrasts are COMPLETE (n_cond−1 of them), so this is a change of basis and not a model.
+
+**Why sorting them is still a spectrum.** Sorted contrast variances equal the eigenvalue spectrum exactly
+when the signal directions coincide with the contrasts. Measured, not assumed: the interaction contrasts
+carry ≤0.2% in both dual cells. Where alignment is only approximate this OVER-states dimensionality (a
+45° direction splits across two contrasts), so it errs against the low-dimensionality claim.
+
+**What moved.** Expert: DPA-md 1.00/0/0 (unchanged, now named sample); DPA-dec 0.41/0.40/0.20 →
+**0.46 choice / 0.41 sample / 0.13 test**; dual-md 0.90/0.10 → **0.89 GNG / 0.11 sample**; dual-dec
+0.84/0.12/0.02/0.02 → **0.81 GNG / 0.13 choice / 0.04 sample / 0.03 test**. `_rank_b` now reads the
+contrast spectrum so b and d cannot disagree: ranks DPA-md 1, DPA-dec 3, dual-md 2, **dual-dec 2 → 3**.
+Panel d's row percentages come from `_bsorted` (b's numbers) instead of `cm_var_cv`, with a printed
+correspondence check — in every unfaded row the fitted component's strongest contrast IS the one b names
+for that slot (no `D-WARN` fires), which is what licenses reading b and d as one description.
+
+**Two honest costs, both in the caption.** (i) The DPA-decision intervals are much wider than before —
+sorting components by size stabilises a jackknife artificially, because the largest is first whichever
+mouse you drop, while labelled contrasts cannot do that and the between-mouse heterogeneity shows.
+(ii) The third dual-decision row now unfades with a WEAK η² (its strongest cell is sample 0.40): the
+axis is real and carries 4%, but the fitted component in that slot mixes. Panel b's "N reliable axes"
+callout was DROPPED — counting off b's interval is the weaker test (DPA-decision sample and test
+intervals touch zero although both decode far above their nulls in c); panel c is the counting panel.
+
+**Also corrected:** the 2026-08-12 claim "at the dual decision the memory has NO reliable dimension left"
+is a basis artefact. Sample carries 4.3% there (Expert) / 6.6% (Naive), MORE than test's 2.5%, but never
+enough to claim a slot ahead of the noise, so the fitted basis gave it none.
+
+**Panel a** was edited too, since it described a step that no longer happens: its boxes read "condition
+means" for both halves (was "PCA basis" / "cross-projected variance") and the note now says the variance
+that agrees between the halves is split among the fixed design contrasts.
+
+**Builds:** default = contrast basis in the spectrum layout; `--pcbasis` = the pre-2026-09-10 fitted-basis
+panel (stem `_pcb`); `--bvars` = the same contrast numbers with the VARIABLES on the x-axis instead of the
+component index (stem `_bv`, shown to Leon and not chosen). Comparison set published to the gallery at
+`tmp/fig2_contrast_2026-09-10/`.

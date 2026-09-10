@@ -199,3 +199,82 @@ def pr_of(cv):
     """Participation ratio of a (clipped) spectrum: (sum)^2 / sum of squares."""
     pos = np.clip(cv, 0, None)
     return float(pos.sum() ** 2 / ((pos ** 2).sum() + 1e-12))
+
+
+# ── DESIGN-CONTRAST DECOMPOSITION (2026-09-10) ────────────────────────────────────────────────────
+# Same cross-validated reliable variance, read on FIXED design contrasts instead of a fitted basis.
+#
+# WHY: the value of a fitted component is (A v)·(B v) with v fitted from the training half A. Because
+# E[B v | v] = mu v exactly, the test half contributes variance but no bias — ALL the bias comes from
+# the noise in A. A component whose signal sits below the per-direction noise energy of a half-mean
+# (at the dual mid-delay: 133 against ~400) cannot be located, so its variance is under-assigned and
+# the reported share is biased LOW. Measured against ground truth with the real noise and the real
+# trial counts, a component whose true share is 10% is reported as 7%, and one at 5% as 1%; the bias
+# is gone by 20%. On the real data the fitted share is still climbing with trial count while the
+# contrast reading is already flat (see docs/pca/dimensionality.md, 2026-09-10).
+#
+# A contrast has no fitted direction, so <A^T c, B^T c> is unbiased for that factor's signal variance.
+# The +-1 design contrasts of a 2-level factorial form a COMPLETE orthonormal basis of the centred
+# condition space (n_cond - 1 of them), so this is a change of basis and not a model: nothing can hide
+# outside it, and the parts sum to the same unbiased total tr(A^T B). Parts may go negative for the
+# same reason single components do — the estimator saying that direction carries nothing.
+
+
+def contrast_basis(conds):
+    """Complete orthonormal set of design contrasts over `conds`, as (names, V).
+
+    `conds` are (task, sample, test) tuples of a 2-level factorial: the DPA set varies sample and
+    test (3 contrasts over 4 conditions), the dual set adds Go vs NoGo (7 over 8). The 3-task 'all'
+    set is not a 2-level factorial and is rejected. Names use the CACHE spelling 'gng'; the
+    sample×test interaction is named 'choice', the contrast the task actually asks the animal for.
+    """
+    import itertools
+    tasks = sorted({c[0] for c in conds})
+    fac = {}
+    if set(tasks) == {'DualGo', 'DualNoGo'}:
+        fac['gng'] = [0 if c[0] == 'DualGo' else 1 for c in conds]
+    elif tasks != ['DPA']:
+        raise ValueError(f'contrast_basis needs a 2-level factorial condition set, got tasks {tasks}')
+    fac['sample'] = [c[1] for c in conds]
+    fac['test'] = [c[2] for c in conds]
+    for k, v in fac.items():
+        if set(v) != {0, 1}:
+            raise ValueError(f'factor {k} is not binary over these conditions')
+    col = {k: np.where(np.array(v) == 0, -1.0, 1.0) for k, v in fac.items()}
+    names, vecs = [], []
+    for r in range(1, len(col) + 1):
+        for combo in itertools.combinations(col, r):
+            v = np.ones(len(conds))
+            for k in combo:
+                v = v * col[k]
+            names.append('choice' if set(combo) == {'sample', 'test'} else '×'.join(combo))
+            vecs.append(v / np.linalg.norm(v))
+    V = np.array(vecs)
+    assert V.shape[0] == len(conds) - 1, 'the contrast set must be complete'
+    return names, V
+
+
+def contrast_var(stage, conds, M, mice=None, nsplits=30, seed=7, shuffle=False):
+    """Split-averaged reliable variance per design contrast, and the unbiased total.
+
+    Returns (names, vals, total). `vals` are absolute reliable variances in the same units as
+    `avg_spec`; `total` is tr(A^T B), which is basis-free and unbiased, so vals/total are the shares
+    that replace the fitted-component fractions. Same trials, same windows, same per-neuron scaling
+    and the same (nsplits, seed) convention as `avg_spec` — only the basis differs.
+    """
+    names, V = contrast_basis(conds)
+    sd = neuron_scale(stage, M); rng = np.random.RandomState(seed)
+    acc = np.zeros(len(names)); tot = 0.0
+    for _ in range(nsplits):
+        R1, R2 = split_means(stage, conds, M, rng, mice, shuffle)
+        A, B = R1 / sd[None, :], R2 / sd[None, :]
+        A = A - A.mean(0, keepdims=True); B = B - B.mean(0, keepdims=True)
+        acc += np.einsum('cn,cn->c', V @ A, V @ B)
+        tot += float(np.sum(A * B))
+    return names, acc / nsplits, tot / nsplits
+
+
+def contrast_frac(stage, conds, M, mice=None, nsplits=30, seed=7, shuffle=False):
+    """Share of the reliable variance carried by each design contrast (the panel-b quantity)."""
+    names, vals, tot = contrast_var(stage, conds, M, mice, nsplits, seed, shuffle)
+    return names, vals / (tot + 1e-12)

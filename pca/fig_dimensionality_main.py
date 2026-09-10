@@ -70,6 +70,15 @@ TITLE_FS = PS*8
 LEGACY = '--pr' in sys.argv          # previous PR/all-tasks build (ED source)
 CDEC = not LEGACY                    # the adopted main Fig 2
 
+BVARS = '--bvars' in sys.argv[1:]                 # panel b with the VARIABLES on the x-axis instead of the
+                                                  # component index — the same contrast numbers, laid out to
+                                                  # read straight down onto panel c. Shown to Leon 2026-09-10
+                                                  # alongside the default and not chosen; stem _bv
+BCON = None                                       # set below: True when panel b uses the contrast basis
+PCBASIS = '--pcbasis' in sys.argv[1:]             # panel b on the FITTED component basis — the build up to
+                                                  # 2026-09-09, kept for comparison. Default since 2026-09-10 is
+                                                  # the design-contrast decomposition (exp_contrast_var.py),
+                                                  # which is unbiased for the small components; stem _pcb
 CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cross-validation (exp_pceta_cv.py
                                                   # --kfold 5): basis on 80% of the trials, eta^2 on the held-out
                                                   # 20%, 12 partitions x 5 folds. Robustness variant of the
@@ -77,6 +86,8 @@ CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cros
 EVWIN = '--evwin' in sys.argv[1:]                 # event-window variant: caches from DUAL_RES, matrices _mdte, stem _ev
 PCABINS = '--pcabins' in sys.argv[1:]             # pca-bins variant: caches from DUAL_RES, matrices _pb, stem _pb
 AXENV = __import__('os').environ.get('DUAL_AXSUF', '')   # env-driven variant: caches from DUAL_RES, matrices/stem AXENV
+BCON = CDEC and not PCBASIS   # panel b on the design contrasts (default since 2026-09-10);
+                             # the --pr and --pcbasis builds still fit a basis on trial half 1
 
 # ── THE TWO ANALYSED WINDOWS, DERIVED (2026-09-09, Leon: "you did not edit panel fig 2a") ──
 # Panel a's brackets and the caption's window text used to be literal strings, so EVERY variant build
@@ -144,12 +155,22 @@ def schematic(ax):
         ax.plot([lo, lo, hi, hi], [y0 - 0.015, y0 - 0.045, y0 - 0.045, y0 - 0.015], color='0.25', lw=0.9)
         ax.text(xt, y0 - 0.065, lab, ha=hal, va='top', fontsize=PS*6.0, color='0.25')
     ax.text(0.1, 0.56, 'pseudo-population: 3,319 neurons\n× 12 conditions', ha='left', va='center', fontsize=PS*6.0)
-    for yb, lab, res in [(0.36, 'trial half 1', 'PCA basis'), (0.20, 'trial half 2', 'cross-projected variance')]:
+    # 2026-09-10: on the contrast basis no direction is fitted from half 1 any more, so the old
+    # "PCA basis" / "cross-projected variance" labels would describe a step that does not happen.
+    # The legacy builds (--pr, --pcbasis) DO fit a basis on half 1 and keep the original wording —
+    # this schematic is shared with them, and ED 3a is rendered from --pr.
+    _boxes = ([(0.36, 'trial half 1', 'condition means'), (0.20, 'trial half 2', 'condition means')]
+              if BCON else
+              [(0.36, 'trial half 1', 'PCA basis'), (0.20, 'trial half 2', 'cross-projected variance')])
+    for yb, lab, res in _boxes:
         ax.add_patch(Rectangle((0.6, yb - 0.06), 3.1, 0.12, fc='#e8e6f0', ec='0.5', lw=0.7))
         ax.text(2.15, yb, lab, ha='center', va='center', fontsize=PS*6.0)
         ax.annotate('', xy=(6.0, yb), xytext=(3.9, yb), arrowprops=dict(arrowstyle='-|>', lw=1.0, color='k'))
         ax.text(6.3, yb, res, ha='left', va='center', fontsize=PS*6.0)
-    ax.text(0.6, 0.05, 'repeated 2-fold CV (30 random half-splits,\nboth directions averaged): only variance\n'
+    ax.text(0.6, 0.05,
+            'repeated 2-fold CV (30 random half-splits,\nboth directions averaged): only variance that\n'
+            'AGREES between the halves counts (cvPCA),\nsplit among the fixed design contrasts' if BCON else
+            'repeated 2-fold CV (30 random half-splits,\nboth directions averaged): only variance\n'
             'that REPLICATES across halves counts (cvPCA)',
             ha='left', va='center', fontsize=PS*6.0, style='italic', color='0.35')
 
@@ -219,9 +240,154 @@ def panelC(ax, show_title=True):
                   f'CI [{P["ci"][0]:.2f}, {P["ci"][1]:.2f}]')
 
 
-# ══ B (--cdecode) — cvPCA reliable spectra in the SAME grid as C and D: DPA vs dual (cols) ×
-#     mid-delay vs decision (rows). Mid-delay (bins_MD 36-38, post-GNG PRE-cue/PRE-lick — the
-#     clean maintenance window, no consummatory residue) from MD_CHECK; decision from FITDATA. ══
+# ══ B — reliable variance per DESIGN CONTRAST, in the SAME grid as C and D: DPA vs dual (cols) ×
+#     mid-delay vs decision (rows). Since 2026-09-10 (Leon: "let's switch panel b, c and d to the
+#     contrast decomposition") the x-axis is the task variables, not anonymous components, so b and c
+#     share one x-axis: b says how much of the geometry each variable IS, c says whether it can be
+#     read out. The estimator, windows, splits, normalisation, jackknife and null are unchanged —
+#     only the basis is, from the fitted PCs to the complete +-1 design contrasts.
+#     WHY: a fitted component is measured along a direction estimated from the training half, so a
+#     component below the per-direction noise energy of a half-mean cannot be located and its share
+#     is biased LOW (ground truth: a true 10% reads 7%, a true 5% reads 1%; the real-data share was
+#     still climbing with trial count while the contrast reading was already flat). A contrast has no
+#     fitted direction. The contrasts are COMPLETE (n_cond-1 of them), so this is a change of basis
+#     and not a model, and the interactions come along for free as the direct factorisation test.
+#     --pcbasis restores the component spectrum (SPEC_JK/SPEC_NULL), the build up to 2026-09-09. ══
+B_MAIN = {'DPA': ['sample', 'test', 'choice'],            # same order/colours as panel c
+          'dual': ['sample', 'gng', 'test', 'choice']}
+B_LAB = {'gng': 'GNG', 'gng×sample': 'GNG×sam', 'gng×test': 'GNG×test',
+         'gng×sample×test': 'GNG×sam×test'}
+
+
+def panelB_contrast(fig, gsB2):
+    """Panel b on the design-contrast basis. Expert filled circle + leave-one-mouse-out t(8) 95% CI,
+    naive open circle (panel c's grammar), per-variable label-shuffle null tick. The interaction
+    contrasts are drawn grey, after a gap: they are the evidence that the geometry is factorised,
+    and the DPA set has none left over (its three contrasts are already the complete basis)."""
+    CVv = RES['CONTRAST_VAR']; CN = RES.get('CONTRAST_NULL', {})
+    axes = []
+    for r, (wn, wlab) in enumerate([('md', 'mid-delay'), ('decision', 'decision')]):
+        for c, ts in enumerate(['DPA', 'dual']):
+            ax = fig.add_subplot(gsB2[r, c]); axes.append(ax)
+            E = CVv[(ts, wn, 'Expert')]; Nv = CVv[(ts, wn, 'Naive')]
+            names = list(E['names']); main = B_MAIN[ts]
+            inter = [n for n in names if n not in main]
+            order = main + inter
+            xs = list(np.arange(len(main), dtype=float))
+            xs += [len(main) - 1 + 1.7 + i for i in range(len(inter))]      # gap before interactions
+            nul = np.clip(np.asarray(CN[(ts, wn)], float), 0, None) if (ts, wn) in CN else None
+            for x, nm in zip(xs, order):
+                i = names.index(nm)
+                col = VAR_COL.get(nm, '0.62')
+                ax.vlines(x, E['lop'][i], E['hip'][i], color=col, lw=1.0, zorder=3)
+                ax.plot(x, E['fracp'][i], 'o', ms=3.4, color=col, zorder=4)
+                ax.plot(x + 0.30, Nv['fracp'][i], 'o', ms=2.8, mfc='w', mec='0.35', mew=0.7, zorder=4)
+                if nul is not None:
+                    ax.hlines(nul[i], x - 0.26, x + 0.26, color='0.45', lw=0.8, ls='--', zorder=2)
+                print(f'B-con: {ts:4s} {wn:9s} {nm:16s} E {100*E["fracp"][i]:5.1f}% '
+                      f'[{100*E["lop"][i]:5.1f},{100*E["hip"][i]:5.1f}]  N {100*Nv["fracp"][i]:5.1f}%'
+                      + (f'  null {100*nul[i]:4.1f}%' if nul is not None else ''))
+            ax.axhline(0, color='0.85', lw=0.6)
+            ax.set_ylim(-0.06, 1.12); ax.set_yticks([0, 0.5, 1.0])
+            ax.set_xlim(-0.55, xs[-1] + 0.75); ax.set_xticks(xs)
+            if r == 0:
+                ax.set_title(ts, loc='left', fontsize=PS*7)
+                ax.tick_params(labelbottom=False)
+            else:
+                ax.set_xticklabels([B_LAB.get(n, n) for n in order], fontsize=PS*6.0,
+                                   rotation=35, ha='right')
+            if c == 1:
+                ax.tick_params(labelleft=False)
+            ax.text(0.98, 0.96, wlab, transform=ax.transAxes, ha='right', va='top',
+                    fontsize=PS*6.5, color='0.35', style='italic')
+            # NO geometry callouts here any more (2026-09-10): they existed to tell the reader what
+            # the anonymous components were ("2 axes: GNG × sample"), and the x-axis now says it.
+            # Nor an "N reliable axes" count — panel c is the counting panel, with a matched
+            # permutation null per variable; b gives the amounts. Counting off b's jackknife interval
+            # would also be the weaker test: between-mouse heterogeneity puts the DPA-decision sample
+            # and test intervals against zero even though both decode far above their nulls in c.
+    hs = [mlines.Line2D([], [], marker='o', ls='', ms=3.4, color='0.45', label='Expert'),
+          mlines.Line2D([], [], marker='o', ls='', ms=2.8, mfc='w', mec='0.35', mew=0.7, label='Naive'),
+          mlines.Line2D([], [], color='0.45', lw=0.8, ls='--', label='null 95%')]
+    axes[0].legend(handles=hs, frameon=False, fontsize=PS*5.5, loc='center right', handlelength=1.1,
+                   handletextpad=0.4, labelspacing=0.25, borderaxespad=0.15)   # DPA mid-delay: the
+    # one cell that is empty everywhere except its single point at 1.0
+    p0, p3 = axes[0].get_position(), axes[2].get_position()
+    fig.text(p0.x0 - 0.028, (p3.y0 + p0.y1) / 2, 'reliable variance (fraction)',
+             rotation=90, va='center', ha='center', fontsize=PS*8)
+    return axes[0]
+
+
+def panelB_spectrum(fig, gsB2):
+    """Panel b in its ORIGINAL layout — reliable variance against component index — but with the
+    values taken from the design-contrast decomposition instead of a fitted basis, sorted, and each
+    point coloured and labelled by the variable it is.
+
+    WHY THIS IS A SPECTRUM AND NOT A RELABELLING. The design contrasts are a complete orthonormal
+    basis of the centred condition space, so sorting their reliable variances gives the eigenvalue
+    spectrum EXACTLY WHEN the signal directions coincide with the contrasts. That is not assumed
+    here, it is measured: the interaction contrasts carry no reliable variance in either dual cell
+    (≤0.2%), which is what axis-alignment means. Where alignment is only approximate the sorted
+    contrast spectrum is a slight OVER-estimate of dimensionality — a direction at 45° between two
+    contrasts would be split across both — so it is the conservative direction for a
+    'the geometry is low-dimensional' claim.
+    Ordering is by the point estimate, which puts a small selection bias back into the tail; with
+    these data the tail sits at 0 after clipping, so it is not doing any work.
+    """
+    CVv = RES['CONTRAST_VAR']; CN = RES.get('CONTRAST_NULL', {})
+    axes = []
+    for r, (wn, wlab) in enumerate([('md', 'mid-delay'), ('decision', 'decision')]):
+        for c, ts in enumerate(['DPA', 'dual']):
+            ax = fig.add_subplot(gsB2[r, c]); axes.append(ax)
+            E = CVv[(ts, wn, 'Expert')]; Nv = CVv[(ts, wn, 'Naive')]
+            names = list(E['names'])
+            oE = np.argsort(-np.asarray(E['fracp']))          # each stage sorted into its own spectrum
+            oN = np.argsort(-np.asarray(Nv['fracp']))
+            k = len(names); xs = np.arange(1, k + 1)
+            ax.plot(xs - 0.08, np.asarray(Nv['fracp'])[oN], '-o', ms=2.4, color=SC['Naive'],
+                    lw=1.0, label='Naive', zorder=3)
+            ax.plot(xs + 0.08, np.asarray(E['fracp'])[oE], '-', color='0.35', lw=1.0, zorder=3)
+            for j, i in enumerate(oE):
+                col = VAR_COL.get(names[i], '0.62')
+                ax.vlines(xs[j] + 0.08, E['lop'][i], E['hip'][i], color=col, lw=1.0, zorder=4)
+                ax.plot(xs[j] + 0.08, E['fracp'][i], 'o', ms=3.4, color=col, zorder=5)
+                if E['fracp'][i] > 0.05:                       # name the axes that carry something
+                    # sit the label above the marker on the flat part of the spectrum, where a label
+                    # level with the point lands on the descending line to its right
+                    _dy = 0.055 if E['fracp'][i] < 0.6 else 0.0
+                    ax.text(xs[j] + (0.15 if _dy else 0.22), E['fracp'][i] + _dy,
+                            B_LAB.get(names[i], names[i]), fontsize=PS*6.0, color=col,
+                            va='bottom' if _dy else 'center', ha='left')
+            if (ts, wn) in CN:
+                nf = np.sort(np.clip(np.asarray(CN[(ts, wn)], float), 0, None))[::-1]
+                ax.plot(xs, nf, '--', color='0.7', lw=0.9, zorder=1, label='null (shuffled)')
+            ax.axhline(0, color='0.85', lw=0.6)
+            ax.set_ylim(-0.05, 1.06); ax.set_yticks([0, 0.5, 1.0])
+            ax.set_xlim(0.4, 6.6); ax.set_xticks([1, 2, 3, 4, 5, 6])
+            if r == 0:
+                ax.set_title(ts, loc='left', fontsize=PS*7)
+                ax.tick_params(labelbottom=False)
+            else:
+                ax.set_xlabel('component', fontsize=PS*7)
+            if c == 1:
+                ax.tick_params(labelleft=False)
+            ax.text(0.96, 0.94, wlab, transform=ax.transAxes, ha='right', va='top',
+                    fontsize=PS*6.5, color='0.35', style='italic')
+            print(f'B-spec: {ts:4s} {wn:9s} E ' +
+                  ' '.join(f'{B_LAB.get(names[i], names[i])} {E["fracp"][i]:.3f}' for i in oE[:4]))
+    hs = [mlines.Line2D([], [], marker='o', ls='-', ms=3.4, color='0.35', label='Expert'),
+          mlines.Line2D([], [], marker='o', ls='-', ms=2.4, color=SC['Naive'], label='Naive'),
+          mlines.Line2D([], [], color='0.7', lw=0.9, ls='--', label='null (shuffled)')]
+    axes[0].legend(handles=hs, frameon=False, fontsize=PS*5.5, loc='center right', handlelength=1.3,
+                   handletextpad=0.4, labelspacing=0.25)   # DPA mid-delay: empty right of component 1
+    p0, p3 = axes[0].get_position(), axes[2].get_position()
+    fig.text(p0.x0 - 0.028, (p3.y0 + p0.y1) / 2, 'reliable variance (fraction)',
+             rotation=90, va='center', ha='center', fontsize=PS*8)
+    return axes[0]
+
+
+# ══ B (legacy, --pcbasis) — cvPCA reliable spectra on the FITTED component basis. Superseded
+#     2026-09-10 by panelB_contrast (small components biased low); kept for the comparison. ══
 def panelB_sets(fig, gsB2):
     SJ = RES['SPEC_JK']; SN = RES.get('SPEC_NULL', {})
     axes = []
@@ -347,6 +513,18 @@ else:
                ('DPA', 'delay', 'DPA — delay'), ('DPA', 'decision', 'DPA — decision')]
 
 
+def _bsorted(ts, wn, stage='Expert'):
+    """Panel b's spectrum as (shares, names, null), sorted descending — THE one source for b and d.
+
+    Since 2026-09-10 a 'component' in this figure is the k-th largest design contrast, not the k-th
+    fitted PC, so panel d's row percentages and its fade rank must come from here or the two panels
+    quote different numbers for the same axis (which is exactly what the pre-2026-09-09 build did)."""
+    E = RES['CONTRAST_VAR'][(ts, wn, stage)]
+    o = np.argsort(-np.asarray(E['fracp']))
+    nul = np.clip(np.asarray(RES['CONTRAST_NULL'][(ts, wn)], float), 0, None)
+    return (np.asarray(E['fracp'])[o], [E['names'][i] for i in o], np.sort(nul)[::-1])
+
+
 def _rank_b(ts, wn):
     """Reliable rank for the panel-D fade: the number of leading cvPCA components needed to reach
     95% of the reliable variance, each also exceeding 2x its own label-shuffle level.
@@ -362,10 +540,18 @@ def _rank_b(ts, wn):
     dual-md cum1=0.924 < 0.95 < cum2=0.995, dual-dec cum1=0.837 < 0.95 < cum2=0.954 (the tightest,
     0.004). The panel-b annotation uses the STRICTER CI rule instead (count of components whose
     jackknife lower bound clears the shuffle null: DPA-dec 3, dual-dec 2 — same on the decision
-    rows it annotates; the two rules differ only on dual-md, 2 here vs 1 there)."""
-    S = RES['SPEC_JK'][(ts, wn, 'Expert')]
-    frac = np.clip(np.asarray(S['frac']), 0, None)
-    null = np.clip(np.asarray(RES['SPEC_NULL'][(ts, wn)]), 0, None)
+    rows it annotates; the two rules differ only on dual-md, 2 here vs 1 there).
+
+    2026-09-10: reads the CONTRAST spectrum, the one panel b now draws, so b and d cannot disagree.
+    The rule itself is unchanged; the ranks become DPA-md 1, DPA-dec 3, dual-md 2, dual-dec 3. Only
+    dual-dec moves (2 -> 3), and it moves because that IS the correction: on the fitted basis its
+    third component read 2.4% and the cumulative rule stopped at two, while the unbiased reading is
+    4.1% (the sample contrast) and the third axis clears the 95% bar. The row that unfades is a weak
+    one (its strongest cell is sample 0.40) - the third dual-decision axis is real, but the fitted
+    PC does not isolate it.
+    """
+    frac, _, null = _bsorted(ts, wn)
+    frac = np.clip(frac, 0, None)
     r, cum = 0, 0.0
     for i in range(len(frac)):
         if frac[i] <= 2 * null[i]:                  # indistinguishable from the shuffle level
@@ -399,6 +585,22 @@ def panelD_mats(fig, gsD):
         FO = list(F[f'pceta_{_k}_factors'] if _cv else F['factors'])
         cmv = np.asarray(F[f'cm_var_{_k}' if _cv else 'cm_var'])[:nk]
         rk = _rank_b(ts, wn) if CDEC else nk
+        if CDEC and 'CONTRAST_VAR' in RES:
+            # 2026-09-10: the row percentages come from panel b, which now measures the reliable
+            # variance on the design contrasts rather than on the fitted basis. Row k is component k
+            # of b, i.e. the k-th largest contrast; the eta^2 cells beside it are the evidence that
+            # the fitted component in that slot really is that variable. Keeping the old fitted-basis
+            # percentages here would put two different numbers for one axis in one figure.
+            _bs, _bn, _ = _bsorted(ts, wn)
+            _fo = [f.lower() for f in (F[f'pceta_{_k}_factors'] if _cv else F['factors'])]
+            for _r in range(min(nk, rk)):           # correspondence check on the rows that count
+                _top = _fo[int(np.argmax(M[_r]))]
+                if _top != _bn[_r].lower():
+                    print(f'D-WARN: {ts} {wn} row {_r+1} codes {_top} but b calls component '
+                          f'{_r+1} {_bn[_r]} — the slots have parted company, check before quoting')
+            print(f'D-lab: {ts:4s} {wn:9s} row % {np.round(100*_bs[:nk], 1)} (was '
+                  f'{np.round(100*cmv, 1)} on the fitted basis) names {_bn[:nk]}')
+            cmv = _bs[:nk]
         if DCROSS and ts == 'DPA':                  # dist CROSS-decode column (DPA_GNG, above-chance frac)
             g = np.asarray(RES['DPA_GNG'][(wn, 'Expert')])[:nk]
             M = np.insert(M, 1, g, axis=1); FO = FO[:1] + ['GNG ×\n(cross-dec)'] + FO[1:]
@@ -609,7 +811,14 @@ gs = fig.add_gridspec(4, 12, height_ratios=[1.0, 0.02, 0.70, 0.60], hspace=0.26,
 axSch = fig.add_subplot(gs[0, 0:4])
 
 schematic(axSch)
-if CDEC:
+if CDEC and BVARS:
+    # 3 contrasts on DPA against 7 on dual — the slots are sized by what they hold
+    gsB2 = gs[0, 4:9].subgridspec(2, 2, wspace=0.20, hspace=0.25, width_ratios=[3, 6.2])
+    axB0 = panelB_contrast(fig, gsB2)
+elif CDEC and not PCBASIS:
+    gsB2 = gs[0, 4:9].subgridspec(2, 2, wspace=0.20, hspace=0.25)
+    axB0 = panelB_spectrum(fig, gsB2)
+elif CDEC:
     gsB2 = gs[0, 4:9].subgridspec(2, 2, wspace=0.20, hspace=0.25)
     axB0 = panelB_sets(fig, gsB2)
 else:
@@ -650,28 +859,39 @@ if CDEC:
         f'({win_s(SAM_BINS)[0]:.1f}–{win_s(SAM_BINS)[1]:.1f} s, '
         'after the Go/NoGo odor and before any cue or lick); the decision state runs from test onset to '
         f'{win_s(DEC_BINS)[1] - 10.0:.1f} s after test offset ({win_s(DEC_BINS)[0]:.1f}–{win_s(DEC_BINS)[1]:.1f} s).',
-        'a, Trial timeline, the two analyzed states, and the logic of cross-validated PCA (cvPCA). '
-        'Condition means are estimated on one half of the trials and evaluated on the other half (30 '
-        'random half-splits, both directions averaged), so only structure that replicates across '
-        'independent trial halves counts toward the geometry.',
-        'b, The memory manifold is a line. Fraction of reliable condition-mean variance per cvPCA '
-        'component (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed gray, within-mouse '
-        'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
-        'tasks add exactly one, the GNG axis (0.92 against sample 0.07), and the decision '
-        'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
-        'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
-        'change the dimensionality.',
+        'a, Trial timeline, the two analyzed states, and the logic of the cross-validated variance '
+        '(cvPCA). The condition means are estimated twice over, on one half of the trials and on the '
+        'other half independently (30 random half-splits, both directions averaged), so only variance '
+        'that agrees between two independent estimates counts toward the geometry.',
+        'b, The memory manifold is a line. Reliable condition-mean variance per component, ordered by '
+        'size, where a component is one of the design contrasts and each point is labeled with the '
+        'contrast it turns out to be (error bars, leave-one-mouse-out jackknife 95% CI, t(8); dashed '
+        'gray, within-mouse label-shuffle null). The contrasts of a two-level factorial are a complete '
+        'orthonormal basis of the condition space, so this is a change of basis rather than a model, '
+        'and unlike a basis fitted to the same noisy means it has no direction estimated from the data: '
+        'a component whose signal falls below the noise in a half-mean cannot be located by a fitted '
+        'basis, and its variance is then assigned elsewhere (Methods). The DPA mid-delay state occupies '
+        'a single reliable dimension, the sample axis. The dual tasks add exactly one, the GNG axis '
+        '(0.89 against sample 0.11), and the decision state spreads to three axes in both sets (an axis '
+        'counts when it exceeds twice its shuffle level and is needed to reach 95% of the reliable '
+        'variance). Naïve and expert spectra are near-identical; learning does not change the '
+        'dimensionality.',
         'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the anticipatory choice signal in the naïve mid-delay state on Go and NoGo trials (0.66, fourteen points above its own null), which disappears with learning; on DPA trials the mid-delay choice reaches 0.55 in expert against a null of 0.54, a one-point margin we read as marginal rather than as a second anticipatory code.',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
         'the trials and both the η² and the row percentages are measured on the other (30 random '
         'half-splits, both directions averaged; components are matched to the full-data axes before '
         'averaging, because two components of nearly equal size otherwise change places from split to '
-        'split and their rows blend). Row labels therefore give each matched component’s share of the '
-        'reliable variance of b, and a cell near 1 means that the PC codes that variable alone. The '
+        'split and their rows blend). Row labels give the share of the reliable variance that b '
+        'reports for the same slot, and a cell near 1 means that the PC codes that variable alone. In '
+        'every unfaded row the fitted component’s strongest contrast is the one b names for that slot, '
+        'which is what licenses reading the two panels as one description of the same axes. The '
         'geometry is factorized rather than mixed. Rows beyond the reliable rank of b are faded, and '
         'they are also flat by construction, since a component that does not replicate carries no '
-        'coding on held-out trials; dual rows show 4 of the 7 centered contrasts.',
+        'coding on held-out trials; dual rows show 4 of the 7 centered contrasts. The third '
+        'dual-decision axis is the one place where amount and identity come apart: it carries 4% of '
+        'the reliable variance and is the sample contrast, but the fitted component in that slot is '
+        'mixed rather than clean (its strongest cell is 0.40).',
         'e, Cross-task transfer of the decoders (expert; sample at mid-delay, test and choice at decision, the states of b–d; each decoder is trained and tested in the same window). Cells give the transferred fraction of decodable signal, (cross − 0.5)/(within − 0.5); the within-task accuracies are 0.94/0.78/0.80 for the sample, 0.68/0.58/0.56 for the test and 0.86/0.75/0.81 for the choice (DPA/Go/NoGo); hatched cells have a ratio above 1 (cross above within) and are not read as fractions. The choice transfers largely (0.41–0.97), and the test completely (0.53 and above; four of six cells exceed the within-task level, whose accuracies are low). The sample transfer is partial and asymmetric (0.27–0.90): decoders trained on Go or NoGo trials read the DPA trials well (0.76–0.80), whereas the DPA-trained decoder reads the dual trials less well (0.27–0.44), consistent with the shift of the sample readout within the plane after the Go/NoGo odor (Fig. 3a; Extended Data Fig. 6e). Below each matrix is the parallelism score (PS), the geometric twin of the transfer test (sample 0.28, test 0.06, choice 0.16; label-shuffle 95th percentiles 0.04–0.05).',
         'f, The shared frame precedes dual task learning. Per-mouse mean cross-task accuracy (same windows as e), naïve against expert; points on the unity line indicate no change. The sample is unchanged (Δ = 0.00, 95% CI [−0.05, +0.05], Wilcoxon p = 1.00, n = 9), and so are the test (+0.01, [−0.01, +0.03], p = .43) and the choice (+0.01, [−0.03, +0.06], p = .82); the fraction transferred is unchanged (per-mouse medians 0.41–0.88, all p ≥ .65).',
         'g, The factorization is visible neuron by neuron. Per-neuron discriminability (d′, within '
@@ -703,7 +923,7 @@ if CDEC:
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
-STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '')
+STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '') + ('_pcb' if PCBASIS else '') + ('_bv' if BVARS else '')
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/{STEM}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{STEM}.svg', bbox_inches='tight')
