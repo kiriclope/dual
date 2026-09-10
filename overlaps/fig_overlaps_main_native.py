@@ -139,7 +139,14 @@ if __name__ == '__main__':
     _kA = np.concatenate(_valsy_kde) if _valsy_kde else np.array([4.0])
     _rBx = float(np.concatenate(_valsx).max()) * 1.12 if _valsx else 4.0
     _rBy = float(np.concatenate(_valsy_traj).max()) * 1.28 if _valsy_traj else 4.0
-    xlimB, ylimB = (-_rBx, _rBx), (-_rBy, _rBy)
+    # SQUARE panel (Leon 2026-09-10, "I want it squared like before"): _draw_traj_B already sets
+    # set_aspect('equal', adjustable='box'), so the box is square only when the two RANGES match. Under the
+    # old per-code normalisation they happened to; on raw log-odds the sample swing (±0.72) is ~2.5x the
+    # choice swing (±0.29), which drew a wide, short box. One symmetric range fixes it. Do NOT reach for
+    # set_box_aspect(1) instead: with equal aspect already set, matplotlib satisfies both by SHRINKING the
+    # x data limits (to ±0.29 here), which silently clips the sample excursion off the panel.
+    _rB = max(_rBx, _rBy)
+    xlimB = ylimB = (-_rB, _rB)
     print(f'A traj limits: x=±{_rBx:.2f}  y=±{_rBy:.2f}  (kde tail dropped to taper inside; p90={np.percentile(_kA,90):.2f})')
     axB_traj, axB_hist = [], []
     ax0 = None
@@ -389,9 +396,11 @@ if __name__ == '__main__':
     # shrinks their box vertically at draw time. At identical y-limits the strips therefore rendered TALLER, so
     # their distributions ran past the trajectory's y axis. Draw once to apply the aspect, then match each strip's
     # box to its partner's active box (x position/width untouched).
-    fig.canvas.draw()
+    fig.canvas.draw()                     # box_aspect is applied at draw time, so read the DRAWN rectangle
+    #   (get_position() returns the pre-aspect one) or the KDE strips detach from the shrunken trajectory box.
     for _at, _ah in zip(axB_traj, axB_hist):
-        _pt, _ph = _at.get_position(), _ah.get_position()
+        _pt = _at.get_window_extent().transformed(fig.transFigure.inverted())   # drawn box, aspect applied
+        _ph = _ah.get_position()
         _ah.set_position([_ph.x0, _pt.y0, _ph.width, _pt.height])
 
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
