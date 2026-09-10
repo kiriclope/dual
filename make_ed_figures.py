@@ -254,7 +254,9 @@ build('ed_fig5', [
 build('ed_fig6', [
     [('overlaps/figures/overlaps/cosine/correct/l2/png/overlaps_cosine_matrices_expert.png', 'a')],
     [(f'{C}/overlaps_mixed_selectivity.png', 'b')],
-    [(f'{M}/fig_overlaps_main_ab_l1.png', 'c'), (f'{M}/fig_overlaps_main_ab_lda.png', None)],
+    # 2026-09-10: these pointed at fig_overlaps_main_ab_{l1,lda}.png, which the pipeline stopped
+    # writing when the _dpaact suffix was introduced — ED 6c had been embedding 2026-07 renders.
+    [(f'{M}/fig_overlaps_main_ab_l1_dpaact.png', 'c'), (f'{M}/fig_overlaps_main_ab_lda_dpaact.png', None)],
     [(f'{C}/overlaps_codes_gng_trials.png', 'd')],
     [('pca/figures/pseudo/dimensionality/png/fig_ooc_plane_ed_nopca.png', 'e')],
     [('pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png', 'f')],
