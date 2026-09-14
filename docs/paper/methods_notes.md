@@ -29,13 +29,14 @@ noise energy per direction while the second Go/NoGo mid-delay component carries 
 direction sits below the threshold at which it can be located at all and part of its variance is
 assigned elsewhere; SMALL components are therefore reported LOW. We measured the size of this three
 ways. In simulation, with the real residuals resampled within mouse and the real trial and neuron
-counts, a component whose true share is 10% is reported as 7% and one at 5% as 1%, while the bias is
+counts, a component whose true share is 10% is reported as 7% and one at 5% as 2%, while the bias is
 gone by 20%. On the real data the reported shares were still climbing with the number of trials used
-(Go/NoGo mid-delay component 2: 6.4% at 45% of trials to 10.1% at all of them). Larger training
-folds shrink but do not remove it (a true 10% reads 7.7% at 2-fold, 8.6% at 5-fold and at
-leave-one-trial-out; 10-fold is impossible, the smallest cell holds 6 trials), and the per-neuron
-scaling is not responsible (pooled, noise-whitened and raw scalings give the Go/NoGo mid-delay
-sample share as 11.2%, 9.8% and 10.7%).
+(Go/NoGo mid-delay component 2: 6.1% at 45% of trials to 10.1% at all of them). Changing the
+train/test split does not correct it, and the direction of the error depends on the split: the same
+true 10% share reads 8.3% under repeated 2-fold, 7.0% under 5-fold and 11.5% under
+leave-one-trial-out, whose single-trial test half over-shoots (10-fold is impossible here, the
+smallest cell holds 6 trials). The per-neuron scaling is not responsible either (pooled,
+noise-whitened and raw scalings give the Go/NoGo mid-delay sample share as 11.2%, 9.8% and 10.7%).
 
 An unbiased readout of the same quantity exists and we used it as the check. Measuring the identical
 cross-validated variance along the ±1 DESIGN CONTRASTS fits no direction at all, and for a two-level
@@ -48,7 +49,9 @@ the small shares rise as expected — Go/NoGo mid-delay sample 0.10 to 0.11, Go/
 0.02 to 0.13 and 0.04, DPA decision 0.41/0.40/0.20 to 0.46/0.41/0.13 — and every reported conclusion
 is unchanged: one reliable dimension in the DPA mid-delay state, one added by the Go/NoGo tasks,
 more at the decision, and no change with learning. We therefore report the standard estimator and
-state its bias here rather than adopting a non-standard one for numbers no claim rests on. Pure-noise
+state its bias here rather than adopting a non-standard one for numbers no claim rests on. Every
+number in this paragraph is reproduced by `pca/exp_cvpca_bias_check.py` (cache-only, about a minute, one
+sub-command per claim: `noise`, `sim`, `folds`, `trials`, `scaling`, `align`). Pure-noise
 components can come out slightly negative (unlike explained variance, which is non-negative by
 construction); fractions and the PR use the positive-clipped spectrum. All of these estimators operate on condition means: they characterise the task-conditioned
 state geometry, and are blind to trial-to-trial (within-condition) dimensions — the dimensionality
@@ -153,7 +156,8 @@ StandardScaler + PCA(30) fit on the training half only, then LDA per dichotomy; 
 accuracy on the held-out half, averaged over 8 pseudo-population resamples. The shuffle null permutes
 condition labels of the pseudo-trials (0.50). The shattering dimension is the mean over dichotomies.
 
-Scripts: `pca/exp_dimensionality.py` (cvPCA, coding, η²), `pca/exp_dimensionality_fits.py`
+Scripts: `pca/exp_cvpca_bias_check.py` (the six checks behind the bias disclosure above),
+`pca/exp_dimensionality.py` (cvPCA, coding, η²), `pca/exp_dimensionality_fits.py`
 (per-task-set fits), `pca/exp_dimensionality_ci.py` (full-462 shattering; split-stability check),
 `pca/exp_dimensionality_jk.py` (PR jackknife CIs), `pca/exp_dpca_count.py` (per-variable demixed-axis
 decoding, Fig. 2c), `pca/exp_cdec_support.py` (spectrum jackknife CIs, Fig. 2b; DPA-subspace gng

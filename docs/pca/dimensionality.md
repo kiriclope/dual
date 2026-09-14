@@ -921,10 +921,10 @@ its variance is assigned elsewhere. Component 1 (≈1240) is far above threshold
 `tr(A^T B)` is exactly unbiased and basis-free; only the ALLOCATION is biased.
 
 **Evidence 1, ground-truth simulation** (real residuals resampled within mouse, real trial and neuron
-counts, signal on the mice's own measured contrast directions). True share of component 2 → reported:
-2%→0.3, 4%→0.7, 6%→2.3, 8%→4.5, 10%→7.1, 13%→10.8, 16%→14.3, 20%→18.6, 30%→28.5. The compression is
-confined to shares below ~15%. The contrast readout on the same simulated data returns 1.3 / 3.4 / 5.6 /
-7.7 / 9.7 / 12.8 / 15.8 / 19.8 / 29.4 — unbiased within ~1 point throughout.
+counts, signal on the mice's own measured contrast directions). True share of component 2 → reported,
+8 replicate datasets: 2%→0.4, 5%→1.8, 10%→7.5, 20%→18.8, 30%→28.7. The compression is confined to
+shares below ~15%. The contrast readout on the same simulated data returns 1.4 / 4.7 / 9.9 / 19.9 /
+29.4 — unbiased within ~1 point throughout.
 
 **Evidence 2, trial-count subsampling on the REAL data** (assumption-free, the decisive one). Reported
 share at 45% → 100% of the trials: Expert dual-md comp 2 **6.4 → 10.1** while the sample contrast sits
@@ -934,9 +934,17 @@ side of the same bias) vs test flat ~15. The fitted curve has not converged at t
 fixed-basis curve already has. Figure: `figures/pseudo/dimensionality/png/cvpca_small_component_bias.png`.
 
 **Evidence 3, the other suspects are not it.** Per-neuron scaling: pooled (current) / within-condition
-noise SD / raw give Expert dual-md sample 11.2 / 9.8 / 10.7 % — no meaningful difference. Bigger training
-folds help only a little: a true 10% reads 7.7 at 2-fold, 8.6 at 5-fold, 8.6 at leave-one-trial-out
-(10-fold is impossible, the smallest cell holds 6 trials).
+noise SD / raw give Expert dual-md sample 11.2 / 9.8 / 10.7 % — no meaningful difference. CHANGING THE
+SPLIT DOES NOT CORRECT IT and the error even changes sign with it: a true 10% reads 8.3 at 2-fold, 7.0
+at 5-fold and 11.5 at leave-one-trial-out, whose single-trial test half OVER-shoots (10-fold is
+impossible, the smallest cell holds 6 trials). CORRECTED 2026-09-14 — the first pass quoted 7.7/8.6/8.6
+and read as a monotone improvement; it had seeded the synthetic data and the fold partitions from the
+same stream, and with 3 replicates instead of 8 the comparison was not stable.
+
+**REPRODUCING ALL OF THIS:** `pca/exp_cvpca_bias_check.py` — six sub-commands (`noise`, `sim`,
+`folds`, `trials`, `scaling`, `align`), cache-only, about a minute for the whole set, `trials --figure` also
+rewrites `cvpca_small_component_bias.png`. It exists because the Methods paragraph quotes these
+numbers and the originals were measured in a job scratch dir that does not survive the session.
 
 **The fix.** `cvpca.contrast_basis` / `contrast_var` / `contrast_frac` + `exp_contrast_var.py` →
 `CONTRAST_VAR` / `CONTRAST_NULL` in results.pkl (30 splits seed 7, leave-one-mouse-out t(8) CI, shuffle

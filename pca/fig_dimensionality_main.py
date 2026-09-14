@@ -160,8 +160,8 @@ def schematic(ax):
     ax.text(0.1, 0.56, 'pseudo-population: 3,319 neurons\n× 12 conditions', ha='left', va='center', fontsize=PS*6.0)
     # 2026-09-10: on the contrast basis no direction is fitted from half 1 any more, so the old
     # "PCA basis" / "cross-projected variance" labels would describe a step that does not happen.
-    # The legacy builds (--pr, --pcbasis) DO fit a basis on half 1 and keep the original wording —
-    # this schematic is shared with them, and ED 3a is rendered from --pr.
+    # The CANONICAL build and --pr DO fit a basis on half 1, so they keep the original wording; this
+    # schematic is shared with them, and ED 3a is rendered from --pr. Only --bcon takes the other branch.
     _boxes = ([(0.36, 'trial half 1', 'condition means'), (0.20, 'trial half 2', 'condition means')]
               if BCON else
               [(0.36, 'trial half 1', 'PCA basis'), (0.20, 'trial half 2', 'cross-projected variance')])
@@ -255,7 +255,10 @@ def panelC(ax, show_title=True):
 #     still climbing with trial count while the contrast reading was already flat). A contrast has no
 #     fitted direction. The contrasts are COMPLETE (n_cond-1 of them), so this is a change of basis
 #     and not a model, and the interactions come along for free as the direct factorisation test.
-#     --pcbasis restores the component spectrum (SPEC_JK/SPEC_NULL), the build up to 2026-09-09. ══
+#     NOT THE CANONICAL BUILD: reverted the same day it was made (Leon: "I would revert"), because
+#     every conclusion is identical under both estimators and the standard one is easier to defend.
+#     The default is the fitted-component spectrum; --bcon draws this one. The bias itself is
+#     disclosed in docs/paper/methods_notes.md rather than corrected here. ══
 B_MAIN = {'DPA': ['sample', 'test', 'choice'],            # same order/colours as panel c
           'dual': ['sample', 'gng', 'test', 'choice']}
 B_LAB = {'gng': 'GNG', 'gng×sample': 'GNG×sam', 'gng×test': 'GNG×test',
