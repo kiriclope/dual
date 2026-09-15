@@ -24,6 +24,10 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
 - **`story_figure_review.md`** — review log: bugs fixed (gated-deformation push, panel J; sec-3 flows
   switched to partial pooling → CV now positive, two shared landscapes for the two epochs) & standing
   caveats (variance is a proxy; sec-4 push depth is fit from data, gate profile is a modeling choice).
+- **Per-animal shattering + refit-dPCA bootstrap (2026-09-15):** `exp_shatter_permouse.py` (0.7 min; SD_LOO leave-one-mouse-out
+  jackknife of the 462-dichotomy shattering + SD_MOUSE own-population → ED 2c) and `exp_dpca_refit_boot.py` (6.9 min; dPCA
+  re-fitted on 1,000 resampled nine-mouse sets → DPCA_REFIT_BOOT, the interval ED 3b draws; the fixed-axis bootstrap was
+  over-confident). Both merge into `figures/pseudo/dimensionality/results.pkl`; numbers in `dimensionality.md` top notes.
 - **Out-of-context plane test (2026-09-07, ED 6e → ED 1c since 2026-09-15 (citation order), drawn by `fig_ed2_plane.py`):** `exp_ooc_plane_pseudo.py` (pooled) + `exp_ooc_plane.py`
   (per-mouse) → caches `OOC_PLANE_PSEUDO_nopca` / `OOC_PLANE_nopca` in results.pkl (**since 2026-09-15 (later) the
   `--alltrials` caches `*_nopca_all` — all laser-off trials, not correct-only — are CANONICAL for ED 1c and, via

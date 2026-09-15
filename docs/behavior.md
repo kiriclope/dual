@@ -595,3 +595,9 @@ Reason to keep pooled: it retains the paired (hit) arm = the propagation-vs-memo
 and the lick × stage × pairing interaction (p = 1e-4), the only significant learning effect; the FA arm
 alone is a trend across stages. The unpaired-only numbers ARE the "false-alarm arm" already quoted in
 the legend/§1. NoGo-only unpaired would leave 3/9 expert lines — dead end.
+
+
+## Trial counts (2026-09-15)
+Per mouse × stage × task counts entering the analyses are Supplementary Tables 1 (laser-OFF, 5,568) and 2 (laser-ON,
+3,648) in `docs/paper/results_draft.md`. Every laser-mouse session has 192 trials, 96 ON interleaved with 96 OFF (32 per
+task each), so ON = OFF by design; the two ACC mice carry no laser trials. Source: `data/pca/y_all_nan_.pkl` (`laser`).
