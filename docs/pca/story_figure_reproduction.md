@@ -161,7 +161,7 @@ the two rows' ylims) so Naive-vs-Expert is directly comparable — the Expert ax
 ### Panel E — FULL pairwise axis mixing (Naive vs Expert) — `section2_mixing(ax)`
 The complete mixing picture, not just one pair: **|cos| between the leading dPCA decoder axes of every pair**
 among `{sample, test, sample:test=choice, tasks}` (0 = demixed/orthogonal, 1 = collinear), from the pooled
-per-stage `pseudo_weights_…f-sample-test-tasks_dpca` (16 comp × 3319 neurons). Drawn as a **slopegraph**
+per-stage `pseudo_weights_…f-sample-test-tasks_dpca` (16 comp × 3319 neurons). Drawn as a **slopegraph** _(2026-09-15: inference for the slopegraph is the REFIT mouse bootstrap, `exp_dpca_refit_boot.py`; no pair's change is resolved across animals — `dimensionality.md` top note.)_
 Naive→Expert; both stages share the **same 3319 neurons** so a **neuron bootstrap** (2000×) on each pair's
 change gives a paired p. Learning does **two** things and the rest stay orthogonal:
 - **choice–task BINDS** (red, ***): |cos| **0.147 → 0.222, Δ+0.076, p<0.001** — the decision axis and the

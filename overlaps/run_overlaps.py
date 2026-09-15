@@ -308,6 +308,8 @@ y_all['distractor'] = y_all.dist_odor
 y_all['test']       = y_all.test_odor
 y_all['licks']      = (y_all.odr_choice + y_all.choice) > 0
 y_all['gng']        = (y_all.tasks == 'DualGo').astype(int)   # Go(1) vs NoGo(0), Dual trials only
+y_all['trial']      = y_all.groupby(['mouse', 'day']).cumcount()   # within-session trial index (2026-09-15): rows come
+                                                                  # back in fold order, this column re-aligns them to the .mat behaviour trials
 print(f'X_all {X_all.shape}  y_all {y_all.shape}')
 
 # ── phase 2: CCGD ────────────────────────────────────────────────────────────
@@ -316,7 +318,7 @@ dec_scaler = None if args.scaler == 'none' else args.scaler
 options = set_options(**{**options_kwargs, 'days': args.days})
 
 folds = RepeatedStratifiedKFold(
-    n_splits=args.n_splits, n_repeats=args.n_repeats,
+    n_splits=args.n_splits, n_repeats=args.n_repeats, random_state=args.random_state,   # seeded since 2026-09-15
 )
 bins_epoch = options['bins_CHOICE']   # used only when --fit-param-epoch
 

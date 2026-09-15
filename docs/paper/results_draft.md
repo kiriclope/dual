@@ -1,5 +1,12 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.38 (2026-09-15): REFIT-dPCA MOUSE BOOTSTRAP — THE CHOICE–TASK ALIGNMENT INCREASE IS NOT RESOLVED** (Leon: "run the
+> refit-dPCA bootstrap"). `pca/exp_dpca_refit_boot.py` (6.9 min) re-fits dPCA on every resampled set of nine mice (1,000 draws)
+> instead of resampling neuron columns of the fixed axes: choice–task Δ +0.076 [−0.030, +0.316] p = .17 (fixed-axis: [+0.017,
+> +0.122] p = .011), sample–test Δ −0.065 [−0.199, +0.044] p = .33. §2 and the ED 3 legend now say neither angle change is
+> resolved across animals; the fixed-axis interval is explained as leaving out the fit's own uncertainty. The dPCA companion's
+> load-bearing content is unchanged (single-axis time courses keep their shape; all pairs near-orthogonal).
+
 > **v12.37 (2026-09-15): PER-ANIMAL SHATTERING COMPANION** (Leon: "run the per-animal shattering companion"; the last open
 > reviewer item that the text could carry). `pca/exp_shatter_permouse.py` (0.7 min on 36 workers — the "≈ 90 min" estimate was
 > serial) adds a leave-one-mouse-out jackknife of the pooled shattering dimension (SD_LOO: 0.660 [0.615, 0.705] naïve, 0.672
@@ -625,8 +632,9 @@ in Extended Data Fig. 2a,b. Second, these numbers describe the geometry of the s
 population visits, not the dynamics that carry it between them, which are of higher rank. An
 independent decomposition of the same data by demixed PCA gives the same picture (Extended Data
 Fig. 3): time courses along single axes sharpened with learning without reorganizing, the
-choice and task axes of that decomposition became more aligned (|cos| 0.147 → 0.222; Δ = +0.076 95% CI [+0.017, +0.122] over animals, p = 0.011), whereas the separation of the sample and test axes seen in the pooled fit
-(0.098 → 0.033) is not resolved across animals (Δ = −0.065 [−0.146, +0.054], p = 0.35).
+and the changes in the angles between its axes (choice–task |cos| 0.147 → 0.222, sample–test 0.098 → 0.033) are not
+resolved across animals once the decomposition is re-fitted on resampled mice (Δ = +0.076, 95% CI [−0.030, +0.316],
+p = 0.17; Δ = −0.065 [−0.199, +0.044], p = 0.33).
 
 ## A single plane carries the memory and choice codes
 
@@ -1450,12 +1458,14 @@ pseudo-trials projected on the leading demixed axis of each task variable (sampl
 task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored within each stage, so amplitudes compare
 signal to total variance within a stage, not across stages). Correct laser-off trials. The single-axis time courses
 keep their shape across learning. b, |cos| between the leading demixed axes of every pair of variables, naïve →
-expert. Inference is at the animal level: the nine mice are resampled with replacement, taking each mouse's neurons
-(the same 3,319 registered neurons index both stages); 2,000 draws, two-sided; Δ with its 95% interval. The choice and
-task axes become more aligned (0.147 → 0.222, Δ = +0.076 [+0.017, +0.122], p = .011); the sample–test separation
-seen in the pooled fit (0.098 → 0.033) is not resolved across animals (Δ = −0.065 [−0.146, +0.054], p = .35;
-leave-one-mouse-out deltas all negative); the other four pairs stay near-orthogonal (grey, |cos| ≤ 0.03). _(Review
-2026-09-15: the neuron bootstrap of the earlier build, p < .001 / .008, treated neurons as the unit; withdrawn.)_
+expert. Inference is at the animal level: the nine mice are resampled with replacement and the decomposition is
+re-fitted on each resampled set (1,000 draws, two-sided); Δ with its 95% interval. Neither change is resolved across
+animals: the choice and task axes are more aligned in the pooled fit (0.147 → 0.222, Δ = +0.076 [−0.030, +0.316],
+p = .17) and the sample and test axes less so (0.098 → 0.033, Δ = −0.065 [−0.199, +0.044], p = .33); the other four
+pairs stay near-orthogonal (grey, |cos| ≤ 0.03). Resampling mice with the axes held fixed gives narrower intervals
+(choice–task [+0.017, +0.122]) because it leaves out the uncertainty of the fit itself. _(2026-09-15: the neuron
+bootstrap of the earlier build, p < .001 / .008, and the fixed-axis mouse bootstrap, p = .011, are both withdrawn as the
+reported test; `exp_dpca_refit_boot.py`.)_
 
 **ED Fig. 4 | The push and the learning coupling under other units, other decoders, a fixed axis and a lick
 covariate (companion to Fig. 4b,c).** All panels read cross-validated decision functions of the CCGD pipeline; the

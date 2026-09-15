@@ -1,3 +1,11 @@
+> **2026-09-15 (latest) — REFIT-dPCA MOUSE BOOTSTRAP (ED 3b):** `exp_dpca_refit_boot.py` (6.9 min; loads X_all_blcenter, rebuilds
+> the sample × test × tasks pseudo-population per stage with `build_pseudo_population`, then `dpca_decode` on each of 1,000
+> resampled sets of nine mice — a mouse drawn twice contributes its block twice) → `DPCA_REFIT_BOOT` in results.pkl. The
+> choice–task alignment increase does NOT survive: Δ +0.076 [−0.030, +0.316] p .17 (fixed-axis mouse bootstrap [+0.017,
+> +0.122] p .011 — narrower because it leaves out the fit's own uncertainty); sample–test Δ −0.065 [−0.199, +0.044] p .33.
+> `fig_ed6_dpca.py` panel b draws the refit interval and prints all three (refit / fixed-axis / neuron); §2 and the ED 3
+> legend say neither angle change is resolved across animals. Draft v12.38.
+
 > **2026-09-15 (latest) — PER-ANIMAL SHATTERING COMPANION (ED 2c):** `exp_shatter_permouse.py` (0.7 min, 36 joblib workers)
 > writes `SD_LOO` (leave-one-mouse-out jackknife of the pooled 462-dichotomy SD: 0.660 [0.615, 0.705] naïve, 0.672
 > [0.621, 0.723] expert, Δ +0.012 [−0.022, +0.046], t(8) p = .43) and `SD_MOUSE` (each mouse's own population, real trials,

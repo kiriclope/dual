@@ -140,6 +140,11 @@ def panel_b(ax):
         for pr in prs:
             bootn[pr][b] = cos(we, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) - cos(wn, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]])
     pneur = {pr: 2 * min((bootn[pr] > 0).mean(), (bootn[pr] < 0).mean()) for pr in prs}
+    # 2026-09-15 (later): the REFIT mouse bootstrap (exp_dpca_refit_boot.py — dPCA re-fitted on every resampled set of
+    # mice, 1,000 draws) is the stricter test and is what the panel shows; the fixed-axis draws above are printed only.
+    RB = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))['DPCA_REFIT_BOOT']
+    fixed_ci, fixed_p = ci, pval
+    ci = {pr: RB['ci'][RB['pairs'].index(pr)] for pr in prs}; pval = {pr: float(RB['p'][RB['pairs'].index(pr)]) for pr in prs}
     HL = {(2, 3): '#cc3311', (0, 1): '#377eb8'}
     for pr in prs:
         if pr in HL:
@@ -153,7 +158,7 @@ def panel_b(ax):
     ax.set_ylim(bottom=-0.005); ax.set_ylabel('|cos| between demixed axes')
     ax.set_title('axis alignment', loc='left', fontsize=TITLE_FS)
     for pr in prs:
-        print(f'b: {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f} -> E {cE[pr]:.3f}  Δ {cE[pr]-cN[pr]:+.3f}  mouse-cluster CI [{ci[pr][0]:+.3f}, {ci[pr][1]:+.3f}] p={pval[pr]:.3f}  (neuron bootstrap p={pneur[pr]:.3f})')
+        print(f'b: {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f} -> E {cE[pr]:.3f}  Δ {cE[pr]-cN[pr]:+.3f}  refit mouse-bootstrap CI [{ci[pr][0]:+.3f}, {ci[pr][1]:+.3f}] p={pval[pr]:.3f}  (fixed-axis mouse bootstrap CI [{fixed_ci[pr][0]:+.3f}, {fixed_ci[pr][1]:+.3f}] p={fixed_p[pr]:.3f}; neuron bootstrap p={pneur[pr]:.3f})')
 
 
 fig = plt.figure(figsize=(10.0, 4.6))
@@ -171,10 +176,12 @@ CAP = [
     'stage, so amplitudes compare signal to total variance within a stage, not across stages). Correct laser-off '
     'trials. The single-axis time courses keep their shape across learning. b, |cos| between the leading demixed axes '
     'of every pair of variables, naïve → expert. Inference is at the animal level: the nine mice are resampled with '
-    'replacement, taking each mouse’s neurons (the same 3,319 registered neurons index both stages); 2,000 draws, '
-    'two-sided; Δ with its 95% interval. The choice and task axes become more aligned (0.147 → 0.222, Δ = +0.076 [+0.017, +0.122], p = .011); the sample–test separation seen in the pooled fit (0.098 → 0.033) is not resolved '
-    'across animals (Δ = −0.065 [−0.146, +0.054], p = .35; leave-one-mouse-out deltas all negative); the other four '
-    'pairs stay near-orthogonal (grey, |cos| ≤ 0.03).',
+    'replacement and the decomposition is re-fitted on each resampled set (1,000 draws, two-sided); Δ with its 95% '
+    'interval. Neither change is resolved across animals: the choice and task axes are more aligned in the pooled fit '
+    '(0.147 → 0.222, Δ = +0.076 [−0.030, +0.316], p = .17) and the sample and test axes less so (0.098 → 0.033, '
+    'Δ = −0.065 [−0.199, +0.044], p = .33); the other four pairs stay near-orthogonal (grey, |cos| ≤ 0.03). Resampling '
+    'mice with the axes held fixed gives narrower intervals (choice–task [+0.017, +0.122]) because it leaves out the '
+    'uncertainty of the fit itself.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
