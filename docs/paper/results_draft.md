@@ -1,5 +1,10 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.40 (2026-09-15): SUPPLEMENTARY TABLE 2 — LASER-ON TRIALS PER MOUSE** (Leon: "run the laser-ON trial counts per mouse"; the
+> last open reviewer item). Counts from y_all_nan_ (laser == 1): 96 ON trials per session, equal to the OFF counts by design (interleaved),
+> 3,648 in all over the seven laser mice; per stage × task with ON accuracy and the panels each mouse enters (Jaws 5 → Fig. 6g–l + ED 6;
+> ChR2 2 → ED 6 only). Methods curriculum paragraph points to both tables.
+
 > **v12.39 (2026-09-15): TRIAL-LEVEL LICK CONTROL ON THE CCGD DEPTH** (Leon: "run the seeded CCGD tensor for the lick control").
 > `run_overlaps.py` writes a within-session `trial` index and seeds `RepeatedStratifiedKFold`; choice-only re-run `--tag trial`
 > (8.1 min) + `exp_lick_control_trial.py`. Every held-out decision function now maps to its behaviour-file trial (order verified
@@ -844,7 +849,7 @@ signaled. **Curriculum.** Mice were trained on DPA alone until they performed it
 on GNG alone, and only then on the dual task, in which DPA, Go and NoGo trials were
 interleaved; all six dual task sessions were imaged, so "naïve" and "expert" refer to early
 versus late dual task sessions in animals that had already learned each task separately
-**[AUTHOR: sessions per stage, criterion at each stage, shaping steps]**. Trials are analyzed
+**[AUTHOR: sessions per stage, criterion at each stage, shaping steps]**. Trials per mouse, stage and task are listed in Supplementary Table 1 (laser-OFF) and Supplementary Table 2 (laser-ON). Trials are analyzed
 in 84 bins over 14 s (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). The decoder axes use one definition in both pipelines: sample and GNG axes on bins 33–38 (5.5–6.5 s, the whole interval between the Go/NoGo odor and the cue) and choice and test axes on bins 54–62 (9.0–10.5 s, from test onset to 0.5 s after test offset). Two read-out window conventions coexist in the codebase and are stated per analysis below: the single-trial (overlaps) pipeline indexes epochs directly (baseline bins 0–11; mid-delay 33–38; late delay 45–53), whereas the pseudo-population pipeline offsets each epoch onset by 0.5 s (mid-delay bins 36–38; late delay 48–53).
 
 ### Behavioral statistics (Fig. 1)
@@ -1562,6 +1567,24 @@ numbers — see Methods). _(2026-09-15, Leon: "table for SI" — replaces the ba
 | ACCM03 | ACC (no laser) | 192 | 192 | 192 | 128 | 128 | 128 | 960 |
 | ACCM04 | ACC (no laser) | 192 | 192 | 192 | 128 | 128 | 128 | 960 |
 | **All** | | 1056 | 1056 | 1056 | 800 | 800 | 800 | **5568** |
+
+**Supplementary Table 2 | Laser-ON trials per mouse, stage and task** in the imaging cohort (every laser mouse ran
+half of each session's 192 trials with the laser on, interleaved with the laser-OFF trials of Supplementary Table 1,
+so ON and OFF counts are equal by design; ON trials enter only the analyses of Fig. 6g–l and Extended Data Fig. 6, and
+never a training set). Accuracy is the fraction of correct ON trials. _(2026-09-15, reviewer item: "laser-ON trial counts
+per mouse"; counts from `data/pca/y_all_nan_.pkl`, laser == 1.)_
+
+| Mouse | Opsin | Panels | Naïve DPA | Naïve Go | Naïve NoGo | Expert DPA | Expert Go | Expert NoGo | Total ON | ON accuracy naïve / expert |
+|---|---|---|---|---|---|---|---|---|---|---|
+| JawsM01 | Jaws | Fig. 6g–l, ED 6 | 96 | 96 | 96 | 32 | 32 | 32 | 384 | 0.77 / 0.95 |
+| JawsM06 | Jaws | Fig. 6g–l, ED 6 | 96 | 96 | 96 | 96 | 96 | 96 | 576 | 0.66 / 0.84 |
+| JawsM12 | Jaws | Fig. 6g–l, ED 6 | 96 | 96 | 96 | 64 | 64 | 64 | 480 | 0.68 / 0.79 |
+| JawsM15 | Jaws | Fig. 6g–l, ED 6 | 96 | 96 | 96 | 96 | 96 | 96 | 576 | 0.66 / 0.80 |
+| JawsM18 | Jaws | Fig. 6g–l, ED 6 | 96 | 96 | 96 | 96 | 96 | 96 | 576 | 0.83 / 0.98 |
+| ChRM04 | ChR2 | ED 6 | 96 | 96 | 96 | 96 | 96 | 96 | 576 | 0.81 / 0.94 |
+| ChRM23 | ChR2 | ED 6 | 96 | 96 | 96 | 64 | 64 | 64 | 480 | 0.64 / 0.80 |
+| ACCM03, ACCM04 | ACC (no laser) | — | 0 | 0 | 0 | 0 | 0 | 0 | 0 | — |
+| **All** | | | 672 | 672 | 672 | 544 | 544 | 544 | **3648** | |
 
 **Author-supplied gaps still needed:** histology / viral expression, imaging FOV + per-mouse cell counts,
 laser-power / opsin titration.
