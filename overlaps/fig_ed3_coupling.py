@@ -1,0 +1,216 @@
+"""fig_ed3_coupling.py — Extended Data Fig. 3: the learning coupling and the push under other units, a fixed
+axis, other decoders, and a lick covariate (companion to Fig. 4b,c). Built 2026-09-15 (Leon: "keep only
+what is essential") — the four controls Results §4 cites: normalizations and the fixed common axis
+(ED 5a,b in the old numbering), the decoder variants (old 6c), and the lick control (old 5d).
+
+  a  the push (within-mouse LMM β) and the coupling (per-mouse Spearman ρ, n = 9) under six units of the
+     same depth; raw is the unit of Fig. 4
+  b  per-stage decoder axes (Fig. 4) against one axis pooled over both stages: the push and the coupling
+  c  the coupling under the ridge (Fig. 4c), L1 and shrinkage-LDA decoders
+  d  late-delay licking: depth does not track it; the push and the coupling with a lick covariate
+
+Reads caches only: figures/overlaps/controls/ed3_cache.pkl (written by fig_overlaps_norm_robustness_supp.py,
+fig_overlaps_common_axis_supp.py, fig_overlaps_lick_control_supp.py) and coupling_variants_cache.pkl
+(exp_coupling_variants.py).
+Run:  cd /home/leon/dual/overlaps && /home/leon/mambaforge/envs/dual/bin/python fig_ed3_coupling.py [--nocap]
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig3.{png,svg}
+"""
+import matplotlib; matplotlib.use('Agg')
+import sys, os, warnings, pickle
+warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/'); sys.path.insert(0, '/home/leon/dual/pca')
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+import numpy as np
+import seaborn as sns, matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+from figcaption import draw_justified
+
+sns.set_context('notebook'); sns.set_style('ticks')
+PS = 1.0
+plt.rcParams.update({
+    'figure.dpi': 150, 'savefig.dpi': 400,
+    'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.labelsize': PS*8, 'axes.titlesize': PS*8, 'xtick.labelsize': PS*7, 'ytick.labelsize': PS*7,
+    'legend.fontsize': PS*6.5,
+    'axes.spines.top': False, 'axes.spines.right': False, 'svg.fonttype': 'none',
+    'axes.linewidth': 0.7, 'lines.linewidth': 1.3,
+    'xtick.major.size': 2.5, 'ytick.major.size': 2.5, 'xtick.major.width': 0.7, 'ytick.major.width': 0.7,
+})
+TITLE_FS = PS*8
+NOCAP = '--nocap' in sys.argv[1:]
+MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
+MC = dict(zip(MICE, sns.color_palette('tab10', n_colors=len(MICE))))
+SIGC, NSC = '#CC3311', '0.6'
+C = pickle.load(open('figures/overlaps/controls/ed3_cache.pkl', 'rb'))
+CV = pickle.load(open('figures/overlaps/controls/coupling_variants_cache.pkl', 'rb'))
+
+
+def plabel(ax, s, dx=-0.10):
+    ax.text(dx, 1.06, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
+
+
+def verdict(ax, p, x=0.97, y=0.96):
+    sig = p < 0.05
+    ax.text(x, y, '∗' if sig else 'n.s.', transform=ax.transAxes, ha='right', va='top',
+            fontsize=PS*(12 if sig else 8), fontweight='bold', color='k' if sig else '0.55')
+
+
+# ══ a — six units of the same depth ══════════════════════════════════════════════════════════
+NORM_LAB = {'raw': 'raw (Fig. 4)', 'baseline-std': 'baseline s.d.', 'eqnorm': 'whole-trial s.d.',
+            'pooled-evoked': 'evoked s.d.', "d'-action": 'd′ (action window)', 'gap-action': 'lick − no-lick gap'}
+
+
+def panel_a(fig, gs):
+    N = C['norm']; norms = N['norms']; yv = np.arange(len(norms))[::-1]
+    axes = []
+    for k, (dat, ttl, xlab) in enumerate([(N['push'], 'push (within mouse)', 'LMM β, depth ~ stage'),
+                                          (N['coup'], 'coupling (between mice)', 'Spearman ρ, Δdepth vs ΔDPA accuracy')]):
+        ax = fig.add_subplot(gs[0, k]); axes.append(ax)
+        for i, nm in enumerate(norms):
+            val, p = dat[nm]; sig = p < 0.05
+            ax.scatter(val, yv[i], s=34, color=SIGC if sig else NSC, zorder=3, edgecolors='k', linewidths=0.4)
+            ax.text(val, yv[i] + 0.26, f'p = {p:.3f}', ha='center', va='bottom', fontsize=PS*6.0,
+                    color='k' if sig else '0.45')
+            print(f'a: {ttl[:8]} {nm:14s} {val:+.3f} p={p:.3f}')
+        ax.axvline(0, ls=':', color='k', lw=0.8)
+        ax.set_yticks(yv); ax.set_yticklabels([NORM_LAB[n] for n in norms] if k == 0 else [])
+        ax.set_xlabel(xlab); ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
+        ax.margins(x=0.25); ax.set_ylim(-0.6, len(norms) - 0.1)
+        if k == 1:
+            ax.set_xlim(-1.05, 0.15); ax.set_xticks([-1, -0.5, 0])
+    return axes[0]
+
+
+# ══ b — per-stage axes against one fixed pooled axis ════════════════════════════════════════
+def panel_b(fig, gs):
+    M = C['common']['modes']; mice = C['common']['mice']
+    axes = []
+    for ci, (mode, ttl) in enumerate([('perstage', 'per-stage axes (Fig. 4)'), ('commonPool', 'one axis, both stages')]):
+        E = M[mode]; df = E['df']
+        ax = fig.add_subplot(gs[0, ci]); axes.append(ax)
+        piv = df.pivot_table(index=['mouse', 'sample'], columns='st', values='depth')
+        for (m, sl), r in piv.iterrows():
+            ax.plot([0, 1], [r[0], r[1]], '-o', color=MC[m], lw=0.7, ms=3.2, mec='w', mew=0.3,
+                    mfc=(MC[m] if sl == 'A' else 'w'), zorder=3, alpha=0.9)
+        for x, k in ((-0.18, 0), (1.18, 1)):
+            v = df[df.st == k].depth.values
+            ax.errorbar(x, v.mean(), v.std(ddof=1) / np.sqrt(len(v)), fmt='s', color='k', ms=5, capsize=3, lw=1.1, zorder=5)
+        b, p = E['push']
+        ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert']); ax.set_xlim(-0.5, 1.5)
+        ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
+        ax.text(0.03, 0.03, f'β = {b:+.2f}, p = {p:.3f}', transform=ax.transAxes, va='bottom', fontsize=PS*6.5, color='0.3')
+        verdict(ax, p)
+        if ci == 0:
+            ax.set_ylabel('choice-code depth\n← no lick    lick →')
+        ax2 = fig.add_subplot(gs[1, ci]); axes.append(ax2)
+        ddm, dam = np.asarray(E['ddm']), np.asarray(E['dam']); ok = np.isfinite(ddm) & np.isfinite(dam)
+        for i, m in enumerate(mice):
+            ax2.scatter(ddm[i], dam[i], color=MC[m], s=30, edgecolors='w', linewidths=0.5, zorder=4)
+        z = np.polyfit(ddm[ok], dam[ok], 1); xx = np.array([ddm[ok].min(), ddm[ok].max()])
+        ax2.plot(xx, np.polyval(z, xx), '-', color='0.3', lw=1.2, zorder=3)
+        ax2.axhline(0, ls=':', color='0.6', lw=0.7); ax2.axvline(0, ls=':', color='0.6', lw=0.7)
+        ax2.text(0.03, 0.03, f'ρ = {E["rho"]:+.2f}, p = {E["p"]:.3f}', transform=ax2.transAxes, va='bottom', fontsize=PS*6.5, color='0.3')
+        verdict(ax2, E['p'])
+        lo, hi = ax2.get_ylim(); ax2.set_ylim(lo - 0.22 * (hi - lo), hi)
+        ax2.set_xlabel('Δ choice-code depth (expert − naïve)')
+        if ci == 0:
+            ax2.set_ylabel('Δ DPA accuracy\n(expert − naïve)')
+        print(f'b: {mode:10s} push β={b:+.2f} p={p:.3f}   coupling ρ={E["rho"]:+.2f} p={E["p"]:.3f}')
+    return axes[0]
+
+
+# ══ c — the coupling under three decoders ═══════════════════════════════════════════════════
+def panel_c(fig, gs):
+    axes = []
+    for k, (key, ttl) in enumerate([('l2', 'ridge logistic (Fig. 4c)'), ('l1', 'L1 logistic'), ('lda', 'shrinkage LDA')]):
+        E = CV[key]; ax = fig.add_subplot(gs[0, k]); axes.append(ax)
+        dd, dp = np.asarray(E['dd']), np.asarray(E['dp_dpa'])
+        for m, x, yv in zip(E['mice'], dd, dp):
+            ax.scatter(x, yv, color=MC[m], s=30, edgecolors='w', linewidths=0.5, zorder=4)
+        z = np.polyfit(dd, dp, 1); xx = np.array([dd.min(), dd.max()])
+        ax.plot(xx, np.polyval(z, xx), '-', color='0.3', lw=1.2, zorder=3)
+        ax.axhline(0, ls=':', color='0.6', lw=0.7); ax.axvline(0, ls=':', color='0.6', lw=0.7)
+        ax.text(0.03, 0.03, f'ρ = {E["rho"]:+.2f}, p = {E["p"]:.3f}', transform=ax.transAxes, va='bottom', fontsize=PS*6.5, color='0.3')
+        verdict(ax, E['p'])
+        ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
+        lo, hi = ax.get_ylim(); ax.set_ylim(lo - 0.22 * (hi - lo), hi)
+        if k == 1:
+            ax.set_xlabel('Δ choice-code depth (expert − naïve)')
+        if k == 0:
+            ax.set_ylabel('Δ DPA accuracy\n(expert − naïve)')
+        print(f'c: {key:4s} ρ={E["rho"]:+.2f} p={E["p"]:.3f} n={len(dd)}')
+    return axes[0]
+
+
+# ══ d — late-delay licking ═══════════════════════════════════════════════════════════════════
+def panel_d(fig, gs):
+    L = C['lick']; d = L['trial']
+    axes = []
+    ax = fig.add_subplot(gs[0, 0]); axes.append(ax)
+    for st, col in [('Naive', '0.55'), ('Expert', '#332288')]:
+        ds = d[d.learning == st]; ax.scatter(ds.lick_delay, ds.depth, s=4, color=col, alpha=0.15, lw=0, label=st.lower() if st == 'Expert' else 'naïve')
+    rr, prr = L['trial_rho']
+    ax.set_xlabel('late-delay lick rate (Hz)'); ax.set_ylabel('choice-code depth')
+    ax.set_title('depth vs licking', loc='left', fontsize=TITLE_FS)
+    ax.text(0.97, 0.04, f'ρ = {rr:+.2f}\n{len(d)} trials', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
+    ax.axhline(0, ls=':', color='0.6', lw=0.7)
+    ax.legend(frameon=False, loc='upper right', markerscale=3, handletextpad=0.2)
+    ax = fig.add_subplot(gs[0, 1]); axes.append(ax)
+    ticks = []
+    for i, (lab, (bta, se, p)) in enumerate([('none', L['m0']), ('+ lick', L['m1'])]):
+        col = SIGC if p < 0.05 else NSC
+        ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
+        ticks.append(f'{lab}\nβ {bta:+.2f}\np {p:.3f}')
+        print(f'd: push covariate={lab:7s} β={bta:+.3f} ± {se:.3f} p={p:.3f}')
+    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.6, 1.6)
+    ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS); ax.set_ylim(-1.0, 0.12)
+    ax = fig.add_subplot(gs[0, 2]); axes.append(ax)
+    gd = L['gd']
+    for m in gd.index:
+        ax.scatter(gd.loc[m, 'dd'], gd.loc[m, 'da'], color=MC[m], s=30, edgecolors='w', linewidths=0.5, zorder=4)
+    z = np.polyfit(gd.dd, gd.da, 1); xx = np.array([gd.dd.min(), gd.dd.max()]); ax.plot(xx, np.polyval(z, xx), '-', color='0.3', lw=1.2)
+    ax.axhline(0, ls=':', color='0.6', lw=0.7); ax.axvline(0, ls=':', color='0.6', lw=0.7)
+    (r0, p0), (rp, pp), (rl, pl) = L['r0'], L['rp'], L['rl']
+    ax.text(0.03, 0.03, f'ρ = {r0:+.2f}, p = {p0:.3f}\npartial | Δlick: r = {rp:+.2f}, p = {pp:.3f}\nΔlick vs Δaccuracy: ρ = {rl:+.2f}, p = {pl:.2f}',
+            transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.2, color='0.3')
+    lo, hi = ax.get_ylim(); ax.set_ylim(lo - 0.32 * (hi - lo), hi)
+    ax.set_xlabel('Δ choice-code depth (expert − naïve)'); ax.set_ylabel('Δ DPA accuracy')
+    ax.set_title('coupling | Δlick', loc='left', fontsize=TITLE_FS)
+    print(f'd: coupling ρ={r0:+.2f} p={p0:.3f}; partial r={rp:+.2f} p={pp:.3f}; lick-acc ρ={rl:+.2f} p={pl:.2f}')
+    return axes[0]
+
+
+# ══ ASSEMBLE ═══════════════════════════════════════════════════════════════════════════════════
+fig = plt.figure(figsize=(10.0, 7.2))
+outer = fig.add_gridspec(2, 12, height_ratios=[1.3, 1.0], hspace=0.42, wspace=1.0,
+                         left=0.09, right=0.985, top=0.96, bottom=0.075)
+gsA = outer[0, 0:5].subgridspec(1, 2, wspace=0.12, width_ratios=[1, 1])
+axA = panel_a(fig, gsA)
+gsB = outer[0, 6:12].subgridspec(2, 2, wspace=0.28, hspace=0.45)
+axB = panel_b(fig, gsB)
+gsC = outer[1, 0:5].subgridspec(1, 3, wspace=0.45)
+axC = panel_c(fig, gsC)
+gsD = outer[1, 6:12].subgridspec(1, 3, wspace=0.55, width_ratios=[1, 0.5, 1])
+axD = panel_d(fig, gsD)
+plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.34); plabel(axC, 'c', dx=-0.40); plabel(axD, 'd', dx=-0.40)
+
+CAP = [
+    'Extended Data Fig. 3 | The push and the learning coupling under other units, a fixed axis, other decoders '
+    'and a lick covariate (companion to Fig. 4b,c). a, The push (left; within-mouse mixed model, depth ~ stage + '
+    'sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman ρ between '
+    'Δdepth and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay depth; '
+    'raw log-odds is the unit of Fig. 4. Red, p < 0.05. The coupling holds under every unit; the push reaches '
+    'significance only in evoked-s.d. and whole-trial-s.d. units. b, The same two statistics on the per-stage '
+    'decoder axes of Fig. 4 (left) and on one choice axis fitted to both stages together (right; registered '
+    'neurons): the push is not significant on a fixed axis, and the coupling weakens to a trend.',
+    'c, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an L1-regularized logistic '
+    'decoder and a shrinkage linear discriminant. d, Late-delay licking. Left, trial-level depth against the '
+    'late-delay lick rate (7.0–7.5 s; naïve and expert DPA trials): the depth does not track licking. Middle, the '
+    'push with and without the per-mouse late-delay lick rate as a covariate. Right, the coupling given the change '
+    'in licking: the partial rank correlation controlling for Δlick, and the null relation between Δlick and '
+    'Δaccuracy. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
+]
+if not NOCAP:
+    draw_justified(fig, CAP, fontsize=PS*7.2)
+OUT = '/home/leon/dual/figures/ed'
+fig.savefig(f'{OUT}/png/ed_fig3.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig3.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig3.png')

@@ -28,7 +28,7 @@ cross-condition generalization has revealed in primate prefrontal cortex and hip
 axes have to serve a memory while an embedded action task runs through it. Our data also refine
 the mixed-selectivity picture [Rigotti 2013]. The decision state occupies about three reliable
 dimensions and the test code is conjunctive, in that it anti-generalizes across sample
-(Extended Data Fig. 6f), so the high-dimensional component is there. The maintained memory, by
+(Extended Data Fig. 2b), so the high-dimensional component is there. The maintained memory, by
 contrast, is deliberately minimal, a single reliable dimension (Fig. 2b). The two regimes
 coexist with a division of labour: low-dimensional and abstract where information has to be
 protected and transferred, higher-dimensional where stimulus–response conjunctions have to be
@@ -85,7 +85,7 @@ Three features of the design set the scope of these conclusions. The pooled pseu
 combines neurons recorded in different animals, so its single-trial states carry no cross-mouse
 noise correlations, and for this reason every pooled result is paired with a within-animal
 companion computed on simultaneously recorded neurons, including the dimensionality spectra
-themselves (n = 9; Extended Data Fig. 3c). Because the mice had learned DPA and GNG separately
+themselves (n = 9; Extended Data Fig. 1d). Because the mice had learned DPA and GNG separately
 before dual task recordings began, our claims concern the composition of the two: the axes
 present in the first dual task sessions were the ones that learning went on to use, and
 composing the tasks added none. And although the choice axis is defined by licking, the

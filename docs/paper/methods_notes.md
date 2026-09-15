@@ -62,7 +62,7 @@ k > 2 folds because the estimator is a cross-product of two independent conditio
 whose variance is minimised by equal halves (n₁ = n₂ = n/2); k-fold variants use noisier per-fold
 means and additionally deflate the spectrum through basis misalignment. Effective dimensionality was
 summarised as the participation ratio, PR = (Σλ)²/Σλ², over the positive reliable spectrum
-(Extended Data; the main figure reports the spectra themselves). The null
+(Extended Data Fig. 1a,b; the main figure reports the spectra themselves). The null
 shuffled condition labels within mouse (preserving trial counts and noise structure) and is compared
 on reliable variance, not on PR (the PR of a near-zero noise spectrum is undefined-ly large); the null
 spectrum shown in Fig. 2b is normalised by the real spectrum's positive total (its own total is near
@@ -75,7 +75,7 @@ contribute at its start) and decision (bins 54–62, from test onset to 0.5 s af
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
 
-**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data).** 95% confidence intervals are
+**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data Fig. 1b).** 95% confidence intervals are
 from a leave-one-mouse-out jackknife: the averaged reliable spectrum (per-component fractions) or its
 PR was recomputed nine times, excluding each mouse's neurons and trials in turn;
 CI = value ± 1.96 × SE_jackknife (fractions clipped to [0, 1]; the PR lower bound clipped at its floor
@@ -130,7 +130,7 @@ cross-validation and their variables decode at chance (Fig. 2c). They are sampli
 condition means (η² across a finite condition set must land on some contrast for any direction,
 including noise directions). This does not deny preparatory activity, which this decomposition would
 place elsewhere: condition-linked anticipation appears as decodable structure (the naive-stage
-dual-delay choice/bias state, Fig. 2c † and Extended Data, removed by learning), postural/motor
+dual-delay choice/bias state, Fig. 2c † and Extended Data Fig. 1f, removed by learning), postural/motor
 preparation appears as the condition-independent position of the delay state on the action axis
 (Fig. 4), and purely temporal (timing/ramp) components are shared across conditions and are removed
 with the grand mean by construction. PC4 of the 4-condition DPA set is the degenerate null direction of
@@ -149,7 +149,7 @@ panels; both are linear readouts and the conclusions are unchanged (the axis-ove
 from 0.39→0.53 to 0.32→0.46 for action × distractor, with sample orthogonal to both in either case),
 but the mixed version invited comparisons between quantities built by different estimators.
 
-**Shattering dimension (Extended Data; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
+**Shattering dimension (Extended Data Fig. 1c; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
 the 12 conditions were decoded at the decision window with a leakage-free pseudo-population decoder:
 disjoint train/test trial halves per (mouse, condition), 24 pseudo-trials per condition,
 StandardScaler + PCA(30) fit on the training half only, then LDA per dichotomy; performance is balanced

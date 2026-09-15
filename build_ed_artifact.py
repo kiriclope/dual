@@ -7,7 +7,7 @@ then publish the result with the Artifact tool, passing the URL so it updates in
   file_path = figures/paper_share/artifact_build/mpfc_dual_ed_v1.html
   url       = https://claude.ai/code/artifact/95df947e-a8d6-452f-8d6f-431ea9cf7dcb
 
-Inputs  figures/ed/png/{ed_fig1..9,si_trialcounts}.png   (captions and panel letters are drawn INTO these
+Inputs  figures/ed/png/{ed_fig1..6,si_trialcounts}.png   (captions and panel letters are drawn INTO these
         pages by make_ed_figures.py — the HTML only adds an eyebrow, a title and a one-line claim)
 Style   reuses the <style> block of figures/paper_share/artifact_build/mpfc_dual_figures_v1.html, so the two
         shared galleries stay visually identical
@@ -35,25 +35,18 @@ SRC = f'{ROOT}/figures/ed/png'
 
 # (file stem, eyebrow, title, one-line claim) — titles/claims mirror the captions in make_ed_figures.py
 SPECS = [
-    ('ed_fig1', 'Extended Data Fig. 1', 'Behavioural learning curves by cohort',
-     'The Fig. 1 condition effects reproduce in every split — pooled 9 mice, Jaws, ChR, ACC, and the interleaved laser-ON trials.'),
-    ('ed_fig2', 'Extended Data Fig. 2', 'The DPA–GNG balance is not a trade-off',
-     'Per-animal scatter, Pareto front, small fixed dual cost with a positive within-trial coupling (OR = 2.03), and trial-history/switch-cost effects.'),
-    ('ed_fig3', 'Extended Data Fig. 3', 'Dimensionality: provenance and robustness',
-     'The previous PR build, the reduced-rank test, the per-mouse cvPCA companion (memory 1-D per animal), the per-fit grids with the cvPCA noise gotcha, window robustness, the Go/NoGo control and the shattering dimension.'),
-    ('ed_fig4', 'Extended Data Fig. 4', 'The no-lick push is robust (dPCA pipeline)',
-     'The deepening survives raw dF/F, time-ramp removal and a fixed naive basis; the depth-accuracy link is population-level in this pipeline.'),
-    ('ed_fig5', 'Extended Data Fig. 5',
-     'The learning coupling holds across normalizations, is estimator-sensitive, and is not movement',
-     'The coupling is significant under every normalisation but weakens to a trend on a fixed common axis; resampling battery; late-delay licking explains neither effect.'),
-    ('ed_fig6', 'Extended Data Fig. 6', 'The factorised geometry is robust',
-     'Cross-temporal cosines at the chance floor, modular single-neuron tuning, L1/LDA decoder variants, codes unperturbed by the distractor, and the out-of-context plane test (a plane fitted in one context read in every other).'),
-    ('ed_fig7', 'Extended Data Fig. 7', 'Chronic silencing impairs learning; transient silencing spares behaviour',
-     'ACC-to-Prl training silencing impairs DPA learning (batch design); acute within-mouse laser OFF vs ON leaves the learning curves intact.'),
-    ('ed_fig8', 'Extended Data Fig. 8', 'The acute laser ON-OFF coupling over all 7 laser mice',
-     'Per-mouse (GNG rho = -0.90, p = 0.006) and A/B-independent (n = 14) views; the DPA arm is rank-n.s.'),
-    ('ed_fig9', 'Extended Data Fig. 9', 'Demixed (dPCA) axes: trajectories, mixing, and the shared plane',
-     'The descriptive dPCA story: scree and marginals, trajectory grid, axis-mixing slopegraph, shared-memory d-prime scatter, and the linking plane.'),
+    ('ed_fig1', 'Extended Data Fig. 1', 'Dimensionality: provenance and robustness',
+     'Twelve-condition spectra and the PR ladder, the shattering dimension, the per-mouse cvPCA companion, the uncross-validated eta-squared demonstration, and the premature-choice signal learning removes.'),
+    ('ed_fig2', 'Extended Data Fig. 2', 'The sample x choice plane, per animal and out of context',
+     'GNG and test codes over time, per-mouse CCGP, the out-of-context plane test, and the plane-ablation grid in every animal.'),
+    ('ed_fig3', 'Extended Data Fig. 3', 'The push and the learning coupling under other units, a fixed axis, other decoders and a lick covariate',
+     'The coupling holds under every unit and decoder except LDA and weakens to a trend on a fixed axis; late-delay licking explains neither effect.'),
+    ('ed_fig4', 'Extended Data Fig. 4', 'Chronic silencing of the two control projections',
+     'ACC cell bodies: no deficit; prelimbic-to-ACC terminals: GNG impaired, DPA spared - the DPA deficit is specific to the ACC-to-mPFC projection.'),
+    ('ed_fig5', 'Extended Data Fig. 5', 'The acute laser ON-OFF coupling over all seven laser mice',
+     'With the Fig. 6 estimator: GNG arm rho = -0.94, p = 0.002; DPA arm a trend, rho = +0.71, p = 0.074 (n = 7).'),
+    ('ed_fig6', 'Extended Data Fig. 6', 'The demixed-PCA decomposition gives the same picture',
+     'Single-axis time courses sharpen without reorganizing; the choice and task axes align and the sample and test axes separate.'),
     ('si_trialcounts', 'Supplementary Fig. 1', 'Trial counts per mouse',
      'Analysis-balanced per-mouse x stage x task counts entering the pseudo-population (5,568 laser-OFF trials).'),
 ]

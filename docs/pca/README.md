@@ -15,7 +15,7 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
   the task-split trace row (DPA | Go | NoGo) which IS panel A since 2026-08-31 (standalone
   preview `fig_traj_tasksplit.py`; the four-code 2×4 row is now the supp's panel A); three
   Fig-3 cards pinned in the gallery Main tab (canonical / pca20 / antact).
-- **`story_figure_reproduction.md`** — the dPCA story figure (`fig_dpca_story_main.py`, now **ED Fig 9**:
+- **`story_figure_reproduction.md`** — the dPCA story figure (`fig_dpca_story_main.py`; its trajectory grid + axis mixing are **ED Fig 6** since 2026-09-15 via `fig_ed6_dpca.py`, the rest is cut; it was ED 9 before:
   trajectory grid, axis-mixing, linking plane, shared-memory scatter): full reproduction guide
   (hypotheses, data, every routine, exact math/windows, results, caveats).
 - `overview.md` — subproject overview & results.
@@ -24,7 +24,7 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
 - **`story_figure_review.md`** — review log: bugs fixed (gated-deformation push, panel J; sec-3 flows
   switched to partial pooling → CV now positive, two shared landscapes for the two epochs) & standing
   caveats (variance is a proxy; sec-4 push depth is fit from data, gate profile is a modeling choice).
-- **Out-of-context plane test (2026-09-07, ED 6e):** `exp_ooc_plane_pseudo.py` (pooled) + `exp_ooc_plane.py`
+- **Out-of-context plane test (2026-09-07, ED 6e → ED 2c since 2026-09-15, drawn by `fig_ed2_plane.py`):** `exp_ooc_plane_pseudo.py` (pooled) + `exp_ooc_plane.py`
   (per-mouse) → caches `OOC_PLANE_PSEUDO_nopca` / `OOC_PLANE_nopca` in results.pkl; `fig_ooc_plane_ed.py` = the
   ED 6e component, `fig_ooc_plane.py` = the full audit (gallery `tmp/` only). Design, numbers and the
   by-construction finding it replaces: `dimensionality.md` 2026-09-07 block.

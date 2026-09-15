@@ -80,6 +80,10 @@ for nm in NORMS:
     da = np.array([DACC[m] for m in MICE]); ok = np.isfinite(dd) & np.isfinite(da)
     rho, p = spearmanr(dd[ok], da[ok]); coup[nm] = (float(rho), float(p))
 
+import pickle                                                    # 2026-09-15: ED 3a reads this cache
+_C = 'figures/overlaps/controls/ed3_cache.pkl'
+_c = pickle.load(open(_C, 'rb')) if os.path.exists(_C) else {}
+_c['norm'] = dict(norms=NORMS, push=push, coup=coup); pickle.dump(_c, open(_C, 'wb'))
 fig, axs = plt.subplots(1, 2, figsize=(7.6, 3.4))
 yv = np.arange(len(NORMS))[::-1]
 for ax, dat, lab, xlab in [(axs[0], push, 'PUSH (within-mouse deepening)', 'LMM β (depth ~ stage)'),

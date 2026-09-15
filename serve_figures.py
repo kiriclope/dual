@@ -82,27 +82,22 @@ VARIANTS = [
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact_robust.png'),
 ]
 SUPP = [
-    # ── THE COMPOSED ED PAGES (make_ed_figures.py, 2026-09-02) — the submission set ──
-    ('ED Fig. 1 [COMPOSED] · behaviour learning curves by cohort (pooled/Jaws/ChR/ACC/laser-ON)',
+    # ── THE EXTENDED DATA SET (2026-09-15: native composites, one script each, trimmed to what the
+    #    manuscript cites; make_ed_figures.py runs the six and exports the 183 mm PDFs) ──
+    ('ED Fig. 1 · dimensionality: 12-condition spectra, PR ladder, shattering, per-mouse cvPCA, uncross-validated η², bias cleanup (a-f)',
      'figures/ed/png/ed_fig1.png'),
-    ('ED Fig. 2 [COMPOSED] · DPA↔GNG balance is not a trade-off (a-f)',
+    ('ED Fig. 2 · the plane per animal & out of context: GNG/test codes, per-mouse CCGP, OOC plane test, plane-ablation grid (a-d)',
      'figures/ed/png/ed_fig2.png'),
-    ('ED Fig. 3 [COMPOSED] · dimensionality provenance & robustness (a-g; c=per-mouse cvPCA, g=bias cleanup)',
+    ('ED Fig. 3 · push/coupling under six units, a fixed axis, three decoders, a lick covariate (a-d)',
      'figures/ed/png/ed_fig3.png'),
-    ('ED Fig. 4 [COMPOSED] · dPCA no-lick push robustness (a-d)',
+    ('ED Fig. 4 · chronic silencing of the two control projections: ACC somata null, Prl→ACC impairs GNG (a-b)',
      'figures/ed/png/ed_fig4.png'),
-    ('ED Fig. 5 [COMPOSED] · coupling/push estimator-robust + movement control (a-d)',
+    ('ED Fig. 5 · acute laser ON−OFF coupling over all 7 laser mice, Fig 6 estimator (GNG ρ=−0.94 p=.002; DPA ρ=+0.71 p=.074)',
      'figures/ed/png/ed_fig5.png'),
-    ('ED Fig. 6 [COMPOSED] · factorised geometry robust: cosines, modularity, decoder variants, gng-trials (a-d)',
+    ('ED Fig. 6 · demixed-PCA trajectories (2×4) + axis alignment slopegraph (a-b)',
      'figures/ed/png/ed_fig6.png'),
-    ('ED Fig. 7 [COMPOSED] · chronic silencing impairs learning; transient spares behaviour (a-d)',
-     'figures/ed/png/ed_fig7.png'),
-    ('ED Fig. 8 [COMPOSED] · acute laser ON−OFF coupling, 7 mice (a per-mouse ★, b A&B-independent)',
-     'figures/ed/png/ed_fig8.png'),
-    ('ED Fig. 9 [COMPOSED] · dPCA demixed axes: trajectories, mixing, linking plane',
-     'figures/ed/png/ed_fig9.png'),
-    ('SI Fig. 1 [COMPOSED] · trial counts per mouse (balanced)',
-     'figures/ed/png/si_trialcounts.png'),
+    ('SI Fig. 1 · trial counts per mouse (balanced)',
+     'overlaps/figures/overlaps/behavior/png/behavior_trialcounts.png'),
     # ── components / candidates below ─────────────────────────────────────────
     ('ED — per-mouse CCGP (abstraction unchanged) + per-mouse cross-task generalisation  [left the mains 2026-08-31]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png'),

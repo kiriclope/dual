@@ -124,6 +124,16 @@ def rank_resid(u, z):
 rp, pp = pearsonr(rank_resid(gd.dd, gd.dl), rank_resid(gd.da, gd.dl))
 rl, pl = spearmanr(gd.dl, gd.da)
 
+import pickle                                                    # 2026-09-15: ED 3d reads this cache
+_rr, _prr = spearmanr(d.depth, d.lick_delay)
+_C = 'figures/overlaps/controls/ed3_cache.pkl'
+_c = pickle.load(open(_C, 'rb')) if os.path.exists(_C) else {}
+_c['lick'] = dict(trial=d[['mouse', 'learning', 'depth', 'lick_delay']].reset_index(drop=True),
+                  trial_rho=(float(_rr), float(_prr)),
+                  m0=(float(m0.params['st']), float(m0.bse['st']), float(m0.pvalues['st'])),
+                  m1=(float(m1.params['st']), float(m1.bse['st']), float(m1.pvalues['st'])),
+                  gd=gd, lr=lr, r0=(float(r0), float(p0)), rp=(float(rp), float(pp)), rl=(float(rl), float(pl)))
+pickle.dump(_c, open(_C, 'wb'))
 # ── figure ──
 fig, ax = plt.subplots(2, 2, figsize=(7.2, 5.8))
 for (r_, c_), L in {(0, 0): 'A', (0, 1): 'B', (1, 0): 'C', (1, 1): 'D'}.items():

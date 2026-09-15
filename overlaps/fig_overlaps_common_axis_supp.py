@@ -93,6 +93,7 @@ DACC = {m: dacc(m) for m in MICE}
 
 MODES = [('perstage', 'per-stage axis\n(current figure)'), ('commonE', 'fixed COMMON axis\n(Expert)'),
          ('commonPool', 'fixed COMMON axis\n(pooled Naive+Expert)')]
+ED = {}                                                          # 2026-09-15: ED 3b reads this cache
 fig, axs = plt.subplots(2, 3, figsize=(8.5, 5.4))
 for ci, (mode, title) in enumerate(MODES):
     df, dd = build(mode)
@@ -130,9 +131,14 @@ for ci, (mode, title) in enumerate(MODES):
              color='k' if pc < .05 else '0.4')
     ax2.text(0.95, 0.95, '*' if pc < .05 else 'n.s.', transform=ax2.transAxes, ha='right', va='top',
              fontsize=12 if pc < .05 else 8, fontweight='bold', color='k' if pc < .05 else '0.55')
+    ED[mode] = dict(df=df, push=(b, p), ddm=ddm, dam=dam, rho=float(rho), p=float(pc))
     ax2.set_xlabel('Δ choice-code depth (Exp−Naive)')
     if ci == 0:
         ax2.set_ylabel('Δ DPA accuracy (Exp−Naive)')
+import pickle
+_C = 'figures/overlaps/controls/ed3_cache.pkl'
+_c = pickle.load(open(_C, 'rb')) if os.path.exists(_C) else {}
+_c['common'] = dict(modes=ED, mice=MICE, dacc=DACC); pickle.dump(_c, open(_C, 'wb'))
 fig.suptitle('Fixed-axis control: the no-lick push is partly decoder-axis reorganisation, but the '
              'depth↔accuracy coupling weakens to a trend on a fixed pooled axis', fontsize=9, y=1.0)
 fig.tight_layout(rect=(0, 0, 1, 0.96))

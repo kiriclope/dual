@@ -72,3 +72,8 @@ place or from somewhere less direct.
 | 2026-09-10 17:01 | Fig 2 panel b -> design-contrast basis | fig_dimensionality_main.py re-render (any flag) | 2.0 | measured |
 | 2026-09-10 17:26 | Fig 2b contrast basis REVERTED | revert + re-render + verify byte-identical to d81c59c | 6.0 | measured |
 | 2026-09-14 12:51 | Fig 2b cvPCA bias disclosure | exp_cvpca_bias_check.py (all six checks: noise, sim, folds, trials --figure, scaling, align; cache-only) | 1.0 | measured |
+| 2026-09-15 11:55 | ED rebuild 2026-09-15 | exp_coupling_variants.py (Fig 4c coupling under l2/l1/lda; 3 main_panels subprocesses) | 0.4 | measured (wall clock in the run log) |
+| 2026-09-15 11:55 | ED rebuild 2026-09-15 | fig_overlaps_norm_robustness_supp.py (+ ed3_cache dump) | 0.1 | measured (wall clock in the run log) |
+| 2026-09-15 11:55 | ED rebuild 2026-09-15 | fig_overlaps_common_axis_supp.py (loads X_all; + ed3_cache dump) | 0.6 | measured (wall clock in the run log) |
+| 2026-09-15 11:55 | ED rebuild 2026-09-15 | fig_overlaps_lick_control_supp.py (loads X_all; + ed3_cache dump) | 0.4 | measured (wall clock in the run log) |
+| 2026-09-15 11:56 | ED rebuild 2026-09-15 | make_ed_figures.py (6 native EDs x 2 builds + 183 mm PDFs + share copies) | 1.1 | measured |

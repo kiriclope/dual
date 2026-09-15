@@ -1,5 +1,20 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
+> **2026-09-15 — EXTENDED DATA REBUILT AND RENUMBERED (Leon: "keep only what is essential for the paper's
+> argumentation").** The pca-side ED figures are now native composites: `fig_ed1_dimensionality.py` (old ED 3
+> trimmed: a twelve-condition spectra, b PR ladder, c shattering, d per-mouse cvPCA, e uncross-validated η²,
+> f bias cleanup), `fig_ed2_plane.py` (old ED 6 trimmed: a GNG/test
+> codes, b per-mouse CCGP, c OOC plane, d plane-ablation grid), `fig_ed6_dpca.py` (old ED 9 trimmed: 2×4
+> trajectories + axis mixing). Cut as uncited: the previous Fig 2 build (`--pr` page), rank sufficiency,
+> `dim_*_altwin`/`_gng` grids, cosine matrices, mixed selectivity, GNG-trial codes, per-mouse cross-task
+> generalisation, the dPCA schematic/scree/shared-memory/linking plane. Every "ED 3x/6x/9" reference in the
+> dated blocks below is HISTORICAL — the current numbers are ED 1/2/6. **Number correction found on the way:**
+> the per-mouse dist plane-only rise is 0.57 → 0.63, **p = .055, 8/9 up (unstarred)** on the canonical
+> caches — the p = .020/.027 star quoted in the 2026-09-08 blocks below and in the draft was stale
+> (`fig_manifold_main.py --nopca` re-rendered byte-identical to the committed Fig 3 and prints p = 0.05; the
+> committed per-mouse grid never carried the star). Draft §3 and the ED 2 legend now say p = .055.
+
+
 > **2026-09-10 — PANEL b STAYS ON THE FITTED COMPONENT BASIS; its small-component bias is MEASURED and
 > DISCLOSED.** Leon asked whether the small components were understated ("pc2 in dual mid delay should be
 > higher in real life"). They are: a fitted direction is estimated from the same noisy half-means it is
