@@ -83,6 +83,7 @@ BCON = '--bcon' in sys.argv[1:]                   # panel b on the DESIGN CONTRA
                                                   # both, which is why keeping the standard estimator costs
                                                   # nothing. Kept renderable as the disclosure; stem _bc.
                                                   # See docs/pca/dimensionality.md 2026-09-10.
+CORRECTONLY = '--correctonly' in sys.argv[1:]          # panel c on correct trials only (the pre-2026-09-15 build)
 CV5 = '--cv5' in sys.argv[1:]                     # panel d from the 5-FOLD cross-validation (exp_pceta_cv.py
                                                   # --kfold 5): basis on 80% of the trials, eta^2 on the held-out
                                                   # 20%, 12 partitions x 5 folds. Robustness variant of the
@@ -462,7 +463,11 @@ def panelC_decode(fig, gsC):
     its own axes. Expert bars, naive open circles, one null mark per bar (expert 95th pct of the MATCHED
     label-shuffle null), † = naive above its own null (the anticipatory choice; explained in the caption).
     The DPA-subspace GNG cross-decode is printed (→ panel d's orange column), not drawn."""
-    DC = RES['DPCA_COUNT']; GC = RES['DPA_GNG_C']
+    # 2026-09-15 (Leon: "all trials for 2c"): the decodabilities are read on ALL laser-off trials (DPCA_COUNT_all,
+    # exp_dpca_count.py --alltrials). On correct trials only, the match/nonmatch 'choice' contrast coincides with
+    # the lick, and a naive lick-drive state made the future choice look decodable from the delay (0.64-0.66) —
+    # a selection effect, gone on all trials (0.48-0.56). --correctonly draws the old build (stem _co).
+    DC = RES['DPCA_COUNT' if CORRECTONLY else 'DPCA_COUNT_all']; GC = RES['DPA_GNG_C']
     setsvars = [('DPA', ['sample', 'test', 'choice']), ('dual', ['sample', 'gng', 'test', 'choice'])]
     for wn in ('md', 'decision'):
         for st in STAGES:
@@ -881,7 +886,7 @@ if CDEC:
         'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
         'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
         'change the dimensionality.',
-        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). The dagger marks the anticipatory choice signal in the naïve mid-delay state on Go and NoGo trials (0.66, fourteen points above its own null), which disappears with learning; on DPA trials the mid-delay choice reaches 0.55 in expert against a null of 0.54, a one-point margin we read as marginal rather than as a second anticipatory code.',
+        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). All laser-off trials are decoded; the dagger marks the one naïve cell above its null before the test, the mid-delay choice on Go and NoGo trials (0.56 against 0.52), the residue of a correct-trial selection effect (Extended Data Fig. 2e).',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
         'the trials and both the η² and the row percentages are measured on the other (30 random '
@@ -923,7 +928,7 @@ if CDEC:
         draw_justified(fig, CAP_PARAS, fontsize=PS*7.2)
 
 OUT = 'figures/pseudo/dimensionality'
-STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '') + ('_bv' if BVARS else '') + ('_bc' if BCON else '')
+STEM = ('fig_dimensionality_main' if CDEC else 'fig_dimensionality_main_pr') + ('_ev' if EVWIN else ('_pb' if PCABINS else '')) + AXENV + ('_cv5' if CV5 else '') + ('_co' if CORRECTONLY else '') + ('_bv' if BVARS else '') + ('_bc' if BCON else '')
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
 fig.savefig(f'{OUT}/png/{STEM}.png', bbox_inches='tight')
 fig.savefig(f'{OUT}/svg/{STEM}.svg', bbox_inches='tight')

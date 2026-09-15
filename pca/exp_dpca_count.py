@@ -30,6 +30,11 @@ DPA4 = [c for c in ALL12 if c[0] == 'DPA']
 SETS = {'DPA': DPA4, 'dual': DUAL, 'all': ALL12}
 WINS = os.environ.get('DUAL_DPCA_WINS', 'ed,md,delay,test,decision').split(',')   # env: restrict for variant builds
 NSPLIT, NNULL, KPSEUDO = 15, 100, 10
+# --alltrials (2026-09-15, Leon: 'I don't believe the result of panel f'): ALL laser-off trials instead of correct only.
+# The 'choice' contrast (sample x test) is then fixed by the odours alone, so any pre-test decodability would be
+# impossible — a sanity floor that tells whether the naive dual signal is a correct-trial selection effect.
+ALLTRIALS = '--alltrials' in sys.argv[1:]
+OUTKEY = 'DPCA_COUNT' + ('_all' if ALLTRIALS else '')
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']; N = _c['N']
@@ -55,7 +60,7 @@ def neuron_scale(stage, M):
     sd = np.ones(N)
     for m in MICE:
         val = VALIDIX[(m, stage)]
-        tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1))[0]
+        tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & ((PERF == 1) | ALLTRIALS))[0]
         if len(tr):
             s = np.nanstd(M[np.ix_(tr, val)], axis=0)
             sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
@@ -67,7 +72,7 @@ def pools(stage, conds):
     P = {}
     for m in MICE:
         for ci, (t, s, te) in enumerate(conds):
-            P[(m, ci)] = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1)
+            P[(m, ci)] = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & ((PERF == 1) | ALLTRIALS)
                                   & (TSK == t) & (SAMP == s) & (TESTO == te))[0]
     return P
 
@@ -172,6 +177,6 @@ for wn in WINS:
 
 RESPKL = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RESPKL, 'rb'))
-d['DPCA_COUNT'] = OUT
+d[OUTKEY] = OUT
 pickle.dump(d, open(RESPKL, 'wb'))
 print('merged DPCA_COUNT into', RESPKL)

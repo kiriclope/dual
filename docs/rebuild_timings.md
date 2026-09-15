@@ -83,3 +83,5 @@ place or from somewhere less direct.
 | 2026-09-15 12:54 | ED 3 reinstatement 2026-09-15 | run_overlaps.py --pool-stages --scaler none --targets choice --contexts all (9 mice, one pooled fit each) | 7.6 | measured |
 | 2026-09-15 12:56 | ED 3 reinstatement 2026-09-15 | exp_common_axis_ccgd.py (two tensors, ~1 GB each) | 0.7 | approx, wall clock observed |
 | 2026-09-15 12:56 | ED 3 reinstatement 2026-09-15 | exp_lick_control_ccgd.py (tensor + behaviour .mat files) | 0.6 | approx, wall clock observed |
+| 2026-09-15 15:40 | ED 1 canonical windows 2026-09-15 | exp_ed1_spectra.py (12-cond + DPA spectra, PR + LOO jackknife, shuffle null, md + decision) | 1.3 | measured |
+| 2026-09-15 15:47 | ED 1f selection test 2026-09-15 | exp_dpca_count.py --alltrials (4 windows) | 6.9 | measured |

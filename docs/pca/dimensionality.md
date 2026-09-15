@@ -8,7 +8,7 @@
 > trajectories + axis mixing). Cut as uncited: the previous Fig 2 build (`--pr` page), rank sufficiency,
 > `dim_*_altwin`/`_gng` grids, cosine matrices, mixed selectivity, GNG-trial codes, per-mouse cross-task
 > generalisation, the dPCA schematic/scree/shared-memory/linking plane. Every "ED 3x/6x/9" reference in the
-> dated blocks below is HISTORICAL — the current numbers are ED 1/2/6. **Number correction found on the way:**
+> dated blocks below is HISTORICAL — the current numbers are ED 2 (dimensionality, fig_ed1_dimensionality.py), ED 1 (plane, fig_ed2_plane.py), ED 3 (dPCA, fig_ed6_dpca.py) since the citation-order renumbering later on 2026-09-15. **Number correction found on the way:**
 > the per-mouse dist plane-only rise is 0.57 → 0.63, **p = .055, 8/9 up (unstarred)** on the canonical
 > caches — the p = .020/.027 star quoted in the 2026-09-08 blocks below and in the draft was stale
 > (`fig_manifold_main.py --nopca` re-rendered byte-identical to the committed Fig 3 and prints p = 0.05; the

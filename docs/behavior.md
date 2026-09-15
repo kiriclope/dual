@@ -555,7 +555,7 @@ Cosmetic/verdict fixes from the review round; NO statistic recomputed:
   the old "n = 10 observations" was wrong); **panel j** "optimal" label moved off the data points.
 - Axis label `OFF-trained axis` replaces the code name `trainLD_TEST` in all printed text (the code name
   stays in scripts/docs); baked "A/B" letters in the scheme PNG are blanked (`show_scheme(..., blank=…)`).
-- Draft §5 additions from the same round: ED 7a–c specificity controls cited in Results _(ED 4a,b since the 2026-09-15 renumbering; `overlaps/fig_ed4_chronic.py`)_, "blocked
+- Draft §5 additions from the same round: ED 7a–c specificity controls cited in Results _(ED 5a,b since the 2026-09-15 citation-order renumbering; `overlaps/fig_ed4_chronic.py`)_, "blocked
   curriculum + no-opsin illumination controls" for the batch cohort **[AUTHOR: confirm the control
   construct]**, the acute coupling labelled exploratory at n = 5, ChR2 laser-OFF trials disclosed.
 

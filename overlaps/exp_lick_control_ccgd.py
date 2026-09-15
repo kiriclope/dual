@@ -27,7 +27,7 @@ from src.common.options import set_options
 PATH = '/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 BDUM = 'log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test'
-ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (7.0, 7.5)
+ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (6.0, 7.5)   # 6.0-7.5 s after the .mat 'Sample' stamp = imaging 7.5-9.0 s = bins_LD (the stamp sits 1.5 s before the imaging clock: cue licks peak at 5.0-6.0, test licks at 7.5-9.0)
 SAMPLES = [('A', [0, 1]), ('B', [2, 3])]
 
 # ── the CCGD depth (held-out decision functions), exactly as Fig. 4 ──

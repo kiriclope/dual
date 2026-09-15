@@ -1,4 +1,5 @@
-"""fig_ed6_dpca.py — Extended Data Fig. 6: the demixed-PCA decomposition (companion to Fig. 2). Built
+"""(RENUMBERED 2026-09-15 to citation order: this script draws Extended Data Fig. 3.)
+fig_ed6_dpca.py — Extended Data Fig. 3: the demixed-PCA decomposition (companion to Fig. 2). Built
 2026-09-15 (Leon: "keep only what is essential") — Results §2 cites it once: "An independent decomposition
 of the same data by demixed PCA gives the same picture: time courses along single axes sharpened with
 learning without reorganizing, the choice and action axes of that decomposition became more aligned
@@ -10,7 +11,7 @@ learning without reorganizing, the choice and action axes of that decomposition 
 
 Glue copied from fig_dpca_story_main.py (sections 2 and 2-mixing), which is not import-safe.
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python fig_ed6_dpca.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig6.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig3.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, warnings
@@ -151,7 +152,7 @@ axA.text(-0.36, 1.06, 'a', transform=axA.transAxes, fontsize=PS*11, fontweight='
 axB.text(-0.36, 1.06, 'b', transform=axB.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 CAP = [
-    'Extended Data Fig. 6 | The demixed-PCA decomposition gives the same picture (companion to Fig. 2). '
+    'Extended Data Fig. 3 | The demixed-PCA decomposition gives the same picture (companion to Fig. 2). '
     'a, Withheld pseudo-trials projected on the leading demixed axis of each task variable (sample, test, '
     'choice = sample × test, task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored per axis). '
     'Time courses along single axes sharpen with learning without reorganizing. b, |cos| between the leading '
@@ -162,5 +163,5 @@ CAP = [
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig6.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig6.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig6.png')
+fig.savefig(f'{OUT}/png/ed_fig3.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig3.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig3.png')

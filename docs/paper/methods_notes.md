@@ -62,7 +62,7 @@ k > 2 folds because the estimator is a cross-product of two independent conditio
 whose variance is minimised by equal halves (n₁ = n₂ = n/2); k-fold variants use noisier per-fold
 means and additionally deflate the spectrum through basis misalignment. Effective dimensionality was
 summarised as the participation ratio, PR = (Σλ)²/Σλ², over the positive reliable spectrum
-(Extended Data Fig. 1a,b; the main figure reports the spectra themselves). The null
+(Extended Data Fig. 2a,b; the main figure reports the spectra themselves). The null
 shuffled condition labels within mouse (preserving trial counts and noise structure) and is compared
 on reliable variance, not on PR (the PR of a near-zero noise spectrum is undefined-ly large); the null
 spectrum shown in Fig. 2b is normalised by the real spectrum's positive total (its own total is near
@@ -70,12 +70,11 @@ zero, so a self-normalised null would be meaningless). Windows:
 mid-delay (bins 36–38, data 5.5–6.3 s: it opens at distractor offset (4.5–5.5 s) and closes before
 the Go/NoGo response cue (6.5–7 s) and its reward (7–7.5 s), so no Go/NoGo lick has yet occurred —
 the clean maintenance window; used throughout Fig. 2b–d; the distractor odour's sensory tail may
-contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); legacy analyses (the Extended-Data PR build) additionally use late delay
-(bins 48–53; a 0.5-s trailing-window convention, data 7.5–8.8 s, closing 0.17 s before test onset) and a decision window of bins 57–65 (data 9.0–10.8 s); Extended Data Fig. 1a,b. The time-resolved (trajectory) dimensionality
+contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); the twelve-condition spectra and participation ratios of Extended Data Fig. 2a,b use these same two windows and the same estimator (since 2026-09-15; the earlier build used late delay, bins 48–53, and bins 57–65). The time-resolved (trajectory) dimensionality
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
 
-**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data Fig. 1b).** 95% confidence intervals are
+**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data Fig. 2b).** 95% confidence intervals are
 from a leave-one-mouse-out jackknife: the averaged reliable spectrum (per-component fractions) or its
 PR was recomputed nine times, excluding each mouse's neurons and trials in turn;
 CI = value ± 1.96 × SE_jackknife (fractions clipped to [0, 1]; the PR lower bound clipped at its floor
@@ -130,7 +129,7 @@ cross-validation and their variables decode at chance (Fig. 2c). They are sampli
 condition means (η² across a finite condition set must land on some contrast for any direction,
 including noise directions). This does not deny preparatory activity, which this decomposition would
 place elsewhere: condition-linked anticipation appears as decodable structure (the naive-stage
-dual-delay choice/bias state, Fig. 2c † and Extended Data Fig. 1f, removed by learning), postural/motor
+dual-delay choice residue in Fig. 2c, a correct-trial selection effect: gone on all trials, Extended Data Fig. 2e), postural/motor
 preparation appears as the condition-independent position of the delay state on the action axis
 (Fig. 4), and purely temporal (timing/ramp) components are shared across conditions and are removed
 with the grand mean by construction. PC4 of the 4-condition DPA set is the degenerate null direction of
@@ -149,7 +148,7 @@ panels; both are linear readouts and the conclusions are unchanged (the axis-ove
 from 0.39→0.53 to 0.32→0.46 for action × distractor, with sample orthogonal to both in either case),
 but the mixed version invited comparisons between quantities built by different estimators.
 
-**Shattering dimension (Extended Data Fig. 1c; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
+**Shattering dimension (Extended Data Fig. 2c; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
 the 12 conditions were decoded at the decision window with a leakage-free pseudo-population decoder:
 disjoint train/test trial halves per (mouse, condition), 24 pseudo-trials per condition,
 StandardScaler + PCA(30) fit on the training half only, then LDA per dichotomy; performance is balanced

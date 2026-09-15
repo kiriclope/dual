@@ -1,4 +1,5 @@
-"""fig_ed3_coupling.py — Extended Data Fig. 3: the learning coupling and the push under other units, a fixed
+"""(RENUMBERED 2026-09-15 to citation order: this script draws Extended Data Fig. 4.)
+fig_ed3_coupling.py — Extended Data Fig. 4: the learning coupling and the push under other units, a fixed
 axis, other decoders, and a lick covariate (companion to Fig. 4b,c). Built 2026-09-15 (Leon: "keep only
 what is essential") — the four controls Results §4 cites: normalizations and the fixed common axis
 (ED 5a,b in the old numbering), the decoder variants (old 6c), and the lick control (old 5d).
@@ -24,7 +25,7 @@ Reads caches only: figures/overlaps/controls/ed3_cache.pkl (written by fig_overl
 fig_overlaps_common_axis_supp.py, fig_overlaps_lick_control_supp.py) and coupling_variants_cache.pkl
 (exp_coupling_variants.py).
 Run:  cd /home/leon/dual/overlaps && /home/leon/mambaforge/envs/dual/bin/python fig_ed3_coupling.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig3.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig4.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, warnings, pickle
@@ -282,7 +283,7 @@ axDD = panel_dd(fig, gsDD)
 plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.40); plabel(axCC, 'c', dx=-0.48); plabel(axDD, 'd', dx=-0.40)
 
 CAP = [
-    'Extended Data Fig. 3 | The push and the learning coupling under other units, other decoders, a fixed axis and a '
+    'Extended Data Fig. 4 | The push and the learning coupling under other units, other decoders, a fixed axis and a '
     'lick covariate (companion to Fig. 4b,c). All panels read cross-validated decision functions of the CCGD '
     'pipeline; the depth is the raw log-odds of Fig. 4 unless stated. a, The push (left; within-mouse mixed model, '
     'depth ~ stage + sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman '
@@ -294,12 +295,13 @@ CAP = [
     'c, The same two statistics on the per-stage decoder axes of Fig. 4 (left) and on one choice axis fitted per '
     'mouse to the naïve and expert trials pooled (right; neurons registered in both stages; every trial read from '
     'the fold that held it out). d, Late-delay licking. Left, mean depth against mean late-delay lick rate '
-    '(7.0–7.5 s) per mouse and stage. Middle, the push with and without the per-mouse late-delay lick rate as a '
+    'per mouse and stage. Middle, the push with and without the per-mouse late-delay lick rate as a '
     'covariate. Right, the coupling given the change in licking: the partial rank correlation controlling for Δlick, '
-    'and the relation between Δlick and Δaccuracy. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
+    'and the relation between Δlick and Δaccuracy. Lick rate over 6.0–7.5 s after the sample stamp of the behaviour '
+    'file, the late-delay window of the depth. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig3.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig3.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig3.png')
+fig.savefig(f'{OUT}/png/ed_fig4.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig4.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig4.png')
