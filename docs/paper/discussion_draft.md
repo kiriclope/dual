@@ -27,8 +27,8 @@ cross-condition generalization has revealed in primate prefrontal cortex and hip
 [Bernardi 2020]. Here it appears in mouse mPFC, and under active interference, because the same
 axes have to serve a memory while an embedded action task runs through it. Our data also refine
 the mixed-selectivity picture [Rigotti 2013]. The decision state occupies about three reliable
-dimensions and the test code is conjunctive, in that it anti-generalizes across sample
-(Extended Data Fig. 2b), so the high-dimensional component is there. The maintained memory, by
+dimensions and the test code is conjunctive, in that it barely generalizes across sample
+(per-mouse cross-condition accuracy 0.55–0.58; Extended Data Fig. 2b), so the high-dimensional component is there. The maintained memory, by
 contrast, is deliberately minimal, a single reliable dimension (Fig. 2b). The two regimes
 coexist with a division of labour: low-dimensional and abstract where information has to be
 protected and transferred, higher-dimensional where stimulus–response conjunctions have to be

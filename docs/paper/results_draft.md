@@ -1405,7 +1405,8 @@ a stale number; the canonical caches give p = .055, unstarred, and §3 now says 
 Fig. 4b,c).** a, The push (left; within-mouse mixed model, depth ~ stage + sample, random intercept per mouse, 36
 observations) and the coupling (right; per-mouse Spearman ρ between Δdepth and ΔDPA accuracy on the GNG-free DPA
 trials, n = 9) under six units of the same cross-validated late-delay depth; raw log-odds is the unit of Fig. 4.
-The coupling holds under every unit (ρ = −0.67 to −0.80, p ≤ .05); the push is a trend in raw units (β = −0.08,
+The coupling holds under every unit (ρ = −0.67 to −0.80, p = .010–.036, the whole-trial-s.d. unit at the boundary,
+p = .0499); the push is a trend in raw units (β = −0.08,
 p = .10) and reaches significance only in evoked-s.d. (p = .007) and whole-trial-s.d. (p = .045) units. b, The
 coupling under three decoders: the ridge logistic decoder of Fig. 4c (ρ = −0.80, p = .010), an L1-regularized
 logistic decoder (ρ = −0.73, p = .025) and a shrinkage linear discriminant (ρ = −0.45, p = .22); held-out decision
@@ -1438,7 +1439,8 @@ the ACC-implant mice received no laser); same axis, window and units as Fig. 6 (
 depth read at late delay on the laser-OFF-trained choice axis). a, DPA arm (Spearman ρ = +0.71, p = .074).
 b, GNG arm (ρ = −0.94, p = .002). Because the two opsins move the state in opposite directions, the pooled rank
 test asks only whether a displacement of either sign tracks the change in accuracy; n = 7; shaded, 95% band of
-the linear fit. _(2026-09-15: the old page quoted GNG ρ = −0.90, p = .006 and a null DPA arm from a different
+the linear fit. Two Jaws mice at ceiling in both tasks show no change in either accuracy (the two points on the
+zero line). _(2026-09-15: the old page quoted GNG ρ = −0.90, p = .006 and a null DPA arm from a different
 axis and window (trainLD_TEST, bins 27–53); this build uses the Fig. 6 estimator and §6 now quotes it.)_
 
 **ED Fig. 6 | The demixed-PCA decomposition gives the same picture (companion to Fig. 2).** a, Withheld

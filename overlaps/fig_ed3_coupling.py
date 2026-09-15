@@ -75,7 +75,7 @@ def panel_a(fig, gs):
         for i, nm in enumerate(norms):
             val, p = dat[nm]; sig = p < 0.05
             ax.scatter(val, yv[i], s=34, color=SIGC if sig else NSC, zorder=3, edgecolors='k', linewidths=0.4)
-            ax.text(val, yv[i] + 0.26, f'p = {p:.3f}', ha='center', va='bottom', fontsize=PS*6.0,
+            ax.text(val, yv[i] + 0.26, f'p = {p:.4f}' if 0.045 < p < 0.055 else f'p = {p:.3f}', ha='center', va='bottom', fontsize=PS*6.0,
                     color='k' if sig else '0.45')
             print(f'a: {ttl[:8]} {nm:14s} {val:+.3f} p={p:.3f}')
         ax.axvline(0, ls=':', color='k', lw=0.8)
@@ -200,8 +200,8 @@ CAP = [
     'Fig. 4b,c). a, The push (left; within-mouse mixed model, depth ~ stage + sample, random intercept per mouse, 36 '
     'observations) and the coupling (right; per-mouse Spearman ρ between Δdepth and ΔDPA accuracy on the GNG-free '
     'DPA trials, n = 9) under six units of the same cross-validated late-delay depth; raw log-odds is the unit of '
-    'Fig. 4. Red, p < 0.05. The coupling holds under every unit; the push reaches significance only in evoked-s.d. '
-    'and whole-trial-s.d. units. b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an '
+    'Fig. 4. Red, p < 0.05. The coupling holds under every unit (ρ = −0.67 to −0.80; the whole-trial-s.d. unit sits at '
+    'the boundary, p = .0499); the push reaches significance only in evoked-s.d. and whole-trial-s.d. units. b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an '
     'L1-regularized logistic decoder and a shrinkage linear discriminant (held-out decision functions throughout). '
     'Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
 ]

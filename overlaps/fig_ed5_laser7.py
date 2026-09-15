@@ -135,7 +135,8 @@ CAP = [
     'the ACC-implant mice received no laser); same axis, window and units as Fig. 6 (expert stage, DPA trials, depth '
     'read at late delay on the laser-OFF-trained choice axis). a, DPA arm. b, GNG arm. Because the two opsins move '
     'the state in opposite directions, the pooled rank test asks only whether a displacement of either sign tracks '
-    'the change in accuracy; Spearman ρ, n = 7; shaded, 95% band of the linear fit.',
+    'the change in accuracy; Spearman ρ, n = 7; shaded, 95% band of the linear fit. Two Jaws mice at ceiling in both '
+    'tasks show no change in either accuracy (the two points on the zero line).',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
