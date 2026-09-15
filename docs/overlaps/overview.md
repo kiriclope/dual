@@ -25,7 +25,12 @@
 > `project_overlaps_main_native`): every correlation is robust, only the push depends on the unit.
 > **STILL ON THE OLD UNIT:** the seven supplement scripts with their own copy of the normalisation
 > (coupling battery, norm-robustness, common-axis, lick-control, codes-GNG, GNG-on-DPA-axis,
-> laser-vector), so the ED robustness panels lag the main figures. _(2026-09-15: the ED set was rebuilt and renumbered — old ED 5 → ED 3, old ED 6 → ED 2; see docs/paper/results_draft.md v12.31.)_
+> laser-vector), so the ED robustness panels lag the main figures. _(2026-09-15: the ED set was rebuilt and renumbered — old ED 5 → ED 3, old ED 6 → ED 2; see docs/paper/results_draft.md v12.31. Later the same day the ED 4 fixed-axis and
+> lick controls were REINSTATED on the CCGD pipeline itself (`run_overlaps.py --pool-stages` → run-id
+> `..._raw_pooled_targets_choice`; `exp_common_axis_ccgd.py`, `exp_lick_control_ccgd.py` → `ed3_cache.pkl`), and the
+> per-mouse CCGP became ALL laser-off trials on the canonical windows: `fig_ccgp.py --canon --alltrials` (19 min) →
+> `permouse_ccgp_cache_canon_all.pkl`, drawn by `pca/fig_ed2_plane.py` as ED 1b — sample .68, GNG .84, test .58, choice
+> .61 expert; test Δ +0.02 p .074, so the test code's low CCGP is not the lick showing through; draft v12.36.)_
 
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 

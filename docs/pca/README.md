@@ -25,6 +25,9 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
   switched to partial pooling → CV now positive, two shared landscapes for the two epochs) & standing
   caveats (variance is a proxy; sec-4 push depth is fit from data, gate profile is a modeling choice).
 - **Out-of-context plane test (2026-09-07, ED 6e → ED 1c since 2026-09-15 (citation order), drawn by `fig_ed2_plane.py`):** `exp_ooc_plane_pseudo.py` (pooled) + `exp_ooc_plane.py`
-  (per-mouse) → caches `OOC_PLANE_PSEUDO_nopca` / `OOC_PLANE_nopca` in results.pkl; `fig_ooc_plane_ed.py` = the
+  (per-mouse) → caches `OOC_PLANE_PSEUDO_nopca` / `OOC_PLANE_nopca` in results.pkl (**since 2026-09-15 (later) the
+  `--alltrials` caches `*_nopca_all` — all laser-off trials, not correct-only — are CANONICAL for ED 1c and, via
+  `exp_permouse_plane.py --nopca --alltrials` → `PM_PLANE_nopca_all`, for Fig 3c/ED 1d; `--correctonly` on the two
+  figure scripts = the old build; `dimensionality.md` top block**); `fig_ooc_plane_ed.py` = the
   ED 6e component, `fig_ooc_plane.py` = the full audit (gallery `tmp/` only). Design, numbers and the
   by-construction finding it replaces: `dimensionality.md` 2026-09-07 block.
