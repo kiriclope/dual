@@ -46,6 +46,12 @@ ALL_MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'Ch
 MOUSE_COL = {m: c for m, c in zip(ALL_MICE, sns.color_palette('tab10', len(ALL_MICE)))}
 o = set_options()
 W_LD, W_MD, W_TE = np.asarray(o['bins_LD']), np.asarray(o['bins_MD']), np.asarray(o['bins_TEST'])
+# --canon (2026-09-15): the CANONICAL axis windows of the mains since 2026-09-08/09 — sample/GNG on the whole
+# mid-delay (bins 33-38, 5.5-6.5 s), choice/test on the decision window (bins 54-62, 9.0-10.5 s). The default
+# windows above (LD 48-53 / MD 36-38 / TEST 57-59) are the pre-unification ones the 2026-08-04 cache used.
+CANON = '--canon' in sys.argv[1:]
+if CANON:
+    W_LD = W_MD = np.arange(33, 39); W_TE = np.arange(54, 63)
 NSHUF, RNG = 30, np.random.RandomState(0)
 
 print('loading pseudo-population …')
@@ -63,7 +69,7 @@ VARS = [
     ('test',   lambda d: d['test_odor'].to_numpy(float),   'tasks',       W_TE, None),
 ]
 USEPCA = '--pca' in sys.argv[1:]            # match the pooled pipeline (PCA(20) denoising)
-PSUF = '_pca' if USEPCA else ''
+PSUF = ('_pca' if USEPCA else '') + ('_canon' if CANON else '')
 from sklearn.decomposition import PCA as _PCA
 CLF = (lambda: make_pipeline(StandardScaler(), _PCA(n_components=20, random_state=0),
                              LogisticRegression(C=1.0, class_weight='balanced', max_iter=2000))) if USEPCA \

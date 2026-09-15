@@ -41,33 +41,68 @@ MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23
 ACT = np.arange(54, 63); LD = np.arange(45, 54); BL = np.arange(0, 12); SAMPLES = [('A', [0, 1]), ('B', [2, 3])]  # LD = figure's bins_LD [48..53]   # LD 45-53 = the main figure's BINS_LATE (T_WINDOW=0); fixed 2026-09-08 (was set_options 48-53 / 45-52)
 _pal = sns.color_palette('tab10', n_colors=len(MICE)); MC = {m: _pal[i] for i, m in enumerate(MICE)}
 
-Wb = pkl_load(f'weights_{BDUM}', path=DATA); W, VALID = Wb['weights'], Wb['valid']
+Wb = pkl_load(f'weights_{BDUM}', path=DATA); VALID = Wb['valid']     # only the valid-neuron masks are used now
 print('loading X_all …', flush=True)
 Xall = np.asarray(pkl_load('X_all_nan_', path='../data/pca')); yall = pkl_load('y_all_nan_', path='../data/pca')
 print('  X_all', Xall.shape, flush=True)
 
 
-def axis_act(m, stage):
-    return np.asarray(W[(m, stage, 'all', 'choice')])[ACT].mean(0)
+
+# ── 2026-09-15 (Leon: "make sure all the results are cross validated"): the depth is a HELD-OUT projection.
+# Per mouse x stage the DPA trials are split 5-fold (stratified on lick/no-lick); for each fold the choice axis
+# is fitted (StandardScaler + balanced logistic regression on the decision-window mean, bins 54-62, the same
+# window as the CCGD choice decoder) on the TRAINING folds only — of that stage ('perstage'), of the Expert
+# stage ('commonE') or of both stages pooled ('commonPool') — and the held-out fold's trials are projected on it.
+# No trial is projected on an axis it helped fit. Weights are mapped back to raw units (coef / scaler scale).
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import StratifiedKFold
+NFOLD, CVSEED = 5, 0
 
 
-def project(m, stage, axis, both):
-    idx = ((yall.mouse == m) & (yall.learning == stage) & (yall.tasks == 'DPA') & (yall.laser == 0)).to_numpy()
-    Xs = Xall[idx][:, both, :]
-    P = np.nansum(Xs * axis[None, :, None], axis=1)
-    return P, yall.loc[idx].reset_index(drop=True)
+def fit_axis(Xtr, ytr):
+    # the CCGD decoder's own regularisation: per-fold scaler + L2 logistic with C chosen by an INNER 5-fold CV over
+    # logspace(-3, 3) on the training trials only (run_overlaps: scaler 'standard', l1_ratio 0, Cs = options['Cs']).
+    # An unregularised C = 1 fit on ~400 neurons x ~120 trials over-fits and its held-out projections are noise.
+    clf = make_pipeline(StandardScaler(), LogisticRegressionCV(Cs=np.logspace(-3, 3, 10), cv=5, penalty='l2',
+                                                               class_weight='balanced', max_iter=3000, n_jobs=4)).fit(Xtr, ytr)
+    return clf[-1].coef_[0] / clf[0].scale_
+
+
+def heldout_projections(m, mode):
+    """{stage: (P (trials x 84) held-out projections, labels)} for mouse m under axis `mode`."""
+    both = VALID[(m, 'Naive')] & VALID[(m, 'Expert')]
+    data, folds = {}, {}
+    for stg in ('Naive', 'Expert'):
+        idx = ((yall.mouse == m) & (yall.learning == stg) & (yall.tasks == 'DPA') & (yall.laser == 0)).to_numpy()
+        ys = yall.loc[idx].reset_index(drop=True); ok = np.isfinite(ys.choice.to_numpy().astype(float))
+        Xs = np.nan_to_num(Xall[idx][ok][:, both, :]); ys = ys[ok].reset_index(drop=True)
+        data[stg] = (Xs, ys.choice.to_numpy().astype(int), ys)
+        folds[stg] = list(StratifiedKFold(NFOLD, shuffle=True, random_state=CVSEED).split(Xs[:, :, 0], data[stg][1]))
+    P = {stg: np.zeros((len(data[stg][1]), Xall.shape[-1])) for stg in data}
+    for k in range(NFOLD):
+        for stg in data:
+            tr, te = folds[stg][k]
+            if mode == 'perstage':
+                src = [stg]
+            elif mode == 'commonE':
+                src = ['Expert']
+            else:
+                src = ['Naive', 'Expert']
+            Xtr = np.concatenate([data[s][0][folds[s][k][0]][:, :, ACT].mean(2) for s in src])
+            ytr = np.concatenate([data[s][1][folds[s][k][0]] for s in src])
+            w = fit_axis(Xtr, ytr)
+            P[stg][te] = np.einsum('tnb,n->tb', data[stg][0][te], w)
+    return {stg: (P[stg], data[stg][2]) for stg in data}
 
 
 def build(mode):
-    """returns depth DataFrame (mouse,sample,st,depth) + per-(mouse,sample) Δdepth dict."""
+    """returns depth DataFrame (mouse,sample,st,depth) + per-(mouse,sample) Δdepth dict — held-out projections."""
     rows, dd = [], {}
     for m in MICE:
-        vN, vE = VALID[(m, 'Naive')], VALID[(m, 'Expert')]; both = vN & vE
-        wE = axis_act(m, 'Expert')[vN[vE]]; wN = axis_act(m, 'Naive')[vE[vN]]; wP = 0.5 * (wE + wN)
-        P, ys = {}, {}
-        for stg in ('Naive', 'Expert'):
-            ax = {'perstage': (wE if stg == 'Expert' else wN), 'commonE': wE, 'commonPool': wP}[mode]
-            P[stg], ys[stg] = project(m, stg, ax, both)
+        proj = heldout_projections(m, mode)
+        P = {stg: proj[stg][0] for stg in proj}; ys = {stg: proj[stg][1] for stg in proj}
         Pall = np.vstack([P['Naive'], P['Expert']])
         chall = np.concatenate([ys['Naive'].choice.to_numpy(), ys['Expert'].choice.to_numpy()])
         s = np.where(chall == 1, 1.0, -1.0); vbar = (s[:, None] * Pall).mean(0)

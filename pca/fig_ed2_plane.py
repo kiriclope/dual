@@ -45,7 +45,7 @@ GROUP = {**{m: 'Jaws' for m in MICE[:5]}, **{m: 'ChR' for m in MICE[5:7]}, **{m:
 GMARK = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
 MC = dict(zip(MICE, sns.color_palette('tab10', n_colors=len(MICE))))
 RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
-CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache.pkl'
+CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache_canon.pkl'   # fig_ccgp.py --canon: the canonical windows (2026-09-15); the unsuffixed cache is the 2026-08-04 LD/MD/TEST build
 
 
 def plabel(ax, s, dx=-0.10):
@@ -191,7 +191,7 @@ def panel_c(fig, gs):
                    if _eligible(v, ref, ctx, e)]
             if rat:
                 r = float(np.mean(rat)); vals.append(r)
-                ax3.scatter(k + np.random.RandomState(hash(mo) % 1000).uniform(-0.13, 0.13), r, s=30, color=MC[mo],
+                ax3.scatter(k + np.random.RandomState(MICE.index(mo)).uniform(-0.13, 0.13), r, s=30, color=MC[mo],   # deterministic jitter (str hash is salted per process)
                             marker=GMARK[GROUP[mo]], edgecolors='w', linewidths=0.5, zorder=3)
         ax3.plot([k - 0.24, k + 0.24], [np.median(vals)] * 2, color='k', lw=1.0, zorder=4)
         print(f'c: per-mouse {v}: median {np.median(vals):.2f} n={len(vals)}')
@@ -267,8 +267,9 @@ CAP = [
     'a, The GNG and test codes over time on their own cross-validated decoder axes (naïve | expert; mean ± SEM '
     'across mice; conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–e ablate and '
     'align. b, Per-mouse cross-condition generalization (CCGP) of each variable, naïve against expert (marker, '
-    'opsin group; Δ, mean change; p, paired Wilcoxon, n = 9): abstraction is present from the first dual task '
-    'sessions; the test code nudges upward (p = .04, uncorrected across the four variables) and carries no verdict.',
+    'opsin group; Δ, mean change; p, paired Wilcoxon, n = 9; canonical windows, sample and GNG at mid-delay, test '
+    'and choice at the decision): abstraction is present from the first dual task sessions; the test code nudges '
+    'upward (Δ = +0.03, p = .012, uncorrected across the four variables) and carries no verdict.',
     'c, The out-of-context plane test. A sample × choice plane fitted on the naïve DPA trials is read in every other '
     'stage, trial type and moment against a plane fitted in that context (pooled pseudo-population): captured '
     'fraction (fixed − 0.5)/(in-context − 0.5) with the two-dimensional readout refit in context (left) and with '

@@ -5,9 +5,16 @@ what is essential") — the four controls Results §4 cites: normalizations and 
 
   a  the push (within-mouse LMM β) and the coupling (per-mouse Spearman ρ, n = 9) under six units of the
      same depth; raw is the unit of Fig. 4
-  b  per-stage decoder axes (Fig. 4) against one axis pooled over both stages: the push and the coupling
-  c  the coupling under the ridge (Fig. 4c), L1 and shrinkage-LDA decoders
-  d  late-delay licking: depth does not track it; the push and the coupling with a lick covariate
+  b  the coupling under the ridge (Fig. 4c), L1 and shrinkage-LDA decoders
+
+WITHDRAWN 2026-09-15 (Leon: "make sure all the results are cross validated"): the fixed-common-axis panel and
+the lick-covariate panel inherited from the old supplement projected TRAINING trials on the fold-averaged CCGD
+weights (fig_overlaps_common_axis_supp.py / fig_overlaps_lick_control_supp.py). A held-out re-fit of the axis
+from scratch (5-fold, the CCGD regularisation) is a different and unstable estimator (one mouse's evoked-s.d.
+normalisation explodes; per-stage coupling rho -0.57 p .11 where the tensor gives -0.80 p .010), so neither
+panel is shown. Reinstating them needs the CCGD pipeline itself: a pooled-stage run_overlaps build for the
+common axis, and the tensor depth aligned to per-trial licks for the covariate. Panels a and b read the
+cross-validated CCGD tensor (main_panels / the *_supp norm script), like Fig. 4.
 
 Reads caches only: figures/overlaps/controls/ed3_cache.pkl (written by fig_overlaps_norm_robustness_supp.py,
 fig_overlaps_common_axis_supp.py, fig_overlaps_lick_control_supp.py) and coupling_variants_cache.pkl
@@ -84,7 +91,7 @@ def panel_a(fig, gs):
 def panel_b(fig, gs):
     M = C['common']['modes']; mice = C['common']['mice']
     axes = []
-    for ci, (mode, ttl) in enumerate([('perstage', 'per-stage axes (Fig. 4)'), ('commonPool', 'one axis, both stages')]):
+    for ci, (mode, ttl) in enumerate([('perstage', 'per-stage axes, held out'), ('commonPool', 'one axis, both stages')]):
         E = M[mode]; df = E['df']
         ax = fig.add_subplot(gs[0, ci]); axes.append(ax)
         piv = df.pivot_table(index=['mouse', 'sample'], columns='st', values='depth')
@@ -180,34 +187,23 @@ def panel_d(fig, gs):
 
 
 # ══ ASSEMBLE ═══════════════════════════════════════════════════════════════════════════════════
-fig = plt.figure(figsize=(10.0, 7.2))
-outer = fig.add_gridspec(2, 12, height_ratios=[1.3, 1.0], hspace=0.42, wspace=1.0,
-                         left=0.09, right=0.985, top=0.96, bottom=0.075)
+fig = plt.figure(figsize=(10.0, 3.6))
+outer = fig.add_gridspec(1, 12, wspace=1.0, left=0.09, right=0.985, top=0.90, bottom=0.16)
 gsA = outer[0, 0:5].subgridspec(1, 2, wspace=0.12, width_ratios=[1, 1])
 axA = panel_a(fig, gsA)
-gsB = outer[0, 6:12].subgridspec(2, 2, wspace=0.28, hspace=0.45)
-axB = panel_b(fig, gsB)
-gsC = outer[1, 0:5].subgridspec(1, 3, wspace=0.45)
+gsC = outer[0, 6:12].subgridspec(1, 3, wspace=0.42)
 axC = panel_c(fig, gsC)
-gsD = outer[1, 6:12].subgridspec(1, 3, wspace=0.55, width_ratios=[1, 0.5, 1])
-axD = panel_d(fig, gsD)
-plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.34); plabel(axC, 'c', dx=-0.40); plabel(axD, 'd', dx=-0.40)
+plabel(axA, 'a', dx=-0.62); plabel(axC, 'b', dx=-0.40)
 
 CAP = [
-    'Extended Data Fig. 3 | The push and the learning coupling under other units, a fixed axis, other decoders '
-    'and a lick covariate (companion to Fig. 4b,c). a, The push (left; within-mouse mixed model, depth ~ stage + '
-    'sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman ρ between '
-    'Δdepth and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay depth; '
-    'raw log-odds is the unit of Fig. 4. Red, p < 0.05. The coupling holds under every unit; the push reaches '
-    'significance only in evoked-s.d. and whole-trial-s.d. units. b, The same two statistics on the per-stage '
-    'decoder axes of Fig. 4 (left) and on one choice axis fitted to both stages together (right; registered '
-    'neurons): the push is not significant on a fixed axis, and the coupling weakens to a trend.',
-    'c, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an L1-regularized logistic '
-    'decoder and a shrinkage linear discriminant. d, Late-delay licking. Left, trial-level depth against the '
-    'late-delay lick rate (7.0–7.5 s; naïve and expert DPA trials): the depth does not track licking. Middle, the '
-    'push with and without the per-mouse late-delay lick rate as a covariate. Right, the coupling given the change '
-    'in licking: the partial rank correlation controlling for Δlick, and the null relation between Δlick and '
-    'Δaccuracy. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
+    'Extended Data Fig. 3 | The push and the learning coupling under other units and other decoders (companion to '
+    'Fig. 4b,c). a, The push (left; within-mouse mixed model, depth ~ stage + sample, random intercept per mouse, 36 '
+    'observations) and the coupling (right; per-mouse Spearman ρ between Δdepth and ΔDPA accuracy on the GNG-free '
+    'DPA trials, n = 9) under six units of the same cross-validated late-delay depth; raw log-odds is the unit of '
+    'Fig. 4. Red, p < 0.05. The coupling holds under every unit; the push reaches significance only in evoked-s.d. '
+    'and whole-trial-s.d. units. b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an '
+    'L1-regularized logistic decoder and a shrinkage linear discriminant (held-out decision functions throughout). '
+    'Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

@@ -77,3 +77,6 @@ place or from somewhere less direct.
 | 2026-09-15 11:55 | ED rebuild 2026-09-15 | fig_overlaps_common_axis_supp.py (loads X_all; + ed3_cache dump) | 0.6 | measured (wall clock in the run log) |
 | 2026-09-15 11:55 | ED rebuild 2026-09-15 | fig_overlaps_lick_control_supp.py (loads X_all; + ed3_cache dump) | 0.4 | measured (wall clock in the run log) |
 | 2026-09-15 11:56 | ED rebuild 2026-09-15 | make_ed_figures.py (6 native EDs x 2 builds + 183 mm PDFs + share copies) | 1.1 | measured |
+| 2026-09-15 12:22 | ED rebuild 2026-09-15 | fig_ccgp.py --canon (per-mouse CCGP on the canonical windows, 30 shuffles) | 2.0 | measured |
+| 2026-09-15 12:30 | ED rebuild 2026-09-15 | fig_overlaps_common_axis_supp.py, HELD-OUT 5-fold inner-CV axis fits (loads X_all) | 1.0 | measured (wall clock in the run log) |
+| 2026-09-15 12:30 | ED rebuild 2026-09-15 | fig_overlaps_lick_control_supp.py, HELD-OUT 5-fold inner-CV axis fits (loads X_all) | 0.6 | measured (wall clock in the run log) |

@@ -984,8 +984,8 @@ global criterion shift toward withholding). Per mouse × stage on the Fig-4c las
 - LEVEL-WISE (not change–change): expert depth vs expert accuracy ρ = −0.32 p = .41 n.s. — the coupling is a
   relationship between CHANGES, stated as such in Results §4.
 - Written into Results §4 (draft v12.10) together with the disclosed dependences: per-stage axis + logistic
-  decoder required (single shared axis ρ = −0.63 p .067; L1 ρ = −0.73 ★, LDA n.s.; ED 3b,c — renumbered 2026-09-15), no replication on the dPCA axis,
-  push significant only in evoked-s.d. / whole-trial-s.d. units, a trend (p .10) in the raw units Fig 4 uses (ED 3a,b).
+  decoder required (L1 ρ = −0.73 ★, LDA n.s.; ED 3b. The fixed-common-axis and lick-covariate controls were WITHDRAWN 2026-09-15: they projected training trials on the CCGD weights and a held-out from-scratch re-fit is unstable — results_draft.md v12.32), no replication on the dPCA axis,
+  push significant only in evoked-s.d. / whole-trial-s.d. units, a trend (p .10) in the raw units Fig 4 uses (ED 3a).
 **Fig 4 (`fig_overlaps_main_native.py`) legibility**: panel-b depth-strip key moved BELOW the axes
 (`bbox_to_anchor=(0.5,−0.16)`), its ★ to the top-right, stats text clear; panel-c legend REMOVED (the b key
 directly above defines filled = sample A / open = sample B; caption says so); letter c raised (`dy=0.04`)

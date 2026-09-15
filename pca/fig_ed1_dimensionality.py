@@ -52,8 +52,8 @@ def plabel(ax, s, dx=-0.10):
 
 # ══ a — the twelve-condition spectra (plus the DPA memory spectrum the ladder starts from) ══════
 def panel_a(fig, gs):
-    specs = [('memory (DPA delay)', lambda st: FITDATA[('DPA', 'delay', st)]['cv'], None, [1, 2, 3, 4]),
-             ('delay (all 12 conditions)', lambda st: CV[(st, 'delay')]['cv'], CV[('Expert', 'delay')]['cvn'], [1, 6, 12]),
+    specs = [('memory (DPA, late delay)', lambda st: FITDATA[('DPA', 'delay', st)]['cv'], None, [1, 2, 3, 4]),
+             ('late delay (all 12 conditions)', lambda st: CV[(st, 'delay')]['cv'], CV[('Expert', 'delay')]['cvn'], [1, 6, 12]),
              ('decision (all 12 conditions)', lambda st: CV[(st, 'decision')]['cv'], CV[('Expert', 'decision')]['cvn'], [1, 6, 12])]
     axes = []
     for c, (ttl, get, cvn, xt) in enumerate(specs):
@@ -81,7 +81,7 @@ def panel_a(fig, gs):
 
 # ══ b — the participation-ratio ladder, leave-one-mouse-out 95% CI (t(8)) ═════════════════════
 def panel_b(ax):
-    groups = [('DPA', 'delay', 'memory\n(DPA delay)'), ('all', 'delay', 'delay\n(all tasks)'),
+    groups = [('DPA', 'delay', 'memory\n(DPA, late delay)'), ('all', 'delay', 'late delay\n(all tasks)'),
               ('all', 'decision', 'decision\n(all tasks)')]
     xp = np.arange(len(groups))
     for j, stage in enumerate(STAGES):
@@ -102,24 +102,27 @@ def panel_b(ax):
     ax.legend(frameon=False, fontsize=PS*6.5, loc='upper left')
 
 
-# ══ c — the shattering dimension of the twelve conditions ════════════════════════════════════
+# ══ c — the shattering dimension of the twelve conditions (SD_FULL: all 462 balanced dichotomies at the
+#     decision window 54–62, exp_dimensionality_ci.py — the numbers Results §3 quotes) ═════════════════
 def panel_c(ax):
-    wins = [('delay', 'delay'), ('decision', 'decision')]
-    xp = np.arange(len(wins))
+    SDF = RES['SD_FULL']
+    rng = np.random.RandomState(3)
     for j, stage in enumerate(STAGES):
-        sds = [FITDATA[('all', wn, stage)]['sd'] for wn, _ in wins]
-        xj = xp + (j - 0.5) * 0.32
-        ax.bar(xj, sds, 0.30, color=SC[stage], label=stage)
-        for x, v in zip(xj, sds):
-            ax.text(x, v + 0.012, f'{v:.2f}', ha='center', va='bottom', fontsize=PS*6.5)
-            print(f'c: all {wins[list(xj).index(x)][0]:9s} {stage:6s} shattering {v:.3f}')
-    ax.axhline(0.5, ls='--', color='0.6', lw=0.8)
-    ax.text(1.42, 0.505, 'shuffle', fontsize=PS*6, color='0.5', ha='right', va='bottom')
+        acc = np.asarray(SDF[stage]['acc']); nul = np.asarray(SDF[stage]['null']); ci = SDF[stage]['ci']
+        x = j + rng.uniform(-0.22, 0.22, len(acc))
+        ax.scatter(x, acc, s=5, color=SC[stage], alpha=0.35, lw=0, zorder=2)
+        ax.plot([j - 0.3, j + 0.3], [acc.mean()] * 2, color='k', lw=1.3, zorder=4)
+        ax.vlines(j, ci[0], ci[1], color='k', lw=0.9, zorder=4)
+        ax.plot([j - 0.3, j + 0.3], [nul.mean()] * 2, color='0.45', lw=0.9, ls='--', zorder=3)
+        ax.text(j, 1.005, f'{acc.mean():.3f}', ha='center', va='bottom', fontsize=PS*6.5)
+        print(f'c: {stage:6s} shattering {acc.mean():.3f} [resample CI {ci[0]:.3f}, {ci[1]:.3f}]  null {nul.mean():.3f}  '
+              f'({len(acc)} dichotomies, range {acc.min():.2f}–{acc.max():.2f})')
     ax.axhline(1.0, ls=':', color='0.6', lw=0.8)
-    ax.text(1.42, 0.995, 'unstructured', fontsize=PS*6, color='0.5', ha='right', va='top')
-    ax.set_xticks(xp); ax.set_xticklabels([w[1] for w in wins], fontsize=PS*7)
-    ax.set_xlim(-0.6, 1.45); ax.set_ylim(0.4, 1.04); ax.set_yticks([0.5, 0.75, 1.0])
-    ax.set_ylabel('shattering dimension\n(balanced accuracy)')
+    ax.text(1.45, 0.985, 'unstructured', fontsize=PS*6, color='0.5', ha='right', va='top')
+    ax.text(1.45, 0.505, 'shuffle', fontsize=PS*6, color='0.5', ha='right', va='bottom')
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert'], fontsize=PS*7)
+    ax.set_xlim(-0.6, 1.5); ax.set_ylim(0.44, 1.06); ax.set_yticks([0.5, 0.75, 1.0])
+    ax.set_ylabel('balanced accuracy per dichotomy\n(462 dichotomies, decision)')
 
 
 # ══ d — per-mouse cvPCA: the memory spectrum is one-dimensional animal by animal ═══════════════
@@ -173,7 +176,7 @@ def panel_e(fig, gs):
     im = None
     for k, stage in enumerate(STAGES):
         ax = fig.add_subplot(gs[0, k]); axes.append(ax)
-        F = FITDATA[('DPA', 'delay', stage)]; FO = list(F['factors']); cmv = F['cm_var']
+        F = FITDATA[('DPA', 'md', stage)]; FO = list(F['factors']); cmv = F['cm_var']    # md = Fig. 2d's window
         M = F['pceta'][:3]
         im = ax.imshow(M, cmap='Purples', vmin=0, vmax=1, aspect='equal')
         for i in range(3):
@@ -183,10 +186,10 @@ def panel_e(fig, gs):
         ax.set_xticks(range(3)); ax.set_xticklabels(FO, fontsize=PS*6.5)
         ax.set_yticks(range(3)); ax.set_yticklabels([f'PC{i+1} ({cmv[i]:.0%})' for i in range(3)], fontsize=PS*6.2)
         ax.tick_params(length=0)
-        ax.set_title(f'{stage}, DPA delay', loc='left', fontsize=TITLE_FS)
+        ax.set_title(f'{stage}, DPA mid-delay', loc='left', fontsize=TITLE_FS)
         for sp in ax.spines.values():
             sp.set_visible(True)
-        print(f'e: {stage} DPA delay uncross-validated eta2 rows', np.round(M, 2).tolist())
+        print(f'e: {stage} DPA mid-delay uncross-validated eta2 rows', np.round(M, 2).tolist())
     cb = fig.colorbar(im, ax=axes, fraction=0.05, pad=0.04, shrink=0.8)
     cb.set_label('η² (not cross-validated)', fontsize=PS*6.5); cb.ax.tick_params(labelsize=PS*6)
     return axes[0]
@@ -268,25 +271,28 @@ plabel(axD, 'd', dx=-0.30); plabel(axE, 'e', dx=-0.42); plabel(axF, 'f', dx=-0.2
 
 CAP = [
     'Extended Data Fig. 1 | Dimensionality: provenance and robustness (companion to Fig. 2b–d). '
-    'a, Cross-validated spectra of the DPA delay state (four conditions) and of the full twelve-condition '
-    'state at the delay and at the decision (naïve and expert; dashed, the shuffle null of the expert fit). '
-    'b, The participation ratio of the same three spectra, 95% CI from a leave-one-mouse-out jackknife '
-    '(t(8)): memory 1.0 → delay 2.0 → decision 2.5, unchanged by learning. c, The shattering dimension: '
-    'mean withheld-trial accuracy over all 462 balanced dichotomies of the twelve conditions, against the '
-    'shuffle floor (0.50) and the unstructured ceiling (1); 0.64–0.68 at both stages.',
-    'd, The memory spectrum is one-dimensional animal by animal: top-1 reliable-variance fraction of the '
-    'DPA state from each mouse’s own simultaneously recorded population (same estimator as Fig. 2b), at '
-    'mid-delay and at the decision; open symbols, noise-limited cells (reliable total < 5), excluded from '
-    'the paired Wilcoxon test. e, The uncross-validated η² matrices of the DPA delay state, kept as the '
-    'demonstration of the artifact Fig. 2d removes: on condition means estimated from all trials, the '
-    'second and third components carry apparent test and choice coding that cannot be anticipatory, '
-    'because the test odor is drawn independently of the sample.',
+    'a, Cross-validated spectra of the DPA state (four conditions) and of the full twelve-condition state, at '
+    'the late delay (bins 48–53, 7.5–8.8 s) and at the decision (bins 57–65, 9.0–10.8 s), the windows of the '
+    'participation-ratio analysis '
+    '(Methods); naïve and expert; dashed, the shuffle null of the expert fit. b, The participation ratio of the '
+    'same three spectra, 95% CI from a leave-one-mouse-out jackknife (t(8)): memory 1.0 → delay 2.0 → decision '
+    '2.5, unchanged by learning. c, The shattering dimension: withheld-trial balanced accuracy of every one of the '
+    '462 balanced dichotomies of the twelve conditions at the decision window (9.0–10.5 s; dots), its mean (line; '
+    'bar, 95% interval over pseudo-population resamples) against the shuffle mean (dashed) and the unstructured '
+    'ceiling (1).',
+    'd, The memory spectrum is one-dimensional animal by animal: top-1 reliable-variance fraction of the DPA state '
+    'from each mouse’s own simultaneously recorded population (same estimator and windows as Fig. 2b), at mid-delay '
+    'and at the decision; open symbols, noise-limited cells (reliable total < 5), excluded from the paired Wilcoxon '
+    'test. e, The uncross-validated η² matrices of the DPA mid-delay state (Fig. 2d’s window), kept as the '
+    'demonstration of the artifact Fig. 2d removes: on condition means estimated from all trials, the second and '
+    'third components carry apparent test and choice coding that cannot be anticipatory, because the test odor is '
+    'drawn independently of the sample.',
     'f, Learning removes the premature choice signal from the dual delay. Left, the withheld match/nonmatch '
-    'separation projected on a choice axis defined at late delay (pre-test, hence reward-free), naïve '
-    'against expert, on dual and on DPA trials (band, split SEM). Right, withheld decoding of the upcoming '
-    'choice along the demixed choice axis per window (ticks, shuffle-null 95th percentile; ∗, above null): '
-    'in naïve mice the dual delay carries the choice from early through late delay, in expert mice it '
-    'sits at chance until the test; on DPA trials the pre-test signal is at most marginal (≤ 0.59) and absent at late delay.',
+    'separation projected on a choice axis defined at late delay (pre-test, hence reward-free), naïve against '
+    'expert, on dual and on DPA trials (band, split SEM). Right, withheld decoding of the upcoming choice along the '
+    'demixed choice axis per window (ticks, shuffle-null 95th percentile; ∗, above null): in naïve mice the dual '
+    'delay carries the choice from early through late delay, in expert mice it sits at chance until the test; on '
+    'DPA trials the pre-test signal is at most marginal (≤ 0.59) and absent at late delay.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

@@ -71,7 +71,7 @@ mid-delay (bins 36–38, data 5.5–6.3 s: it opens at distractor offset (4.5–
 the Go/NoGo response cue (6.5–7 s) and its reward (7–7.5 s), so no Go/NoGo lick has yet occurred —
 the clean maintenance window; used throughout Fig. 2b–d; the distractor odour's sensory tail may
 contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); legacy analyses (the Extended-Data PR build) additionally use late delay
-(bins 48–53; a 0.5-s trailing-window convention, data 7.5–8.8 s, closing 0.17 s before test onset). The time-resolved (trajectory) dimensionality
+(bins 48–53; a 0.5-s trailing-window convention, data 7.5–8.8 s, closing 0.17 s before test onset) and a decision window of bins 57–65 (data 9.0–10.8 s); Extended Data Fig. 1a,b. The time-resolved (trajectory) dimensionality
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
 
