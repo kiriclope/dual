@@ -89,3 +89,4 @@ place or from somewhere less direct.
 | 2026-09-15 16:49 | all-trial replications 2026-09-15 | exp_ooc_plane.py --nopca --alltrials | 2.2 | measured |
 | 2026-09-15 16:49 | all-trial replications 2026-09-15 | exp_ooc_plane_pseudo.py --nopca --alltrials | 0.4 | measured |
 | 2026-09-15 17:04 | all-trial replications 2026-09-15 | fig_ccgp.py --canon --alltrials | 19.0 | measured |
+| 2026-09-15 17:42 | per-animal shattering 2026-09-15 | exp_shatter_permouse.py (LOO jackknife 18x8 + own-population 18x20, 462 dich., 36 workers) | 0.7 | measured |

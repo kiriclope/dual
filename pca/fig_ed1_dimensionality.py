@@ -78,7 +78,7 @@ def panel_a(fig, gs):
         else:
             ax.tick_params(labelleft=False)
         if c == 2:
-            ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.2, loc='upper right')
+            ax.legend(frameon=False, fontsize=PS*6.0, handlelength=1.2, loc='upper right', bbox_to_anchor=(0.98, 0.98), borderaxespad=0)
     return axes[0]
 
 
@@ -100,31 +100,54 @@ def panel_b(ax):
         for (ts, wn, _), pr, ci in zip(groups, prs, cis):
             print(f'b: {ts:4s} {wn:9s} {stage:6s} PR={pr:.2f} CI [{ci[0]:.2f}, {ci[1]:.2f}]')
     ax.set_xticks(xp); ax.set_xticklabels([g[2] for g in groups], fontsize=PS*7)
-    ax.set_ylim(0, 4.6); ax.set_ylabel('participation ratio')
+    ax.set_ylim(0, 5.3); ax.set_yticks([0, 1, 2, 3, 4]); ax.set_ylabel('participation ratio')
     ax.legend(frameon=False, fontsize=PS*6.5, loc='upper left')
 
 
 # ══ c — the shattering dimension of the twelve conditions (SD_FULL: all 462 balanced dichotomies at the
 #     decision window 54–62, exp_dimensionality_ci.py — the numbers Results §3 quotes) ═════════════════
-def panel_c(ax):
-    SDF = RES['SD_FULL']
+def panel_c(fig, gs):
+    """Left: pseudo-population SD (SD_FULL dots/mean; bar = across-animal leave-one-mouse-out jackknife 95% CI,
+    SD_LOO). Right: each mouse's own population (SD_MOUSE), paired naive -> expert, Wilcoxon n = 9."""
+    SDF, LOO, SDM = RES['SD_FULL'], RES['SD_LOO'], RES['SD_MOUSE']
+    ax = fig.add_subplot(gs[0, 0]); ax2 = fig.add_subplot(gs[0, 1], sharey=ax)
     rng = np.random.RandomState(3)
     for j, stage in enumerate(STAGES):
-        acc = np.asarray(SDF[stage]['acc']); nul = np.asarray(SDF[stage]['null']); ci = SDF[stage]['ci']
+        acc = np.asarray(SDF[stage]['acc']); nul = np.asarray(SDF[stage]['null']); ci = LOO[stage]['ci']
         x = j + rng.uniform(-0.22, 0.22, len(acc))
         ax.scatter(x, acc, s=5, color=SC[stage], alpha=0.35, lw=0, zorder=2)
         ax.plot([j - 0.3, j + 0.3], [acc.mean()] * 2, color='k', lw=1.3, zorder=4)
         ax.vlines(j, ci[0], ci[1], color='k', lw=0.9, zorder=4)
         ax.plot([j - 0.3, j + 0.3], [nul.mean()] * 2, color='0.45', lw=0.9, ls='--', zorder=3)
         ax.text(j, 1.005, f'{acc.mean():.3f}', ha='center', va='bottom', fontsize=PS*6.5)
-        print(f'c: {stage:6s} shattering {acc.mean():.3f} [resample CI {ci[0]:.3f}, {ci[1]:.3f}]  null {nul.mean():.3f}  '
+        print(f'c: {stage:6s} shattering {acc.mean():.3f} [LOO jackknife CI {ci[0]:.3f}, {ci[1]:.3f}; resample CI '
+              f'{SDF[stage]["ci"][0]:.3f}, {SDF[stage]["ci"][1]:.3f}]  null {nul.mean():.3f}  '
               f'({len(acc)} dichotomies, range {acc.min():.2f}–{acc.max():.2f})')
+    D = LOO['delta']
+    print(f'c: Expert−Naive Δ {D["mean"]:+.3f} [{D["ci"][0]:+.3f}, {D["ci"][1]:+.3f}] t(8) {D["t"]:+.2f} p {D["p"]:.3f}')
     ax.axhline(1.0, ls=':', color='0.6', lw=0.8)
     ax.text(1.45, 0.985, 'unstructured', fontsize=PS*6, color='0.5', ha='right', va='top')
     ax.text(1.45, 0.505, 'shuffle', fontsize=PS*6, color='0.5', ha='right', va='bottom')
     ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert'], fontsize=PS*7)
     ax.set_xlim(-0.6, 1.5); ax.set_ylim(0.44, 1.06); ax.set_yticks([0.5, 0.75, 1.0])
-    ax.set_ylabel('balanced accuracy per dichotomy\n(462 dichotomies, decision)')
+    ax.set_ylabel('balanced accuracy\n(462 dichotomies, decision)')
+    ax.set_title('pooled', loc='left', fontsize=TITLE_FS)
+    # right: own-population shattering, one line per mouse
+    a, b = SDM['Naive'], SDM['Expert']
+    for k, m in enumerate(MICE):
+        ax2.plot([0, 1], [a[k], b[k]], '-', color=MC[m], lw=0.8, alpha=0.5, zorder=2)
+        ax2.scatter([0, 1], [a[k], b[k]], s=22, color=MC[m], linewidths=0.6, zorder=3)
+    pw = wilcoxon(b, a).pvalue; sig = pw < .05
+    ax2.text(0.5, 1.02, '∗' if sig else 'n.s.', ha='center', va='bottom', fontsize=PS*(12 if sig else 8),
+             fontweight='bold', color='k' if sig else '0.55')
+    ax2.text(0.5, 0.93, f'p = {pw:.3f}\n9 mice', ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
+    ax2.axhline(0.5, ls='--', color='0.45', lw=0.9, zorder=1)
+    ax2.set_xticks([0, 1]); ax2.set_xticklabels(['naïve', 'expert'], fontsize=PS*7); ax2.set_xlim(-0.5, 1.5)
+    plt.setp(ax2.get_yticklabels(), visible=False); ax2.tick_params(axis='y', length=0)
+    ax2.set_title('per mouse', loc='left', fontsize=TITLE_FS)
+    print(f'c: per-mouse own-population SD medians {np.median(a):.3f} / {np.median(b):.3f}, Δ median '
+          f'{np.median(b - a):+.3f}, Wilcoxon p {pw:.3f}, {int((b > a).sum())}/9 up')
+    return ax
 
 
 # ══ d — per-mouse cvPCA: the memory spectrum is one-dimensional animal by animal ═══════════════
@@ -207,17 +230,18 @@ def panel_e(fig, gs):
 
 # ══ ASSEMBLE ═══════════════════════════════════════════════════════════════════════════════════
 fig = plt.figure(figsize=(10.0, 6.2))
-outer = fig.add_gridspec(2, 12, height_ratios=[1.0, 1.0], hspace=0.55, wspace=1.0,
+outer = fig.add_gridspec(2, 24, height_ratios=[1.0, 1.0], hspace=0.55, wspace=1.0,
                          left=0.065, right=0.985, top=0.955, bottom=0.09)
-gsA = outer[0, 0:6].subgridspec(1, 3, wspace=0.30)
+gsA = outer[0, 0:12].subgridspec(1, 3, wspace=0.30)
 axA = panel_a(fig, gsA)
-axB = fig.add_subplot(outer[0, 6:9]); panel_b(axB)
-axC = fig.add_subplot(outer[0, 10:12]); panel_c(axC)
-gsD = outer[1, 0:4].subgridspec(1, 2, wspace=0.12)
+axB = fig.add_subplot(outer[0, 12:18]); panel_b(axB)
+gsC = outer[0, 19:24].subgridspec(1, 2, wspace=0.15, width_ratios=[1.15, 1.0])
+axC = panel_c(fig, gsC)
+gsD = outer[1, 0:8].subgridspec(1, 2, wspace=0.12)
 axD = panel_d(fig, gsD)
-gsE = outer[1, 5:12].subgridspec(1, 4, wspace=0.22)
+gsE = outer[1, 10:24].subgridspec(1, 4, wspace=0.22)
 axE = panel_e(fig, gsE)
-plabel(axA, 'a', dx=-0.28); plabel(axB, 'b', dx=-0.30); plabel(axC, 'c', dx=-0.34)
+plabel(axA, 'a', dx=-0.28); plabel(axB, 'b', dx=-0.30); plabel(axC, 'c', dx=-0.42)
 plabel(axD, 'd', dx=-0.30); plabel(axE, 'e', dx=-0.34)
 
 CAP = [
@@ -229,8 +253,11 @@ CAP = [
     'the memory state is one-dimensional, the twelve-condition state two- to three-dimensional at both windows, with '
     'overlapping intervals across stages. c, The shattering dimension: withheld-trial balanced accuracy of every one '
     'of the 462 balanced dichotomies of the twelve conditions at the decision window (dots), its mean (line; bar, 95% '
-    'interval over eight pseudo-population resamples of the same nine mice, not an across-animal interval) against '
-    'the shuffle mean (dashed) and the unstructured ceiling (1).',
+    'across-animal interval from a leave-one-mouse-out jackknife, t(8): 0.660 [0.615, 0.705] naïve, 0.672 [0.621, 0.723] '
+    'expert; difference +0.012 [−0.022, +0.046], p = .43) against the shuffle mean (dashed) and the unstructured ceiling '
+    '(1); right, the same estimator on each mouse’s own simultaneously recorded population (real trials, 20 half-splits; '
+    'lower because populations and trial counts are smaller): medians 0.585 naïve, 0.602 expert, Wilcoxon p = .055, 7/9 '
+    'mice up.',
     'd, The memory spectrum is one-dimensional animal by animal: top-1 reliable-variance fraction of the DPA state '
     'from each mouse’s own simultaneously recorded population (same estimator and windows as Fig. 2b), at mid-delay '
     'and at the decision; open symbols, noise-limited cells (reliable total < 5), excluded from the paired Wilcoxon '

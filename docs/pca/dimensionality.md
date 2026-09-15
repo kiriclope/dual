@@ -1,3 +1,10 @@
+> **2026-09-15 (latest) — PER-ANIMAL SHATTERING COMPANION (ED 2c):** `exp_shatter_permouse.py` (0.7 min, 36 joblib workers)
+> writes `SD_LOO` (leave-one-mouse-out jackknife of the pooled 462-dichotomy SD: 0.660 [0.615, 0.705] naïve, 0.672
+> [0.621, 0.723] expert, Δ +0.012 [−0.022, +0.046], t(8) p = .43) and `SD_MOUSE` (each mouse's own population, real trials,
+> 20 half-splits: medians 0.585 / 0.602, Wilcoxon p = .055, 7/9 up) into results.pkl. ED 2c's bar is now the jackknife
+> interval (the SD_FULL resample interval is only printed) and a per-mouse paired panel sits to its right. §3 no longer says
+> "unchanged by learning" — it states the animal-level null and the within-mouse trend. Draft v12.37.
+
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
 > **2026-09-15 (later) — ALL-TRIAL PLANE CANONICAL:** `exp_permouse_plane.py --nopca --alltrials` / `exp_ooc_plane*.py --alltrials` write
@@ -113,6 +120,8 @@ across independent trial halves counts.
 - `exp_dimensionality_ci.py` — hardening (2026-08-10, cache-only): shattering over **all 462**
   dichotomies + per-resample CIs (`SD_FULL`), and split-level PR CIs (`PR_CI` — DEMOTED to a
   trial-split stability check; do NOT use as the figure's error bar, it is anti-conservative).
+- `exp_shatter_permouse.py` — per-animal companion of the shattering dimension (2026-09-15): `SD_LOO` jackknife +
+  `SD_MOUSE` own-population; drawn as ED 2c's interval and right-hand panel (see the top note).
 - `exp_dimensionality_jk.py` — **the Fig-2c error bars** (`PR_JK`): leave-one-mouse-out jackknife of
   the averaged-spectrum PR (mice = the exchangeable unit; neurons partition by mouse), 95% CI
   clipped at the PR floor of 1. Values: memory 1.0 [1.0, 1.1] Expert / 1.2 [1.0, 1.8] Naive · delay

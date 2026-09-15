@@ -1,5 +1,12 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.37 (2026-09-15): PER-ANIMAL SHATTERING COMPANION** (Leon: "run the per-animal shattering companion"; the last open
+> reviewer item that the text could carry). `pca/exp_shatter_permouse.py` (0.7 min on 36 workers — the "≈ 90 min" estimate was
+> serial) adds a leave-one-mouse-out jackknife of the pooled shattering dimension (SD_LOO: 0.660 [0.615, 0.705] naïve, 0.672
+> [0.621, 0.723] expert, Δ +0.012 [−0.022, +0.046], t(8) p = .43) and each mouse's own-population shattering (SD_MOUSE: medians
+> 0.585 / 0.602, Wilcoxon p = .055, 7/9 up). ED 2c now draws the jackknife interval (was the resample interval) plus a per-mouse
+> paired panel; §3 replaces "unchanged by learning (Δ = +0.006)" with the animal-level statement; Methods states both estimators.
+
 > **v12.36 (2026-09-15): ALL-TRIAL PLANE AND CCGP ARE CANONICAL** (Leon: "run the all-trial CCGP and plane test" → "make the all-trial versions canonical"). `exp_permouse_plane.py`, `exp_ooc_plane.py`, `exp_ooc_plane_pseudo.py` and `fig_ccgp.py` gained --alltrials; Fig. 3c, ED 1b–d and the text now read those caches. Everything survives the selection argument: Fig. 3c sample 0.73 → 0.58, choice 0.63 → 0.55, test at chance from the plane (p .012); ED 1c pooled sample 0.98/0.92, choice 0.75/0.62; per-mouse sample 0.81. What moved: the GNG plane-only rise is now significant (0.56 → 0.64, p .027, 7/9) and the test plane-only "drop" is gone (p .31); the per-mouse choice-plane capture falls from 0.73 to 0.56 (n 7); the CCGP test nudge is a trend (Δ +0.02, p .074, was .012) and the test code still barely generalizes (0.55–0.58), so the Discussion's "conjunctive" reading is not a lick artifact. Methods trial-set paragraph rewritten.
 
 > **v12.35 (2026-09-15): EXPERT REVIEW OF THE EXTENDED DATA APPLIED** (Leon: "Get a subagent to review the Extended Data as an expert reviewer … apply the fixes"). Animal-level inference for the dPCA axis mixing (ED 3b, mouse-cluster bootstrap): choice–task alignment survives (Δ +0.076 [+0.017, +0.122], p .011), the sample–test separation does not (p .33) — §2 says so. ED 5's "no deficit … therefore specific" replaced by a bounded statement (CIs include β = −0.06). ED 6 DPA trend is the two ChR2 mice (Jaws-only ρ +0.21) — §6 no longer reads it as a coupling. ED 2e caption reconciled with its own star (1 of 12 pre-test cells, the nominal false-positive rate) and a diagnosis of the sub-chance cells. Bootstrap CIs over mice on every coupling ρ; per-mouse (not 18-point) lick–depth ρ; PR CIs floored at 1; Holm for the CCGP test code; n = 6 disclosed in ED 1c; the star whitelist removed from ED 1d; print scale 1.2 so every ED literal prints ≥ 5 pt; Methods gains a trial-set paragraph; discussion cited "5d" for the lick covariate (line-wrapped, missed) → 4d. Fig. 4 legend now states the readout dependence of the coupling. PIPELINE RUNS STILL OPEN (reviewer): all-trial versions of the plane, per-mouse plane and CCGP; a per-animal shattering companion; a refit-dPCA bootstrap; a seeded CCGD tensor for a trial-level lick control.
@@ -683,7 +690,9 @@ The abstract character of the format, its generalization across conditions [Bern
 likewise present in the first dual task sessions and preserved. Per-mouse cross-condition
 generalization sat on the naïve = expert line for the sample and choice codes; only the test code nudged upward as a trend (Δ = +0.02, p = .074), which we report without a verdict (Extended Data Fig. 1b). Decoding all 462 balanced dichotomies of the 12
 conditions, the shattering dimension, gave 0.67 at both stages against a shuffle floor of 0.50 and an
-unstructured ceiling of 1 (Extended Data Fig. 2c), unchanged by learning (Δ = +0.006). High
+unstructured ceiling of 1 (Extended Data Fig. 2c), with no detectable change across animals (leave-one-mouse-out
+difference +0.012, 95% CI [−0.022, +0.046], p = .43) and at most a small rise within each mouse's own population
+(medians 0.59 to 0.60, p = .055, 7/9 mice). High
 generalization with moderate shattering is the abstract, compressed regime that Bernardi et al.
 described in hippocampus and prefrontal cortex [Bernardi 2020].
 
@@ -999,7 +1008,9 @@ label-shuffle nulls (per-mouse companion: Wilcoxon, n = 9). The shattering dimen
 all 462 balanced 6-vs-6 dichotomies of the 12 conditions at the decision window (disjoint
 train/test halves per mouse × condition, 24 pseudo-trials per condition, scaler + PCA(30) fit
 on the training half only, LDA per dichotomy, 8 resamples; null: pseudo-trial condition labels
-permuted, 0.50). Per-neuron selectivity (Fig. 2g, ED 6b) uses per-neuron d′ (pooled-variance;
+permuted, 0.50). Its across-animal interval is a leave-one-mouse-out jackknife of the pooled estimate (t(8)); the
+per-mouse companion runs the same decoder on each mouse's own population (real trials, 20 stratified half-splits,
+Wilcoxon over mice). Per-neuron selectivity (Fig. 2g, ED 6b) uses per-neuron d′ (pooled-variance;
 sample at mid-delay across tasks, choice at the decision window on correct DPA trials) with a
 selectivity threshold at the 95th percentile of a within-mouse label-permutation |d′| null
 (computed on the sample window and applied to both); the fraction of double-selective neurons
@@ -1413,8 +1424,11 @@ from a leave-one-mouse-out jackknife (t(8); floored at 1, the minimum of a parti
 (naïve / expert), twelve-condition mid-delay 2.8 / 2.2, decision 2.5 / 2.5 — the memory state is one-dimensional, the
 twelve-condition state two- to three-dimensional at both windows, with overlapping intervals across stages. c, The shattering dimension: withheld-trial balanced
 accuracy of every one of the 462 balanced dichotomies of the twelve conditions at the decision window (dots), its
-mean (line; bar, 95% interval over eight pseudo-population resamples of the same nine mice, not an across-animal
-interval; 0.667 naïve, 0.673 expert) against the shuffle mean (dashed, 0.50) and the unstructured ceiling (1). d, The memory spectrum is one-dimensional animal by animal: top-1
+mean (line; 0.667 naïve, 0.673 expert; bar, 95% across-animal interval from a leave-one-mouse-out jackknife, t(8):
+[0.615, 0.705] and [0.621, 0.723]; difference +0.012 [−0.022, +0.046], p = .43) against the shuffle mean (dashed,
+0.50) and the unstructured ceiling (1); right, the same estimator on each mouse's own simultaneously recorded
+population (real trials, 20 half-splits; lower because populations and trial counts are smaller): medians 0.585
+naïve, 0.602 expert, Wilcoxon p = .055, 7/9 mice up. d, The memory spectrum is one-dimensional animal by animal: top-1
 reliable-variance fraction of the DPA state from each mouse's own simultaneously recorded population (same estimator
 and windows as Fig. 2b), at mid-delay and at the decision (medians 0.90 naïve / 0.93 expert; expert
 memory-vs-decision Wilcoxon p = .047, 6/7; naïve p = .22); open symbols, noise-limited cells (reliable total < 5),
