@@ -88,10 +88,13 @@ MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23
 #  Fig 4, the generalisation matrices in Fig 2, and CCGP in fig_manifold_supp.py)
 RES = pickle.load(open(__import__('os').environ.get('DUAL_RES', 'figures/pseudo/dimensionality/results.pkl'), 'rb'))   # DUAL_RES = variant cache
 AXF = RES['AXIS_FRAME' + SUF]
-assert 'PM_PLANE' + SUF in RES, ('missing PM_PLANE' + SUF +
-                                 ' — run: python exp_permouse_plane.py' +
-                                 (' --nopca' if NOPCA else ''))
-PMPL = RES['PM_PLANE' + SUF]                       # (plane, full, out-of-plane) per mouse/stage/var
+TRIALSET = '' if '--correctonly' in sys.argv[1:] else '_all'   # 2026-09-15: the per-mouse plane cache on ALL laser-off trials is
+                                                              # canonical (review: on correct trials lick == match; exp_permouse_plane.py
+                                                              # --alltrials); --correctonly draws the pre-2026-09-15 cache
+assert 'PM_PLANE' + SUF + TRIALSET in RES, ('missing PM_PLANE' + SUF + TRIALSET +
+                                            ' — run: python exp_permouse_plane.py' +
+                                            (' --nopca' if NOPCA else '') + (' --alltrials' if TRIALSET else ''))
+PMPL = RES['PM_PLANE' + SUF + TRIALSET]                       # (plane, full, out-of-plane) per mouse/stage/var
 assert 'XSTAGE_DEC' + SUF in RES, ('missing XSTAGE_DEC' + SUF +
                                    ' — run: python exp_plane_frame.py' +
                                    (' --nopca' if NOPCA else ''))
@@ -655,9 +658,7 @@ CAP_PARAS = [
     'the full population (mean ± SEM, n = 9, stages averaged; withheld trial halves; paired '
     'Wilcoxon tests, all comparisons drawn). Sample and choice decode as well from the plane as from '
     'the full population, as they must, since the plane is built from their own decoder axes, and '
-    'removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; '
-    'choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so '
-    'it lives outside the manifold; the GNG code’s share is real but partial (p = .004).',
+    'removing the plane reduces but does not abolish their decoding (sample 0.73 → 0.58, p = .004; choice 0.63 → 0.55, p = .004); the test code is at chance from the plane (0.50 against 0.58 from the full population, p = .012) and untouched without it (p = .57), so it lives outside the manifold; the GNG code’s share is real but partial (p = .004). All laser-off trials.',
     'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '

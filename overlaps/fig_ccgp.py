@@ -69,7 +69,9 @@ VARS = [
     ('test',   lambda d: d['test_odor'].to_numpy(float),   'tasks',       W_TE, None),
 ]
 USEPCA = '--pca' in sys.argv[1:]            # match the pooled pipeline (PCA(20) denoising)
-PSUF = ('_pca' if USEPCA else '') + ('_canon' if CANON else '')
+ALLTRIALS = '--alltrials' in sys.argv[1:]  # 2026-09-15 (review): on correct trials lick == match, so the test/choice CCGP
+                                            # could be a lick code showing through; all trials decouple them
+PSUF = ('_pca' if USEPCA else '') + ('_canon' if CANON else '') + ('_all' if ALLTRIALS else '')
 from sklearn.decomposition import PCA as _PCA
 CLF = (lambda: make_pipeline(StandardScaler(), _PCA(n_components=20, random_state=0),
                              LogisticRegression(C=1.0, class_weight='balanced', max_iter=2000))) if USEPCA \
@@ -79,7 +81,7 @@ CLF = (lambda: make_pipeline(StandardScaler(), _PCA(n_components=20, random_stat
 def population(mouse, stage, win):
     val = VALID[(mouse, stage)]
     idx = ((y.mouse == mouse) & (y.learning == stage) & (y.laser == 0)
-           & (y.performance == 1)).to_numpy()                          # CORRECT trials only (matches Fig 2/3)
+           & ((y.performance == 1) | ALLTRIALS)).to_numpy()            # correct trials (default) or ALL laser-off trials (--alltrials, 2026-09-15)
     A = np.nanmean(X[idx][:, val, :][:, :, win], axis=2)                 # trials × neurons (window-avg)
     A = np.where(np.isnan(A), np.nanmean(A, axis=0, keepdims=True), A)   # impute residual NaN with neuron mean
     return A, y[idx].reset_index(drop=True)

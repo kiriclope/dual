@@ -35,10 +35,17 @@ MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (_c['L'][k] for k in
 MATCH = (SAMP == TESTO)
 LICK = np.where(PERF == 1, MATCH, ~MATCH)
 
+# --alltrials (2026-09-15, review): ALL laser-off trials instead of correct only — on correct trials lick == match, so a
+# lick-prone state can masquerade as sample/test/choice structure; all trials decouple them. Output key gains '_all'.
+ALLTRIALS = '--alltrials' in sys.argv[1:]
+ASUF = '_all' if ALLTRIALS else ''
+
 
 def sel(mouse, stage, **kw):
     m = (MOUSE == mouse) & (LEARN == stage) & (LAS == 0)
     for k, v in kw.items():
+        if k == 'perf' and ALLTRIALS:              # --alltrials: the correct-trial filter is a no-op
+            continue
         arr = {'task': TSK, 'samp': SAMP, 'test': TESTO, 'perf': PERF, 'lick': LICK,
                'dual': None}[k]
         if k == 'dual':
@@ -134,6 +141,6 @@ for stage in STAGES:
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
-d['PM_PLANE' + SUF] = PM_PLANE
+d['PM_PLANE' + SUF + ASUF] = PM_PLANE
 pickle.dump(d, open(RES, 'wb'))
-print('merged PM_PLANE' + SUF, 'into', RES)
+print('merged PM_PLANE' + SUF + ASUF, 'into', RES)

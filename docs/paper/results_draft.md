@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.36 (2026-09-15): ALL-TRIAL PLANE AND CCGP ARE CANONICAL** (Leon: "run the all-trial CCGP and plane test" → "make the all-trial versions canonical"). `exp_permouse_plane.py`, `exp_ooc_plane.py`, `exp_ooc_plane_pseudo.py` and `fig_ccgp.py` gained --alltrials; Fig. 3c, ED 1b–d and the text now read those caches. Everything survives the selection argument: Fig. 3c sample 0.73 → 0.58, choice 0.63 → 0.55, test at chance from the plane (p .012); ED 1c pooled sample 0.98/0.92, choice 0.75/0.62; per-mouse sample 0.81. What moved: the GNG plane-only rise is now significant (0.56 → 0.64, p .027, 7/9) and the test plane-only "drop" is gone (p .31); the per-mouse choice-plane capture falls from 0.73 to 0.56 (n 7); the CCGP test nudge is a trend (Δ +0.02, p .074, was .012) and the test code still barely generalizes (0.55–0.58), so the Discussion's "conjunctive" reading is not a lick artifact. Methods trial-set paragraph rewritten.
+
 > **v12.35 (2026-09-15): EXPERT REVIEW OF THE EXTENDED DATA APPLIED** (Leon: "Get a subagent to review the Extended Data as an expert reviewer … apply the fixes"). Animal-level inference for the dPCA axis mixing (ED 3b, mouse-cluster bootstrap): choice–task alignment survives (Δ +0.076 [+0.017, +0.122], p .011), the sample–test separation does not (p .33) — §2 says so. ED 5's "no deficit … therefore specific" replaced by a bounded statement (CIs include β = −0.06). ED 6 DPA trend is the two ChR2 mice (Jaws-only ρ +0.21) — §6 no longer reads it as a coupling. ED 2e caption reconciled with its own star (1 of 12 pre-test cells, the nominal false-positive rate) and a diagnosis of the sub-chance cells. Bootstrap CIs over mice on every coupling ρ; per-mouse (not 18-point) lick–depth ρ; PR CIs floored at 1; Holm for the CCGP test code; n = 6 disclosed in ED 1c; the star whitelist removed from ED 1d; print scale 1.2 so every ED literal prints ≥ 5 pt; Methods gains a trial-set paragraph; discussion cited "5d" for the lick covariate (line-wrapped, missed) → 4d. Fig. 4 legend now states the readout dependence of the coupling. PIPELINE RUNS STILL OPEN (reviewer): all-trial versions of the plane, per-mouse plane and CCGP; a per-animal shattering companion; a refit-dPCA bootstrap; a seeded CCGD tensor for a trial-level lick control.
 
 > **v12.34 (2026-09-15): FIG. 2c ON ALL TRIALS — THE NAÏVE "PREMATURE CHOICE" WAS A CORRECT-TRIAL SELECTION EFFECT; ED RENUMBERED TO CITATION ORDER; η² DEMONSTRATION AND SI FIGURE CUT** (Leon: "I don't believe the result of panel f" → "all trials for 2c, cut e, table for SI"). On all laser-off trials the naïve dual-delay choice decodability falls from 0.64–0.66 to 0.48–0.56 (impossible by design when the contrast is fixed by the odors), so §2's "training removed trial-by-trial choice information" is replaced by a selection-effect note and Fig. 2c now decodes all trials (sample 0.91/0.83, GNG 0.99, choice 0.76–0.84 and test 0.60–0.63 at the decision; delay choice/test at chance). ED 1a,b rebuilt with Fig. 2b's estimator at its windows (PR 1.1/1.0, 2.8/2.2, 2.5/2.5). ED renumbered by first citation (plane 1, dimensionality 2, dPCA 3, coupling 4, chronic 5, laser 6). SI trial-count figure → Supplementary Table 1.
@@ -663,10 +665,10 @@ memory subspace as a whole: read from the top three principal components of the 
 
 The plane also held beyond the trials on which it was fitted. A plane fitted on the DPA trials
 of one stage read the sample and the choice on every other stage, trial type and moment of the
-trial as well as a plane fitted in that context for the sample (Extended Data Fig. 1c; median over its out-of-context cells, 1.03 of the in-context signal with the two-dimensional readout refit in place, 0.86 with the reference decoder applied unchanged), and at 0.82 of it for the choice (0.58 unchanged), whose signal at the decision window is the weaker of the two; per mouse, medians 0.81 and 0.73. Where the unchanged decoder failed and the refit did not, on dual-task trials after the Go/NoGo odor, the sample code had moved within the plane rather than left it.
+trial as well as a plane fitted in that context for the sample (Extended Data Fig. 1c; median over its out-of-context cells, 0.98 of the in-context signal with the two-dimensional readout refit in place, 0.92 with the reference decoder applied unchanged), and at 0.75 of it for the choice (0.62 unchanged), whose signal at the decision window is the weaker of the two; per mouse, medians 0.81 and 0.56. Where the unchanged decoder failed and the refit did not, on dual-task trials after the Go/NoGo odor, the sample code had moved within the plane rather than left it.
 
 The same pattern held in every animal (Extended Data Fig. 1d), and it carried the one change
-with learning in this section. The GNG code's plane-only accuracy rose as a trend (0.57 → 0.63, p = .055, 8/9 mice) while its full-population decodability rose less reliably (0.78 → 0.85, p = .16): animal by animal the GNG code moved toward the plane, a change we quantify in the next section. The sample axis
+with learning in this section. The GNG code's plane-only accuracy rose (0.56 → 0.64, p = .027, 7/9 mice) while its full-population decodability rose less reliably (0.78 → 0.85, p = .13): animal by animal the GNG code moved toward the plane, a change we quantify in the next section. The sample axis
 lay at the level expected for independent directions relative to the choice axis (Fig. 3d; |cos| = 0.06 in naïve and 0.08 in expert mice) and to the GNG axis (0.09; same analysis, Methods), against a floor of ≈0.05 for random directions in these populations, whereas the overlap between choice and GNG was partial and growing (0.29 → 0.43 after correction for split-half reliabilities, pooled; the per-animal raw counterpart is tested in Fig. 4a).
 
 Finally, the plane was the same plane before and after learning (Fig. 3e). Decoder axes trained in one stage read the withheld activity of the other stage at 90% of the within-stage ceiling for the sample and 72% for the choice (transfer/within 0.90 and 0.72, robust to scoring both stages under one common scaling), and within each animal the transfer was 0.86 of the within-stage ceiling for the sample and 0.59 for the choice. Construction could
@@ -679,7 +681,7 @@ and learning moves states inside it.
 
 The abstract character of the format, its generalization across conditions [Bernardi 2020], was
 likewise present in the first dual task sessions and preserved. Per-mouse cross-condition
-generalization sat on the naïve = expert line for the sample and choice codes; only the test code nudged upward (Δ = +0.03, p = .012, uncorrected across the four variables), which we report without a verdict (Extended Data Fig. 1b). Decoding all 462 balanced dichotomies of the 12
+generalization sat on the naïve = expert line for the sample and choice codes; only the test code nudged upward as a trend (Δ = +0.02, p = .074), which we report without a verdict (Extended Data Fig. 1b). Decoding all 462 balanced dichotomies of the 12
 conditions, the shattering dimension, gave 0.67 at both stages against a shuffle floor of 0.50 and an
 unstructured ceiling of 1 (Extended Data Fig. 2c), unchanged by learning (Δ = +0.006). High
 generalization with moderate shattering is the abstract, compressed regime that Bernardi et al.
@@ -1062,14 +1064,15 @@ paired t-test.
 
 ### Statistical policy
 
-**Trial sets (2026-09-15).** The pseudo-population geometry analyses — cvPCA and its per-mouse companion (Fig. 2b,
-Extended Data Fig. 2a–d), the η² decomposition (Fig. 2d), the shattering dimension, the sample × choice plane and its
-ablation, transfer and out-of-context tests (Fig. 3, Extended Data Fig. 1), cross-condition generalization (Extended
-Data Fig. 1b) and the demixed-PCA decomposition (Extended Data Fig. 3) — use correct laser-off trials, where the
-match/nonmatch conjunction and the lick coincide; the only exception is the choice class of the plane, which uses the
-real lick on all trials. Per-variable decoding (Fig. 2c, Extended Data Fig. 2e) uses all laser-off trials, because on
-correct trials a lick-prone naïve state made the future choice appear decodable from the delay (Extended Data Fig. 2e).
-The CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 4 and 6 are trained on all laser-off trials.
+**Trial sets (2026-09-15).** The pseudo-population condition-mean analyses — cvPCA and its per-mouse companion (Fig. 2b,
+Extended Data Fig. 2a–d), the η² decomposition (Fig. 2d), the shattering dimension and the demixed-PCA decomposition
+(Extended Data Fig. 3) — use correct laser-off trials, because their conditions are the odor pairs themselves. Every
+analysis in which a label could coincide with the lick on correct trials — per-variable decoding (Fig. 2c, Extended
+Data Fig. 2e), the sample × choice plane with its ablation, transfer and out-of-context tests (Fig. 3, Extended Data
+Fig. 1c,d), cross-condition generalization (Extended Data Fig. 1b) and the CCGD decoders behind Figs 3a,b, 4 and 6
+and Extended Data Figs 4 and 6 — uses all laser-off trials, after a correct-trial selection effect was found to
+manufacture an apparent naïve choice signal (Extended Data Fig. 2e); the correct-trial versions of the plane and
+CCGP analyses gave the same picture within 0.05.
 
 All tests are two-sided; exact p-values are reported uncorrected and multiplicity is addressed
 by disclosure and by the replication requirements rather than correction. Claims about
@@ -1220,8 +1223,7 @@ c, What lives in the plane. Each variable is decoded from the two coordinates of
 from the residual population after the plane is removed, and from the full population (mean ±
 SEM, n = 9, stages averaged; withheld trial halves; paired Wilcoxon tests, all comparisons
 drawn). Sample and choice decode as well from the plane as from the full population, as they
-must, since the plane is built from their own decoder axes, and removing the plane reduces but does not abolish their decoding (sample 0.70 → 0.56, p = .004; choice 0.63 → 0.56, p = .012); the test code is at chance from the plane (0.52 against 0.57 from the full population, p = .055) and untouched without it (p = .82), so it lives
-outside the manifold; the GNG code’s share is real but partial (p = .004).
+must, since the plane is built from their own decoder axes, and removing the plane reduces but does not abolish their decoding (sample 0.73 → 0.58, p = .004; choice 0.63 → 0.55, p = .004); the test code is at chance from the plane (0.50 against 0.58 from the full population, p = .012) and untouched without it (p = .57), so it lives outside the manifold; the GNG code’s share is real but partial (p = .004). All laser-off trials.
 
 d, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes,
 corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the
@@ -1380,25 +1382,26 @@ test codes over time on their own cross-validated decoder axes (naïve | expert;
 conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–e ablate and align. b, Per-mouse
 cross-condition generalization (CCGP) of each variable, naïve against expert (marker, opsin group; Δ, mean
 change; p, paired Wilcoxon, n = 9): abstraction is present from the first dual task sessions (canonical windows, sample and GNG at
-mid-delay, test and choice at the decision; sample 0.67 → 0.67, p = 1.0; GNG 0.79 → 0.85, p = .25; choice 0.56 → 0.59,
-p = .20); the test code nudges upward (0.55 → 0.58, Δ = +0.03, p = .012; Holm-adjusted across the four variables
-p = .047), a small effect reported without a verdict. _(2026-09-15: the per-mouse CCGP cache was rebuilt on the canonical axis windows; the 2026-08-04
+mid-delay, test and choice at the decision; all laser-off trials; sample 0.69 → 0.68, p = .82; GNG 0.79 → 0.84,
+p = .16; choice 0.61 → 0.61, p = .91); the test code nudges upward as a trend (0.55 → 0.58, Δ = +0.02, p = .074),
+reported without a verdict. _(On correct trials, where lick ≡ match, the test nudge read p = .012; the all-trial value
+is canonical since 2026-09-15.)_ _(2026-09-15: the per-mouse CCGP cache was rebuilt on the canonical axis windows; the 2026-08-04
 cache, sample at late delay and test/choice at 9.5–10.0 s, gave p = .04 for the test code.)_ c, The out-of-context plane test. A
 sample × choice plane fitted on the naïve DPA trials is read in every other stage, trial type and moment against
 a plane fitted in that context (pooled pseudo-population): captured fraction (fixed − 0.5)/(in-context − 0.5)
 with the two-dimensional readout refit in context (left) and with the reference decoder applied unchanged
 (middle); boxed, the within-context check; grey, in-context ceiling below 0.60; hatched, ratio above 1.2. Right,
-the per-mouse ratio over each mouse's out-of-context cells (line, median; sample 0.81, n = 9; choice 0.73,
-n = 6 — three mice have no choice cell above the 0.60 ceiling). Cells are drawn without per-cell uncertainty, and
-ratios inflate as the in-context ceiling nears 0.60. Medians over the drawn out-of-context cells: sample 1.03 refit / 0.86 unchanged (15 cells), choice 0.82 /
-0.58 (5 cells). The plane carries the codes everywhere; where the unchanged decoder fails and the refit does not (expert
+the per-mouse ratio over each mouse's out-of-context cells (line, median; sample 0.81, n = 9; choice 0.56,
+n = 7 — two mice have no choice cell above the 0.60 ceiling). Cells are drawn without per-cell uncertainty, and
+ratios inflate as the in-context ceiling nears 0.60. Medians over the drawn out-of-context cells: sample 0.98 refit /
+0.92 unchanged (17 cells), choice 0.75 / 0.62 (5 cells). The plane carries the codes everywhere; where the unchanged decoder fails and the refit does not (expert
 NoGo trials after the Go/NoGo odor), the code has moved within the plane. d, The plane ablation of Fig. 3c in
 every animal (naïve x against expert y; rows, spaces; columns, variables; Δ, mean change; p, paired Wilcoxon,
 n = 9). The pattern of Fig. 3c holds mouse by mouse, and the grid carries the one change with learning: the
-GNG code's plane-only accuracy rises as a trend (0.57 → 0.63, p = .055, 8/9 mice; p = .039 in the PCA-20
-pipeline), while the test code's plane-only accuracy, already at chance, falls slightly (0.53 → 0.50, p = .055;
-p = .50 in the PCA-20 pipeline, so no verdict). No cell is starred by a whitelist; ∗ marks p < .05 on the canonical
-pipeline, which none reaches. All panels use correct trials except the choice class of the plane (all trials). Learning pulls the GNG code
+GNG code's plane-only accuracy rises (0.56 → 0.64, p = .027, 7/9 mice; p = .039 in the PCA-20 pipeline on
+correct trials), while the test code's plane-only accuracy stays at chance (0.51 → 0.49, p = .31). ∗ marks p < .05 on
+the canonical pipeline, which only that cell reaches. All panels use all laser-off trials (canonical since
+2026-09-15; on correct trials the same cells read 0.57 → 0.63, p = .055, and the test cell 0.53 → 0.50, p = .055). Learning pulls the GNG code
 toward the plane, which Fig. 4a quantifies. _(2026-09-15: the p = .027 star quoted here and in §3 until now was
 a stale number; the canonical caches give p = .055, unstarred, and §3 now says so.)_
 

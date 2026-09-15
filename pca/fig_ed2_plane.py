@@ -46,7 +46,7 @@ GROUP = {**{m: 'Jaws' for m in MICE[:5]}, **{m: 'ChR' for m in MICE[5:7]}, **{m:
 GMARK = {'Jaws': 'o', 'ChR': '^', 'ACC': 's'}
 MC = dict(zip(MICE, sns.color_palette('tab10', n_colors=len(MICE))))
 RES = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))
-CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache_canon.pkl'   # fig_ccgp.py --canon: the canonical windows (2026-09-15); the unsuffixed cache is the 2026-08-04 LD/MD/TEST build
+CCGP_CACHE = '/home/leon/dual/overlaps/figures/overlaps/ccgp/permouse_ccgp_cache_canon_all.pkl'   # fig_ccgp.py --canon --alltrials (canonical since 2026-09-15); _canon.pkl = correct trials; unsuffixed = the 2026-08-04 LD/MD/TEST build
 
 
 def plabel(ax, s, dx=-0.10):
@@ -135,7 +135,9 @@ ROW_LAB = ['sample, early delay', 'sample, mid-delay', 'sample, decision', 'choi
 CEIL_MIN = 0.60
 REF = ('Naive', 'DPA'); REFS = [('Naive', 'DPA'), ('Expert', 'DPA')]
 AXWIN = {'sample': 'md', 'choice': 'decision'}
-PP = RES['OOC_PLANE_PSEUDO' + SUF]['cells']; PMO = RES['OOC_PLANE' + SUF]['cells']
+TRIALSET = '' if '--correctonly' in sys.argv[1:] else '_all'   # 2026-09-15: ALL laser-off trials are canonical (review: on correct trials
+                                                              # lick == match); --correctonly draws the pre-2026-09-15 caches
+PP = RES['OOC_PLANE_PSEUDO' + SUF + TRIALSET]['cells']; PMO = RES['OOC_PLANE' + SUF + TRIALSET]['cells']
 
 
 def _matrix(ref, key):
@@ -209,7 +211,7 @@ def panel_c(fig, gs):
 E_VARS = ['sample', 'dist', 'test', 'choice']        # PM_PLANE cache keys — do not rename
 E_LABEL = {'dist': 'GNG'}
 E_SPACES = [('plane only (2-D)', 0), ('out-of-plane', 2), ('full space', 1)]
-PMPL = RES['PM_PLANE' + SUF]
+PMPL = RES['PM_PLANE' + SUF + TRIALSET]
 
 
 def panel_d(fig, gs):
@@ -270,24 +272,21 @@ CAP = [
     'ablate and align. b, Per-mouse cross-condition generalization (CCGP) of each variable, naïve against expert '
     '(marker, opsin group; Δ, mean change; p, paired Wilcoxon, n = 9; canonical windows, sample and GNG at mid-delay, '
     'test and choice at the decision): abstraction is present from the first dual task sessions; the test code '
-    'nudges upward (Δ = +0.03, p = .012; Holm-adjusted across the four variables p = .047), a small effect reported '
-    'without a verdict.',
+    'nudges upward as a trend (Δ = +0.02, p = .074), reported without a verdict. All laser-off trials.',
     'c, The out-of-context plane test. A sample × choice plane fitted on the naïve DPA trials is read in every other '
     'stage, trial type and moment against a plane fitted in that context (pooled pseudo-population): captured '
     'fraction (fixed − 0.5)/(in-context − 0.5) with the two-dimensional readout refit in context (left) and with '
     'the reference decoder applied unchanged (middle); boxed, the within-context check; grey, in-context ceiling '
     'below 0.60; hatched, ratio above 1.2. Cells carry no per-cell uncertainty, and ratios inflate as the in-context '
     'ceiling nears 0.60. Right, the per-mouse ratio over each mouse’s out-of-context cells (line, median; sample '
-    'n = 9, choice n = 6 — three mice have no choice cell above the ceiling). The plane carries the codes everywhere; '
+    'n = 9, choice n = 7 — two mice have no choice cell above the ceiling). The plane carries the codes everywhere; '
     'where the unchanged decoder fails and the refit does not (expert NoGo trials after the Go/NoGo odor), the code '
     'has moved within the plane.',
     'd, The plane ablation of Fig. 3c in every animal (naïve x against expert y; rows, spaces; columns, variables; '
-    'Δ, mean change; p, paired Wilcoxon, n = 9; ∗ marks p < .05 on the canonical pipeline, which no cell reaches). '
-    'The pattern of Fig. 3c holds mouse by mouse, and the grid carries the one change with learning: the GNG code’s '
-    'plane-only accuracy rises as a trend (0.57 → 0.63, p = .055; p = .039 in the PCA-20 pipeline), while the test '
-    'code’s plane-only accuracy, already at chance, falls slightly (p = .055; p = .50 in the PCA-20 pipeline, so no '
-    'verdict). Learning pulls the GNG code toward the plane, which Fig. 4a quantifies. All panels use correct trials '
-    'except the choice class of the plane (all trials).',
+    'Δ, mean change; p, paired Wilcoxon, n = 9; ∗ marks p < .05 on the canonical pipeline). The pattern of Fig. 3c '
+    'holds mouse by mouse, and the grid carries the one change with learning: the GNG code’s plane-only accuracy rises '
+    '(0.56 → 0.64, p = .027, 7/9 mice), while the test code’s plane-only accuracy stays at chance (p = .31). Learning '
+    'pulls the GNG code toward the plane, which Fig. 4a quantifies. All laser-off trials.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

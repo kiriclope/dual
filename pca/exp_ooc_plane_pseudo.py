@@ -51,12 +51,17 @@ MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (np.asarray(_c['L'][k]) for k in
 MATCH = (SAMP == TESTO)
 LICK = np.where(PERF == 1, MATCH, ~MATCH)
 
+# --alltrials (2026-09-15, review): ALL laser-off trials instead of correct only — on correct trials lick == match, so a
+# lick-prone state can masquerade as sample/test/choice structure; all trials decouple them. Output key gains '_all'.
+ALLTRIALS = '--alltrials' in sys.argv[1:]
+ASUF = '_all' if ALLTRIALS else ''
+
 
 def neuron_scale(stage, M):
     sd = np.ones(N)
     for m in MICE:
         val = VALIDIX[(m, stage)]
-        tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & (PERF == 1))[0]
+        tr = np.where((MOUSE == m) & (LEARN == stage) & (LAS == 0) & ((PERF == 1) | ALLTRIALS))[0]
         if len(tr):
             s = np.nanstd(M[np.ix_(tr, val)], axis=0)
             sd[val] = np.where(np.isfinite(s) & (s > 1e-6), s, 1.0)
@@ -96,7 +101,7 @@ def sample_set(H, st, sd, task, win, part, rng):
     for ci, cd in enumerate(ALL12):
         if cd[0] != task:
             continue
-        pools = {m: H[(m, ci, 1)][part] for m in MICE}
+        pools = {m: (np.concatenate([H[(m, ci, 1)][part], H[(m, ci, 0)][part]]) if ALLTRIALS else H[(m, ci, 1)][part]) for m in MICE}
         Xs.append(_pseudo(AW[win], sd, st, pools, KS, rng)); ys.append(np.full(KS, cd[1]))
     return np.vstack(Xs), np.concatenate(ys)
 
@@ -195,6 +200,6 @@ for r in REFS:
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
-d['OOC_PLANE_PSEUDO' + SUF] = dict(cells=cells, refs=REFS, win=WIN, axwin=AXWIN, nrep=NREP, KS=KS, KL=KL)
+d['OOC_PLANE_PSEUDO' + SUF + ASUF] = dict(cells=cells, refs=REFS, win=WIN, axwin=AXWIN, nrep=NREP, KS=KS, KL=KL)
 pickle.dump(d, open(RES, 'wb'))
-print('merged OOC_PLANE_PSEUDO' + SUF, 'into', RES, f'({time.time() - t0:.0f}s)')
+print('merged OOC_PLANE_PSEUDO' + SUF + ASUF, 'into', RES, f'({time.time() - t0:.0f}s)')

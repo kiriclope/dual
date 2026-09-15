@@ -1,5 +1,10 @@
 # Honest dimensionality — cvPCA + shattering + PC coding (Fig 2)
 
+> **2026-09-15 (later) — ALL-TRIAL PLANE CANONICAL:** `exp_permouse_plane.py --nopca --alltrials` / `exp_ooc_plane*.py --alltrials` write
+> `*_nopca_all` caches; `fig_manifold_main.py` (Fig 3c,d) and `fig_ed2_plane.py` (ED 1) read them by default (`--correctonly` = old). Fig 3c
+> numbers moved ≤ 0.03; the per-mouse GNG plane-only rise is now p = .027 (starred), the test plane-only drop is gone (p .31); the
+> per-mouse choice OOC capture is 0.56 (was 0.73). Details: memory project_ed_figures.md.
+
 > **2026-09-15 — EXTENDED DATA REBUILT AND RENUMBERED (Leon: "keep only what is essential for the paper's
 > argumentation").** The pca-side ED figures are now native composites: `fig_ed1_dimensionality.py` (old ED 3
 > trimmed: a twelve-condition spectra, b PR ladder, c shattering, d per-mouse cvPCA, e uncross-validated η²,

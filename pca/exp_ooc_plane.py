@@ -59,11 +59,16 @@ MOUSE, LEARN, LAS, TSK, SAMP, TESTO, PERF = (np.asarray(_c['L'][k]) for k in
 MATCH = (SAMP == TESTO)
 LICK = np.where(PERF == 1, MATCH, ~MATCH)          # behavioural lick at the test (errors included)
 
+# --alltrials (2026-09-15, review): ALL laser-off trials instead of correct only — on correct trials lick == match, so a
+# lick-prone state can masquerade as sample/test/choice structure; all trials decouple them. Output key gains '_all'.
+ALLTRIALS = '--alltrials' in sys.argv[1:]
+ASUF = '_all' if ALLTRIALS else ''
+
 
 def pools(mo, st, tk, var):
     base = (MOUSE == mo) & (LEARN == st) & (LAS == 0) & (TSK == tk)
     if var == 'sample':
-        return np.where(base & (PERF == 1) & (SAMP == 1))[0], np.where(base & (PERF == 1) & (SAMP == 0))[0]
+        return np.where(base & ((PERF == 1) | ALLTRIALS) & (SAMP == 1))[0], np.where(base & ((PERF == 1) | ALLTRIALS) & (SAMP == 0))[0]
     return np.where(base & LICK)[0], np.where(base & ~LICK)[0]
 
 
@@ -81,7 +86,7 @@ def X_of(win, idx, val, sd):
 
 
 def ref_scale(mo, st, val):
-    allc = np.where((MOUSE == mo) & (LEARN == st) & (LAS == 0) & (PERF == 1))[0]
+    allc = np.where((MOUSE == mo) & (LEARN == st) & (LAS == 0) & ((PERF == 1) | ALLTRIALS))[0]
     M = np.vstack([AW['md'][np.ix_(allc, val)], AW['decision'][np.ix_(allc, val)]])
     sd = np.nanstd(M, axis=0)
     return np.where(np.isfinite(sd) & (sd > 1e-6), sd, 1.0)
@@ -208,6 +213,6 @@ for r in REFS:
 
 RES = 'figures/pseudo/dimensionality/results.pkl'
 d = pickle.load(open(RES, 'rb'))
-d['OOC_PLANE' + SUF] = dict(cells=cells, summary=summary, refs=REFS, win=WIN, axwin=AXWIN, nrep=NREP)
+d['OOC_PLANE' + SUF + ASUF] = dict(cells=cells, summary=summary, refs=REFS, win=WIN, axwin=AXWIN, nrep=NREP)
 pickle.dump(d, open(RES, 'wb'))
-print('merged OOC_PLANE' + SUF, 'into', RES, f'({time.time() - t0:.0f}s)')
+print('merged OOC_PLANE' + SUF + ASUF, 'into', RES, f'({time.time() - t0:.0f}s)')
