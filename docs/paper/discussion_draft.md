@@ -91,7 +91,7 @@ present in the first dual task sessions were the ones that learning went on to u
 composing the tasks added none. And although the choice axis is defined by licking, the
 delay-period displacement occurs without delay licks, the fidelity of the code is insensitive
 to laser-related movement, and the behavioral coupling survives a lick covariate (Extended Data
-Fig. 5d).
+Fig. 4d).
 
 Composition, in this system, looked like editing rather than construction. The prefrontal
 population brings a factorized, shared subspace to the problem, learning edits the positions

@@ -163,3 +163,5 @@ decoding, Fig. 2c), `pca/exp_cdec_support.py` (spectrum jackknife CIs, Fig. 2b; 
 cross-decode), `pca/exp_dpa_gng_column.py` (per-PC gng column, Fig. 2d); figure
 `pca/fig_dimensionality_main.py` (`--pr` renders the previous PR/all-tasks build for ED). Reference
 doc: `docs/pca/dimensionality.md`.
+
+**Trial sets (2026-09-15, see results_draft.md Methods › Statistical policy).** Geometry analyses (cvPCA, η², shattering, plane, CCGP, dPCA) use correct laser-off trials; per-variable decoding (Fig. 2c, ED 2e) and the CCGD decoders (Figs 3a,b, 4, 6; ED 4, 6) use all laser-off trials.

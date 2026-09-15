@@ -26,7 +26,7 @@ from scipy.stats import wilcoxon
 from figcaption import draw_justified
 
 sns.set_context('notebook'); sns.set_style('ticks')
-PS = 1.0      # 10-in canvas -> 183 mm: an 8 pt label prints at 5.8 pt (CLAUDE.md print-scale rule)
+PS = 1.2      # 10-in canvas -> 183 mm is x0.72: 1.2 keeps every literal (5.5-8 pt) at >= 5 pt in print (review 2026-09-15)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
@@ -53,8 +53,8 @@ def plabel(ax, s, dx=-0.10):
 
 # ══ a — the DPA and twelve-condition spectra at Fig. 2b's windows, Fig. 2b's estimator (ED1_SPEC, exp_ed1_spectra.py) ══
 ES = RES['ED1_SPEC']
-A_SPECS = [('DPA', 'md', 'memory (DPA, mid-delay)', [1, 2, 3, 4]), ('all', 'md', 'mid-delay (all 12 conditions)', [1, 6, 12]),
-           ('all', 'decision', 'decision (all 12 conditions)', [1, 6, 12])]
+A_SPECS = [('DPA', 'md', 'memory (DPA, mid-delay)', [1, 2, 3, 4]), ('all', 'md', 'mid-delay, 12 conditions', [1, 6, 12]),
+           ('all', 'decision', 'decision, 12 conditions', [1, 6, 12])]
 
 
 def panel_a(fig, gs):
@@ -63,7 +63,7 @@ def panel_a(fig, gs):
         ax = fig.add_subplot(gs[0, c]); axes.append(ax)
         for stage in STAGES:
             sp = np.asarray(ES[(ts, wn, stage)]['spec']); pos = np.clip(sp, 0, None); frac = pos / pos.sum()
-            ax.plot(np.arange(1, len(frac) + 1), frac, '-o', ms=2.6, color=SC[stage], label=stage)
+            ax.plot(np.arange(1, len(frac) + 1), frac, '-o', ms=2.6, color=SC[stage], label=stage.lower().replace('naive', 'naïve'))
             print(f'a: {ttl:30s} {stage:6s} fractions {np.round(frac[:4], 3)}')
         nul = ES[(ts, wn, 'Expert')]['null']
         if nul is not None:
@@ -84,14 +84,14 @@ def panel_a(fig, gs):
 
 # ══ b — the participation ratio of the same three spectra, leave-one-mouse-out 95% CI (t(8)) ══════
 def panel_b(ax):
-    groups = [('DPA', 'md', 'memory\n(DPA, mid-delay)'), ('all', 'md', 'mid-delay\n(all tasks)'), ('all', 'decision', 'decision\n(all tasks)')]
+    groups = [('DPA', 'md', 'memory\n(DPA)'), ('all', 'md', 'mid-delay\n(12 cond.)'), ('all', 'decision', 'decision\n(12 cond.)')]
     xp = np.arange(len(groups))
     for j, stage in enumerate(STAGES):
         prs = [ES[(ts, wn, stage)]['pr'] for ts, wn, _ in groups]
-        cis = np.array([[ES[(ts, wn, stage)]['pr'] - 2.306 * ES[(ts, wn, stage)]['se'],
+        cis = np.array([[max(1.0, ES[(ts, wn, stage)]['pr'] - 2.306 * ES[(ts, wn, stage)]['se']),     # PR >= 1 by definition
                          ES[(ts, wn, stage)]['pr'] + 2.306 * ES[(ts, wn, stage)]['se']] for ts, wn, _ in groups])
         xj = xp + (j - 0.5) * 0.32
-        ax.bar(xj, prs, 0.30, color=SC[stage], label=stage)
+        ax.bar(xj, prs, 0.30, color=SC[stage], label=stage.lower().replace('naive', 'naïve'))
         ax.vlines(xj, cis[:, 0], cis[:, 1], color='0.25', lw=0.9)
         for x, (lo, hi) in zip(xj, cis):
             ax.hlines([lo, hi], x - 0.05, x + 0.05, color='0.25', lw=0.9)
@@ -151,16 +151,16 @@ def panel_d(fig, gs):
         okmd = [PM[(m, stage, 'md')]['top1'] for m in MICE if (m, stage, 'md') in PM and PM[(m, stage, 'md')]['ok']]
         if len(both) >= 5:
             p = wilcoxon(a, b).pvalue; sig = p < .05
-            ax.text(0.5, 1.02, '∗' if sig else 'n.s.', ha='center', va='bottom', fontsize=PS*(12 if sig else 8),
+            ax.text(0.5, 1.12, '∗' if sig else 'n.s.', ha='center', va='bottom', fontsize=PS*(12 if sig else 8),
                     fontweight='bold', color='k' if sig else '0.55')
-            ax.text(0.5, 0.955, f'p = {p:.3f}, n = {len(both)}', ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
+            ax.text(0.5, 1.05, f'p = {p:.3f}, n = {len(both)}', ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
             print(f'd: {stage}: md top-1 median {np.median(okmd):.2f} (n={len(okmd)}); md vs decision '
                   f'{np.median(a):.2f} vs {np.median(b):.2f}, Wilcoxon p={p:.4f}, {int((a > b).sum())}/{len(both)}')
         ax.axhline(1 / 3, ls=':', color='0.6', lw=0.8)
         ax.text(1.38, 1 / 3 + 0.01, 'uniform', fontsize=PS*6.0, color='0.5', va='bottom', ha='right')
         ax.set_xticks([0, 1]); ax.set_xticklabels(['memory\n(mid-delay)', 'decision'])
-        ax.set_xlim(-0.4, 1.4); ax.set_ylim(0, 1.16); ax.set_yticks([0, 0.5, 1.0])
-        ax.set_title(stage, loc='left', fontsize=TITLE_FS)
+        ax.set_xlim(-0.4, 1.4); ax.set_ylim(0, 1.28); ax.set_yticks([0, 0.5, 1.0])
+        ax.set_title(stage.lower().replace('naive', 'naïve'), loc='left', fontsize=TITLE_FS)
         if k == 0:
             ax.set_ylabel('top-1 reliable-variance\nfraction (per mouse)')
         else:
@@ -173,7 +173,7 @@ def panel_d(fig, gs):
 
 
 # ══ e — the naive "premature choice" signal is a correct-trial selection effect (DPCA_COUNT vs DPCA_COUNT_all) ══
-WINS_E = [('ed', 'early\ndelay'), ('md', 'mid-\ndelay'), ('delay', 'late\ndelay'), ('decision', 'decision')]
+WINS_E = [('ed', 'early'), ('md', 'mid'), ('delay', 'late'), ('decision', 'test')]
 
 
 def panel_e(fig, gs):
@@ -186,7 +186,7 @@ def panel_e(fig, gs):
                 accs = [DC[(sname, wn, stage)]['choice']['acc'] for wn, _ in WINS_E]
                 n95s = [DC[(sname, wn, stage)]['choice']['null95'] for wn, _ in WINS_E]
                 xj = xp + (j - 0.5) * 0.34
-                ax.bar(xj, accs, 0.30, color=SC[stage], zorder=2, label=stage)
+                ax.bar(xj, accs, 0.30, color=SC[stage], zorder=2, label=stage.lower().replace('naive', 'naïve'))
                 ax.hlines(n95s, xj - 0.16, xj + 0.16, color='0.15', lw=0.8, zorder=3)
                 for x, a, n9 in zip(xj, accs, n95s):
                     if a > n9:
@@ -194,6 +194,8 @@ def panel_e(fig, gs):
                 print(f'e: {sname:4s} {lab:14s} {stage:6s} choice ' + ' '.join(f'{wn}={a:.2f}{"*" if a > n9 else ""}' for (wn, _), a, n9 in zip(WINS_E, accs, n95s)))
             ax.axhline(0.5, color='0.6', lw=0.7, ls='--', zorder=1); ax.axvline(2.5, color='0.85', lw=0.7)
             ax.set_xticks(xp); ax.set_xticklabels([lb for _, lb in WINS_E], fontsize=PS*6.2)
+            if 2 * p + k == 0:
+                ax.set_xlabel('delay window · decision', fontsize=PS*6.5, loc='left')
             ax.set_ylim(0.38, 1.04); ax.set_yticks([0.5, 0.75, 1.0])
             ax.set_title(f'{sname}, {lab.split()[0]}', loc='left', fontsize=TITLE_FS)
             if 2 * p + k == 0:
@@ -207,7 +209,7 @@ def panel_e(fig, gs):
 fig = plt.figure(figsize=(10.0, 6.2))
 outer = fig.add_gridspec(2, 12, height_ratios=[1.0, 1.0], hspace=0.55, wspace=1.0,
                          left=0.065, right=0.985, top=0.955, bottom=0.09)
-gsA = outer[0, 0:6].subgridspec(1, 3, wspace=0.22)
+gsA = outer[0, 0:6].subgridspec(1, 3, wspace=0.30)
 axA = panel_a(fig, gsA)
 axB = fig.add_subplot(outer[0, 6:9]); panel_b(axB)
 axC = fig.add_subplot(outer[0, 10:12]); panel_c(axC)
@@ -223,11 +225,12 @@ CAP = [
     'a, Cross-validated spectra of the DPA state (four conditions) and of the full twelve-condition state, at '
     'mid-delay (5.5–6.5 s) and at the decision (9.0–10.5 s), the windows and estimator of Fig. 2b (30 half-splits; '
     'naïve and expert; dashed, the shuffle null of the expert fit). b, The participation ratio of the same three '
-    'spectra, 95% CI from a leave-one-mouse-out jackknife (t(8)): the memory state is one-dimensional, the '
-    'twelve-condition state two- to three-dimensional at both windows, unchanged by learning within the intervals. '
-    'c, The shattering dimension: withheld-trial balanced accuracy of every one of the 462 balanced dichotomies of '
-    'the twelve conditions at the decision window (dots), its mean (line; bar, 95% interval over pseudo-population '
-    'resamples) against the shuffle mean (dashed) and the unstructured ceiling (1).',
+    'spectra, 95% CI from a leave-one-mouse-out jackknife (t(8); floored at 1, the minimum of a participation ratio): '
+    'the memory state is one-dimensional, the twelve-condition state two- to three-dimensional at both windows, with '
+    'overlapping intervals across stages. c, The shattering dimension: withheld-trial balanced accuracy of every one '
+    'of the 462 balanced dichotomies of the twelve conditions at the decision window (dots), its mean (line; bar, 95% '
+    'interval over eight pseudo-population resamples of the same nine mice, not an across-animal interval) against '
+    'the shuffle mean (dashed) and the unstructured ceiling (1).',
     'd, The memory spectrum is one-dimensional animal by animal: top-1 reliable-variance fraction of the DPA state '
     'from each mouse’s own simultaneously recorded population (same estimator and windows as Fig. 2b), at mid-delay '
     'and at the decision; open symbols, noise-limited cells (reliable total < 5), excluded from the paired Wilcoxon '
@@ -235,9 +238,13 @@ CAP = [
     'demixed choice axis per window (ticks, shuffle-null 95th percentile; ∗, above null), on correct trials only '
     '(left of each pair) and on all laser-off trials (right). On correct trials the future choice coincides with the '
     'lick, and the naïve dual-trial delay appears to carry it (0.64–0.66 from early through late delay); on all '
-    'trials, where the contrast is fixed by the odors alone, the signal is gone (0.48–0.56) — a selection effect of '
-    'a lick-prone naïve state, not premature deliberation. The delay carries no trial-by-trial choice information '
-    'at either stage; the decision does at both.',
+    'trials, where the contrast is fixed by the odors alone, one of the twelve pre-test cells remains above its null '
+    '(naïve, Go and NoGo trials, mid-delay: 0.56 against 0.50 ± 0.02), the nominal false-positive rate for a contrast '
+    'that cannot be known before the test — a selection effect of a lick-prone naïve state, not premature '
+    'deliberation. Cells below chance on all trials (down to 0.41) arise because the two halves of a small pool of '
+    'error trials have complementary lick composition, which anti-correlates the halves’ choice contrasts. The delay '
+    'carries no trial-by-trial choice information at either stage; the decision does in expert mice at both trial '
+    'types and in naïve mice on Go and NoGo trials (DPA 0.54, marginal).',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

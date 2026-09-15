@@ -27,7 +27,7 @@ from scipy.stats import wilcoxon
 from figcaption import draw_justified
 
 sns.set_context('notebook'); sns.set_style('ticks')
-PS = 1.0
+PS = 1.2      # 10-in canvas -> 183 mm is x0.72: 1.2 keeps every literal (5.5-8 pt) at >= 5 pt in print (review 2026-09-15)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
@@ -111,7 +111,7 @@ def panel_b(fig, gs):
         ax.set_xlim(0.42, 1.0); ax.set_ylim(0.42, 1.0); ax.set_aspect('equal', adjustable='box')
         ax.set_xticks([0.5, 0.7, 0.9]); ax.set_yticks([0.5, 0.7, 0.9])
         ax.set_title(v, loc='left', fontsize=TITLE_FS)
-        ax.text(0.05, 0.96, f'Δ = {piv.Expert.mean() - piv.Naive.mean():+.2f}\np = {p:.2f}', transform=ax.transAxes,
+        ax.text(0.05, 0.96, f'Δ = {piv.Expert.mean() - piv.Naive.mean():+.2f}\np = {p:.3f}', transform=ax.transAxes,
                 va='top', ha='left', fontsize=PS*6, color='0.3')
         if j // 2 == 1:
             ax.set_xlabel('CCGP, naïve')
@@ -155,7 +155,7 @@ def _draw_matrix(ax, M, C, ref, title, ylabels):
         for j in range(M.shape[1]):
             if not (C[i, j] >= CEIL_MIN):
                 ax.add_patch(Rectangle((j - .5, i - .5), 1, 1, fc='0.93', ec='none'))
-                ax.text(j, i, f'{C[i, j]:.2f}', ha='center', va='center', fontsize=PS*5.5, color='0.45')
+                ax.text(j, i, f'{C[i, j]:.2f}', ha='center', va='center', fontsize=PS*6.0, color='0.45')
                 continue
             ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=PS*6.0, color='w' if disp[i, j] > 0.6 else 'k')
             if M[i, j] > 1.2:
@@ -241,8 +241,8 @@ def panel_d(fig, gs):
                 ax.set_ylabel(f'{rowlab}\nexpert', fontsize=PS*7)
             if r == 2:
                 ax.set_xlabel('naïve', fontsize=PS*7)
-            star = (vn == 'dist' and key == 0 and p < 0.05)      # Fig. 3's whitelisted verdict; p = .055 on the canonical caches (2026-09-15), so unstarred
-            ax.text(0.05, 0.96, f'Δ = {ev.mean() - nv.mean():+.02f}\np = {p:.2f}' + ('  ∗' if star else ''),
+            star = p < 0.05                                       # no whitelist (review 2026-09-15); nothing reaches .05 on the canonical caches
+            ax.text(0.05, 0.96, f'Δ = {ev.mean() - nv.mean():+.02f}\np = {p:.3f}' + ('  ∗' if star else ''),
                     transform=ax.transAxes, va='top', ha='left', fontsize=PS*6.0, color='k' if star else '0.3',
                     fontweight='bold' if star else 'normal')
             print(f'd: {rowlab:16s} {vn:7s} {nv.mean():.2f} -> {ev.mean():.2f}  p={p:.3f}{" *" if star else ""}')
@@ -266,23 +266,28 @@ plabel(axA, 'a', dx=-0.26); plabel(axB, 'b', dx=-0.34); plabel(axC, 'c', dx=-0.3
 CAP = [
     'Extended Data Fig. 1 | The sample × choice plane, per animal and out of context (companion to Fig. 3). '
     'a, The GNG and test codes over time on their own cross-validated decoder axes (naïve | expert; mean ± SEM '
-    'across mice; conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–e ablate and '
-    'align. b, Per-mouse cross-condition generalization (CCGP) of each variable, naïve against expert (marker, '
-    'opsin group; Δ, mean change; p, paired Wilcoxon, n = 9; canonical windows, sample and GNG at mid-delay, test '
-    'and choice at the decision): abstraction is present from the first dual task sessions; the test code nudges '
-    'upward (Δ = +0.03, p = .012, uncorrected across the four variables) and carries no verdict.',
+    'across mice; evoked-s.d. units, conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–e '
+    'ablate and align. b, Per-mouse cross-condition generalization (CCGP) of each variable, naïve against expert '
+    '(marker, opsin group; Δ, mean change; p, paired Wilcoxon, n = 9; canonical windows, sample and GNG at mid-delay, '
+    'test and choice at the decision): abstraction is present from the first dual task sessions; the test code '
+    'nudges upward (Δ = +0.03, p = .012; Holm-adjusted across the four variables p = .047), a small effect reported '
+    'without a verdict.',
     'c, The out-of-context plane test. A sample × choice plane fitted on the naïve DPA trials is read in every other '
     'stage, trial type and moment against a plane fitted in that context (pooled pseudo-population): captured '
     'fraction (fixed − 0.5)/(in-context − 0.5) with the two-dimensional readout refit in context (left) and with '
     'the reference decoder applied unchanged (middle); boxed, the within-context check; grey, in-context ceiling '
-    'below 0.60; hatched, ratio above 1.2. Right, the per-mouse ratio over each mouse’s out-of-context cells (line, '
-    'median). The plane carries the codes everywhere; where the unchanged decoder fails and the refit does not '
-    '(expert NoGo trials after the Go/NoGo odor), the code has moved within the plane.',
+    'below 0.60; hatched, ratio above 1.2. Cells carry no per-cell uncertainty, and ratios inflate as the in-context '
+    'ceiling nears 0.60. Right, the per-mouse ratio over each mouse’s out-of-context cells (line, median; sample '
+    'n = 9, choice n = 6 — three mice have no choice cell above the ceiling). The plane carries the codes everywhere; '
+    'where the unchanged decoder fails and the refit does not (expert NoGo trials after the Go/NoGo odor), the code '
+    'has moved within the plane.',
     'd, The plane ablation of Fig. 3c in every animal (naïve x against expert y; rows, spaces; columns, variables; '
-    'Δ, mean change; p, paired Wilcoxon, n = 9). The pattern of Fig. 3c holds mouse by mouse, and the grid carries '
-    'the one change with learning: the GNG code’s plane-only accuracy rises as a trend (0.57 → 0.63, p = .055), while '
-    'the test code’s plane-only accuracy, already at chance, falls slightly (p = .055). Learning pulls the GNG code toward '
-    'the plane, which Fig. 4a quantifies.',
+    'Δ, mean change; p, paired Wilcoxon, n = 9; ∗ marks p < .05 on the canonical pipeline, which no cell reaches). '
+    'The pattern of Fig. 3c holds mouse by mouse, and the grid carries the one change with learning: the GNG code’s '
+    'plane-only accuracy rises as a trend (0.57 → 0.63, p = .055; p = .039 in the PCA-20 pipeline), while the test '
+    'code’s plane-only accuracy, already at chance, falls slightly (p = .055; p = .50 in the PCA-20 pipeline, so no '
+    'verdict). Learning pulls the GNG code toward the plane, which Fig. 4a quantifies. All panels use correct trials '
+    'except the choice class of the plane (all trials).',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

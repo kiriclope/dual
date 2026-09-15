@@ -115,14 +115,15 @@ for k, (col, ylab, ttl) in enumerate([('d_dpa', 'Δ DPA accuracy (ON − OFF), D
     for _, r in R.iterrows():
         ax.scatter(r.d_depth, r[col], s=36, color=MC[r.mouse], marker=GMARK[r.group], edgecolors='w', linewidths=0.6, zorder=4)
     rho, p = spearmanr(xs, ys); sig = p < 0.05
+    J = R[R.group == 'Jaws']; rj, pj = spearmanr(J.d_depth, J[col])
     ax.text(0.97, 0.96, '∗' if sig else 'n.s.', transform=ax.transAxes, ha='right', va='top',
             fontsize=PS*(12 if sig else 8), fontweight='bold', color='k' if sig else '0.55')
-    ax.text(0.03, 0.04, f'Spearman ρ = {rho:+.2f}, p = {p:.3f}\n7 mice', transform=ax.transAxes, ha='left', va='bottom',
+    ax.text(0.03, 0.04, f'all 7: ρ = {rho:+.2f}, p = {p:.3f}\nJaws only: ρ = {rj:+.2f}, p = {pj:.2f}', transform=ax.transAxes, ha='left', va='bottom',
             fontsize=PS*6.5, color='0.3')
     ax.axhline(0, ls=':', color='0.6', lw=0.7); ax.axvline(0, ls=':', color='0.6', lw=0.7)
     ax.set_xlabel('Δ choice-code depth (ON − OFF), DPA trials'); ax.set_ylabel(ylab)
     ax.set_title(ttl, loc='left', fontsize=TITLE_FS)
-    print(f'{ttl}: rho={rho:+.3f} p={p:.4f} n={len(xs)}')
+    print(f'{ttl}: rho={rho:+.3f} p={p:.4f} n={len(xs)} | Jaws only rho={rj:+.3f} p={pj:.3f} n={len(J)}')
 axes[1].legend(handles=[mlines.Line2D([0], [0], marker='o', color='0.4', ls='none', ms=5, label='Jaws, inhibition (n = 5)'),
                         mlines.Line2D([0], [0], marker='^', color='0.4', ls='none', ms=5, label='ChR2, excitation (n = 2)')],
                frameon=False, fontsize=PS*6.0, loc='lower left', bbox_to_anchor=(0.0, 0.16))
@@ -134,10 +135,14 @@ CAP = [
     'The within-mouse change in choice-code depth under laser against the change in accuracy, one point per mouse, '
     'for every mouse carrying interleaved laser trials (five Jaws inhibition, circles; two ChR2 excitation, triangles; '
     'the ACC-implant mice received no laser); same axis, window and units as Fig. 6 (expert stage, DPA trials, depth '
-    'read at late delay on the laser-OFF-trained choice axis). a, DPA arm. b, GNG arm. Because the two opsins move '
-    'the state in opposite directions, the pooled rank test asks only whether a displacement of either sign tracks '
-    'the change in accuracy; Spearman ρ, n = 7; shaded, 95% band of the linear fit. Two Jaws mice at ceiling in both '
-    'tasks show no change in either accuracy (the two points on the zero line).',
+    'read at late delay on the laser-OFF-trained choice axis). Because the two opsins move the state in opposite '
+    'directions, the pooled rank test asks only whether a displacement of either sign tracks the change in accuracy; '
+    'each panel also gives the five Jaws mice alone. a, DPA arm: the trend over seven mice (ρ = +0.71, p = .074) is '
+    'carried by the two ChR2 mice and is absent in the Jaws mice (ρ = +0.21, p = .74), so it is not read as a coupling. '
+    'b, GNG arm: robust over seven (ρ = −0.94, p = .002) and of the same sign and size in the Jaws mice alone '
+    '(ρ = −0.82, p = .089, n = 5). Shaded, 95% band of a linear fit drawn for orientation; the statistic is the rank '
+    'correlation. Two Jaws mice at ceiling in both tasks show no change in either accuracy (the two points on the '
+    'zero line).',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

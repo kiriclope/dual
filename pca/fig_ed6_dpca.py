@@ -14,7 +14,7 @@ Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python fig_e
 Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig3.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
-import sys, os, warnings
+import sys, os, warnings, pickle
 warnings.filterwarnings('ignore'); sys.path.insert(0, '/home/leon/dual/')
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
@@ -23,7 +23,7 @@ from src.pca.io import pkl_load
 from figcaption import draw_justified
 
 sns.set_context('notebook'); sns.set_style('ticks')
-PS = 1.0
+PS = 1.2      # 10-in canvas -> 183 mm is x0.72: 1.2 keeps every literal (5.5-8 pt) at >= 5 pt in print (review 2026-09-15)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
@@ -120,13 +120,26 @@ def panel_b(ax):
     prs = [(a, b) for a in range(4) for b in range(a + 1, 4)]
     cN = {pr: cos(WN, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]]) for pr in prs}
     cE = {pr: cos(WE, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) for pr in prs}
-    N = WN.shape[1]; rng = np.random.RandomState(0); Bn = 2000
+    # animal-level inference (review 2026-09-15): resample the nine MICE with replacement, taking each mouse's
+    # registered neuron columns (data/pca/mouse_slices.pkl; the same 3,319 columns index both stages), 2,000 draws.
+    # The neuron bootstrap of the old build treated neurons as the unit and is printed for reference only.
+    SL = pickle.load(open('../data/pca/mouse_slices.pkl', 'rb')); mice = list(SL.keys())
+    rng = np.random.RandomState(0); Bn = 2000
     boot = {pr: np.empty(Bn) for pr in prs}
     for b in range(Bn):
-        ix = rng.randint(0, N, N); wn, we = WN[:, ix], WE[:, ix]
+        pick = rng.randint(0, len(mice), len(mice))
+        cols = np.concatenate([np.arange(SL[mice[k]].start, SL[mice[k]].stop) for k in pick])
+        wn, we = WN[:, cols], WE[:, cols]
         for pr in prs:
             boot[pr][b] = cos(we, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) - cos(wn, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]])
     pval = {pr: 2 * min((boot[pr] > 0).mean(), (boot[pr] < 0).mean()) for pr in prs}
+    ci = {pr: np.percentile(boot[pr], [2.5, 97.5]) for pr in prs}
+    rngn = np.random.RandomState(0); N = WN.shape[1]; bootn = {pr: np.empty(Bn) for pr in prs}
+    for b in range(Bn):
+        ix = rngn.randint(0, N, N); wn, we = WN[:, ix], WE[:, ix]
+        for pr in prs:
+            bootn[pr][b] = cos(we, iE[MARGS[pr[0]]], iE[MARGS[pr[1]]]) - cos(wn, iN[MARGS[pr[0]]], iN[MARGS[pr[1]]])
+    pneur = {pr: 2 * min((bootn[pr] > 0).mean(), (bootn[pr] < 0).mean()) for pr in prs}
     HL = {(2, 3): '#cc3311', (0, 1): '#377eb8'}
     for pr in prs:
         if pr in HL:
@@ -134,13 +147,13 @@ def panel_b(ax):
         ax.plot([0, 1], [cN[pr], cE[pr]], '-', color='0.75', lw=0.9, marker='o', ms=2.5, zorder=2)
     for pr, col in HL.items():
         ax.plot([0, 1], [cN[pr], cE[pr]], '-o', color=col, lw=1.8, ms=4.5, zorder=5)
-        ax.annotate(f'{SH[MARGS[pr[0]]]}–{SH[MARGS[pr[1]]]}\np = {pval[pr]:.3f}' if pval[pr] >= 0.001 else f'{SH[MARGS[pr[0]]]}–{SH[MARGS[pr[1]]]}\np < 0.001',
+        ax.annotate(f'{SH[MARGS[pr[0]]]}–{SH[MARGS[pr[1]]]}\nΔ {cE[pr]-cN[pr]:+.3f} [{ci[pr][0]:+.3f}, {ci[pr][1]:+.3f}]\np = {pval[pr]:.3f}',
                     (1, cE[pr]), xytext=(5, 0), textcoords='offset points', va='center', ha='left', color=col, fontsize=PS*6.5)
-    ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert']); ax.set_xlim(-0.3, 1.9)
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert']); ax.set_xlim(-0.3, 2.5)
     ax.set_ylim(bottom=-0.005); ax.set_ylabel('|cos| between demixed axes')
     ax.set_title('axis alignment', loc='left', fontsize=TITLE_FS)
     for pr in prs:
-        print(f'b: {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f} -> E {cE[pr]:.3f}  Δ {cE[pr]-cN[pr]:+.3f}  p={pval[pr]:.3f}')
+        print(f'b: {SH[MARGS[pr[0]]]:>6}-{SH[MARGS[pr[1]]]:<6} N {cN[pr]:.3f} -> E {cE[pr]:.3f}  Δ {cE[pr]-cN[pr]:+.3f}  mouse-cluster CI [{ci[pr][0]:+.3f}, {ci[pr][1]:+.3f}] p={pval[pr]:.3f}  (neuron bootstrap p={pneur[pr]:.3f})')
 
 
 fig = plt.figure(figsize=(10.0, 4.6))
@@ -154,11 +167,14 @@ axB.text(-0.36, 1.06, 'b', transform=axB.transAxes, fontsize=PS*11, fontweight='
 CAP = [
     'Extended Data Fig. 3 | The demixed-PCA decomposition gives the same picture (companion to Fig. 2). '
     'a, Withheld pseudo-trials projected on the leading demixed axis of each task variable (sample, test, '
-    'choice = sample × test, task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored per axis). '
-    'Time courses along single axes sharpen with learning without reorganizing. b, |cos| between the leading '
-    'demixed axes of every pair of variables, naïve → expert (neuron bootstrap, 2,000 resamples of the 3,319 '
-    'neurons, two-sided): the choice and task axes become more aligned and the sample and test axes separate; '
-    'the other four pairs stay near-orthogonal (grey).',
+    'choice = sample × test, task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored within each '
+    'stage, so amplitudes compare signal to total variance within a stage, not across stages). Correct laser-off '
+    'trials. The single-axis time courses keep their shape across learning. b, |cos| between the leading demixed axes '
+    'of every pair of variables, naïve → expert. Inference is at the animal level: the nine mice are resampled with '
+    'replacement, taking each mouse’s neurons (the same 3,319 registered neurons index both stages); 2,000 draws, '
+    'two-sided; Δ with its 95% interval. The choice and task axes become more aligned (0.147 → 0.222, Δ = +0.076 [+0.017, +0.122], p = .011); the sample–test separation seen in the pooled fit (0.098 → 0.033) is not resolved '
+    'across animals (Δ = −0.065 [−0.146, +0.054], p = .35; leave-one-mouse-out deltas all negative); the other four '
+    'pairs stay near-orthogonal (grey, |cos| ≤ 0.03).',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.35 (2026-09-15): EXPERT REVIEW OF THE EXTENDED DATA APPLIED** (Leon: "Get a subagent to review the Extended Data as an expert reviewer … apply the fixes"). Animal-level inference for the dPCA axis mixing (ED 3b, mouse-cluster bootstrap): choice–task alignment survives (Δ +0.076 [+0.017, +0.122], p .011), the sample–test separation does not (p .33) — §2 says so. ED 5's "no deficit … therefore specific" replaced by a bounded statement (CIs include β = −0.06). ED 6 DPA trend is the two ChR2 mice (Jaws-only ρ +0.21) — §6 no longer reads it as a coupling. ED 2e caption reconciled with its own star (1 of 12 pre-test cells, the nominal false-positive rate) and a diagnosis of the sub-chance cells. Bootstrap CIs over mice on every coupling ρ; per-mouse (not 18-point) lick–depth ρ; PR CIs floored at 1; Holm for the CCGP test code; n = 6 disclosed in ED 1c; the star whitelist removed from ED 1d; print scale 1.2 so every ED literal prints ≥ 5 pt; Methods gains a trial-set paragraph; discussion cited "5d" for the lick covariate (line-wrapped, missed) → 4d. Fig. 4 legend now states the readout dependence of the coupling. PIPELINE RUNS STILL OPEN (reviewer): all-trial versions of the plane, per-mouse plane and CCGP; a per-animal shattering companion; a refit-dPCA bootstrap; a seeded CCGD tensor for a trial-level lick control.
+
 > **v12.34 (2026-09-15): FIG. 2c ON ALL TRIALS — THE NAÏVE "PREMATURE CHOICE" WAS A CORRECT-TRIAL SELECTION EFFECT; ED RENUMBERED TO CITATION ORDER; η² DEMONSTRATION AND SI FIGURE CUT** (Leon: "I don't believe the result of panel f" → "all trials for 2c, cut e, table for SI"). On all laser-off trials the naïve dual-delay choice decodability falls from 0.64–0.66 to 0.48–0.56 (impossible by design when the contrast is fixed by the odors), so §2's "training removed trial-by-trial choice information" is replaced by a selection-effect note and Fig. 2c now decodes all trials (sample 0.91/0.83, GNG 0.99, choice 0.76–0.84 and test 0.60–0.63 at the decision; delay choice/test at chance). ED 1a,b rebuilt with Fig. 2b's estimator at its windows (PR 1.1/1.0, 2.8/2.2, 2.5/2.5). ED renumbered by first citation (plane 1, dimensionality 2, dPCA 3, coupling 4, chronic 5, laser 6). SI trial-count figure → Supplementary Table 1.
 
 > **v12.33 (2026-09-15): FIXED-AXIS AND LICK CONTROLS REINSTATED ON THE CCGD PIPELINE** (Leon: "reinstate the fixed-axis and lick controls with the CCGD pipeline"). `run_overlaps.py --pool-stages` fits one held-out choice decoder per mouse on both stages; the lick control uses Fig. 4's own tensor depth with per-mouse lick rates. Lick: push and coupling unchanged by the covariate (β −0.08 → −0.07; partial ρ −0.80 p .010). Fixed axis: the push is a same-sign trend (β −0.06 p .059) but the coupling REVERSES as a trend (ρ +0.65 p .058) — §4 now says the coupling is a property of the stage-specific readouts, not of one fixed direction. ED 3 is four panels again (a units, b decoders, c fixed axis, d licking).
@@ -614,8 +616,8 @@ in Extended Data Fig. 2a,b. Second, these numbers describe the geometry of the s
 population visits, not the dynamics that carry it between them, which are of higher rank. An
 independent decomposition of the same data by demixed PCA gives the same picture (Extended Data
 Fig. 3): time courses along single axes sharpened with learning without reorganizing, the
-choice and action axes of that decomposition became more aligned (|cos| 0.147 → 0.222, p <
-0.001), and the sample and test axes separated (0.098 → 0.033, p = 0.008).
+choice and task axes of that decomposition became more aligned (|cos| 0.147 → 0.222; Δ = +0.076 95% CI [+0.017, +0.122] over animals, p = 0.011), whereas the separation of the sample and test axes seen in the pooled fit
+(0.098 → 0.033) is not resolved across animals (Δ = −0.065 [−0.146, +0.054], p = 0.35).
 
 ## A single plane carries the memory and choice codes
 
@@ -738,9 +740,12 @@ controls receiving the same illumination without opsin), impaired learning of th
 and the deficit fell on the memory task (Fig. 6b). A mixed model placed the impairment on DPA,
 most strongly on its unpaired trials, while sparing GNG (Fig. 6c; DPA β = −0.06, p = 0.009;
 DPA-unpaired β = −0.12, p = 0.014; GNG n.s.). Silencing ACC cell bodies instead of their
-terminals in mPFC did not produce this deficit, and silencing the reverse projection, from
-prelimbic cortex to ACC, impaired the GNG task instead (Extended Data Fig. 5a,b), so the effect
-is specific to the ACC→mPFC projection. This is the same DPA-selective vulnerability we saw
+terminals in mPFC produced no detectable DPA deficit, and silencing the reverse projection, from
+prelimbic cortex to ACC, impaired the GNG task instead (Extended Data Fig. 5a,b); with 10–12 mice per
+group the DPA intervals of these two cohorts (95% CI [−0.08, +0.04] and [−0.07, +0.04]) do not exclude an
+effect of the size seen with terminal silencing, so they bound rather than rule out a contribution of the
+control pathways, and the DPA-selective deficit is the one phenotype we can attribute to the ACC→mPFC
+projection. This is the same DPA-selective vulnerability we saw
 behaviorally in Fig. 1, and the same dependence on the learning phase that has been reported
 for mPFC delay activity itself [Liu 2014].
 
@@ -774,7 +779,9 @@ measurements of the same mouse. And the acute coupling rests on five animals con
 points each, so we treat the GNG relationship (Fig. 6i), which survives a model that respects
 that grouping, as the robust arm and the joint trade-off (Fig. 6g) as a trend (Methods).
 Computing the same coupling over all seven mice that received laser gives the same answer
-(Extended Data Fig. 6; GNG ρ = −0.94, p = 0.002; the DPA arm a trend, ρ = +0.71, p = 0.074); the two additional
+(Extended Data Fig. 6; GNG ρ = −0.94, p = 0.002, and −0.82 over the five Jaws mice alone; the DPA arm is not
+supported, ρ = +0.71, p = 0.074 over seven but +0.21 over the Jaws mice, the trend being carried by the two ChR2
+mice); the two additional
 mice expressed the excitatory opsin ChR2, so that pooled test asks only whether a laser-induced
 displacement, of either sign, tracks the change in GNG accuracy.
 
@@ -1055,6 +1062,15 @@ paired t-test.
 
 ### Statistical policy
 
+**Trial sets (2026-09-15).** The pseudo-population geometry analyses — cvPCA and its per-mouse companion (Fig. 2b,
+Extended Data Fig. 2a–d), the η² decomposition (Fig. 2d), the shattering dimension, the sample × choice plane and its
+ablation, transfer and out-of-context tests (Fig. 3, Extended Data Fig. 1), cross-condition generalization (Extended
+Data Fig. 1b) and the demixed-PCA decomposition (Extended Data Fig. 3) — use correct laser-off trials, where the
+match/nonmatch conjunction and the lick coincide; the only exception is the choice class of the plane, which uses the
+real lick on all trials. Per-variable decoding (Fig. 2c, Extended Data Fig. 2e) uses all laser-off trials, because on
+correct trials a lick-prone naïve state made the future choice appear decodable from the delay (Extended Data Fig. 2e).
+The CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 4 and 6 are trained on all laser-off trials.
+
 All tests are two-sided; exact p-values are reported uncorrected and multiplicity is addressed
 by disclosure and by the replication requirements rather than correction. Claims about
 individual differences use the animal as the unit (n = 9 Spearman/Wilcoxon; mixed models with
@@ -1230,7 +1246,7 @@ of the weakening lick chain in Fig. 1g. The group statistics do not establish th
 
 c, The push predicts behavior across animals. Each mouse’s change in depth against its change in
 accuracy (circles, the two sample classes per mouse, joined; the regression band, ρ and p are
-computed on the nine per-mouse means). The deeper a mouse pushes its memory state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.80, p = .010 ∗; on the dual trials ρ = −0.70, p = .036 ∗), whereas the same change predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task.
+computed on the nine per-mouse means). The deeper a mouse pushes its memory state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.80, p = .010 ∗; on the dual trials ρ = −0.70, p = .036 ∗), whereas the same change predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 4c).
 
 d, The push is a between-animal learning effect, not a trial-level readout of accuracy. Within a
 stage (naïve unpaired trials), single-trial depth does not separate correct rejections from false
@@ -1365,21 +1381,24 @@ conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–
 cross-condition generalization (CCGP) of each variable, naïve against expert (marker, opsin group; Δ, mean
 change; p, paired Wilcoxon, n = 9): abstraction is present from the first dual task sessions (canonical windows, sample and GNG at
 mid-delay, test and choice at the decision; sample 0.67 → 0.67, p = 1.0; GNG 0.79 → 0.85, p = .25; choice 0.56 → 0.59,
-p = .20); the test code nudges upward (0.55 → 0.58, Δ = +0.03, p = .012, uncorrected across the four variables) and
-carries no verdict. _(2026-09-15: the per-mouse CCGP cache was rebuilt on the canonical axis windows; the 2026-08-04
+p = .20); the test code nudges upward (0.55 → 0.58, Δ = +0.03, p = .012; Holm-adjusted across the four variables
+p = .047), a small effect reported without a verdict. _(2026-09-15: the per-mouse CCGP cache was rebuilt on the canonical axis windows; the 2026-08-04
 cache, sample at late delay and test/choice at 9.5–10.0 s, gave p = .04 for the test code.)_ c, The out-of-context plane test. A
 sample × choice plane fitted on the naïve DPA trials is read in every other stage, trial type and moment against
 a plane fitted in that context (pooled pseudo-population): captured fraction (fixed − 0.5)/(in-context − 0.5)
 with the two-dimensional readout refit in context (left) and with the reference decoder applied unchanged
 (middle); boxed, the within-context check; grey, in-context ceiling below 0.60; hatched, ratio above 1.2. Right,
 the per-mouse ratio over each mouse's out-of-context cells (line, median; sample 0.81, n = 9; choice 0.73,
-n = 6). Medians over the drawn out-of-context cells: sample 1.03 refit / 0.86 unchanged (15 cells), choice 0.82 /
+n = 6 — three mice have no choice cell above the 0.60 ceiling). Cells are drawn without per-cell uncertainty, and
+ratios inflate as the in-context ceiling nears 0.60. Medians over the drawn out-of-context cells: sample 1.03 refit / 0.86 unchanged (15 cells), choice 0.82 /
 0.58 (5 cells). The plane carries the codes everywhere; where the unchanged decoder fails and the refit does not (expert
 NoGo trials after the Go/NoGo odor), the code has moved within the plane. d, The plane ablation of Fig. 3c in
 every animal (naïve x against expert y; rows, spaces; columns, variables; Δ, mean change; p, paired Wilcoxon,
 n = 9). The pattern of Fig. 3c holds mouse by mouse, and the grid carries the one change with learning: the
-GNG code's plane-only accuracy rises as a trend (0.57 → 0.63, p = .055, 8/9 mice), while the test code's
-plane-only accuracy, already at chance, falls slightly (0.53 → 0.50, p = .055). Learning pulls the GNG code
+GNG code's plane-only accuracy rises as a trend (0.57 → 0.63, p = .055, 8/9 mice; p = .039 in the PCA-20
+pipeline), while the test code's plane-only accuracy, already at chance, falls slightly (0.53 → 0.50, p = .055;
+p = .50 in the PCA-20 pipeline, so no verdict). No cell is starred by a whitelist; ∗ marks p < .05 on the canonical
+pipeline, which none reaches. All panels use correct trials except the choice class of the plane (all trials). Learning pulls the GNG code
 toward the plane, which Fig. 4a quantifies. _(2026-09-15: the p = .027 star quoted here and in §3 until now was
 a stale number; the canonical caches give p = .055, unstarred, and §3 now says so.)_
 
@@ -1387,12 +1406,12 @@ a stale number; the canonical caches give p = .055, unstarred, and §3 now says 
 spectra of the DPA state (four conditions) and of the full twelve-condition state, at mid-delay (5.5–6.5 s) and at
 the decision (9.0–10.5 s), the windows and estimator of Fig. 2b (`exp_ed1_spectra.py`; 30 half-splits; naïve and
 expert; dashed, the shuffle null of the expert fit). b, The participation ratio of the same three spectra, 95% CI
-from a leave-one-mouse-out jackknife (t(8)): memory 1.1 / 1.0 (naïve / expert), twelve-condition mid-delay 2.8 / 2.2,
-decision 2.5 / 2.5 — the memory state is one-dimensional, the twelve-condition state two- to three-dimensional at
-both windows, unchanged by learning within the intervals. c, The shattering dimension: withheld-trial balanced
+from a leave-one-mouse-out jackknife (t(8); floored at 1, the minimum of a participation ratio): memory 1.1 / 1.0
+(naïve / expert), twelve-condition mid-delay 2.8 / 2.2, decision 2.5 / 2.5 — the memory state is one-dimensional, the
+twelve-condition state two- to three-dimensional at both windows, with overlapping intervals across stages. c, The shattering dimension: withheld-trial balanced
 accuracy of every one of the 462 balanced dichotomies of the twelve conditions at the decision window (dots), its
-mean (line; bar, 95% interval over pseudo-population resamples; 0.667 naïve, 0.673 expert) against the shuffle mean
-(dashed, 0.50) and the unstructured ceiling (1). d, The memory spectrum is one-dimensional animal by animal: top-1
+mean (line; bar, 95% interval over eight pseudo-population resamples of the same nine mice, not an across-animal
+interval; 0.667 naïve, 0.673 expert) against the shuffle mean (dashed, 0.50) and the unstructured ceiling (1). d, The memory spectrum is one-dimensional animal by animal: top-1
 reliable-variance fraction of the DPA state from each mouse's own simultaneously recorded population (same estimator
 and windows as Fig. 2b), at mid-delay and at the decision (medians 0.90 naïve / 0.93 expert; expert
 memory-vs-decision Wilcoxon p = .047, 6/7; naïve p = .22); open symbols, noise-limited cells (reliable total < 5),
@@ -1400,19 +1419,26 @@ excluded from the test. e, Why Fig. 2c decodes all trials. Withheld decoding of 
 along the demixed choice axis per window (ticks, shuffle-null 95th percentile; ∗, above null), on correct trials
 only (left of each pair) and on all laser-off trials (right; `exp_dpca_count.py --alltrials`). On correct trials the
 future choice coincides with the lick, and the naïve dual-trial delay appears to carry it (0.64–0.66 from early
-through late delay); on all trials, where the contrast is fixed by the odors alone, the signal is gone (0.53 / 0.56 /
-0.48; the mid-delay value sits four points above its null) — a selection effect of a lick-prone naïve state, not
-premature deliberation. The delay carries no trial-by-trial choice information at either stage; the decision does
-at both. _(2026-09-15, Leon: "cut e" — the uncross-validated η² demonstration is gone; the former f (correct-trial
+through late delay); on all trials, where the contrast is fixed by the odors alone, one of the twelve pre-test cells remains above
+its null (naïve, Go and NoGo trials, mid-delay: 0.56 against 0.50 ± 0.02), the nominal false-positive rate for a
+contrast that cannot be known before the test — a selection effect of a lick-prone naïve state, not premature
+deliberation. Cells below chance on all trials (down to 0.41) arise because the two halves of a small pool of error
+trials have complementary lick composition, which anti-correlates the halves' choice contrasts (a diagnosis, not yet
+a simulation). The delay carries no trial-by-trial choice information at either stage; the decision does in expert
+mice at both trial types and in naïve mice on Go and NoGo trials (DPA 0.54, marginal). _(2026-09-15, Leon: "cut e" — the uncross-validated η² demonstration is gone; the former f (correct-trial
 traces and bars) is replaced by this comparison after "I don't believe the result of panel f" proved right.)_
 
 **ED Fig. 3 | The demixed-PCA decomposition gives the same picture (companion to Fig. 2).** a, Withheld
 pseudo-trials projected on the leading demixed axis of each task variable (sample, test, choice = sample × test,
-task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored per axis). Time courses along single
-axes sharpen with learning without reorganizing. b, |cos| between the leading demixed axes of every pair of
-variables, naïve → expert (neuron bootstrap, 2,000 resamples of the 3,319 neurons, two-sided): the choice and
-task axes become more aligned (0.147 → 0.222, p < 0.001) and the sample and test axes separate (0.098 → 0.033,
-p = 0.008); the other four pairs stay near-orthogonal (grey; all |cos| ≤ 0.03, p ≥ .46).
+task), naïve (top) and expert (bottom), per condition (mean ± SEM; z-scored within each stage, so amplitudes compare
+signal to total variance within a stage, not across stages). Correct laser-off trials. The single-axis time courses
+keep their shape across learning. b, |cos| between the leading demixed axes of every pair of variables, naïve →
+expert. Inference is at the animal level: the nine mice are resampled with replacement, taking each mouse's neurons
+(the same 3,319 registered neurons index both stages); 2,000 draws, two-sided; Δ with its 95% interval. The choice and
+task axes become more aligned (0.147 → 0.222, Δ = +0.076 [+0.017, +0.122], p = .011); the sample–test separation
+seen in the pooled fit (0.098 → 0.033) is not resolved across animals (Δ = −0.065 [−0.146, +0.054], p = .35;
+leave-one-mouse-out deltas all negative); the other four pairs stay near-orthogonal (grey, |cos| ≤ 0.03). _(Review
+2026-09-15: the neuron bootstrap of the earlier build, p < .001 / .008, treated neurons as the unit; withdrawn.)_
 
 **ED Fig. 4 | The push and the learning coupling under other units, other decoders, a fixed axis and a lick
 covariate (companion to Fig. 4b,c).** All panels read cross-validated decision functions of the CCGD pipeline; the
@@ -1422,16 +1448,19 @@ and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the sam
 under every unit (ρ = −0.67 to −0.80, p = .010–.036, the whole-trial-s.d. unit at the boundary, p = .0499); the push
 is a trend in raw units (β = −0.08, p = .10) and reaches significance only in evoked-s.d. (p = .007) and
 whole-trial-s.d. (p = .045) units. b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c
-(ρ = −0.80, p = .010), an L1-regularized logistic decoder (ρ = −0.73, p = .025) and a shrinkage linear discriminant
-(ρ = −0.45, p = .22). c, The same two statistics on the per-stage decoder axes of Fig. 4 (left; push β = −0.078,
+(ρ = −0.80, p = .010; bootstrap 95% CI over mice [−0.98, −0.24]), an L1-regularized logistic decoder (ρ = −0.73,
+p = .025 [−1.00, −0.11]) and a shrinkage linear discriminant (ρ = −0.45, p = .22 [−0.89, +0.29]). c, The same two statistics on the per-stage decoder axes of Fig. 4 (left; push β = −0.078,
 p = .103; coupling ρ = −0.80, p = .010) and on one choice axis fitted per mouse to the naïve and expert trials
 pooled (right; `run_overlaps.py --pool-stages`; neurons registered in both stages; every trial read from the fold
 that held it out): the push is a trend of the same sign (β = −0.056, p = .059), whereas the coupling does not hold
-and reverses as a trend (ρ = +0.65, p = .058) — the coupling is carried by the stage-specific readouts. d,
+and reverses as a trend (ρ = +0.65, p = .058; bootstrap 95% CI over mice [−0.15, +1.00]) — the coupling is carried by
+the stage-specific readouts. d,
 Late-delay licking on the CCGD depth. Left, mean depth against mean late-delay lick rate (6.0–7.5 s after the
 behaviour file's sample stamp = the 7.5–9.0 s late-delay window of the depth) per mouse and stage (open, naïve;
-filled, expert; ρ = +0.09, p = .72; licks on 14.5% of laser-off DPA trials, 0.19 → 0.11 Hz). Middle, the push with
-and without the per-mouse late-delay lick rate as a covariate (β = −0.078, p = .103 → −0.072, p = .142). Right, the
+filled, expert; ρ = +0.23, p = .55 over the nine per-mouse means, stages averaged; licks on 14.5% of laser-off DPA
+trials, 0.19 → 0.11 Hz). Middle, the push with and without the per-mouse late-delay lick rate as a covariate (one
+value per mouse × sample × stage, the unit of the mixed model, not trial-level: the CCGD rows cannot be aligned to
+single behavioural trials; β = −0.078, p = .103 → −0.072, p = .142). Right, the
 coupling given the change in licking (ρ = −0.80, p = .010; partial rank correlation controlling for Δlick,
 r = −0.80, p = .009; Δlick against Δaccuracy, ρ = +0.13, p = .73).
 
@@ -1447,21 +1476,26 @@ r = −0.80, p = .009; Δlick against Δaccuracy, ρ = +0.13, p = .73).
 **ED Fig. 5 | Chronic silencing of the two control projections during training (companion to Fig. 6b,c).**
 Every-trial silencing throughout training in two further between-group cohorts, drawn as Fig. 6b,c draws the
 ACC→mPFC batch: DPA, GNG and DPA-unpaired accuracy against training day (mean ± SEM across mice; grey, control
-illumination; indigo, opsin) and the between-group mixed model, accuracy ~ group × day with a random intercept
-per mouse (circle, group effect at the mean day; square, group × day slope; 95% CI; ∗ p < 0.05). a, Silencing
-ACC cell bodies (10 opto, 11 control) produced no deficit (DPA β = −0.02, p = .57; GNG β = −0.005, p = .63;
-DPA unpaired β = −0.03, p = .64). b, Silencing the reverse projection, from prelimbic cortex to ACC (12 opto,
-10 control), impaired the GNG task (β = −0.046, p = .017) and spared DPA (β = −0.01, p = .60; unpaired
-β = −0.02, p = .77). The DPA-selective deficit of Fig. 6b,c is therefore specific to the ACC→mPFC projection.
+illumination; indigo, opsin) and the between-group mixed model, accuracy ~ group × day with a random intercept per
+mouse (circle, group effect at the mean day; square, group × day slope; 95% CI; ∗ p < 0.05). a, ACC cell bodies
+(10 opto, 11 control): no deficit detected (DPA β = −0.02, 95% CI [−0.08, +0.04], p = .57; GNG −0.005 [−0.03, +0.02];
+DPA unpaired −0.03 [−0.15, +0.09]). b, Prelimbic → ACC terminals (12 opto, 10 control): the GNG task is impaired
+(β = −0.046 [−0.084, −0.008], p = .017) and no DPA deficit is detected (−0.01 [−0.07, +0.04]; unpaired −0.02
+[−0.12, +0.09]). The DPA intervals of both control cohorts include an effect of the size seen with ACC→mPFC terminal
+silencing (β = −0.06), so the two nulls bound rather than exclude it: the DPA deficit of Fig. 6b,c is not
+reproduced by either control manipulation, and the GNG deficit of the reverse projection is a different phenotype.
+_(Review 2026-09-15: "produced no deficit … therefore specific" replaced by the bounded statement.)_
 
 **ED Fig. 6 | The acute laser ON−OFF coupling over all seven laser mice (companion to Fig. 6g–i).** The
 within-mouse change in choice-code depth under laser against the change in accuracy, one point per mouse, for
 every mouse carrying interleaved laser trials (five Jaws inhibition, circles; two ChR2 excitation, triangles;
 the ACC-implant mice received no laser); same axis, window and units as Fig. 6 (expert stage, DPA trials, raw
-depth read at late delay on the laser-OFF-trained choice axis). a, DPA arm (Spearman ρ = +0.71, p = .074).
-b, GNG arm (ρ = −0.94, p = .002). Because the two opsins move the state in opposite directions, the pooled rank
-test asks only whether a displacement of either sign tracks the change in accuracy; n = 7; shaded, 95% band of
-the linear fit. Two Jaws mice at ceiling in both tasks show no change in either accuracy (the two points on the
+depth read at late delay on the laser-OFF-trained choice axis). Because the two opsins move the state in opposite directions, the pooled rank test asks only whether a displacement
+of either sign tracks the change in accuracy; each panel also gives the five Jaws mice alone. a, DPA arm: the trend
+over seven mice (ρ = +0.71, p = .074) is carried by the two ChR2 mice and is absent in the Jaws mice (ρ = +0.21,
+p = .74), so it is not read as a coupling. b, GNG arm: robust over seven (ρ = −0.94, p = .002) and of the same sign
+and size in the Jaws mice alone (ρ = −0.82, p = .089, n = 5). Shaded, 95% band of a linear fit drawn for
+orientation; the statistic is the rank correlation. Two Jaws mice at ceiling in both tasks show no change in either accuracy (the two points on the
 zero line). _(2026-09-15: the old page quoted GNG ρ = −0.90, p = .006 and a null DPA arm from a different
 axis and window (trainLD_TEST, bins 27–53); this build uses the Fig. 6 estimator and §6 now quotes it.)_
 

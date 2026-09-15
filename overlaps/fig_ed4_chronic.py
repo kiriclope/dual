@@ -26,7 +26,7 @@ import matplotlib.lines as mlines
 from figcaption import draw_justified
 
 sns.set_context('notebook'); sns.set_style('ticks')
-PS = 1.0
+PS = 1.2      # 10-in canvas -> 183 mm is x0.72: 1.2 keeps every literal (5.5-8 pt) at >= 5 pt in print (review 2026-09-15)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
@@ -143,9 +143,13 @@ CAP = [
     'draws the ACC→mPFC batch: DPA, GNG and DPA-unpaired accuracy against training day (mean ± SEM across mice; '
     'grey, control illumination; indigo, opsin) and the between-group mixed model, accuracy ~ group × day with a '
     'random intercept per mouse (circle, group effect at the mean day; square, group × day slope; 95% CI; ∗ p < 0.05). '
-    'a, Silencing ACC cell bodies produced no deficit. b, Silencing the reverse projection, from prelimbic cortex to '
-    'ACC, impaired the GNG task and spared DPA. The DPA-selective deficit of Fig. 6b,c is therefore specific to the '
-    'ACC→mPFC projection.',
+    'a, ACC cell bodies (10 opto, 11 control): no deficit detected (DPA β = −0.02, 95% CI [−0.08, +0.04]; GNG −0.005 '
+    '[−0.03, +0.02]; DPA unpaired −0.03 [−0.15, +0.09]). b, Prelimbic → ACC terminals (12 opto, 10 control): the GNG '
+    'task is impaired (β = −0.046 [−0.084, −0.008], p = .017) and no DPA deficit is detected (−0.01 [−0.07, +0.04]; '
+    'unpaired −0.02 [−0.12, +0.09]). The DPA intervals of both control cohorts include an effect of the size seen with '
+    'ACC→mPFC terminal silencing (β = −0.06), so the two nulls bound rather than exclude it: the DPA deficit of '
+    'Fig. 6b,c is not reproduced by either control manipulation, and the GNG deficit of the reverse projection is a '
+    'different phenotype.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)

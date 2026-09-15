@@ -34,10 +34,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 import seaborn as sns, matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from scipy.stats import spearmanr
 from figcaption import draw_justified
 
 sns.set_context('notebook'); sns.set_style('ticks')
-PS = 1.0
+PS = 1.2      # 10-in canvas -> 183 mm is x0.72: 1.2 keeps every literal (5.5-8 pt) at >= 5 pt in print (review 2026-09-15)
 plt.rcParams.update({
     'figure.dpi': 150, 'savefig.dpi': 400,
     'font.family': 'sans-serif', 'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
@@ -75,7 +76,7 @@ def panel_a(fig, gs):
     N = C['norm']; norms = N['norms']; yv = np.arange(len(norms))[::-1]
     axes = []
     for k, (dat, ttl, xlab) in enumerate([(N['push'], 'push (within mouse)', 'LMM β, depth ~ stage'),
-                                          (N['coup'], 'coupling (between mice)', 'Spearman ρ, Δdepth vs ΔDPA accuracy')]):
+                                          (N['coup'], 'coupling (between mice)', 'Spearman ρ (Δdepth vs Δaccuracy)')]):
         ax = fig.add_subplot(gs[0, k]); axes.append(ax)
         for i, nm in enumerate(norms):
             val, p = dat[nm]; sig = p < 0.05
@@ -171,7 +172,7 @@ def panel_d(fig, gs):
     for i, (lab, (bta, se, p)) in enumerate([('none', L['m0']), ('+ lick', L['m1'])]):
         col = SIGC if p < 0.05 else NSC
         ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
-        ticks.append(f'{lab}\nβ {bta:+.2f}\np {p:.3f}')
+        ticks.append(lab)
         print(f'd: push covariate={lab:7s} β={bta:+.3f} ± {se:.3f} p={p:.3f}')
     ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.6, 1.6)
     ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS); ax.set_ylim(-1.0, 0.12)
@@ -237,11 +238,11 @@ def panel_dd(fig, gs):
     for _, r in ms.iterrows():
         ax.scatter(r.lick, r.depth, s=30, color=MC[r.mouse], marker='o' if r.stage == 'Naive' else 'D',
                    facecolors=MC[r.mouse] if r.stage == 'Expert' else 'none', linewidths=1.0, zorder=3)
-    rm, pm = L['rm']
+    per = ms.groupby('mouse')[['depth', 'lick']].mean(); rm, pm = spearmanr(per.depth, per.lick)   # per mouse, stages averaged (no pseudoreplication)
     ax.axhline(0, ls=':', color='0.6', lw=0.7)
     ax.set_xlabel('late-delay lick rate (Hz)'); ax.set_ylabel('choice-code depth (log-odds)')
-    ax.set_title('depth vs licking, per mouse', loc='left', fontsize=TITLE_FS)
-    ax.text(0.97, 0.04, f'ρ = {rm:+.2f}, p = {pm:.2f}\n9 mice × 2 stages', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
+    ax.set_title('depth vs licking', loc='left', fontsize=TITLE_FS)
+    ax.text(0.97, 0.04, f'ρ = {rm:+.2f}, p = {pm:.2f}\n9 mice (stages averaged)', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
     ax.legend(handles=[mlines.Line2D([0], [0], marker='o', mfc='none', color='0.4', ls='none', ms=4.5, label='naïve'),
                        mlines.Line2D([0], [0], marker='D', color='0.4', ls='none', ms=4.5, label='expert')],
               frameon=False, loc='upper right', handletextpad=0.3)
@@ -250,7 +251,7 @@ def panel_dd(fig, gs):
     for i, (lab, bta, se, p) in enumerate([('none', *m0), ('+ lick', *m1[:3])]):
         col = SIGC if p < 0.05 else NSC
         ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
-        ticks.append(f'{lab}\nβ {bta:+.2f}\np {p:.3f}')
+        ticks.append(lab)
     ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.6, 1.6)
     ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS)
     ax = fig.add_subplot(gs[0, 2]); axes.append(ax)
@@ -272,13 +273,13 @@ def panel_dd(fig, gs):
 # ══ ASSEMBLE ═══════════════════════════════════════════════════════════════════════════════════
 fig = plt.figure(figsize=(10.0, 7.4))
 outer = fig.add_gridspec(2, 12, height_ratios=[1.0, 1.25], hspace=0.45, wspace=1.0, left=0.09, right=0.985, top=0.95, bottom=0.075)
-gsA = outer[0, 0:5].subgridspec(1, 2, wspace=0.12, width_ratios=[1, 1])
+gsA = outer[0, 0:5].subgridspec(1, 2, wspace=0.25, width_ratios=[1, 1])
 axA = panel_a(fig, gsA)
 gsB = outer[0, 6:12].subgridspec(1, 3, wspace=0.42)
 axB = panel_c(fig, gsB)
 gsCC = outer[1, 0:5].subgridspec(2, 2, wspace=0.30, hspace=0.45)
 axCC = panel_cc(fig, gsCC)
-gsDD = outer[1, 6:12].subgridspec(1, 3, wspace=0.55, width_ratios=[1, 0.62, 1])
+gsDD = outer[1, 6:12].subgridspec(1, 3, wspace=0.75, width_ratios=[1, 0.5, 1])
 axDD = panel_dd(fig, gsDD)
 plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.40); plabel(axCC, 'c', dx=-0.48); plabel(axDD, 'd', dx=-0.40)
 
@@ -290,15 +291,19 @@ CAP = [
     'ρ between Δdepth and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay '
     'depth. Red, p < 0.05. The coupling holds under every unit (ρ = −0.67 to −0.80; the whole-trial-s.d. unit sits '
     'at the boundary, p = .0499); the push reaches significance only in evoked-s.d. and whole-trial-s.d. units. '
-    'b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c, an L1-regularized logistic decoder '
-    'and a shrinkage linear discriminant.',
+    'b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c (ρ = −0.80, bootstrap 95% CI over '
+    'mice [−0.98, −0.24]), an L1-regularized logistic decoder (−0.73 [−1.00, −0.11]) and a shrinkage linear '
+    'discriminant (−0.45 [−0.89, +0.29]).',
     'c, The same two statistics on the per-stage decoder axes of Fig. 4 (left) and on one choice axis fitted per '
     'mouse to the naïve and expert trials pooled (right; neurons registered in both stages; every trial read from '
-    'the fold that held it out). d, Late-delay licking. Left, mean depth against mean late-delay lick rate '
-    'per mouse and stage. Middle, the push with and without the per-mouse late-delay lick rate as a '
-    'covariate. Right, the coupling given the change in licking: the partial rank correlation controlling for Δlick, '
-    'and the relation between Δlick and Δaccuracy. Lick rate over 6.0–7.5 s after the sample stamp of the behaviour '
-    'file, the late-delay window of the depth. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. otherwise.',
+    'the fold that held it out; pooled-axis coupling ρ = +0.65 [−0.15, +1.00]). d, Late-delay licking. Left, mean '
+    'depth against mean late-delay lick rate per mouse and stage (open, naïve; filled, expert; ρ over the nine '
+    'per-mouse means). Middle, the push with and without the per-mouse late-delay lick rate as a covariate (one value '
+    'per mouse × sample × stage, the unit of the mixed model; not trial-level, because the CCGD rows cannot be aligned '
+    'to single behavioural trials). Right, the coupling given the change in licking: the partial rank correlation '
+    'controlling for Δlick, and the relation between Δlick and Δaccuracy. Lick rate over 6.0–7.5 s after the sample '
+    'stamp of the behaviour file, the late-delay window of the depth. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. '
+    'otherwise.',
 ]
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
