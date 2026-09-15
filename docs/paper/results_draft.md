@@ -1,5 +1,13 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.39 (2026-09-15): TRIAL-LEVEL LICK CONTROL ON THE CCGD DEPTH** (Leon: "run the seeded CCGD tensor for the lick control").
+> `run_overlaps.py` writes a within-session `trial` index and seeds `RepeatedStratifiedKFold`; choice-only re-run `--tag trial`
+> (8.1 min) + `exp_lick_control_trial.py`. Every held-out decision function now maps to its behaviour-file trial (order verified
+> on all 47 readable sessions). Lick rate carries no depth information trial by trial (per-mouse median ρ +0.06, p .91; covariate
+> β +0.02, p .57); coupling on no-lick trials ρ −0.78, p .014 (all trials of this re-run −0.69, p .038 — a new CV draw of the
+> decoder); raw push a trend on every trial subset. ED 4d rebuilt at the trial level; §4 third caveat rewritten. Also found and
+> fixed: the mouse-level control had mis-assigned the .mat sample classes (`pair` 1–4 = odor_pair 0, 2, 1, 3).
+
 > **v12.38 (2026-09-15): REFIT-dPCA MOUSE BOOTSTRAP — THE CHOICE–TASK ALIGNMENT INCREASE IS NOT RESOLVED** (Leon: "run the
 > refit-dPCA bootstrap"). `pca/exp_dpca_refit_boot.py` (6.9 min) re-fits dPCA on every resampled set of nine mice (1,000 draws)
 > instead of resampling neuron columns of the fixed axes: choice–task Δ +0.076 [−0.030, +0.316] p = .17 (fixed-axis: [+0.017,
@@ -735,7 +743,7 @@ of trials. Within naïve unpaired trials, the trial-by-trial depth of the state 
 detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −1.05, p = 0.26; sample B +1.17, p = 0.49), so we found no evidence that the repositioning is a
 within-stage readout of accuracy rather than a between-animal learning effect. Second, what
 moved was the position of the state rather than the code itself, since we found no detectable
-change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in seven carried one over the late-delay window; 0.19 Hz naïve → 0.11 Hz expert), their rate did not track the depth of the state across mice and stages (ρ = +0.09, p = 0.72), and a per-mouse lick covariate left the push (β = −0.08 → −0.07) and the coupling (partial ρ = −0.80, p = 0.009) unchanged (Extended Data Fig. 4d). Two caveats also apply.
+change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in seven carried one over the late-delay window; 18% of naïve and 10% of expert trials), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.06, p = 0.91 over mice; lick-rate covariate β = +0.02, p = 0.57); the coupling held on the trials without a lick (ρ = −0.78, p = 0.014; Extended Data Fig. 4d). Two caveats also apply.
 The push is directional rather than a precise magnitude, because part of the per-stage change
 is a reorganization of the decoder axis itself: in the raw units of Fig. 4 it is a trend (p = 0.10) that reaches significance only in evoked-s.d. (p = 0.007) and whole-trial-s.d. (p = 0.045) units, remaining a trend of the same sign (p = 0.08–0.11) under the other normalizations of the axis (Extended Data Fig. 4a), and on one axis fitted to both stages together it is a trend of the same sign (β = −0.06, p = 0.059; Extended Data Fig. 4c). And the
 behavioral coupling is an individual-difference correlation over nine animals, whose robustness
@@ -1482,21 +1490,26 @@ pooled (right; `run_overlaps.py --pool-stages`; neurons registered in both stage
 that held it out): the push is a trend of the same sign (β = −0.056, p = .059), whereas the coupling does not hold
 and reverses as a trend (ρ = +0.65, p = .058; bootstrap 95% CI over mice [−0.15, +1.00]) — the coupling is carried by
 the stage-specific readouts. d,
-Late-delay licking on the CCGD depth. Left, mean depth against mean late-delay lick rate (6.0–7.5 s after the
-behaviour file's sample stamp = the 7.5–9.0 s late-delay window of the depth) per mouse and stage (open, naïve;
-filled, expert; ρ = +0.23, p = .55 over the nine per-mouse means, stages averaged; licks on 14.5% of laser-off DPA
-trials, 0.19 → 0.11 Hz). Middle, the push with and without the per-mouse late-delay lick rate as a covariate (one
-value per mouse × sample × stage, the unit of the mixed model, not trial-level: the CCGD rows cannot be aligned to
-single behavioural trials; β = −0.078, p = .103 → −0.072, p = .142). Right, the
-coupling given the change in licking (ρ = −0.80, p = .010; partial rank correlation controlling for Δlick,
-r = −0.80, p = .009; Δlick against Δaccuracy, ρ = +0.13, p = .73).
+Late-delay licking, trial by trial: every held-out decision function aligned to its behavioural trial (seeded folds and a
+session trial index; lick rate over 6.0–7.5 s after the behaviour file's sample stamp = the 7.5–9.0 s late-delay window of
+the depth). Left, Spearman ρ between depth and lick rate over the trials of each mouse and stage (open, naïve; filled,
+expert; Wilcoxon over the nine per-mouse means: median ρ = +0.06, p = .91; licks on 14.5% of the 1,824 matched trials,
+17.9% naïve, 10.1% expert). Middle, the push (mixed model on mouse × sample × stage means, as in a) on all trials
+(β = −0.077, p = .14), on the trials without a late-delay lick (−0.053, p = .30) and on the trials with one (−0.218,
+p = .031, 31 cells); a trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick β = +0.02,
+p = .57). Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.78, p = .014; all trials of this run,
+ρ = −0.69, p = .038). This panel reads a re-run of the choice decoder with seeded folds, a new cross-validation draw of
+the same pipeline.
 
 > **REINSTATED 2026-09-15 (Leon: "reinstate the fixed-axis and lick controls with the CCGD pipeline").** The two
 > controls withdrawn earlier the same day (they projected training trials on fold-averaged weights) are back on
 > held-out CCGD decision functions: `run_overlaps.py --pool-stages` (new option; 7.6 min) fits one choice decoder
 > per mouse on both stages, `exp_common_axis_ccgd.py` and `exp_lick_control_ccgd.py` produce the cache. The lick
 > control is at the mouse × sample × stage level because the CCGD rows come back in unseeded fold order and cannot be
-> aligned to individual behavioural trials. NEW RESULT: on the pooled axis the coupling REVERSES as a trend
+> aligned to individual behavioural trials — SUPERSEDED later the same day: `run_overlaps.py` now writes a within-session
+> `trial` index and seeds its folds; a choice-only re-run under `--tag trial` (8.1 min) plus `exp_lick_control_trial.py`
+> give the trial-level panel above (the mouse-level build also had the .mat sample classes mis-assigned — `pair` 1–4 =
+> odor_pair 0, 2, 1, 3 — fixed in `exp_lick_control_ccgd.py`, gallery only now). NEW RESULT: on the pooled axis the coupling REVERSES as a trend
 > (ρ = +0.65, p = .058), where the old non-cross-validated control had said "weakens to a trend, ρ = −0.63" — §4 now
 > states the reversal.
 

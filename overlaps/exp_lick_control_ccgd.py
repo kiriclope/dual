@@ -59,19 +59,21 @@ for mouse in MICE:
         df = pd.DataFrame(tr, columns=['sample', 'test', 'outcome', 'pair', 'distractor', 'cue', 'odr_outcome', 'odr_pair', 'laser'])
         df['tasks'] = df['distractor'].map({0: 'DPA', 1: 'DualGo', 2: 'DualNoGo'}); df['lick_delay'] = rate
         df['day'] = day; df['mouse'] = mouse; beh.append(df)
-beh = pd.concat(beh, ignore_index=True)
+beh = pd.concat(beh, ignore_index=True); beh_all = beh.copy()
 # stage of each behavioural day = the stage the tensor assigns to that (mouse, day)
 stage_of = yc.groupby(['mouse', 'day']).stage.first().to_dict()
 beh['stage'] = [stage_of.get((m, float(dd))) for m, dd in zip(beh.mouse, beh.day)]
 beh = beh[(beh.laser == 0) & (beh.tasks == 'DPA') & beh.stage.notna()].copy()
-# sample class from the .mat 'pair' column (1-4 = odor_pair 0-3; pairs 1,2 = sample A, 3,4 = sample B, the
-# paper's convention) — verified against the tensor's per-day A/B counts below
-beh['sclass'] = np.where(beh['pair'].isin([1, 2]), 'A', 'B')
-chk = []
-for (m, dd), g in beh.groupby(['mouse', 'day']):
-    t = d[(d.mouse == m) & (d.day == dd)]
-    chk.append((g.sclass == 'A').sum() == (t['sample'] == 'A').sum())
-print(f'sample-class alignment: {np.mean(chk):.0%} of mouse-days agree on the A/B split')
+# sample class from the .mat 'sample' column (1/2 = sample_odor 0/1 = A/B). 2026-09-15 (later) FIX: the first build used
+# pair.isin([1, 2]) -> A, but .mat pair 1-4 = odor_pair 0, 2, 1, 3, so that mixed the samples; the old count check could
+# not see it (A and B are balanced per session). Verified trial by trial against y_all_nan_ (session order = imaging order).
+beh['sclass'] = np.where(beh['sample'] == 1, 'A', 'B')
+_y = pkl_load('y_all_nan_', path='../data/pca'); chk = []
+for (m, dd), g in beh_all.groupby(['mouse', 'day']):
+    t = _y[(_y.mouse == m) & (_y.day == dd)]
+    chk.append(np.mean((g['sample'].to_numpy() - 1) == t.sample_odor.to_numpy()) if len(t) == len(g) else 0.0)
+print(f'sample-class alignment: .mat sample == sample_odor on {np.min(chk):.0%}-{np.max(chk):.0%} of trials per session')
+assert np.min(chk) > 0.999
 lick = beh.groupby(['mouse', 'sclass', 'stage']).lick_delay.mean().rename('lick').reset_index().rename(columns={'sclass': 'sample'})
 
 # ── per mouse x sample x stage table ──

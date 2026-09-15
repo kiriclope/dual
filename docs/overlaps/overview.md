@@ -31,6 +31,13 @@
 > per-mouse CCGP became ALL laser-off trials on the canonical windows: `fig_ccgp.py --canon --alltrials` (19 min) →
 > `permouse_ccgp_cache_canon_all.pkl`, drawn by `pca/fig_ed2_plane.py` as ED 1b — sample .68, GNG .84, test .58, choice
 > .61 expert; test Δ +0.02 p .074, so the test code's low CCGP is not the lick showing through; draft v12.36.)_
+> _(2026-09-15, later: `run_overlaps.py` now writes a within-session `trial` column into the labels and seeds its
+> `RepeatedStratifiedKFold` with `--random-state` (default 0; dum unchanged). A choice-only re-run under `--tag trial`
+> (8.1 min; `..._raw_targets_choice_trial`) + `exp_lick_control_trial.py` give ED 4d at the TRIAL level: every held-out
+> decision function maps to its behaviour-file trial (AllTrials order = imaging order, verified on all 47 readable sessions;
+> .mat `sample` 1/2 = A/B, `pair` 1-4 = odor_pair 0, 2, 1, 3). Lick rate carries no depth information (per-mouse median
+> ρ +0.06 p .91; covariate β +0.02 p .57); coupling on no-lick trials ρ −0.78 p .014; this re-run's all-trial coupling is
+> ρ −0.69 p .038 — the canonical −0.80 is one CV draw of the decoder, expect ±0.1 across draws. Draft v12.39.)_
 
 > **CANONICAL AXIS WINDOWS since 2026-09-08 (Leon: "same windows for all panels").** Sample and distractor decoder axes = bins **36–38** (6.0–6.5 s, post-distractor pre-cue); choice and test axes = bins **54–62** (9.0–10.5 s, test onset → 0.5 s after test offset) — the SAME bin indices in the overlaps (CCGD) and pseudo-population pipelines. Every "57–62 / 16–47 / 58–83 / 33–38 / 57–65 / 45–59 (opto depth)" axis window quoted below is the pre-flip convention (reachable with `--legacyaxes`); read-out windows (mid-delay 33–38 or 36–38, late delay 45–53 or 48–53, Fig 3b decision read 60–66) are unchanged. Numbers under the new axes: Fig 4 push β = −1.15 p = .007, coupling ρ = −0.72 p = .030 (norm battery all p ≤ .05, leave-one-out 4/9); Fig 3c choice out-vs-full a trend (p = .098); Fig 3e T/W 0.90 / 0.72; Fig 6 ΔGNG clustered p = .009. Variant table (windows A–E) and the flip recipe: memory `project_axis_windows.md`; text audit = draft v12.20 banner in `docs/paper/results_draft.md`.
 

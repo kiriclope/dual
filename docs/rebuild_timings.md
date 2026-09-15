@@ -91,3 +91,6 @@ place or from somewhere less direct.
 | 2026-09-15 17:04 | all-trial replications 2026-09-15 | fig_ccgp.py --canon --alltrials | 19.0 | measured |
 | 2026-09-15 17:42 | per-animal shattering 2026-09-15 | exp_shatter_permouse.py (LOO jackknife 18x8 + own-population 18x20, 462 dich., 36 workers) | 0.7 | measured |
 | 2026-09-15 17:58 | refit-dPCA bootstrap 2026-09-15 | exp_dpca_refit_boot.py (X_all_blcenter load + 1000 mouse draws x 2 stages refit, 36 workers) | 6.9 | measured |
+| 2026-09-15 18:03 | trial-level lick control 2026-09-15 | exp_lick_control_ccgd.py re-run with the corrected .mat sample mapping | 0.1 | measured |
+| 2026-09-15 18:07 | trial-level lick control 2026-09-15 | run_overlaps.py --scaler none --targets choice --tag trial (seeded folds, trial index column; 9 mice x 2 stages) | 8.1 | measured |
+| 2026-09-15 18:07 | trial-level lick control 2026-09-15 | exp_lick_control_trial.py (tensor + .mat per-trial licks) | 0.1 | measured |

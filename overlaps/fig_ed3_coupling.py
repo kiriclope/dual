@@ -232,41 +232,44 @@ def panel_cc(fig, gs):
 
 # ══ d — late-delay licking on the CCGD depth (exp_lick_control_ccgd.py) ═══════════════════════
 def panel_dd(fig, gs):
-    L = C['lick_ccgd']; ms = L['ms']; g = L['g']
+    """ED 4d (2026-09-15, trial level): exp_lick_control_trial.py — every held-out CCGD decision function aligned to
+    its behavioural trial via the session trial index written by run_overlaps.py (`--tag trial` re-run)."""
+    L = C['lick_trial']; R = L['rho']
     axes = []
+    # left: per mouse x stage Spearman(depth, lick rate) over trials
     ax = fig.add_subplot(gs[0, 0]); axes.append(ax)
-    for _, r in ms.iterrows():
-        ax.scatter(r.lick, r.depth, s=30, color=MC[r.mouse], marker='o' if r.stage == 'Naive' else 'D',
-                   facecolors=MC[r.mouse] if r.stage == 'Expert' else 'none', linewidths=1.0, zorder=3)
-    per = ms.groupby('mouse')[['depth', 'lick']].mean(); rm, pm = spearmanr(per.depth, per.lick)   # per mouse, stages averaged (no pseudoreplication)
+    for _, r in R.iterrows():
+        ax.scatter(r.st + np.random.RandomState(MICE.index(r.mouse)).uniform(-0.12, 0.12), r.rho, s=30, color=MC[r.mouse],
+                   marker='o', facecolors=MC[r.mouse] if r.st == 1 else 'none', linewidths=1.0, zorder=3)
     ax.axhline(0, ls=':', color='0.6', lw=0.7)
-    ax.set_xlabel('late-delay lick rate (Hz)'); ax.set_ylabel('choice-code depth (log-odds)')
-    ax.set_title('depth vs licking', loc='left', fontsize=TITLE_FS)
-    ax.text(0.97, 0.04, f'ρ = {rm:+.2f}, p = {pm:.2f}\n9 mice (stages averaged)', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
-    ax.legend(handles=[mlines.Line2D([0], [0], marker='o', mfc='none', color='0.4', ls='none', ms=4.5, label='naïve'),
-                       mlines.Line2D([0], [0], marker='D', color='0.4', ls='none', ms=4.5, label='expert')],
-              frameon=False, loc='upper right', handletextpad=0.3)
-    ax = fig.add_subplot(gs[0, 1]); axes.append(ax)
-    m0, m1 = L['m0'], L['m1']; ticks = []
-    for i, (lab, bta, se, p) in enumerate([('none', *m0), ('+ lick', *m1[:3])]):
+    ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert']); ax.set_xlim(-0.6, 1.6)
+    ax.set_ylabel('Spearman ρ (depth, lick rate)\nover trials, per mouse')
+    ax.set_title('depth vs licking, per trial', loc='left', fontsize=TITLE_FS)
+    pw = L['wilcoxon_p']; sig = pw < 0.05
+    ax.text(0.5, 0.97, '∗' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top', fontsize=PS*(12 if sig else 8), fontweight='bold', color='k' if sig else '0.55')
+    lo, hi = ax.get_ylim(); ax.set_ylim(lo - 0.40 * (hi - lo), hi)
+    ax.text(0.97, 0.03, f'median ρ = {L["per"].median():+.2f}\np = {pw:.2f}, 9 mice\n{L["n_trials"]} trials', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
+    # middle: the push on all trials, on no-lick trials, and with a trial-level lick covariate
+    ax = fig.add_subplot(gs[0, 1]); axes.append(ax); ticks = []
+    for i, (lab, (bta, se, p)) in enumerate([('all', L['push_all'][:3]), ('no-lick', L['push_nolick'][:3]), ('lick', L['push_lick'][:3])]):
         col = SIGC if p < 0.05 else NSC
-        ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
-        ticks.append(lab)
-    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.9, 1.9)
-    ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS)
+        ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1); ticks.append(lab)
+    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1, 2]); ax.set_xticklabels(['all', 'no-\nlick', 'lick'], fontsize=PS*6.2); ax.set_xlim(-0.7, 2.7)
+    ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push by trial set', loc='left', fontsize=TITLE_FS)
+    # right: the coupling with Δdepth from no-lick trials only
     ax = fig.add_subplot(gs[0, 2]); axes.append(ax)
     gd = L['gd']
     for m in gd.index:
-        ax.scatter(gd.loc[m, 'dd'], gd.loc[m, 'da'], color=MC[m], s=30, edgecolors='w', linewidths=0.5, zorder=4)
-    z = np.polyfit(gd.dd, gd.da, 1); xx = np.array([gd.dd.min(), gd.dd.max()]); ax.plot(xx, np.polyval(z, xx), '-', color='0.3', lw=1.2)
+        ax.scatter(gd.loc[m, 'dd_nolick'], gd.loc[m, 'da'], color=MC[m], s=30, edgecolors='w', linewidths=0.5, zorder=4)
+    z = np.polyfit(gd.dd_nolick, gd.da, 1); xx = np.array([gd.dd_nolick.min(), gd.dd_nolick.max()]); ax.plot(xx, np.polyval(z, xx), '-', color='0.3', lw=1.2)
     ax.axhline(0, ls=':', color='0.6', lw=0.7); ax.axvline(0, ls=':', color='0.6', lw=0.7)
-    (r0, p0), (rp, pp), (rl, pl) = L['r0'], L['rp'], L['rl']
+    (r0, p0), (rn, pn) = L['r_all'], L['r_nolick']
     lo, hi = ax.get_ylim(); ax.set_ylim(lo - 0.32 * (hi - lo), hi)
-    ax.text(0.03, 0.03, f'ρ = {r0:+.2f}, p = {p0:.3f}\npartial | Δlick: r = {rp:+.2f}, p = {pp:.3f}\nΔlick vs Δaccuracy: ρ = {rl:+.2f}, p = {pl:.2f}',
-            transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.2, color='0.3')
-    ax.set_xlabel('Δ choice-code depth (expert − naïve)'); ax.set_ylabel('Δ DPA accuracy')
-    ax.set_title('coupling | Δlick', loc='left', fontsize=TITLE_FS)
-    print(f'd: lick on {L["frac_lick"]:.1%} of trials; push {m0[0]:+.3f} p={m0[2]:.3f} -> {m1[0]:+.3f} p={m1[2]:.3f}; coupling ρ={r0:+.2f} p={p0:.3f} partial r={rp:+.2f} p={pp:.3f}')
+    ax.text(0.03, 0.03, f'no-lick trials: ρ = {rn:+.2f}, p = {pn:.3f}\nall trials: ρ = {r0:+.2f}, p = {p0:.3f}', transform=ax.transAxes, ha='left', va='bottom', fontsize=PS*6.2, color='0.3')
+    ax.set_xlabel('Δ choice-code depth, no-lick trials'); ax.set_ylabel('Δ DPA accuracy')
+    ax.set_title('coupling, no-lick trials', loc='left', fontsize=TITLE_FS)
+    print(f'd: licks on {L["frac_lick"]:.1%} of trials; per-mouse ρ median {L["per"].median():+.2f} p={pw:.3f}; push all {L["push_all"][0]:+.3f} p={L["push_all"][2]:.3f}, '
+          f'no-lick {L["push_nolick"][0]:+.3f} p={L["push_nolick"][2]:.3f}, lick {L["push_lick"][0]:+.3f} p={L["push_lick"][2]:.3f}; trial LMM +lick covariate β_st {L["lmm_lick"][0]:+.3f} p={L["lmm_lick"][2]:.3f} (lick β {L["lmm_lick"][3]:+.3f} p={L["lmm_lick"][4]:.3f}); coupling no-lick ρ={rn:+.2f} p={pn:.3f} (all ρ={r0:+.2f} p={p0:.3f})')
     return axes[0]
 
 
@@ -279,7 +282,7 @@ gsB = outer[0, 6:12].subgridspec(1, 3, wspace=0.42)
 axB = panel_c(fig, gsB)
 gsCC = outer[1, 0:5].subgridspec(2, 2, wspace=0.30, hspace=0.45)
 axCC = panel_cc(fig, gsCC)
-gsDD = outer[1, 6:12].subgridspec(1, 3, wspace=0.75, width_ratios=[1, 0.5, 1])
+gsDD = outer[1, 6:12].subgridspec(1, 3, wspace=0.75, width_ratios=[1, 0.6, 1])
 axDD = panel_dd(fig, gsDD)
 plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.40); plabel(axCC, 'c', dx=-0.48); plabel(axDD, 'd', dx=-0.40)
 
@@ -296,13 +299,17 @@ CAP = [
     'discriminant (−0.45 [−0.89, +0.29]).',
     'c, The same two statistics on the per-stage decoder axes of Fig. 4 (left) and on one choice axis fitted per '
     'mouse to the naïve and expert trials pooled (right; neurons registered in both stages; every trial read from '
-    'the fold that held it out; pooled-axis coupling ρ = +0.65 [−0.15, +1.00]). d, Late-delay licking. Left, mean '
-    'depth against mean late-delay lick rate per mouse and stage (open, naïve; filled, expert; ρ over the nine '
-    'per-mouse means). Middle, the push with and without the per-mouse late-delay lick rate as a covariate (one value '
-    'per mouse × sample × stage, the unit of the mixed model; not trial-level, because the CCGD rows cannot be aligned '
-    'to single behavioural trials). Right, the coupling given the change in licking: the partial rank correlation '
-    'controlling for Δlick, and the relation between Δlick and Δaccuracy. Lick rate over 6.0–7.5 s after the sample '
-    'stamp of the behaviour file, the late-delay window of the depth. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. '
+    'the fold that held it out; pooled-axis coupling ρ = +0.65 [−0.15, +1.00]). d, Late-delay licking, trial by trial: '
+    'every held-out decision function aligned to its behavioural trial (seeded folds and a session trial index; lick '
+    'rate over 6.0–7.5 s after the sample stamp of the behaviour file, the late-delay window of the depth). Left, '
+    'Spearman ρ between depth and lick rate over the trials of each mouse and stage (open, naïve; filled, expert; '
+    'Wilcoxon over the nine per-mouse means: median ρ = +0.06, p = .91; licks on 14.5% of the 1,824 matched trials). '
+    'Middle, the push (mixed model on mouse × sample × stage means, as in a) on all trials (β = −0.077, p = .14), on the '
+    'trials without a late-delay lick (−0.053, p = .30) and on the trials with one (−0.218, p = .031, 31 cells); a '
+    'trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick β = +0.02, p = .57). '
+    'Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.78, p = .014; all trials of this run, '
+    'ρ = −0.69, p = .038). This panel reads a re-run of the choice decoder with seeded folds, a new cross-validation '
+    'draw of the same pipeline. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. '
     'otherwise.',
 ]
 if not NOCAP:
