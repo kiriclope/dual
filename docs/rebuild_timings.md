@@ -80,3 +80,6 @@ place or from somewhere less direct.
 | 2026-09-15 12:22 | ED rebuild 2026-09-15 | fig_ccgp.py --canon (per-mouse CCGP on the canonical windows, 30 shuffles) | 2.0 | measured |
 | 2026-09-15 12:30 | ED rebuild 2026-09-15 | fig_overlaps_common_axis_supp.py, HELD-OUT 5-fold inner-CV axis fits (loads X_all) | 1.0 | measured (wall clock in the run log) |
 | 2026-09-15 12:30 | ED rebuild 2026-09-15 | fig_overlaps_lick_control_supp.py, HELD-OUT 5-fold inner-CV axis fits (loads X_all) | 0.6 | measured (wall clock in the run log) |
+| 2026-09-15 12:54 | ED 3 reinstatement 2026-09-15 | run_overlaps.py --pool-stages --scaler none --targets choice --contexts all (9 mice, one pooled fit each) | 7.6 | measured |
+| 2026-09-15 12:56 | ED 3 reinstatement 2026-09-15 | exp_common_axis_ccgd.py (two tensors, ~1 GB each) | 0.7 | approx, wall clock observed |
+| 2026-09-15 12:56 | ED 3 reinstatement 2026-09-15 | exp_lick_control_ccgd.py (tensor + behaviour .mat files) | 0.6 | approx, wall clock observed |

@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.33 (2026-09-15): FIXED-AXIS AND LICK CONTROLS REINSTATED ON THE CCGD PIPELINE** (Leon: "reinstate the fixed-axis and lick controls with the CCGD pipeline"). `run_overlaps.py --pool-stages` fits one held-out choice decoder per mouse on both stages; the lick control uses Fig. 4's own tensor depth with per-mouse lick rates. Lick: push and coupling unchanged by the covariate (β −0.08 → −0.07; partial ρ −0.80 p .010). Fixed axis: the push is a same-sign trend (β −0.06 p .059) but the coupling REVERSES as a trend (ρ +0.65 p .058) — §4 now says the coupling is a property of the stage-specific readouts, not of one fixed direction. ED 3 is four panels again (a units, b decoders, c fixed axis, d licking).
+
 > **v12.32 (2026-09-15): CROSS-VALIDATION AUDIT OF THE EXTENDED DATA** (Leon: "make sure all the results are cross validated we had that problem in main"). Every ED panel was traced to its producer: ED 1a–d,f, ED 2a–d, ED 3a,b, ED 5 and ED 6a read held-out projections/decoders (cvPCA, half-split PM_PLANE, partition-A/B plane test, DPCA_COUNT, ANTACT_TRAJ, the CCGD tensor, fold-projected dPCA); ED 1e is deliberately uncross-validated and says so. The two exceptions — the fixed-common-axis and lick-covariate panels — were withdrawn (see the ED 3 entry) and §4 trimmed accordingly. Also from this pass: ED 1c now draws the 462-dichotomy SD_FULL cache the text quotes (0.667/0.673), ED 1e the mid-delay window the text quotes (0.64/0.68), ED 2b the per-mouse CCGP rebuilt on the canonical windows (test code p = .012, was .04 on the 2026-08-04 cache), and §3's plane-test medians the cells ED 2c draws (1.03/0.86; 0.82/0.58).
 
 > **v12.31 (2026-09-15): EXTENDED DATA REBUILT — six native figures, trimmed to what the text cites** (Leon: "half of them are unreadable and the results they present not well presented or hidden. These need to be as good as the main figures" → "keep only what is essential for the paper's argumentation"). The nine composed mosaics (20–60 in tall, ~1 pt text on a Nature page) are replaced by six one-script composites in the house style (see the ED section for the old→new map and the cut list); every ED citation in the body, legends, Methods and Discussion renumbered. Three numbers changed on the way: (i) §3 the per-animal GNG plane-only rise is p = .055 (0.57 → 0.63, 8/9), not the stale p = .027 star — Fig. 3 itself never drew that star on the current caches; (ii) §6 the seven-mouse laser coupling, recomputed with the Fig. 6 estimator instead of the old 27–53 window, is GNG ρ = −0.94, p = .002 and DPA ρ = +0.71, p = .074 (was −0.90/.006 and "null"); (iii) §4 the units sentence now says the push is a trend in the raw units Fig. 4 uses (p = .10) and significant only in evoked-s.d. and whole-trial-s.d. units — "used here" pointed at the pre-v12.29 unit.
@@ -704,16 +706,16 @@ therefore report the repositioning itself and make no claim about sample specifi
 
 The size of the push predicted behavior across animals. The further a mouse had moved its delay
 state toward no-lick, the more its DPA accuracy had improved (Fig. 4c, left; per-mouse Spearman ρ = −0.80, p = 0.010, n = 9, on the GNG-free DPA trials; on the dual trials, where the cost is paid, ρ = −0.70, p = 0.036), whereas the same change bore no relationship to GNG accuracy on the dual trials (Fig. 4c, right; ρ = −0.07, p = 0.87). Split by trial type, Go trials alone were null (ρ = −0.20, p = 0.61), and the positive trend on NoGo trials alone (ρ = +0.60, p = 0.090) was a ceiling effect: the animals that pushed deepest were already withholding correctly on 79–95% of their naïve NoGo trials and had little room to gain (naïve NoGo accuracy predicted the NoGo gain, ρ = −0.87, p = 0.002; with it controlled, the partial rank correlation of the push with the NoGo gain was +0.55, p = 0.13, and depth and NoGo accuracy were unrelated at either stage). The coupling is therefore specific to memory performance, at no detectable cost or benefit to the GNG task. It held across the depth definitions we examined: over the four per-mouse units (none, evoked, baseline, sample separation) crossed with the two read windows (bins 45–53 and 48–53), the coupling was significant in 7 of the 8 combinations, ρ = −0.62 to −0.80. It tracked the fall in false alarms rather than the hit rate (per-mouse Spearman of the change in depth against the change in false-alarm rate ρ = +0.57, p = 0.11; against the change in hit rate ρ = −0.16, p = 0.68), the route by which the delay lick interfered in the first place (Fig. 1g), although neither arm was significant on its own. A signal-detection decomposition could not tell a gain in sensitivity from a shift in criterion at this n (Δd′ ρ = −0.52, p = 0.15; Δc ρ = −0.17, p = 0.67), but a general shift toward withholding is not what the coupling measures, since NoGo withholding, largely in place before dual task training, shows no coupling once its ceiling is accounted for. It did not depend on where the animals started (partial correlation controlling for naïve accuracy, r = −0.79, p = 0.012), and it is a relationship between changes: within the expert stage alone, depth and accuracy were not correlated across animals (ρ = −0.07, p = 0.87). Two dependences are disclosed. The coupling requires the axis to be fitted per stage and
-read with the logistic decoder (it holds under an L1-regularized decoder, ρ = −0.73, p = 0.025, but not under a linear-discriminant one, ρ = −0.45, p = 0.22; Extended Data Fig. 3b), and it does not replicate on the demixed-PCA axis (Methods).
+read with the logistic decoder (it holds under an L1-regularized decoder, ρ = −0.73, p = 0.025, but not under a linear-discriminant one, ρ = −0.45, p = 0.22, Extended Data Fig. 3b; and on a single choice axis fitted per mouse to the naïve and expert trials together, read with held-out decision functions, it does not hold and reverses as a trend, ρ = +0.65, p = 0.058, Extended Data Fig. 3c, so the coupling is a property of the stage-specific readouts rather than of one fixed direction), and it does not replicate on the demixed-PCA axis (Methods).
 
 Two controls sharpen the interpretation. First, the push is a property of animals rather than
 of trials. Within naïve unpaired trials, the trial-by-trial depth of the state did not
 detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −1.05, p = 0.26; sample B +1.17, p = 0.49), so we found no evidence that the repositioning is a
 within-stage readout of accuracy rather than a between-animal learning effect. Second, what
 moved was the position of the state rather than the code itself, since we found no detectable
-change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (about one trial in nine carried one); a lick-covariate control on the cross-validated depth is pending (Methods). Two caveats also apply.
+change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in nine carried one; 0.42 Hz naïve → 0.22 Hz expert), their rate did not track the depth of the state across mice and stages (ρ = +0.20, p = 0.42), and a per-mouse lick covariate left the push (β = −0.08 → −0.07) and the coupling (partial ρ = −0.80, p = 0.010) unchanged (Extended Data Fig. 3d). Two caveats also apply.
 The push is directional rather than a precise magnitude, because part of the per-stage change
-is a reorganization of the decoder axis itself: in the raw units of Fig. 4 it is a trend (p = 0.10) that reaches significance only in evoked-s.d. (p = 0.007) and whole-trial-s.d. (p = 0.045) units, remaining a trend of the same sign (p = 0.08–0.11) under the other normalizations of the axis (Extended Data Fig. 3a); whether it survives on one axis fixed across both stages is untested with a cross-validated readout. And the
+is a reorganization of the decoder axis itself: in the raw units of Fig. 4 it is a trend (p = 0.10) that reaches significance only in evoked-s.d. (p = 0.007) and whole-trial-s.d. (p = 0.045) units, remaining a trend of the same sign (p = 0.08–0.11) under the other normalizations of the axis (Extended Data Fig. 3a), and on one axis fitted to both stages together it is a trend of the same sign (β = −0.06, p = 0.059; Extended Data Fig. 3c). And the
 behavioral coupling is an individual-difference correlation over nine animals, whose robustness
 and limits are set out in Methods.
 
@@ -843,8 +845,8 @@ FOVs]**, yielding 3,319 neurons across the 9 mice (113–693 per mouse; 4–6 da
 mouse, neurons registered across days). Because the pseudo-population combines an order of
 magnitude more neurons than any single animal, pooled accuracies exceed the per-animal ones
 (for example choice 0.96 pooled against 0.67 per mouse); every pooled claim is therefore paired
-with its per-animal companion. Orofacial video was not acquired **[AUTHOR: confirm]**; a
-lick-covariate control on the cross-validated depth is pending, and uninstructed movements are known
+with its per-animal companion. Orofacial video was not acquired **[AUTHOR: confirm]**; the
+lick control is in Extended Data Fig. 3d, and uninstructed movements are known
 to shape cortical activity broadly [Musall 2019; Stringer 2019a]. The laser-OFF trials of the
 two ChR2 mice were interleaved with excitation trials; the leave-one-mouse-out checks include
 these mice. The pseudo-population analyses (Fig. 2 and the per-mouse geometry analyses of Fig. 3c–e) use correct, laser-OFF trials; the single-trial projection analyses (Figs 3a,b, 4, 6) use
@@ -1401,26 +1403,34 @@ plane-only accuracy, already at chance, falls slightly (0.53 → 0.50, p = .055)
 toward the plane, which Fig. 4a quantifies. _(2026-09-15: the p = .027 star quoted here and in §3 until now was
 a stale number; the canonical caches give p = .055, unstarred, and §3 now says so.)_
 
-**ED Fig. 3 | The push and the learning coupling under other units and other decoders (companion to
-Fig. 4b,c).** a, The push (left; within-mouse mixed model, depth ~ stage + sample, random intercept per mouse, 36
-observations) and the coupling (right; per-mouse Spearman ρ between Δdepth and ΔDPA accuracy on the GNG-free DPA
-trials, n = 9) under six units of the same cross-validated late-delay depth; raw log-odds is the unit of Fig. 4.
-The coupling holds under every unit (ρ = −0.67 to −0.80, p = .010–.036, the whole-trial-s.d. unit at the boundary,
-p = .0499); the push is a trend in raw units (β = −0.08,
-p = .10) and reaches significance only in evoked-s.d. (p = .007) and whole-trial-s.d. (p = .045) units. b, The
-coupling under three decoders: the ridge logistic decoder of Fig. 4c (ρ = −0.80, p = .010), an L1-regularized
-logistic decoder (ρ = −0.73, p = .025) and a shrinkage linear discriminant (ρ = −0.45, p = .22); held-out decision
-functions throughout.
+**ED Fig. 3 | The push and the learning coupling under other units, other decoders, a fixed axis and a lick
+covariate (companion to Fig. 4b,c).** All panels read cross-validated decision functions of the CCGD pipeline; the
+depth is the raw log-odds of Fig. 4 unless stated. a, The push (left; within-mouse mixed model, depth ~ stage +
+sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman ρ between Δdepth
+and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay depth. The coupling holds
+under every unit (ρ = −0.67 to −0.80, p = .010–.036, the whole-trial-s.d. unit at the boundary, p = .0499); the push
+is a trend in raw units (β = −0.08, p = .10) and reaches significance only in evoked-s.d. (p = .007) and
+whole-trial-s.d. (p = .045) units. b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c
+(ρ = −0.80, p = .010), an L1-regularized logistic decoder (ρ = −0.73, p = .025) and a shrinkage linear discriminant
+(ρ = −0.45, p = .22). c, The same two statistics on the per-stage decoder axes of Fig. 4 (left; push β = −0.078,
+p = .103; coupling ρ = −0.80, p = .010) and on one choice axis fitted per mouse to the naïve and expert trials
+pooled (right; `run_overlaps.py --pool-stages`; neurons registered in both stages; every trial read from the fold
+that held it out): the push is a trend of the same sign (β = −0.056, p = .059), whereas the coupling does not hold
+and reverses as a trend (ρ = +0.65, p = .058) — the coupling is carried by the stage-specific readouts. d,
+Late-delay licking on the CCGD depth. Left, mean depth against mean late-delay lick rate (7.0–7.5 s) per mouse and
+stage (open, naïve; filled, expert; ρ = +0.20, p = .42; licks on 11% of laser-off DPA trials, 0.42 → 0.22 Hz).
+Middle, the push with and without the per-mouse late-delay lick rate as a covariate (β = −0.078, p = .103 →
+−0.073, p = .136). Right, the coupling given the change in licking (ρ = −0.80, p = .010; partial rank correlation
+controlling for Δlick, r = −0.80, p = .010; Δlick against Δaccuracy, ρ = 0.00, p = 1.0).
 
-> **WITHDRAWN 2026-09-15 (Leon: "make sure all the results are cross validated — we had that problem in main"):**
-> the fixed-common-axis panel (old ED 5b) and the lick-covariate panel (old ED 5d), inherited from the old
-> supplement, projected TRAINING trials on the fold-averaged CCGD weights — not cross-validated. A held-out re-fit
-> of the axis from scratch (5-fold, the CCGD scaler + inner-CV L2) is a different and unstable estimator (one
-> mouse's evoked-s.d. normalisation explodes; per-stage coupling ρ = −0.57, p = .11 where the tensor gives −0.80,
-> p = .010; pooled axis ρ = +0.33), so neither panel is shown and §4 no longer claims "not significant on a fixed
-> common axis" or "unchanged with a lick covariate". To reinstate: a pooled-stage `run_overlaps` build for the common
-> axis; the CCGD tensor depth aligned to per-trial licks for the covariate. Producers: `overlaps/fig_overlaps_common_axis_supp.py`,
-> `fig_overlaps_lick_control_supp.py` (now held-out; gallery only).
+> **REINSTATED 2026-09-15 (Leon: "reinstate the fixed-axis and lick controls with the CCGD pipeline").** The two
+> controls withdrawn earlier the same day (they projected training trials on fold-averaged weights) are back on
+> held-out CCGD decision functions: `run_overlaps.py --pool-stages` (new option; 7.6 min) fits one choice decoder
+> per mouse on both stages, `exp_common_axis_ccgd.py` and `exp_lick_control_ccgd.py` produce the cache. The lick
+> control is at the mouse × sample × stage level because the CCGD rows come back in unseeded fold order and cannot be
+> aligned to individual behavioural trials. NEW RESULT: on the pooled axis the coupling REVERSES as a trend
+> (ρ = +0.65, p = .058), where the old non-cross-validated control had said "weakens to a trend, ρ = −0.63" — §4 now
+> states the reversal.
 
 **ED Fig. 4 | Chronic silencing of the two control projections during training (companion to Fig. 6b,c).**
 Every-trial silencing throughout training in two further between-group cohorts, drawn as Fig. 6b,c draws the

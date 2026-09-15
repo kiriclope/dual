@@ -125,6 +125,10 @@ subset = parser.add_argument_group('subset selection')
 subset.add_argument('--mice',    nargs='+', default=ALL_MICE,
                     metavar='MOUSE',
                     help='Mice to process')
+subset.add_argument('--pool-stages', action='store_true', dest='pool_stages',
+                    help='ONE decoder per mouse on the Naive+Expert trials pooled (neurons registered in both '
+                         'stages); rows keep their learning label. Run-id gains _pooled. (2026-09-15, ED 3: the '
+                         'fixed-common-axis control with held-out decision functions.)')
 subset.add_argument('--stages',  nargs='+', default=['Naive', 'Expert'],
                     metavar='STAGE',
                     help='Learning stages')
@@ -355,6 +359,8 @@ if sorted(args.mice) != sorted(ALL_MICE):
     dum += '_mice_' + '-'.join(sorted(args.mice))
 if sorted(args.stages) != sorted(['Naive', 'Expert']):
     dum += '_stages_' + '-'.join(sorted(args.stages))
+if args.pool_stages:
+    dum += '_pooled'
 if sorted(args.targets) != sorted(['sample', 'choice', 'test']):
     dum += '_targets_' + '-'.join(sorted(args.targets))
 if args.contexts != ['all']:
@@ -378,12 +384,19 @@ weights_out, valid_masks = {}, {}   # filled only when --save-weights
 for mouse in args.mice:
     X_stage_list, y_stage_list = [], []
 
-    for stage in args.stages:
-        idx = (y_all.mouse == mouse) & (y_all.learning == stage)
+    for stage in (['Pooled'] if args.pool_stages else args.stages):
+        if args.pool_stages:                                  # one fit on both stages, registered neurons only
+            idx = (y_all.mouse == mouse) & y_all.learning.isin(args.stages)
+            valid = np.ones(X_all.shape[1], bool)
+            for st in args.stages:
+                valid &= ~np.all(np.isnan(X_all[(y_all.mouse == mouse) & (y_all.learning == st)]), axis=(0, 2))
+        else:
+            idx = (y_all.mouse == mouse) & (y_all.learning == stage)
         X_df = X_all[idx]
         y_df = y_all.loc[idx].reset_index(drop=True)
 
-        valid = ~np.all(np.isnan(X_df), axis=(0, 2))
+        if not args.pool_stages:
+            valid = ~np.all(np.isnan(X_df), axis=(0, 2))
         X_df = X_df[:, valid, :]
         if args.save_weights:
             # neuron basis is shared by all targets/contexts of this (mouse, stage)
@@ -400,7 +413,7 @@ for mouse in args.mice:
 
                 X_y_data = dataloader(
                     X_df, y_df,
-                    target=target, stage=stage, context=context,
+                    target=target, stage=(None if args.pool_stages else stage), context=context,
                     correct=args.correct, strata=True,
                     with_laser=args.with_laser,
                 )

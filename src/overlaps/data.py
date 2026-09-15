@@ -44,9 +44,12 @@ def dataloader(
         idx_cross_context = (y_df.tasks != context)
     # context == 'all': idx_cross_context stays False (no cross-condition set)
 
-    m_within = ((y_df.laser == 0) & (y_df.learning == stage)
+    # stage=None (2026-09-15, run_overlaps --pool-stages): no learning-stage filter — one decoder on the
+    # Naive+Expert trials of a mouse; the rows keep their `learning` label for the downstream split.
+    idx_stage = True if stage is None else (y_df.learning == stage)
+    m_within = ((y_df.laser == 0) & idx_stage
                 & idx_context & idx_correct)
-    m_cross = ((y_df.laser == 0) & (y_df.learning == stage)
+    m_cross = ((y_df.laser == 0) & idx_stage
                & idx_cross_context & idx_correct)
 
     X_within = X[m_within]
@@ -60,7 +63,7 @@ def dataloader(
     # Laser-ON held-out set: same stage/context, NOT correctness-filtered (laser
     # impairs accuracy, so correct-only would be survivor-biased). Projected — never
     # trained on. Empty when with_laser=False so downstream guards skip it.
-    m_laser = ((y_df.laser == 1) & (y_df.learning == stage) & idx_context
+    m_laser = ((y_df.laser == 1) & idx_stage & idx_context
                if with_laser else pd.Series(False, index=y_df.index))
     X_laser = X[m_laser]
     y_laser = y_df.loc[m_laser].reset_index(drop=True).copy()
