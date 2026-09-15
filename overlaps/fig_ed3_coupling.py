@@ -75,8 +75,8 @@ NORM_LAB = {'raw': 'raw (Fig. 4)', 'baseline-std': 'baseline s.d.', 'eqnorm': 'w
 def panel_a(fig, gs):
     N = C['norm']; norms = N['norms']; yv = np.arange(len(norms))[::-1]
     axes = []
-    for k, (dat, ttl, xlab) in enumerate([(N['push'], 'push (within mouse)', 'LMM β, depth ~ stage'),
-                                          (N['coup'], 'coupling (between mice)', 'Spearman ρ (Δdepth vs Δaccuracy)')]):
+    for k, (dat, ttl, xlab) in enumerate([(N['push'], 'push (within mouse)', 'LMM β (depth ~ stage)'),
+                                          (N['coup'], 'coupling (between mice)', 'Spearman ρ')]):
         ax = fig.add_subplot(gs[0, k]); axes.append(ax)
         for i, nm in enumerate(norms):
             val, p = dat[nm]; sig = p < 0.05
@@ -174,7 +174,7 @@ def panel_d(fig, gs):
         ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
         ticks.append(lab)
         print(f'd: push covariate={lab:7s} β={bta:+.3f} ± {se:.3f} p={p:.3f}')
-    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.6, 1.6)
+    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.9, 1.9)
     ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS); ax.set_ylim(-1.0, 0.12)
     ax = fig.add_subplot(gs[0, 2]); axes.append(ax)
     gd = L['gd']
@@ -252,7 +252,7 @@ def panel_dd(fig, gs):
         col = SIGC if p < 0.05 else NSC
         ax.errorbar(i, bta, se, fmt='o', color=col, ms=5, capsize=3, lw=1.1)
         ticks.append(lab)
-    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.6, 1.6)
+    ax.axhline(0, ls=':', color='0.6', lw=0.8); ax.set_xticks([0, 1]); ax.set_xticklabels(ticks, fontsize=PS*6.2); ax.set_xlim(-0.9, 1.9)
     ax.set_ylabel('push: LMM β, depth ~ stage'); ax.set_title('push | lick', loc='left', fontsize=TITLE_FS)
     ax = fig.add_subplot(gs[0, 2]); axes.append(ax)
     gd = L['gd']
