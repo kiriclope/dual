@@ -67,10 +67,7 @@ shuffled condition labels within mouse (preserving trial counts and noise struct
 on reliable variance, not on PR (the PR of a near-zero noise spectrum is undefined-ly large); the null
 spectrum shown in Fig. 2b is normalised by the real spectrum's positive total (its own total is near
 zero, so a self-normalised null would be meaningless). Windows:
-mid-delay (bins 36–38, data 5.5–6.3 s: it opens at distractor offset (4.5–5.5 s) and closes before
-the Go/NoGo response cue (6.5–7 s) and its reward (7–7.5 s), so no Go/NoGo lick has yet occurred —
-the clean maintenance window; used throughout Fig. 2b–d; the distractor odour's sensory tail may
-contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); the twelve-condition spectra and participation ratios of Extended Data Fig. 3a,b use these same two windows and the same estimator (since 2026-09-15; the earlier build used late delay, bins 48–53, and bins 57–65). The time-resolved (trajectory) dimensionality
+mid-delay (bins 33–38, 5.5–6.5 s — the whole interval from the Go/NoGo odor's offset to the response cue (6.5–7 s), so no cue or lick has yet occurred; the canonical window since 2026-09-09, when the 0.5 s-offset convention (36–38) was retired; used throughout Fig. 2b–d; the Go/NoGo odor's sensory tail may contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — canonical since 2026-09-08; read-out windows are the same in both pipelines, see results_draft.md Methods); the twelve-condition spectra and participation ratios of Extended Data Fig. 3a,b use these same two windows and the same estimator (since 2026-09-15; the earlier build used late delay, bins 48–53, and bins 57–65). The time-resolved (trajectory) dimensionality
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
 
