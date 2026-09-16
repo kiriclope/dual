@@ -1,5 +1,15 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.50 (2026-09-16): LEON'S 2026-09-07 ARTIFACT COMMENTS APPLIED** (15 open threads on the draft page, never actioned).
+> First sentence recast ("Remembering while acting is hard …"); "representation" → subspace/code/geometry in Abstract and
+> Introduction; "delay" defined at first use; the dual task named in the construction-vs-editing paragraph and the next paragraph
+> trimmed; "as far as we could detect / no detectable" → plain statements (Abstract, Introduction, §2); "This frame is what
+> construction predicts" → active; "The maintained memory is a line in population space" cut; "three questions of increasing
+> strength" → "three questions"; the dPCA axis-angle clause moved from §2 to §4 beside Fig. 4a; the two §4 caveat sentences
+> removed from Results (their content stays in Methods and the Discussion scope paragraph). Answered on the threads: the naïve
+> pre-test choice (a selection effect, resolved on all trials), the test code outside the plane (verified on the canonical cache),
+> Go trials in the out-of-context statement (already "dual-task trials"), decoders trained on laser-OFF trials (yes).
+
 > **v12.49 (2026-09-16): no PCA-20 mention anywhere in the manuscript text** (Leon) — the estimator paragraph describes the reported pipeline only (standardisation + L2 logistic regression on the full neuron space); the star rule no longer names a pipeline.
 
 > **v12.48 (2026-09-16): METHODS — the remaining judgment calls** (Leon: "I thought we unified these windows … go for the rest").
@@ -235,7 +245,7 @@ Trial-type-adjusted ORs added as a robustness line.
 > `docs/pca/dimensionality.md` 2026-09-07 (caches OOC_PLANE_PSEUDO_nopca / OOC_PLANE_nopca, 20 resamples).
 
 > **v12.7 (2026-09-07): intro gap sentence made a question** (artifact comment "this should be a question"):
-> "Which of the two describes the natural acquisition of a composite task?" closes intro ¶2 (Kaufman and Yang
+> "Which of the two describes the natural acquisition of a composite task, here an olfactory dual task in which mice hold a sample odor in memory while performing a Go/NoGo discrimination inside the delay?" closes intro ¶2 (Kaufman and Yang
 > pose their gap as a question in the Introduction; questions stay out of the Results).
 
 > **v12.6 (2026-09-07): PLANE STORY RECAST — route A** (artifact comment: "worried that we are overselling this
@@ -503,12 +513,9 @@ Trial-type-adjusted ORs added as a robustness line.
 
 ## Abstract
 
-Holding a memory while other events demand a response is difficult, because the prefrontal
-neurons maintaining it also respond to them. How a circuit manages both is unknown. Here we
-show that mouse medial prefrontal cortex accommodates a second task by moving activity within
-an existing representation rather than building a new one. We imaged prelimbic neurons as mice
-learned a delayed paired association with an embedded Go/NoGo discrimination. Memory, Go/NoGo and choice occupied nearly orthogonal axes of one low-dimensional subspace, shared across trial types and already present when dual task training began. Learning added no
-detectable coding dimension. Instead, the GNG code rotated onto the choice axis and the memory state sat at a no-lick set-point whose depth predicted each animal's
+Remembering while acting is hard: the prefrontal neurons that hold a memory also respond to the events and actions that interrupt it. How a circuit manages both is unknown. Here we
+show that mouse medial prefrontal cortex accommodates a second task by moving activity within an existing subspace rather than building a new one. We imaged prelimbic neurons as mice
+learned a delayed paired association with an embedded Go/NoGo discrimination. Memory, Go/NoGo and choice occupied nearly orthogonal axes of one low-dimensional subspace, shared across trial types and already present when dual task training began. Learning added no coding dimension. Instead, the GNG code rotated onto the choice axis and the memory state sat at a no-lick set-point whose depth predicted each animal's
 improvement. Silencing anterior cingulate input displaced the state without degrading its code.
 Learning and top-down control act on where the state sits within a fixed geometry.
 
@@ -517,10 +524,7 @@ Learning and top-down control act on where the state sits within a fixed geometr
 Behavior in a natural setting is rarely one thing at a time. An animal keeps a goal in mind
 while it monitors new stimuli, decides whether they call for an action and produces it, and
 these computations run concurrently in overlapping cortical circuits. Prefrontal cortex makes
-the problem concrete. The neurons that hold a memory across a delay also respond to intervening
-stimuli and to the animal's own actions [Jacob 2014; Parthasarathy 2017; Musall 2019]. When a
-second task is performed during the delay, the memory representation weakens and behavior
-suffers, in monkey prefrontal cortex as in human dual task interference [Watanabe 2014; Pashler
+the problem concrete. The neurons that hold a memory across a delay — the interval that a working-memory task imposes between the cue to remember and the moment the memory is used — also respond to intervening stimuli and to the animal's own actions [Jacob 2014; Parthasarathy 2017; Musall 2019]. When a second task is performed during the delay, the memory code weakens and behavior suffers, in monkey prefrontal cortex as in human dual task interference [Watanabe 2014; Pashler
 1994], and even a distractor that requires no response is encoded by the same neurons and
 transiently disrupts or reformats the memory code [Jacob 2014; Parthasarathy 2017]. Cortex can
 limit such interference by keeping sensory input and stored information in separate subspaces
@@ -530,9 +534,7 @@ demand is imposed on it remains unknown.
 Population recordings suggest where such an arrangement might live. Cortical computation is
 increasingly described in terms of the low-dimensional geometry of population activity, the
 subspaces and coding axes along which neural states move [Mante 2013; Kaufman 2014; Vyas 2020].
-The format of that geometry matters for what a downstream reader can do with it, because
-representations in which each variable has its own, roughly orthogonal axis generalize to new
-conditions and let variables be read and combined without interference [Rigotti 2013; Bernardi
+The format of that geometry matters for what a downstream reader can do with it, because geometries in which each variable has its own, roughly orthogonal axis generalize to new conditions and let variables be read and combined without interference [Rigotti 2013; Bernardi
 2020]. Seen this way, a cortical population could acquire a composite task in two quite
 different ways. It could construct, adding new coding dimensions to make room for the second
 task; in brain-computer-interface experiments this kind of outside-manifold learning is slow
@@ -546,15 +548,11 @@ Construction requires the set of coding dimensions to change as the second task 
 whereas editing requires that set to stay fixed while the states within it move. Which of the
 two describes the natural acquisition of a composite task?
 
-To force such an acquisition, we trained mice on a dual task composed of an olfactory delayed
-paired association (DPA) and a Go/NoGo (GNG) discrimination embedded in its delay, so that the
-same delay period sometimes demanded an intervening action and sometimes did not. Delay
+The dual task composes a delayed paired association (DPA) with a Go/NoGo (GNG) discrimination embedded in its delay, so that the same delay period sometimes demanded an intervening action and sometimes did not. Delay
 activity in medial prefrontal cortex (mPFC) is required for learning this class of task [Liu
-2014], and we imaged its prelimbic population throughout dual task learning. Here we show that
-mPFC does not build a new representation for the composition. The memory and the choice are
+2014], and we imaged its prelimbic population throughout dual task learning. Here we show that mPFC does not build a new subspace for the composition. The memory and the choice are
 carried on nearly orthogonal axes of a low-dimensional subspace that is already present, with
-the same axes, when dual task training begins, and learning adds no dimension that we could
-detect. What learning changes lies inside that subspace: the GNG code aligns with the pre-existing choice axis, and the working-memory state moves along that axis into the half that
+the same axes, when dual task training begins, and learning adds no dimension. What learning changes lies inside that subspace: the GNG code aligns with the pre-existing choice axis, and the working-memory state moves along that axis into the half that
 suppresses licking. This shift accompanies the uncoupling of the delay lick from the false
 alarms it produced, predicts memory performance animal by animal, and is itself moved by
 top-down input from the anterior cingulate cortex (ACC), a projection whose silencing during
@@ -663,8 +661,7 @@ picture held animal by animal, on each mouse's own simultaneously recorded neuro
 the reliable variance could be resolved, one component dominated the delay spectrum (Extended
 Data Fig. 3d; median top-1 fraction 0.90 naïve, 0.93 expert, n = 7 resolvable mice per stage),
 and the decision period was higher-dimensional than the delay within the same mice (expert 0.93
-versus 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22). The
-maintained memory is a line in population space.
+versus 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22).
 
 Each of these dimensions corresponded to one task variable, and it was occupied only when the
 task called for that variable. We trained a decoder along each variable's own axis and tested
@@ -703,11 +700,9 @@ independence prediction (Fig. 2g; 5.5% versus 5.8%). One axis per variable, with
 nearly orthogonal, is what a memory needs in order to survive an action performed in the middle
 of it, because variables on separate axes cannot overwrite one another.
 
-This frame is what construction predicts learning should change, and as far as we could detect
-it did not change. Naïve and expert spectra, decodability and coding patterns were
+Construction predicts that learning changes this frame. It did not. Naïve and expert spectra, decodability and coding patterns were
 near-identical (Fig. 2b–d), and jackknife confidence intervals across mice, leaving out one
-animal at a time, included zero on the naïve−expert difference for every spectrum component and for every decodable variable except the choice code at the decision window on DPA trials, which is stronger in expert mice (Δ = −0.20, CI [−0.36, −0.04]) and is the readout of the decision rather than of the frame (Methods). Composing the two tasks added no representational dimension
-that we could detect, and removed none. Two within-animal changes sit at the threshold of detection and are
+animal at a time, included zero on the naïve−expert difference for every spectrum component and for every decodable variable except the choice code at the decision window on DPA trials, which is stronger in expert mice (Δ = −0.20, CI [−0.36, −0.04]) and is the readout of the decision rather than of the frame (Methods). Composing the two tasks added no coding dimension and removed none. Two within-animal changes sit at the threshold of detection and are
 reported as such: a small rise of the shattering dimension in each mouse's own population (p = 0.055; Extended
 Data Fig. 3c) and a closer alignment of the choice and task axes in the pooled demixed decomposition that does
 not resolve across animals (p = 0.17; Extended Data Fig. 5b). The first prediction of construction therefore fails,
@@ -727,17 +722,12 @@ Two limits of this measurement should be stated. First, the memory state is one-
 partly by construction, because a DPA trial asks the animal to hold a single binary variable;
 variance-weighted estimates of dimensionality and the full twelve-condition spectra are given
 in Extended Data Fig. 3a,b. Second, these numbers describe the geometry of the states that the
-population visits, not the dynamics that carry it between them, which are of higher rank. An
-independent decomposition of the same data by demixed PCA gives the same picture (Extended Data
-Fig. 5): time courses along single axes sharpened with learning without reorganizing,
-and the changes in the angles between its axes (choice–task |cos| 0.147 → 0.222, sample–test 0.098 → 0.033) are not
-resolved across animals once the decomposition is re-fitted on resampled mice (Δ = +0.076, 95% CI [−0.030, +0.316],
-p = 0.17; Δ = −0.065 [−0.199, +0.044], p = 0.33).
+population visits, not the dynamics that carry it between them, which are of higher rank. An independent decomposition of the same data by demixed PCA gives the same picture (Extended Data Fig. 5): time courses along single axes sharpened with learning without reorganizing.
 
 ## A single plane carries the memory and choice codes
 
 A shared, low-dimensional code is not yet a single structure that the animal reuses. We
-therefore asked three questions of increasing strength. The first is whether the memory and the
+therefore asked three questions. The first is whether the memory and the
 choice occupy one two-dimensional subspace, the sample × choice plane. The second is what else
 lives in that plane, and what does not. The third is whether it is the same plane before and
 after dual task learning.
@@ -807,7 +797,7 @@ described in hippocampus and prefrontal cortex [Bernardi 2020].
 That leaves editing, which predicts that learning moves states within the fixed frame, so we
 asked what moves. Two things did, and both concerned the choice axis. The first was the
 GNG code. In naïve mice the GNG code and the choice code were only partly
-aligned, and with learning the GNG code rotated onto the choice axis (Fig. 4a). For this test the choice axis was fitted on the GNG-free DPA trials, so that its alignment with the GNG axis cannot be inherited from GNG-evoked activity in the same trials. A decoder trained on one code read the other with a chance-referenced transfer of 0.41 [0.15, 0.62] in naïve animals and 0.47 [0.23, 0.68] in expert animals, and within animals both the raw cosine between the two axes (0.063 → 0.104, p = .004, 9/9 mice) and the cross-decoding (0.53 → 0.60, p = .004) increased. The same convergence measured on the dual-task trials themselves was present but heterogeneous across animals (Methods). The GNG code's demand had become readable as what it is for the animal, a choice.
+aligned, and with learning the GNG code rotated onto the choice axis (Fig. 4a). For this test the choice axis was fitted on the GNG-free DPA trials, so that its alignment with the GNG axis cannot be inherited from GNG-evoked activity in the same trials. A decoder trained on one code read the other with a chance-referenced transfer of 0.41 [0.15, 0.62] in naïve animals and 0.47 [0.23, 0.68] in expert animals, and within animals both the raw cosine between the two axes (0.063 → 0.104, p = .004, 9/9 mice) and the cross-decoding (0.53 → 0.60, p = .004) increased. The same convergence measured on the dual-task trials themselves was present but heterogeneous across animals (Methods), and the pooled demixed decomposition shows the same direction (choice–task |cos| 0.147 → 0.222) without resolving it across animals (Δ = +0.076, 95% CI [−0.030, +0.316], p = 0.17; Extended Data Fig. 5b). The GNG code's demand had become readable as what it is for the animal, a choice.
 
 The second was the memory itself. Learning moved the working-memory state along that same axis,
 toward the no-lick side. In expert mice the delay state of DPA trials sat further into the
@@ -832,12 +822,7 @@ of trials. Within naïve unpaired trials, the trial-by-trial depth of the state 
 detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −0.17, p = 0.11; sample B −0.02, p = 0.89), so we found no evidence that the repositioning is a
 within-stage readout of accuracy rather than a between-animal learning effect. Second, what
 moved was the position of the state rather than the code itself, since we found no detectable
-change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in fourteen carried one over the late-delay window; 7% at both stages), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.05, p = 0.20 over the eight mice that licked at both stages; lick-rate covariate β = +0.06, p = 0.28); the coupling held on the trials without a lick (ρ = −0.80, p = 0.009; Extended Data Fig. 6d). Two caveats also apply.
-The push is directional rather than a precise magnitude, because part of the per-stage change
-is a reorganization of the decoder axis itself: across animals (mixed model, Extended Data Fig. 6a) it is a trend in the raw units of Fig. 4 (p = 0.10) that reaches significance only in evoked-s.d. (p = 0.007) and whole-trial-s.d. (p = 0.045) units, remaining a trend of the same sign (p = 0.08–0.11) under the other normalizations of the axis (Extended Data Fig. 6a), and on one axis fitted to both stages together it is a trend of the same sign (β = −0.06, p = 0.059; Extended Data Fig. 6c). And the
-behavioral coupling is an individual-difference correlation over nine animals, whose robustness
-and limits are set out in Methods.
-
+change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in fourteen carried one over the late-delay window; 7% at both stages), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.05, p = 0.20 over the eight mice that licked at both stages; lick-rate covariate β = +0.06, p = 0.28); the coupling held on the trials without a lick (ρ = −0.80, p = 0.009; Extended Data Fig. 6d).
 ## A circuit model of the gated no-lick repositioning
 
 A circuit model of the gated no-lick repositioning is in preparation (Fig. 5). **[AUTHOR:
