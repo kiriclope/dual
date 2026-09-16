@@ -534,9 +534,8 @@ Trial-type-adjusted ORs added as a robustness line.
 Remembering while acting is hard, because the prefrontal neurons that hold a memory also respond to the events that
 interrupt it. How a circuit learns to do both at once is unknown. Here we imaged prelimbic neurons in mice learning a
 delayed paired association with a Go/NoGo discrimination embedded in its delay. Memory and choice occupied nearly
-orthogonal axes of one low-dimensional subspace, which was shared across trial types and present before dual task
-training. Learning added no coding dimension. Instead, the Go/NoGo code rotated onto the choice axis, and the memory
-state moved along that axis to a no-lick set-point, by an amount that predicted each animal's improvement. Input from
+orthogonal axes of one low-dimensional subspace, shared across trial types and present before dual task training. Learning added no coding dimension. Instead, the Go/NoGo code rotated onto the choice axis, and the memory
+state moved along that axis to a no-lick set-point, by an amount predicting each animal's improvement. Input from
 the anterior cingulate cortex displaced the state without degrading its code, and silencing this input during training
 impaired learning of the memory task. These results indicate that learning and top-down control act on where a state
 sits within a fixed geometry.
