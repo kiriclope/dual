@@ -578,7 +578,7 @@ dimension at the same moment (0.92 + 0.07 [0.01, 0.13]), which we identify below
 GNG axis, and the decision period spread the state over three reliable axes on DPA trials (reliable-variance fractions 0.41/0.40/0.20) and two on Go and NoGo trials (0.84/0.12), where the GNG axis still carried most of the reliable variance. The same
 picture held animal by animal, on each mouse's own simultaneously recorded neurons. Wherever
 the reliable variance could be resolved, one component dominated the delay spectrum (Extended
-Data Fig. 3c; median top-1 fraction 0.90 naïve, 0.93 expert, n = 7 resolvable mice per stage),
+Data Fig. 2d; median top-1 fraction 0.90 naïve, 0.93 expert, n = 7 resolvable mice per stage),
 and the decision period was higher-dimensional than the delay within the same mice (expert 0.93
 versus 0.61, Wilcoxon p = 0.047, 6/7 mice; naïve in the same direction, p = 0.22). The
 maintained memory is a line in population space.
@@ -644,7 +644,7 @@ variance-weighted estimates of dimensionality and the full twelve-condition spec
 in Extended Data Fig. 2a,b. Second, these numbers describe the geometry of the states that the
 population visits, not the dynamics that carry it between them, which are of higher rank. An
 independent decomposition of the same data by demixed PCA gives the same picture (Extended Data
-Fig. 3): time courses along single axes sharpened with learning without reorganizing, the
+Fig. 3): time courses along single axes sharpened with learning without reorganizing,
 and the changes in the angles between its axes (choice–task |cos| 0.147 → 0.222, sample–test 0.098 → 0.033) are not
 resolved across animals once the decomposition is re-fitted on resampled mice (Δ = +0.076, 95% CI [−0.030, +0.316],
 p = 0.17; Δ = −0.065 [−0.199, +0.044], p = 0.33).
@@ -686,8 +686,8 @@ directions reduces every trial to a pair of numbers, and projecting it onto ever
 orthogonal to them leaves the rest of the population with the plane removed. We decoded each
 variable from the plane, from the residual, and from the full population (withheld trials;
 paired Wilcoxon tests, n = 9; Fig. 3c and Extended Data Fig. 1d). For the sample and the choice this is a consistency
-check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.001 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.70 to 0.56 for the sample (p = .004) and from 0.63 to 0.56 for the choice (p = .012), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
-The test code lay outside the plane: its two coordinates decoded it at 0.52, against 0.57 from the full population (p = .055), and removing the plane left it untouched (p = .82). The GNG code fell between the two, with a real but
+check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.001 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.73 to 0.58 for the sample (p = .004) and from 0.63 to 0.55 for the choice (p = .004), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
+The test code lay outside the plane: its two coordinates decoded it at 0.50, against 0.58 from the full population (p = .012), and removing the plane left it untouched (p = .57). The GNG code fell between the two, with a real but
 partial share of the plane (p = .004). The pooled population gave the same verdict for the
 memory subspace as a whole: read from the top three principal components of the DPA state, the GNG code decoded at only 0.61 at mid-delay (permutation p = 0.031; Methods).
 
@@ -1434,8 +1434,7 @@ GNG code's plane-only accuracy rises (0.56 → 0.64, p = .027, 7/9 mice; p = .03
 correct trials), while the test code's plane-only accuracy stays at chance (0.51 → 0.49, p = .31). ∗ marks p < .05 on
 the canonical pipeline, which only that cell reaches. All panels use all laser-off trials (canonical since
 2026-09-15; on correct trials the same cells read 0.57 → 0.63, p = .055, and the test cell 0.53 → 0.50, p = .055). Learning pulls the GNG code
-toward the plane, which Fig. 4a quantifies. _(2026-09-15: the p = .027 star quoted here and in §3 until now was
-a stale number; the canonical caches give p = .055, unstarred, and §3 now says so.)_
+toward the plane, which Fig. 4a quantifies.
 
 **ED Fig. 2 | Dimensionality: provenance and robustness (companion to Fig. 2b–d).** a, Cross-validated
 spectra of the DPA state (four conditions) and of the full twelve-condition state, at mid-delay (5.5–6.5 s) and at
