@@ -526,10 +526,8 @@ Remembering while acting is hard: the prefrontal neurons that hold a memory also
 interrupt it. Here we show that mouse medial prefrontal cortex accommodates a second task by moving activity within an
 existing subspace rather than building a new one. We imaged prelimbic neurons as mice learned a delayed paired association
 with an embedded Go/NoGo discrimination. Memory and choice occupied nearly orthogonal axes of one low-dimensional subspace,
-shared across trial types and already present when dual task training began. Learning added no coding dimension. Instead,
-the Go/NoGo code rotated onto the choice axis and the memory state moved along that axis to a no-lick set-point, by an
-amount that predicted each animal's improvement. Anterior cingulate input displaced the state without degrading its code,
-and its silencing during training impaired learning of the memory task. Learning and top-down control act on where the
+shared across trial types and present before dual task training. Learning added no coding dimension. Instead,
+the Go/NoGo code rotated onto the choice axis and the memory state moved along that axis to a no-lick set-point, by an amount predicting each animal's improvement. Anterior cingulate input displaced the state without degrading its code; silencing it during training impaired learning of the memory task. Learning and top-down control act on where the
 state sits within a fixed geometry.
 
 ---
