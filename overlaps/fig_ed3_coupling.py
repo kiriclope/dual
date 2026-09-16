@@ -248,7 +248,7 @@ def panel_dd(fig, gs):
     pw = L['wilcoxon_p']; sig = pw < 0.05
     ax.text(0.5, 0.97, '∗' if sig else 'n.s.', transform=ax.transAxes, ha='center', va='top', fontsize=PS*(12 if sig else 8), fontweight='bold', color='k' if sig else '0.55')
     lo, hi = ax.get_ylim(); ax.set_ylim(lo - 0.40 * (hi - lo), hi)
-    ax.text(0.97, 0.03, f'median ρ = {L["per"].median():+.2f}\np = {pw:.2f}, 9 mice\n{L["n_trials"]} trials', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
+    ax.text(0.97, 0.03, f'median ρ = {L["per"].median():+.2f}\np = {pw:.2f}, {len(L["per"])} mice\n{L["n_trials"]} trials', transform=ax.transAxes, ha='right', va='bottom', fontsize=PS*6.5, color='0.3')
     # middle: the push on all trials, on no-lick trials, and with a trial-level lick covariate
     ax = fig.add_subplot(gs[0, 1]); axes.append(ax); ticks = []
     for i, (lab, (bta, se, p)) in enumerate([('all', L['push_all'][:3]), ('no-lick', L['push_nolick'][:3]), ('lick', L['push_lick'][:3])]):
@@ -301,13 +301,14 @@ CAP = [
     'mouse to the naïve and expert trials pooled (right; neurons registered in both stages; every trial read from '
     'the fold that held it out; pooled-axis coupling ρ = +0.65 [−0.15, +1.00]). d, Late-delay licking, trial by trial: '
     'every held-out decision function aligned to its behavioural trial (seeded folds and a session trial index; lick '
-    'rate over 6.0–7.5 s after the sample stamp of the behaviour file, the late-delay window of the depth). Left, '
+    'rate over 5.5–7.0 s after sample-odor onset, the 7.5–9.0 s late-delay window of the depth on the imaging clock). Left, '
     'Spearman ρ between depth and lick rate over the trials of each mouse and stage (open, naïve; filled, expert; '
-    'Wilcoxon over the nine per-mouse means: median ρ = +0.06, p = .91; licks on 14.5% of the 1,824 matched trials). '
+    'Wilcoxon over the per-mouse means, eight mice with a late-delay lick at both stages: median ρ = +0.05, p = .20; licks on '
+    '6.9% of the 1,824 matched trials). '
     'Middle, the push (mixed model on mouse × sample × stage means, as in a) on all trials (β = −0.077, p = .14), on the '
-    'trials without a late-delay lick (−0.053, p = .30) and on the trials with one (−0.218, p = .031, 31 cells); a '
-    'trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick β = +0.02, p = .57). '
-    'Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.78, p = .014; all trials of this run, '
+    'trials without a late-delay lick (−0.072, p = .16) and on the trials with one (−0.156, p = .14, 28 cells); a '
+    'trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick β = +0.06, p = .28). '
+    'Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.80, p = .009; all trials of this run, '
     'ρ = −0.69, p = .038). This panel reads a re-run of the choice decoder with seeded folds, a new cross-validation '
     'draw of the same pipeline. Mouse colours as in Fig. 4; ∗ p < 0.05, n.s. '
     'otherwise.',

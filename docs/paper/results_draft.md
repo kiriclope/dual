@@ -1,5 +1,15 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.42 (2026-09-16): LICK-CONTROL WINDOW CORRECTED — THE BEHAVIOUR FILE'S SAMPLE STAMP IS THE SAMPLE-ODOR ONSET (imaging 2.0 s),
+> NOT 1.5 s BEFORE IT** (Leon: "check the cue offset in ED 1b"). Verified on the stamps: FirstOdor == Sample, Test == Sample + 7.0 s
+> (= imaging 9.0 s), odor 1 s, GNG odor at +2.5 s, cue at +4.5 s — every event maps with a 2.0 s offset, and Go-trial first licks
+> follow the cue by 0.35–0.65 s (with 1.5 s they would have preceded it). The late-delay lick window of ED 6d (and of the
+> gallery-only mouse-level control) was therefore 6.0–7.5 s file time = imaging 8.0–9.5 s, letting the first 0.5 s of test-odor
+> licks in; corrected to 5.5–7.0 s (= bins 45–53). Late-delay licks fall from 14.5% to 6.9% of DPA trials (7.3% naïve, 6.2% expert —
+> not a learning change); per-mouse ρ(depth, lick) median +0.05, p = .20 (8 mice with licks at both stages); lick covariate β +0.06
+> p .28; push no-lick −0.072 p .16 / lick −0.156 p .14; coupling on no-lick trials ρ −0.80 p .009. Conclusions unchanged; §4 and
+> the ED 6d legend carry the new numbers. ED 1a,b redrawn with the 2.0 s clock.
+
 > **v12.41 (2026-09-16): SUPPLEMENTARY REVIEW APPLIED — NINE EXTENDED DATA FIGURES, RENUMBERED BY FIRST CITATION** (Leon:
 > "Use a placeholder figure for (1) for now, build ED 7 with the licks, and the rest of the fixes"). New: ED 1 behaviour
 > (`overlaps/fig_ed_behavior.py`: lick rasters/PSTHs from the behaviour files, delay-lick rate per mouse, per-animal learning
@@ -766,7 +776,7 @@ of trials. Within naïve unpaired trials, the trial-by-trial depth of the state 
 detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −1.05, p = 0.26; sample B +1.17, p = 0.49), so we found no evidence that the repositioning is a
 within-stage readout of accuracy rather than a between-animal learning effect. Second, what
 moved was the position of the state rather than the code itself, since we found no detectable
-change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in seven carried one over the late-delay window; 18% of naïve and 10% of expert trials), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.06, p = 0.91 over mice; lick-rate covariate β = +0.02, p = 0.57); the coupling held on the trials without a lick (ρ = −0.78, p = 0.014; Extended Data Fig. 6d). Two caveats also apply.
+change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in fourteen carried one over the late-delay window; 7% at both stages), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.05, p = 0.20 over the eight mice that licked at both stages; lick-rate covariate β = +0.06, p = 0.28); the coupling held on the trials without a lick (ρ = −0.80, p = 0.009; Extended Data Fig. 6d). Two caveats also apply.
 The push is directional rather than a precise magnitude, because part of the per-stage change
 is a reorganization of the decoder axis itself: in the raw units of Fig. 4 it is a trend (p = 0.10) that reaches significance only in evoked-s.d. (p = 0.007) and whole-trial-s.d. (p = 0.045) units, remaining a trend of the same sign (p = 0.08–0.11) under the other normalizations of the axis (Extended Data Fig. 6a), and on one axis fitted to both stages together it is a trend of the same sign (β = −0.06, p = 0.059; Extended Data Fig. 6c). And the
 behavioral coupling is an individual-difference correlation over nine animals, whose robustness
@@ -1532,15 +1542,15 @@ that held it out): the push is a trend of the same sign (β = −0.056, p = .059
 and reverses as a trend (ρ = +0.65, p = .058; bootstrap 95% CI over mice [−0.15, +1.00]) — the coupling is carried by
 the stage-specific readouts. d,
 Late-delay licking, trial by trial: every held-out decision function aligned to its behavioural trial (seeded folds and a
-session trial index; lick rate over 6.0–7.5 s after the behaviour file's sample stamp = the 7.5–9.0 s late-delay window of
-the depth). Left, Spearman ρ between depth and lick rate over the trials of each mouse and stage (open, naïve; filled,
-expert; Wilcoxon over the nine per-mouse means: median ρ = +0.06, p = .91; licks on 14.5% of the 1,824 matched trials,
-17.9% naïve, 10.1% expert). Middle, the push (mixed model on mouse × sample × stage means, as in a) on all trials
-(β = −0.077, p = .14), on the trials without a late-delay lick (−0.053, p = .30) and on the trials with one (−0.218,
-p = .031, 31 cells); a trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick β = +0.02,
-p = .57). Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.78, p = .014; all trials of this run,
-ρ = −0.69, p = .038). This panel reads a re-run of the choice decoder with seeded folds, a new cross-validation draw of
-the same pipeline.
+session trial index; lick rate over 5.5–7.0 s after sample-odor onset, the 7.5–9.0 s late-delay window of the depth on the
+imaging clock). Left, Spearman ρ between depth and lick rate over the trials of each mouse and stage (open, naïve; filled,
+expert; Wilcoxon over the per-mouse means, eight mice with a late-delay lick at both stages: median ρ = +0.05, p = .20; licks
+on 6.9% of the 1,824 matched trials, 7.3% naïve, 6.2% expert). Middle, the push (mixed model on mouse × sample × stage means,
+as in a) on all trials (β = −0.077, p = .14), on the trials without a late-delay lick (−0.072, p = .16) and on the trials with
+one (−0.156, p = .14, 28 cells); a trial-level model with the lick rate as a covariate leaves the stage term unchanged (lick
+β = +0.06, p = .28). Right, the coupling with Δdepth computed from no-lick trials only (ρ = −0.80, p = .009; all trials of
+this run, ρ = −0.69, p = .038). This panel reads a re-run of the choice decoder with seeded folds, a new cross-validation draw
+of the same pipeline.
 
 > **REINSTATED 2026-09-15 (Leon: "reinstate the fixed-axis and lick controls with the CCGD pipeline").** The two
 > controls withdrawn earlier the same day (they projected training trials on fold-averaged weights) are back on

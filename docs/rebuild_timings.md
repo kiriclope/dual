@@ -96,3 +96,5 @@ place or from somewhere less direct.
 | 2026-09-15 18:07 | trial-level lick control 2026-09-15 | exp_lick_control_trial.py (tensor + .mat per-trial licks) | 0.1 | measured |
 | 2026-09-16 12:56 | supplementary review 2026-09-16 | fig_ed_behavior.py (47 .mat files, 5 GEE fits x 2 stages) | 1.0 | measured in-session |
 | 2026-09-16 12:56 | supplementary review 2026-09-16 | fig_ed_imaging.py (loads the 2.5 GB canonical tensor) | 1.0 | measured in-session |
+| 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_trial.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |
+| 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_ccgd.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |

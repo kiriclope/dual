@@ -6,8 +6,7 @@ choice decision function (tensor X_<BDUM>, choice rows, decoders trained at the 
 at late delay 45–53, RAW log-odds, laser-off DPA trials — identical to main_panels.lick_depth.
 
 Trial alignment is impossible (ccgd_validation returns rows in unseeded fold order), so the control is at the
-level the §4 claim needs: per mouse x sample x stage. Late-delay lick rate (7.0–7.5 s after sample onset, the
-window of the old control) comes from the behaviour .mat files, per laser-off DPA trial, averaged per
+level the §4 claim needs: per mouse x sample x stage. Late-delay lick rate (5.5-7.0 s after the sample stamp = imaging 7.5-9.0 s; fixed 2026-09-16) comes from the behaviour .mat files, per laser-off DPA trial, averaged per
 mouse x sample class x stage.
   push     depth ~ stage + sample [+ lick] + (1|mouse), 36 obs
   coupling per-mouse Spearman Δdepth vs ΔDPA accuracy (GNG-free DPA trials), partial for Δlick
@@ -27,7 +26,7 @@ from src.common.options import set_options
 PATH = '/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 BDUM = 'log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice-gng-sample-test'
-ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (6.0, 7.5)   # 6.0-7.5 s after the .mat 'Sample' stamp = imaging 7.5-9.0 s = bins_LD (the stamp sits 1.5 s before the imaging clock: cue licks peak at 5.0-6.0, test licks at 7.5-9.0)
+ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (5.5, 7.0)   # 5.5-7.0 s after the .mat 'Sample' stamp = imaging 7.5-9.0 s = bins_LD 45-53: the stamp IS the sample-odor onset (imaging 2.0 s; Test stamp = +7.0 s = imaging 9.0 s). FIXED 2026-09-16 — the first build used 6.0-7.5 (an assumed 1.5 s offset), which let the first 0.5 s of test-odor licks into the 'late-delay' window
 SAMPLES = [('A', [0, 1]), ('B', [2, 3])]
 
 # ── the CCGD depth (held-out decision functions), exactly as Fig. 4 ──

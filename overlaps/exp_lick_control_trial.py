@@ -7,8 +7,8 @@ the labels (and seeds its folds), and the choice decoder was re-run under `--tag
 Every held-out decision function therefore maps to one row of the session's behaviour .mat (AllTrials order = imaging
 order: tasks and laser agree on 100 % of trials in all 47 readable sessions; .mat `sample` 1/2 = sample_odor 0/1,
 .mat `pair` 1-4 = odor_pair 0, 2, 1, 3). Depth as in Fig. 4: decoders trained at the decision window 54-62, read at
-late delay 45-53, RAW log-odds; laser-off DPA trials. Late-delay licks = lick times 6.0-7.5 s after the .mat `Sample`
-stamp (= imaging 7.5-9.0 s = bins 45-53).
+late delay 45-53, RAW log-odds; laser-off DPA trials. Late-delay licks = lick times 5.5-7.0 s after the .mat `Sample`
+stamp (= imaging 7.5-9.0 s = bins 45-53; the stamp is the sample-odor onset at imaging 2.0 s).
 
   1. trial-level association   per mouse x stage Spearman(depth, lick rate) -> Wilcoxon over the nine mice (stages
                                averaged); trial-level LMM depth ~ stage + sample + lick rate + (1 | mouse)
@@ -30,7 +30,7 @@ from src.common.options import set_options
 PATH = '/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData'
 MICE = ['JawsM01', 'JawsM06', 'JawsM12', 'JawsM15', 'JawsM18', 'ChRM04', 'ChRM23', 'ACCM03', 'ACCM04']
 TDUM = 'log_generalizing_overlaps_none_l1_ratio_0.0_raw_targets_choice_trial'
-ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (6.0, 7.5)
+ACT, LD, DELAY = np.arange(54, 63), np.arange(45, 54), (5.5, 7.0)   # 5.5-7.0 s after the .mat 'Sample' stamp = imaging 7.5-9.0 s = bins_LD 45-53: the stamp IS the sample-odor onset (imaging 2.0 s; Test stamp = +7.0 s = imaging 9.0 s). FIXED 2026-09-16 — the first build used 6.0-7.5 (an assumed 1.5 s offset), which let the first 0.5 s of test-odor licks into the 'late-delay' window
 
 # ── the CCGD depth, one row per held-out trial, with its session trial index ──
 y = pkl_load(f'labels_{TDUM}', path='../data/overlaps'); X = np.asarray(pkl_load(f'X_{TDUM}', path='../data/overlaps'))

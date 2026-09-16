@@ -4,8 +4,8 @@ licks"; per-animal learning curves; a trial-history control for Fig. 1g).
 
   a  lick rasters, one example mouse, NoGo laser-off trials of its first and last dual-task session
   b  lick-rate time courses per trial type (DPA / Go / NoGo) and stage, mean ± SEM across the nine mice
-     (behaviour-file lick times, drawn on the imaging clock of Figs 3a / ED 4a: the file's sample stamp sits
-     1.5 s before it)
+     (behaviour-file lick times, drawn on the imaging clock of Figs 3a / ED 4a: the file's sample stamp is the
+     sample-odor onset, imaging 2.0 s)
   c  delay-lick rate per mouse (the rig's cue-lick flag `odr_choice`, Fig. 1g's predictor), NoGo and Go trials,
      naïve → expert, paired Wilcoxon n = 9
   d  per-animal learning curves: DPA accuracy (DPA trials) and GNG accuracy (Go + NoGo trials) per session,
@@ -49,7 +49,8 @@ TASK_COL = {'DPA': '#e8000b', 'DualGo': '#023eff', 'DualNoGo': '#1ac938'}
 TASK_LAB = {'DPA': 'DPA', 'DualGo': 'Go', 'DualNoGo': 'NoGo'}
 STAGES = ['Naive', 'Expert']; SC = {'Naive': '0.55', 'Expert': '#332288'}
 EVENTS = [('sample', 2.0, 3.0, '#332288'), ('GNG', 4.5, 5.5, '#cc3311'), ('cue', 6.5, 7.0, '#ee7733'), ('test', 9.0, 10.0, '#377eb8')]
-OFFSET = 1.5                                   # imaging clock = behaviour-file time + 1.5 s (lick PSTH check, 2026-09-15)
+OFFSET = 2.0                                   # imaging clock = behaviour-file time + 2.0 s: the file's Sample stamp IS the sample-odor onset
+                                               # (FirstOdor == Sample; Test == Sample + 7.0 s == imaging 9.0 s; GNG odor 2.5 s, cue 4.5 s) — checked 2026-09-16
 PATH = '/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData'
 EXAMPLE = 'ChRM04'
 
