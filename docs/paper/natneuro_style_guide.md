@@ -107,19 +107,24 @@ Not done: no P values, no n, no error bars, no effect sizes, no "for the first t
 
 ## 4. Conformance: this manuscript before and after the 2026-09-04 style pass
 
-| Metric | Corpus / limit | Draft v10.4 | Draft v11 |
-|---|---|---|---|
-| Abstract words | ≤150 | 246 | **149** |
-| Numerals in abstract | 0 | 4 | **0** |
-| Main text words | ≤4,500 | 6,091 | 5,791 |
-| Results mean words/sentence | 19–26 | 21.7 | **21.0** |
-| Rhetorical questions in Results | 0–2 | 4 | **0** |
-| Prose semicolons per 1,000 words | 0.6–9.1 | 16.1 | **1.5** |
-| "we" per 1,000 words | 8–16 | 6.6 | **8.5** |
-| Em-dashes | ≈0 | 0 | 0 |
-| Untitled opening paragraphs | 2–8 | 0 | **2** |
-| Heading grammar | one grammar, ≤10 words | mixed, 8–11 | **claims, 8–10** |
-| "Critically" | 0 | 1 | **0** |
+> **2026-09-16 pass (Leon: "it feels a bit too AI-generated"):** the tells were an aphoristic colon opener and an epigram close in the
+> abstract, em-dash asides (40 had crept back in, 36 in Methods), "X, not Y" antitheses, "reported as such:" hinges, dates in the
+> prose and a thesis sentence repeated verbatim in Abstract, Introduction and Discussion. Fixed against §1–3 above; the v12.52
+> column is measured with the same script as the v11 column (prose semicolons exclude parentheses). Methods em-dashes are 0 too.
+
+| Metric | Corpus / limit | Draft v10.4 | Draft v11 | Draft v12.52 (2026-09-16) |
+|---|---|---|---|---|
+| Abstract words | ≤150 | 246 | **149** | **149** |
+| Numerals in abstract | 0 | 4 | **0** | **0** |
+| Main text words | ≤4,500 | 6,091 | 5,791 | 6,593 |
+| Results mean words/sentence | 19–26 | 21.7 | **21.0** | 26.4 |
+| Rhetorical questions in Results | 0–2 | 4 | **0** | **0** |
+| Prose semicolons per 1,000 words | 0.6–9.1 | 16.1 | **1.5** | **2.9** |
+| "we" per 1,000 words | 8–16 | 6.6 | **8.5** | 6.7 |
+| Em-dashes | ≈0 | 0 | 0 | **0** |
+| Untitled opening paragraphs | 2–8 | 0 | **2** | **32** |
+| Heading grammar | one grammar, ≤10 words | mixed, 8–11 | **claims, 8–10** | claims, 8–10 |
+| "Critically" | 0 | 1 | **0** | **0** |
 
 **On length.** The word limits are a submission-formatting matter, not a style one, and they are
 deliberately not a target while the argument is still moving (Leon, 2026-09-04). Trim at the end,
