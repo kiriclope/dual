@@ -1,5 +1,7 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.49 (2026-09-16): no PCA-20 mention anywhere in the manuscript text** (Leon) — the estimator paragraph describes the reported pipeline only (standardisation + L2 logistic regression on the full neuron space); the star rule no longer names a pipeline.
+
 > **v12.48 (2026-09-16): METHODS — the remaining judgment calls** (Leon: "I thought we unified these windows … go for the rest").
 > The "two read-out window conventions coexist" sentence described the pre-2026-09-09 state (the 0.5 s-offset convention was retired
 > when the mid-delay cache was promoted to bins 33–38; memory project_axis_windows.md) — replaced by one shared set of read-out
@@ -1005,12 +1007,7 @@ the relevant axis: sample code, bins 33–38; test code, bins 54–62; choice ("
 ### One estimator for the geometry analyses (Figs 2e–g, 3c–e)
 
 The pseudo-population and per-mouse geometry analyses — plane ablation (full-population and
-residual arms), cross-task generalization, cross-stage transfer, axis cosines — use one shared
-estimator, defined once and imported by every script: standardisation, an *optional* PCA
-compression to min(20, n_features, n_samples − 1) components, then L2-regularised logistic
-regression (C = 1, class-balanced). The reported build omits the PCA step (no-PCA); a PCA-20 build served as a robustness companion during development and is not consulted for the reported verdicts. Where a decision
-direction is used as a geometric axis it is the pipeline's own decision vector mapped back to
-neuron space (undoing PCA and standardisation) and unit-normalized, so decoder and axis are the
+residual arms), cross-task generalization, cross-stage transfer, axis cosines — use one shared estimator, defined once and imported by every script: standardisation, then L2-regularised logistic regression (C = 1, class-balanced) on the full neuron space. Where a decision direction is used as a geometric axis it is the pipeline's own decision vector mapped back to neuron space (undoing the standardisation) and unit-normalized, so decoder and axis are the
 same vector and cannot disagree. (The one deliberate exception: the plane arm of the ablation
 decodes from only two coordinates and uses a bare logistic regression on them.)
 
@@ -1176,7 +1173,7 @@ by disclosure and by the replication requirements rather than correction. Claims
 individual differences use the animal as the unit (n = 9 Spearman/Wilcoxon; mixed models with
 mouse random effects); trial-level models are never used for between-animal claims
 (pseudoreplication is flagged wherever a raw trial-level statistic is shown, e.g. Fig. 6g); within-animal effects (Fig. 4b) are tested by permutation within each mouse, with the across-animal test reported beside them.
-The principal pooled pseudo-population claims are paired with per-animal companion statistics. A result is starred at p < 0.05 (two-sided, uncorrected) on the reported no-PCA pipeline; † marks a cell reported without a verdict (a value at the resolution of its shuffle null, Fig. 2c).
+The principal pooled pseudo-population claims are paired with per-animal companion statistics. A result is starred at p < 0.05 (two-sided, uncorrected); † marks a cell reported without a verdict (a value at the resolution of its shuffle null, Fig. 2c).
 
 ### Reporting summary
 
