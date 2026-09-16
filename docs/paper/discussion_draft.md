@@ -1,5 +1,8 @@
-# Discussion — draft v6.2 (2026-09-07, review fixes: "required" → impairs, "first demonstration" dropped,
-# stable-code refs, ED 6f pointer; v6.1 = claim 1 without "necessary and sufficient"; stats untouched)
+# Discussion — draft v6.3 (2026-09-16, review: numbers reconciled with Results v12.44; scope paragraph expanded —
+# within-animal push test, readout-dependent coupling, unilateral illumination, no light-only cohort; "orthogonal
+# throughout the trial" calibrated to the measured windows and the 1/√N floor; "unchanged" → "no change detected"
+# with the two threshold-level within-animal changes named; ED 3d n = 7; stale Fig. 3f reference)
+# v6.2 (2026-09-07): "required" → impairs, "first demonstration" dropped, stable-code refs, ED pointer
 
 > Companion to `results_draft.md` (v6). Anchors and vocabulary from memory
 > `reference_literature_positioning` (Liu 2014; Bernardi 2020; Libby & Buschman 2021;
@@ -12,7 +15,7 @@ We set out to ask how prefrontal cortex composes a new task out of computations 
 already performs. Three results answer the question. First, the memory and the choice are
 carried by one two-dimensional sample × choice plane, the same plane on every trial type and
 before and after learning; the test code lies outside it, and the GNG code is drawn into it
-as learning proceeds (Figs 2e, 3c–f). Second, learning acts within this fixed subspace. It rotates the GNG code onto the choice axis and moves the working-memory state along it,
+as learning proceeds (Figs 2e, 3c–e, 4a). Second, learning acts within this fixed subspace. It rotates the GNG code onto the choice axis and moves the working-memory state along it,
 and the size of each animal's shift predicts how much its memory improves (Fig. 4). Third, a
 defined top-down input, the ACC→mPFC projection, shifts the position of the state on the
 subspace while sparing the discriminability of the code, and its silencing during training
@@ -38,9 +41,7 @@ of single cells.
 
 In auditory cortex, memories are protected from incoming sensory drive by rotational dynamics
 that move the memory into a dimension orthogonal to the sensory response [Libby 2021]. In our
-task, mPFC uses a different, two-layered scheme. The memory axis is statically orthogonal to
-both the choice and the GNG code throughout the trial (Fig. 3d), a stable rather than a
-dynamic memory code [Murray 2017; Spaak 2017], and learning adds a second layer, a positional
+task, mPFC uses a different, two-layered scheme. The memory axis is near-orthogonal to both the choice and the GNG code at the windows we measured (|cos| 0.07–0.10 against a random-direction floor of 0.05; Fig. 3d), a stable rather than a dynamic memory code [Murray 2017; Spaak 2017], and learning adds a second layer, a positional
 offset along the choice axis itself, which holds the delay state at an increasingly
 output-suppressing set-point on the no-lick side (Fig. 4b). The set-point is close to, but
 distinct from, the output-null principle of motor cortex [Kaufman 2014]. Preparatory activity
@@ -58,10 +59,7 @@ Brain–computer-interface experiments have shown that short-term learning is co
 network's existing manifold [Sadtler 2014] and proceeds by reassociation, reusing a fixed
 repertoire of activity patterns while changing what they are used for [Golub 2018], with
 genuinely new dimensions accessible only slowly and with effort [Oby 2019]. Our results extend
-the same principle to the natural acquisition of a composite task. The subspace and its axes
-are unchanged by dual task learning, under equivalence bounds (Fig. 2f) and by cross-stage
-decoding (Fig. 3e; transfer at 90% of the within-stage ceiling for the sample axis and 72% for the choice axis), while the position of
-the state and the alignment of the GNG code change (Fig. 4). Learning here does not
+the same principle to the natural acquisition of a composite task. We detected no change in the subspace or its axes with dual task learning — per-mouse cross-task transfer sat on the unity line with confidence intervals of ±0.05 (Fig. 2f), and axes fitted before learning read the activity after it at 90% of the within-stage ceiling for the sample and 72% for the choice (Fig. 3e) — while the position of the state and the alignment of the GNG code changed (Fig. 4). Two within-animal changes sit at the threshold of detection, a small rise of the shattering dimension in each mouse's own population and a closer alignment of the choice and task axes in the pooled demixed decomposition (Extended Data Figs 3c, 5b), and we report them without a verdict. Learning here does not
 build coding dimensions; it re-parameterizes a fixed geometry. This is also the solution that
 network models of multitask computation converge on, since recurrent networks trained on
 families of tasks solve new tasks by composing shared, reusable dynamical motifs rather than by
@@ -81,17 +79,23 @@ repositioning buys memory accuracy at no cost to the GNG task (Fig. 4c), whereas
 acute displacement is coupled to the GNG task (Fig. 6g–i). The slow process arrives at a
 solution that the brief perturbation does not reproduce.
 
-Three features of the design set the scope of these conclusions. The pooled pseudo-population
+Four features of the design set the scope of these conclusions. The pooled pseudo-population
 combines neurons recorded in different animals, so its single-trial states carry no cross-mouse
-noise correlations, and for this reason every pooled result is paired with a within-animal
-companion computed on simultaneously recorded neurons, including the dimensionality spectra
-themselves (n = 9; Extended Data Fig. 3d). Because the mice had learned DPA and GNG separately
-before dual task recordings began, our claims concern the composition of the two: the axes
-present in the first dual task sessions were the ones that learning went on to use, and
-composing the tasks added none. And although the choice axis is defined by licking, the
-delay-period displacement occurs without delay licks, the fidelity of the code is insensitive
-to laser-related movement, and the behavioral coupling survives a lick covariate (Extended Data
-Fig. 6d).
+noise correlations; for this reason the principal pooled results are paired with within-animal
+companions computed on simultaneously recorded neurons, including the dimensionality spectra
+(n = 7 resolvable mice per stage; Extended Data Fig. 3d), and the recorded codes were read at a
+similar level in every session (Extended Data Fig. 2b). Because the mice had learned DPA and GNG
+separately before dual task recordings began, our claims concern the composition of the two: the
+axes present in the first dual task sessions were the ones that learning went on to use, and
+composing the tasks added none we could detect. The repositioning and its coupling rest on nine
+animals. The shift itself is established within animals (a permutation test over each mouse's own
+trials) but varies in size across them, and the depth–accuracy coupling is an individual-difference
+correlation that holds only on stage-specific readouts: on a single choice axis fitted to both
+stages it reverses as a trend (Extended Data Fig. 6c). And although the choice axis is defined by
+licking, late-delay licks were rare, carried no information about the depth of the state trial by
+trial, and the coupling held on trials without one (Extended Data Fig. 6d); the optogenetic
+experiments used unilateral illumination, no opsin-free light-only cohort was imaged, and the
+chronic and acute cohorts were different animals (Fig. 6).
 
 Composition, in this system, looked like editing rather than construction. The prefrontal
 population brings a factorized, shared subspace to the problem, learning edits the positions
