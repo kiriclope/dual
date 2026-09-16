@@ -981,7 +981,7 @@ the imaged, trained cohort, laser ON on a pseudo-random 50% of delay periods, wi
 vs OFF (Jaws, n = 5; Fig. 6d–l). In the transient design all decoder axes are trained on
 laser-OFF trials only (no correctness filter on the projected ON trials, a correct-only filter
 would be survivor-biased), and ON trials are projected through the fixed OFF axis. The opto depth axis is the same choice axis as in Fig. 4 (bins 54–62; a window sweep is reported to avoid cherry-picking), read in the raw units of the decoder (log-odds), as in Fig. 4. Discriminability under laser (Fig. 6k,l) is per-axis d′, sample A vs B on the sample
-axis (late delay, bins 45–53) and Go vs NoGo on the choice axis (mid-delay, bins 33–38) ,
+axis (late delay, bins 45–53) and Go vs NoGo on the choice axis (mid-delay, bins 33–38),
 modeled as d′ ~ laser + stage with a random intercept per mouse (20 observations = 5 mice × 2
 stages × laser OFF/ON).
 
@@ -1000,8 +1000,7 @@ the relevant axis: sample code, bins 33–38; test code, bins 54–62; choice ("
 
 ### One estimator for the geometry analyses (Figs 2e–g, 3c–e)
 
-The pseudo-population and per-mouse geometry analyses, plane ablation (full-population and
-residual arms), cross-task generalization, cross-stage transfer, axis cosines, use one shared estimator, defined once and imported by every script: standardisation, then L2-regularised logistic regression (C = 1, class-balanced) on the full neuron space. Where a decision direction is used as a geometric axis it is the pipeline's own decision vector mapped back to neuron space (undoing the standardisation) and unit-normalized, so decoder and axis are the
+The pseudo-population and per-mouse geometry analyses (plane ablation with its full-population and residual arms, cross-task generalization, cross-stage transfer and axis cosines) use one shared estimator, defined once and imported by every script: standardisation, then L2-regularised logistic regression (C = 1, class-balanced) on the full neuron space. Where a decision direction is used as a geometric axis it is the pipeline's own decision vector mapped back to neuron space (undoing the standardisation) and unit-normalized, so decoder and axis are the
 same vector and cannot disagree. (The one deliberate exception: the plane arm of the ablation
 decodes from only two coordinates and uses a bare logistic regression on them.)
 
@@ -1152,15 +1151,7 @@ paired t-test.
 
 ### Statistical policy
 
-**Trial sets.** The pseudo-population condition-mean analyses, cvPCA and its per-mouse companion (Fig. 2b,
-Extended Data Fig. 3a–d), the η² decomposition (Fig. 2d), the shattering dimension and the demixed-PCA decomposition
-(Extended Data Fig. 5), use correct laser-off trials, because their conditions are the odor pairs themselves; so do the
-per-mouse code traces, plane snapshots, axis cosines and cross-stage transfer of Fig. 3a,b,d,e. Every analysis in which a
-label could coincide with the lick on correct trials, per-variable decoding (Fig. 2c, Extended Data Fig. 3e), the plane
-ablation and the out-of-context tests (Fig. 3c, Extended Data Fig. 4c,d), cross-condition generalization (Extended Data
-Fig. 4b) and the CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 6 and 9, uses all laser-off trials, after
-a correct-trial selection effect was found to manufacture an apparent naïve choice signal (Extended Data Fig. 3e); the
-correct-trial versions of the plane and CCGP analyses gave the same picture within 0.05.
+**Trial sets.** The pseudo-population condition-mean analyses use correct laser-off trials, because their conditions are the odor pairs themselves: cvPCA and its per-mouse companion (Fig. 2b, Extended Data Fig. 3a–d), the η² decomposition (Fig. 2d), the shattering dimension and the demixed-PCA decomposition (Extended Data Fig. 5). So do the per-mouse code traces, plane snapshots, axis cosines and cross-stage transfer of Fig. 3a,b,d,e. Every analysis in which a label could coincide with the lick on correct trials uses all laser-off trials: per-variable decoding (Fig. 2c, Extended Data Fig. 3e), the plane ablation and the out-of-context tests (Fig. 3c, Extended Data Fig. 4c,d), cross-condition generalization (Extended Data Fig. 4b) and the CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 6 and 9. This choice follows from a correct-trial selection effect that manufactured an apparent naïve choice signal (Extended Data Fig. 3e); the correct-trial versions of the plane and CCGP analyses gave the same picture within 0.05.
 
 All tests are two-sided; exact p-values are reported uncorrected and multiplicity is addressed
 by disclosure and by the replication requirements rather than correction. Claims about
