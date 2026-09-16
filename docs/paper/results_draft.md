@@ -1,5 +1,13 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.45 (2026-09-16): DISCUSSION REVIEWED (v6.3)** (Leon: "review the discussion the same way"). Fixed: "Figs 2e, 3c–f" (Fig. 3 ends at e;
+> also the Methods heading); "statically orthogonal … throughout the trial" → near-orthogonal at the measured windows against the 1/√N
+> floor; "unchanged by learning, under equivalence bounds" → no change detected, with the two threshold-level within-animal changes
+> named (ED 3c, 5b); scope paragraph: ED 3d n = 7 (was n = 9), "survives a lick covariate" → the trial-level no-lick result, plus the
+> within-animal nature of the push test, the readout dependence of the coupling (ED 6c), unilateral illumination and the absence of a
+> light-only cohort. "Unilateral" appears in the Fig. 6a design panel but nowhere in the text — now in the Fig. 6 legend with an
+> [AUTHOR: confirm] tag and in the Methods placeholder.
+
 > **v12.44 (2026-09-16): FIG. 4b PUSH TESTED WITHIN ANIMALS (two-sided permutation, p = .006) + main-figure review fixes** (Leon: "can
 > we be less conservative for the stats of fig4 panel b … two sided tests; the mixed model is an overkill that is too noisy … a
 > simpler model"). The mixed model (p .103) and the per-mouse paired t (p .19) are dominated by mouse-to-mouse heterogeneity of Δ
@@ -948,7 +956,7 @@ mouse identity (mice are the exchangeable unit).
 ### Optogenetics (Fig. 6)
 
 CaMKII-Jaws-tdTomato was expressed in ACC and its mPFC terminals illuminated at 635 nm
-**[AUTHOR: viral titres/coordinates, fibre placement, laser power, histology]**. Two designs
+**[AUTHOR: viral titres/coordinates, fibre placement, hemisphere (the design figure says unilateral), laser power, histology]**. Two designs
 are combined, both targeting the same ACC→mPFC projection and analyzed strictly separately: (i)
 chronic training silencing — every-trial illumination throughout learning, compared between
 groups (9 opto vs 9 control, the controls receiving the same illumination without opsin; Fig.
@@ -979,7 +987,7 @@ baseline-centered, class-signed mean trajectory (all laser-OFF trials, both stag
 "pooled-evoked"). Alternative normalizations, a fixed common axis, a resampling battery, a lick covariate and L1/LDA decoder variants are reported in ED 5 and ED 6c; the push is normalization-sensitive, and the coupling holds across normalizations but not under the L1/LDA decoders (Results). The delay-state depth used in Fig. 4 is the choice-axis projection averaged over late
 delay (bins 45–53, pre-test), on all laser-OFF DPA trials (correct and error).
 
-### One estimator for the geometry analyses (Figs 2e–g, 3c–f)
+### One estimator for the geometry analyses (Figs 2e–g, 3c–e)
 
 The pseudo-population and per-mouse geometry analyses — plane ablation (full-population and
 residual arms), cross-task generalization, cross-stage transfer, axis cosines — use one shared
@@ -1344,8 +1352,8 @@ Figure 6 | ACC→mPFC input moves the state on the learned geometry. Silencing t
 during training impairs learning of the memory task, and acutely it shifts the position of the
 state without degrading the code. Code depth as in Fig. 4. No opsin-free light-only cohort was imaged (the ACC-implant mice received no laser); the light-artefact control is listed under Extended Data Fig. 7f.
 
-a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm light on a pseudo-
-random 50% of trials, restricted to the delay period, so every comparison in d–l is within-mouse,
+a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; unilateral 635-nm illumination of the ACC
+terminals **[AUTHOR: confirm unilateral]** on a pseudo-random 50% of trials, restricted to the delay period, so every comparison in d–l is within-mouse,
 laser ON against OFF.
 
 b, c, Silencing the projection during training impairs learning of the memory task. Chronic
