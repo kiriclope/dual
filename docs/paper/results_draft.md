@@ -1,5 +1,13 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.48 (2026-09-16): METHODS — the remaining judgment calls** (Leon: "I thought we unified these windows … go for the rest").
+> The "two read-out window conventions coexist" sentence described the pre-2026-09-09 state (the 0.5 s-offset convention was retired
+> when the mid-delay cache was promoted to bins 33–38; memory project_axis_windows.md) — replaced by one shared set of read-out
+> windows. The Fig. 2c null paragraph now says a cell within one or two points of its 95th percentile (the † cell, 0.56 vs 0.52) is at
+> the resolution of the 100-shuffle null. The Statistical-policy star rule ("replicates across no-PCA and PCA-20") was stale since
+> Leon retired the PCA-20 companion on 2026-09-08: stars are p < .05 two-sided on the reported pipeline; † = reported without a
+> verdict; the PCA-20 aside removed from the ED 4d legend and from the estimator paragraph.
+
 > **v12.47 (2026-09-16): METHODS REVIEWED against the current figures** (Leon: "review the methods the same way"). Fixed: depth units
 > (Figs 4 and 6 are raw log-odds since v12.29; three Methods sentences still said evoked-SD / baseline-SD), Extended Data numbers (ED 2
 > → 1e, ED 5/6c → 6, ED 7 → 8, ED 6b cut), the pooled-vs-per-mouse example (0.96/0.67 → 0.76–0.84/0.63), the ED PR bars (30 halvings, not
@@ -923,7 +931,7 @@ on GNG alone, and only then on the dual task, in which DPA, Go and NoGo trials w
 interleaved; all six dual task sessions were imaged, so "naïve" and "expert" refer to early
 versus late dual task sessions in animals that had already learned each task separately
 **[AUTHOR: sessions per stage, criterion at each stage, shaping steps]**. Trials per mouse, stage and task are listed in Supplementary Table 1 (laser-OFF) and Supplementary Table 2 (laser-ON). Trials are analyzed
-in 84 bins over 14 s (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). The decoder axes use one definition in both pipelines: sample and GNG axes on bins 33–38 (5.5–6.5 s, the whole interval between the Go/NoGo odor and the cue) and choice and test axes on bins 54–62 (9.0–10.5 s, from test onset to 0.5 s after test offset). Two read-out window conventions coexist in the codebase and are stated per analysis below: the single-trial (overlaps) pipeline indexes epochs directly (baseline bins 0–11; mid-delay 33–38; late delay 45–53), whereas the pseudo-population pipeline offsets each epoch onset by 0.5 s (mid-delay bins 36–38; late delay 48–53).
+in 84 bins over 14 s (nominal 6 Hz; bin b ≈ [b/6, (b+1)/6) s). The decoder axes use one definition in both pipelines: sample and GNG axes on bins 33–38 (5.5–6.5 s, the whole interval between the Go/NoGo odor and the cue) and choice and test axes on bins 54–62 (9.0–10.5 s, from test onset to 0.5 s after test offset). Read-out windows are likewise shared by both pipelines: baseline bins 0–11, mid-delay 33–38, late delay 45–53 (7.5–9.0 s, after the cue and before the test) and, for the plane snapshots of Fig. 3b only, the 10–11-s response window (bins 60–66). (An earlier convention offset every window by 0.5 s for the GCaMP rise; it was retired on 2026-09-09 and no reported analysis uses it.)
 
 ### Behavioral statistics (Fig. 1)
 
@@ -1000,8 +1008,7 @@ The pseudo-population and per-mouse geometry analyses — plane ablation (full-p
 residual arms), cross-task generalization, cross-stage transfer, axis cosines — use one shared
 estimator, defined once and imported by every script: standardisation, an *optional* PCA
 compression to min(20, n_features, n_samples − 1) components, then L2-regularised logistic
-regression (C = 1, class-balanced). The canonical build omits the PCA step (no-PCA); the PCA-20
-build is the robustness companion, and every starred result is required to hold in both. Where a decision
+regression (C = 1, class-balanced). The reported build omits the PCA step (no-PCA); a PCA-20 build served as a robustness companion during development and is not consulted for the reported verdicts. Where a decision
 direction is used as a geometric axis it is the pipeline's own decision vector mapped back to
 neuron space (undoing PCA and standardisation) and unit-normalized, so decoder and axis are the
 same vector and cannot disagree. (The one deliberate exception: the plane arm of the ablation
@@ -1030,8 +1037,7 @@ halvings, ≥6 trials per condition; cells whose reliable-variance total falls b
 flagged noise-limited, drawn open, and excluded from the paired memory-vs-decision Wilcoxon;
 Extended Data Fig. 3d). The null is a label-shuffled realization of
 the full pipeline (condition labels permuted within mouse, trial counts preserved), normalized
-by the real spectrum's positive total. Windows (pseudo-population convention): mid-delay
-(bins 33–38 — the whole 5.5–6.5-s post-GNG epoch, from the Go/NoGo odor's offset to the
+by the real spectrum's positive total. Windows: mid-delay (bins 33–38 — the whole 5.5–6.5-s post-GNG epoch, from the Go/NoGo odor's offset to the
 cue onset, so no cue or lick has occurred) and decision (bins 54–62, from test onset to 0.5 s after test offset). 95% CIs are leave-one-mouse-out jackknife
 with a t(8) = 2.306 multiplier on the jackknife SE (fractions clipped to [0, 1]; the PR floored
 at 1); the "unchanged with learning" statement applies the same jackknife to Δ(Naïve − Expert),
@@ -1050,7 +1056,7 @@ on the axis and classified by the training-set class midpoint; performance is ba
 over 15 splits, tested against the 95th percentile of a within-mouse label-shuffle null matched
 to the statistic (100 shuffles; for each shuffle the full pipeline is re-run and the accuracy
 averaged over the same 15 splits, so the null is the sampling distribution of the plotted mean;
-its 95th percentile lies at 0.52–0.55). The GNG cross-decode from the DPA-state subspace
+its 95th percentile lies at 0.52–0.55, so a cell within one or two points of its null — the naïve mid-delay choice on Go and NoGo trials, 0.56 against 0.52 — is at the resolution of this null and is reported without a verdict). The GNG cross-decode from the DPA-state subspace
 quoted in the plane section cross-decodes Go vs NoGo from held-out dual pseudo-trials (24 per
 condition, disjoint train/test halves, 8 repeats) projected into the DPA-state subspace — the
 top-3 PCs of the DPA condition means, which are estimated from all DPA trials (the held-out
@@ -1170,9 +1176,7 @@ by disclosure and by the replication requirements rather than correction. Claims
 individual differences use the animal as the unit (n = 9 Spearman/Wilcoxon; mixed models with
 mouse random effects); trial-level models are never used for between-animal claims
 (pseudoreplication is flagged wherever a raw trial-level statistic is shown, e.g. Fig. 6g); within-animal effects (Fig. 4b) are tested by permutation within each mouse, with the across-animal test reported beside them.
-Every pooled pseudo-population claim is paired with a per-animal companion statistic. A result
-is starred only if it replicates across both decoder pipelines (no-PCA and PCA-20); †
-marks pipeline-dependent results, which are reported without a verdict.
+The principal pooled pseudo-population claims are paired with per-animal companion statistics. A result is starred at p < 0.05 (two-sided, uncorrected) on the reported no-PCA pipeline; † marks a cell reported without a verdict (a value at the resolution of its shuffle null, Fig. 2c).
 
 ### Reporting summary
 
@@ -1550,9 +1554,7 @@ ratios inflate as the in-context ceiling nears 0.60. Medians over the drawn out-
 NoGo trials after the Go/NoGo odor), the code has moved within the plane. d, The plane ablation of Fig. 3c in
 every animal (naïve x against expert y; rows, spaces; columns, variables; Δ, mean change; p, paired Wilcoxon,
 n = 9). The pattern of Fig. 3c holds mouse by mouse, and the grid carries the one change with learning: the
-GNG code's plane-only accuracy rises (0.56 → 0.64, p = .027 uncorrected, 7/9 mice; Holm over the twelve cells of the
-grid p = .32; p = .039 in the PCA-20 pipeline on correct trials), while the test code's plane-only accuracy stays at chance (0.51 → 0.49, p = .31). ∗ marks p < .05 uncorrected on
-the canonical pipeline, which only that cell reaches. All panels use all laser-off trials (canonical since
+GNG code's plane-only accuracy rises (0.56 → 0.64, p = .027 uncorrected, 7/9 mice; Holm over the twelve cells of the grid p = .32), while the test code's plane-only accuracy stays at chance (0.51 → 0.49, p = .31). ∗ marks p < .05 uncorrected, which only that cell reaches. All panels use all laser-off trials (canonical since
 2026-09-15; on correct trials the same cells read 0.57 → 0.63, p = .055, and the test cell 0.53 → 0.50, p = .055). Learning pulls the GNG code
 toward the plane, which Fig. 4a quantifies.
 
