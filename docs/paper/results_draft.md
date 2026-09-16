@@ -522,8 +522,7 @@ Trial-type-adjusted ORs added as a robustness line.
 
 ## Abstract
 
-Remembering while acting is hard: the prefrontal neurons that hold a memory also respond to the events and actions that
-interrupt it. Here we show that mouse medial prefrontal cortex accommodates a second task by moving activity within an
+Remembering while acting is hard: the prefrontal neurons that hold a memory also respond to the events that interrupt it. Here we show that mouse medial prefrontal cortex accommodates a second task by moving activity within an
 existing subspace rather than building a new one. We imaged prelimbic neurons as mice learned a delayed paired association
 with an embedded Go/NoGo discrimination. Memory and choice occupied nearly orthogonal axes of one low-dimensional subspace,
 shared across trial types and present before dual task training. Learning added no coding dimension. Instead,
