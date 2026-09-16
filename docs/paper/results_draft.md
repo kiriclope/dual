@@ -4,7 +4,7 @@
 > (Figs 4 and 6 are raw log-odds since v12.29; three Methods sentences still said evoked-SD / baseline-SD), Extended Data numbers (ED 2
 > → 1e, ED 5/6c → 6, ED 7 → 8, ED 6b cut), the pooled-vs-per-mouse example (0.96/0.67 → 0.76–0.84/0.63), the ED PR bars (30 halvings, not
 > 20; legacy late-delay PR gone), the trial-set sentence (now points to Statistical policy), the CCGP description (per-mouse on canonical
-> windows, all trials), the plane-vs-full bound recomputed on the canonical all-trial cache (|Δ| ≤ 0.001, replacing 0.012 in Methods and
+> windows, all trials), the plane-vs-full bound recomputed on the canonical all-trial cache (|Δ| ≤ 0.002 — max 0.0014 — replacing 0.012 in Methods and
 > 0.001 in §3 — the two disagreed), the coupling-vs-decoder sentence (holds under L1, not LDA), the reproducibility note (folds seeded
 > since 2026-09-15). Results reconciled with Methods: the naïve−expert jackknife excludes zero for the DPA decision choice code
 > (Δ −0.20 [−0.36, −0.04]) — §2 no longer says "every decodable variable"; the DPA-subspace GNG cross-decode is 0.60 / 0.73 by stage
@@ -761,7 +761,7 @@ directions reduces every trial to a pair of numbers, and projecting it onto ever
 orthogonal to them leaves the rest of the population with the plane removed. We decoded each
 variable from the plane, from the residual, and from the full population (withheld trials;
 paired Wilcoxon tests, n = 9; Fig. 3c and Extended Data Fig. 4d). For the sample and the choice this is a consistency
-check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.001 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.73 to 0.58 for the sample (p = .004) and from 0.63 to 0.55 for the choice (p = .004), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
+check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.002 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.73 to 0.58 for the sample (p = .004) and from 0.63 to 0.55 for the choice (p = .004), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
 The test code lay outside the plane: its two coordinates decoded it at 0.50, against 0.58 from the full population (p = .012), and removing the plane left it untouched (p = .57). The GNG code fell between the two, with a real but
 partial share of the plane (p = .004). The pooled population gave the same verdict for the
 memory subspace as a whole: read from the top three principal components of the DPA state, the GNG code decoded at 0.60 in naïve and 0.73 in expert mice at mid-delay (permutation p = 0.046 and 0.001; Methods), against 0.99 from the full population.
@@ -1111,7 +1111,7 @@ mouse, the plane is the QR-orthonormalized span of that mouse's sample axis (mid
 behavioral choice axis (decision window, lick vs no-lick at the test on all three trial types, errors included), fit on one half of the trials; each variable was then decoded from (i) only the two plane coordinates, (ii) the
 residual after projecting the plane out, and (iii) the full population — training on the same
 half and scoring the held-out half, 10 random half-splits, paired Wilcoxon across mice (n = 9);
-the plane-vs-full agreement is additionally bounded per cell (|Δ| ≤ 0.001 accuracy in every mouse × stage for sample and choice; the plane arm decodes from two coordinates with a bare
+the plane-vs-full agreement is additionally bounded per cell (|Δ| ≤ 0.002 accuracy in every mouse × stage for sample and choice; the plane arm decodes from two coordinates with a bare
 logistic regression). Axis-angle matrices (Fig. 3d) report attenuation-corrected cosines with
 the split-half reliabilities disclosed alongside; the per-animal statistics use the raw
 (uncorrected) per-mouse |cos| (Fig. 4a). Cross-stage transfer (Fig. 3e) trains the pipeline in
@@ -1173,6 +1173,19 @@ mouse random effects); trial-level models are never used for between-animal clai
 Every pooled pseudo-population claim is paired with a per-animal companion statistic. A result
 is starred only if it replicates across both decoder pipelines (no-PCA and PCA-20); †
 marks pipeline-dependent results, which are reported without a verdict.
+
+### Reporting summary
+
+No statistical method was used to predetermine sample sizes; the imaged cohort comprised every mouse with a usable
+field of view across the six dual-task sessions **[AUTHOR: confirm; state any exclusions]**. In the imaged cohort laser
+ON and OFF trials were assigned pseudo-randomly within each session (50%); allocation of the chronic-silencing cohorts
+to opsin and control groups **[AUTHOR: randomization procedure]**. Experimenters were not blinded to group during
+training **[AUTHOR: confirm]**; all analyses are automated and identical across groups and stages. Preprocessing: the
+pseudo-population input was centered per neuron and session on its laser-OFF mean; the single-trial (CCGD) pipeline
+decodes the extracted fluorescence signal with no feature scaling (the class-balanced logistic decoder's regularization
+is selected by inner cross-validation) **[AUTHOR: ΔF/F definition, neuropil correction, motion correction and ROI
+extraction software]**. Software: Python (NumPy, SciPy, scikit-learn, statsmodels, matplotlib) **[AUTHOR: versions
+at deposition]**.
 
 ### Data and code availability
 
