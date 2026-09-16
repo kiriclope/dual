@@ -1,5 +1,15 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.47 (2026-09-16): METHODS REVIEWED against the current figures** (Leon: "review the methods the same way"). Fixed: depth units
+> (Figs 4 and 6 are raw log-odds since v12.29; three Methods sentences still said evoked-SD / baseline-SD), Extended Data numbers (ED 2
+> → 1e, ED 5/6c → 6, ED 7 → 8, ED 6b cut), the pooled-vs-per-mouse example (0.96/0.67 → 0.76–0.84/0.63), the ED PR bars (30 halvings, not
+> 20; legacy late-delay PR gone), the trial-set sentence (now points to Statistical policy), the CCGP description (per-mouse on canonical
+> windows, all trials), the plane-vs-full bound recomputed on the canonical all-trial cache (|Δ| ≤ 0.001, replacing 0.012 in Methods and
+> 0.001 in §3 — the two disagreed), the coupling-vs-decoder sentence (holds under L1, not LDA), the reproducibility note (folds seeded
+> since 2026-09-15). Results reconciled with Methods: the naïve−expert jackknife excludes zero for the DPA decision choice code
+> (Δ −0.20 [−0.36, −0.04]) — §2 no longer says "every decodable variable"; the DPA-subspace GNG cross-decode is 0.60 / 0.73 by stage
+> (p .046 / .001), not the v12.16 pooled 0.61 p .031.
+
 > **v12.46 (2026-09-16): DISCUSSION v6.4 — the review's judgment calls taken** (Leon: "go for the judgment calls"): one sentence
 > reconciling the learning and acute couplings (the acute shift lacks the learned GNG re-alignment, so it is felt by the GNG readout;
 > proposed test), the stable-vs-dynamic coding question acknowledged as a within-trial question the two windows do not settle
@@ -686,8 +696,7 @@ of it, because variables on separate axes cannot overwrite one another.
 This frame is what construction predicts learning should change, and as far as we could detect
 it did not change. Naïve and expert spectra, decodability and coding patterns were
 near-identical (Fig. 2b–d), and jackknife confidence intervals across mice, leaving out one
-animal at a time, included zero on the naïve−expert difference for every spectrum component and
-every decodable variable (Methods). Composing the two tasks added no representational dimension
+animal at a time, included zero on the naïve−expert difference for every spectrum component and for every decodable variable except the choice code at the decision window on DPA trials, which is stronger in expert mice (Δ = −0.20, CI [−0.36, −0.04]) and is the readout of the decision rather than of the frame (Methods). Composing the two tasks added no representational dimension
 that we could detect, and removed none. Two within-animal changes sit at the threshold of detection and are
 reported as such: a small rise of the shattering dimension in each mouse's own population (p = 0.055; Extended
 Data Fig. 3c) and a closer alignment of the choice and task axes in the pooled demixed decomposition that does
@@ -755,7 +764,7 @@ paired Wilcoxon tests, n = 9; Fig. 3c and Extended Data Fig. 4d). For the sample
 check rather than a test, because the plane is built from their own decoder directions. As expected, the two coordinates decoded them as well as the whole population (to within 0.001 accuracy in every mouse and stage). Removing the plane reduced the decoding, from 0.73 to 0.58 for the sample (p = .004) and from 0.63 to 0.55 for the choice (p = .004), but did not abolish it, as expected for a redundant population code in which many directions carry the same information. The informative results concern the other two variables.
 The test code lay outside the plane: its two coordinates decoded it at 0.50, against 0.58 from the full population (p = .012), and removing the plane left it untouched (p = .57). The GNG code fell between the two, with a real but
 partial share of the plane (p = .004). The pooled population gave the same verdict for the
-memory subspace as a whole: read from the top three principal components of the DPA state, the GNG code decoded at only 0.61 at mid-delay (permutation p = 0.031; Methods).
+memory subspace as a whole: read from the top three principal components of the DPA state, the GNG code decoded at 0.60 in naïve and 0.73 in expert mice at mid-delay (permutation p = 0.046 and 0.001; Methods), against 0.99 from the full population.
 
 The plane also held beyond the trials on which it was fitted. A plane fitted on the DPA trials
 of one stage read the sample and the choice on every other stage, trial type and moment of the
@@ -922,8 +931,7 @@ Learning curves were modeled on per-mouse × day × condition accuracies (propor
 trials) with linear mixed-effects models — accuracy ~ condition × centered day with a random
 intercept per mouse (REML); per-day markers are uncorrected Wald/Welch tests requiring ≥4 mice
 per group. Random-effect variances near the boundary make per-day p-values mildly
-anti-conservative, as noted in the text. Trial-level associations (Fig. 1g; history effects, ED
-2) used logistic GEEs clustered by mouse (exchangeable working correlation), fit separately per
+anti-conservative, as noted in the text. Trial-level associations (Fig. 1g; trial-history covariates, Extended Data Fig. 1e) used logistic GEEs clustered by mouse (exchangeable working correlation), fit separately per
 stage. Fig. 1g models the probability of licking at the DPA test on Go and NoGo trials, the
 trials that carry a response cue (DPA trials record no delay lick), as a function of the delay
 lick at the GNG cue (the pure delay-period lick variable); a model with a trial-type
@@ -948,14 +956,12 @@ window/lens, rig, frame rate, ROI extraction/registration pipeline, per-mouse ce
 FOVs]**, yielding 3,319 neurons across the 9 mice (113–693 per mouse; 4–6 daily sessions per
 mouse, neurons registered across days). Because the pseudo-population combines an order of
 magnitude more neurons than any single animal, pooled accuracies exceed the per-animal ones
-(for example choice 0.96 pooled against 0.67 per mouse); every pooled claim is therefore paired
+(for example the choice code at the decision window, 0.76–0.84 pooled against 0.63 per mouse); every pooled claim is therefore paired
 with its per-animal companion. Orofacial video was not acquired **[AUTHOR: confirm]**; the
 lick control is in Extended Data Fig. 6d, and uninstructed movements are known
 to shape cortical activity broadly [Musall 2019; Stringer 2019a]. The laser-OFF trials of the
 two ChR2 mice were interleaved with excitation trials; the leave-one-mouse-out checks include
-these mice. The pseudo-population analyses (Fig. 2 and the per-mouse geometry analyses of Fig. 3c–e) use correct, laser-OFF trials; the single-trial projection analyses (Figs 3a,b, 4, 6) use
-all laser-OFF trials, with correctness filters only where stated (per-mouse × stage × task
-counts in Supplementary Table 1; 5,568 laser-OFF trials in the balanced set). Neurons
+these mice. Which analyses use correct and which all laser-OFF trials is set out under Statistical policy (Trial sets); per-mouse × stage × task counts are in Supplementary Table 1 (5,568 laser-OFF trials in the balanced set). Neurons
 partition disjointly across mice, so all pseudo-population resampling and jackknifing respects
 mouse identity (mice are the exchangeable unit).
 
@@ -966,11 +972,11 @@ CaMKII-Jaws-tdTomato was expressed in ACC and its mPFC terminals illuminated at 
 are combined, both targeting the same ACC→mPFC projection and analyzed strictly separately: (i)
 chronic training silencing — every-trial illumination throughout learning, compared between
 groups (9 opto vs 9 control, the controls receiving the same illumination without opsin; Fig.
-6b,c), with direction controls (ACC cell bodies; Prl→ACC) in ED 7; (ii) transient silencing in
+6b,c), with direction controls (ACC cell bodies; Prl→ACC) in Extended Data Fig. 8; (ii) transient silencing in
 the imaged, trained cohort — laser ON on a pseudo-random 50% of delay periods, within-mouse ON
 vs OFF (Jaws, n = 5; Fig. 6d–l). In the transient design all decoder axes are trained on
 laser-OFF trials only (no correctness filter on the projected ON trials — a correct-only filter
-would be survivor-biased), and ON trials are projected through the fixed OFF axis. The opto depth axis is the same choice axis as in Fig. 4 (bins 54–62; a window sweep is reported to avoid cherry-picking), with per-mouse projections divided by the standard deviation of the baseline bins — the locked earlier unit, which differs from Fig. 4's evoked-SD unit and predates the opto analysis. Discriminability under laser (Fig. 6k,l) is per-axis d′ — sample A vs B on the sample
+would be survivor-biased), and ON trials are projected through the fixed OFF axis. The opto depth axis is the same choice axis as in Fig. 4 (bins 54–62; a window sweep is reported to avoid cherry-picking), read in the raw units of the decoder (log-odds), as in Fig. 4. Discriminability under laser (Fig. 6k,l) is per-axis d′ — sample A vs B on the sample
 axis (late delay, bins 45–53) and Go vs NoGo on the choice axis (mid-delay, bins 33–38) —
 modeled as d′ ~ laser + stage with a random intercept per mouse (20 observations = 5 mice × 2
 stages × laser OFF/ON).
@@ -986,12 +992,7 @@ of that stage, and every trial's decision function was evaluated cross-temporall
 odor-pair × task × day), so that every projected trial is scored out-of-fold — trials from
 other conditions or laser-ON trials are never in any training set. Decision functions
 (normalized by the weight-vector norm per train bin) were averaged over the training window of
-the relevant axis: sample code, bins 33–38; test code, bins 54–62; choice ("action") code, the test window, bins 54–62; GNG code, bins 33–38 (the shared axis definition above). Per mouse, each code's
-projections were then baseline-centered (subtracting the pooled mean over baseline bins 0–11)
-and expressed in evoked-SD units — divided by the temporal standard deviation of that mouse's
-baseline-centered, class-signed mean trajectory (all laser-OFF trials, both stages;
-"pooled-evoked"). Alternative normalizations, a fixed common axis, a resampling battery, a lick covariate and L1/LDA decoder variants are reported in ED 5 and ED 6c; the push is normalization-sensitive, and the coupling holds across normalizations but not under the L1/LDA decoders (Results). The delay-state depth used in Fig. 4 is the choice-axis projection averaged over late
-delay (bins 45–53, pre-test), on all laser-OFF DPA trials (correct and error).
+the relevant axis: sample code, bins 33–38; test code, bins 54–62; choice ("action") code, the test window, bins 54–62; GNG code, bins 33–38 (the shared axis definition above). Per mouse, each code's projections were baseline-centered (subtracting the pooled mean over baseline bins 0–11). The traces of Fig. 3a and Extended Data Fig. 4a are expressed in evoked-SD units — divided by the temporal standard deviation of that mouse's baseline-centered, class-signed mean trajectory (all laser-OFF trials, both stages; "pooled-evoked"); the depth of Figs 4 and 6 is the raw decision function (log-odds). Alternative normalizations, other decoders, a fixed common axis and the trial-level lick control are reported in Extended Data Fig. 6; the push is normalization-sensitive, and the coupling holds under every normalization and under an L1 decoder but not under a linear discriminant (Results). The delay-state depth used in Fig. 4 is the raw choice-axis decision function averaged over late delay (bins 45–53, pre-test), on all laser-OFF DPA trials (correct and error).
 
 ### One estimator for the geometry analyses (Figs 2e–g, 3c–e)
 
@@ -1009,8 +1010,7 @@ decodes from only two coordinates and uses a bare logistic regression on them.)
 ### Cross-validated dimensionality (Fig. 2b)
 
 We estimated the reliable dimensionality of the pseudo-population (12 conditions = 3 tasks ×
-2 samples × 2 test odors) with cross-validated PCA [Stringer 2019b]. For each of 30 random halvings (20 for the
-ED participation-ratio bars), the trials of every (mouse, condition) pool were split into two
+2 samples × 2 test odors) with cross-validated PCA [Stringer 2019b]. For each of 30 random halvings, the trials of every (mouse, condition) pool were split into two
 disjoint halves, yielding two independent condition-mean pseudo-populations. A PCA basis was fit
 on one half and the variance of the other half evaluated by cross-projection (both directions
 averaged): trial-to-trial noise averages to zero in this cross-term, so only variance that
@@ -1032,7 +1032,7 @@ Extended Data Fig. 3d). The null is a label-shuffled realization of
 the full pipeline (condition labels permuted within mouse, trial counts preserved), normalized
 by the real spectrum's positive total. Windows (pseudo-population convention): mid-delay
 (bins 33–38 — the whole 5.5–6.5-s post-GNG epoch, from the Go/NoGo odor's offset to the
-cue onset, so no cue or lick has occurred) and decision (bins 54–62, from test onset to 0.5 s after test offset); the legacy PR analyses additionally use late delay (bins 48–53). 95% CIs are leave-one-mouse-out jackknife
+cue onset, so no cue or lick has occurred) and decision (bins 54–62, from test onset to 0.5 s after test offset). 95% CIs are leave-one-mouse-out jackknife
 with a t(8) = 2.306 multiplier on the jackknife SE (fractions clipped to [0, 1]; the PR floored
 at 1); the "unchanged with learning" statement applies the same jackknife to Δ(Naïve − Expert),
 whose CI spans zero for every component and for every variable except the choice code at the
@@ -1080,22 +1080,19 @@ of sample and their η² falls back to the 1/3 chance level. (The uncross-valida
 Cross-task generalization (Fig. 2e; sample at mid-delay, test and choice at the decision
 window, the same states as Fig. 2b–d) trains a decoder on one task and tests on held-out trials
 of another, reported as (cross − 0.5)/(within − 0.5) against the test task's own within-task
-ceiling; per-mouse companions and their learning equivalence (Δ 95% CIs within ±0.05) are in
-Fig. 2f. The parallelism score (PS) is decoder-free: per task, a class-difference coding vector
+ceiling; per-mouse companions and their change with learning (Δ 95% CIs within ±0.06) are in Fig. 2f. The parallelism score (PS) is decoder-free: per task, a class-difference coding vector
 is computed from condition means on independent trial halves (correct laser-OFF trials,
 per-mouse subspaces written into the shared neuron space, unit-normalized), and PS is the
 cross-half, sign-preserving cosine averaged over the three task pairs (10 half-splits); the
 null permutes class labels within task (100 draws, 95th percentile), and the
 reliability-corrected PS (raw ÷ split-half reliability) is reported as an estimate — it can
-exceed 1 at low reliability — alongside the raw value. CCGP follows Bernardi et al. [Bernardi
-2020], computed on the pseudo-population with leakage-free matched cross-validation and
-label-shuffle nulls (per-mouse companion: Wilcoxon, n = 9). The shattering dimension decodes
+exceed 1 at low reliability — alongside the raw value. Cross-condition generalization (CCGP) follows Bernardi et al. [Bernardi 2020] and is computed per mouse on that mouse's own neurons (Extended Data Fig. 4b): for each variable the decoder is trained on one level of the other variables and tested on the held-out level, on the canonical windows and all laser-OFF trials, against a label-shuffle null (30 shuffles); stages are compared by Wilcoxon (n = 9). The shattering dimension decodes
 all 462 balanced 6-vs-6 dichotomies of the 12 conditions at the decision window (disjoint
 train/test halves per mouse × condition, 24 pseudo-trials per condition, scaler + PCA(30) fit
 on the training half only, LDA per dichotomy, 8 resamples; null: pseudo-trial condition labels
 permuted, 0.50). Its across-animal interval is a leave-one-mouse-out jackknife of the pooled estimate (t(8)); the
 per-mouse companion runs the same decoder on each mouse's own population (real trials, 20 stratified half-splits,
-Wilcoxon over mice). Per-neuron selectivity (Fig. 2g, ED 6b) uses per-neuron d′ (pooled-variance;
+Wilcoxon over mice). Per-neuron selectivity (Fig. 2g) uses per-neuron d′ (pooled-variance;
 sample at mid-delay across tasks, choice at the decision window on correct DPA trials) with a
 selectivity threshold at the 95th percentile of a within-mouse label-permutation |d′| null
 (computed on the sample window and applied to both); the fraction of double-selective neurons
@@ -1114,8 +1111,7 @@ mouse, the plane is the QR-orthonormalized span of that mouse's sample axis (mid
 behavioral choice axis (decision window, lick vs no-lick at the test on all three trial types, errors included), fit on one half of the trials; each variable was then decoded from (i) only the two plane coordinates, (ii) the
 residual after projecting the plane out, and (iii) the full population — training on the same
 half and scoring the held-out half, 10 random half-splits, paired Wilcoxon across mice (n = 9);
-the plane-vs-full equivalence is additionally bounded per cell (|Δ| ≤ 0.012 accuracy in every
-mouse × stage for sample and choice; the plane arm decodes from two coordinates with a bare
+the plane-vs-full agreement is additionally bounded per cell (|Δ| ≤ 0.001 accuracy in every mouse × stage for sample and choice; the plane arm decodes from two coordinates with a bare
 logistic regression). Axis-angle matrices (Fig. 3d) report attenuation-corrected cosines with
 the split-half reliabilities disclosed alongside; the per-animal statistics use the raw
 (uncorrected) per-mouse |cos| (Fig. 4a). Cross-stage transfer (Fig. 3e) trains the pipeline in
@@ -1142,14 +1138,13 @@ codes are redundant, so the test makes no necessity claim.
 
 ### Repositioning and couplings (Fig. 4)
 
-The GNG↔choice alignment (Fig. 4a) pairs the GNG axis (Go vs NoGo at mid-delay, dual trials) with a choice axis fitted on the GNG-free DPA trials (lick vs no-lick at the test), so that the alignment cannot be inherited from GNG-evoked activity within the same trials; it is quantified per mouse as the raw axis cosine and as symmetric cross-decoding between the two codes (train on one, test held-out on the other), each compared Naïve vs Expert by Wilcoxon (n = 9). Fitting the choice axis on the dual trials instead gives the same mean change with a larger spread across animals (|cos| +0.040, 6/9 mice, p = 0.20; cross-decoding +0.041, p = 0.20; balancing Go and NoGo within the lick classes does not change this), which we report for transparency. The Fig. 3 choice decoders pool all three trial types. Delay-state depth (Fig. 4b) is the choice-axis projection of DPA delay states (late
-delay bins 45–53, per-mouse evoked-SD units, all laser-OFF trials); the stage effect is tested within animals by a permutation test (stage labels shuffled within each mouse over its
+The GNG↔choice alignment (Fig. 4a) pairs the GNG axis (Go vs NoGo at mid-delay, dual trials) with a choice axis fitted on the GNG-free DPA trials (lick vs no-lick at the test), so that the alignment cannot be inherited from GNG-evoked activity within the same trials; it is quantified per mouse as the raw axis cosine and as symmetric cross-decoding between the two codes (train on one, test held-out on the other), each compared Naïve vs Expert by Wilcoxon (n = 9). Fitting the choice axis on the dual trials instead gives the same mean change with a larger spread across animals (|cos| +0.040, 6/9 mice, p = 0.20; cross-decoding +0.041, p = 0.20; balancing Go and NoGo within the lick classes does not change this), which we report for transparency. The Fig. 3 choice decoders pool all three trial types. Delay-state depth (Fig. 4b) is the raw choice-axis decision function of DPA delay states (late delay bins 45–53, log-odds, all laser-OFF trials); the stage effect is tested within animals by a permutation test (stage labels shuffled within each mouse over its
 laser-off DPA trials, 10,000 draws; statistic, the mean per-mouse Expert − Naive late-delay depth; two-sided), with the
 across-animal mixed model — depth ~ stage + sample, random intercept per mouse, 36 mouse × stage × sample observations —
 and a per-animal paired t on the nine Expert − Naive differences as conservative companions (Extended Data Fig. 6). The depth↔accuracy coupling (Fig. 4c) is a between-mouse Spearman
 correlation over the nine per-mouse means of Δdepth and Δaccuracy (Expert − Naive) — the fitted
 unit is the animal — with robustness established across all six axis × normalization builds and
-a resampling battery (jackknife, bootstrap, permutation; ED 5); the GNG arm was also split into
+bootstrap intervals over mice and the leave-one-mouse-out check (Extended Data Fig. 6); the GNG arm was also split into
 Go-only and NoGo-only accuracy changes (`exp_push_nogo_coupling.py`); the NoGo arm's positive trend is a ceiling effect (`exp_push_nogo_ceiling.py`: naïve NoGo accuracy predicts the NoGo gain, ρ = −0.87, p = 0.002; the partial rank correlation of Δdepth with ΔNoGo controlling for it is +0.27, p = 0.49; a relative-gain or logit measure of the NoGo change is likewise unrelated to the push, and depth and NoGo accuracy are unrelated at either stage). One limit is disclosed: the
 coupling does not replicate when depth is instead measured on the dPCA-derived tasks axis
 (r = +0.46, p = 0.21). The FA/CR control (Fig. 4d) is
@@ -1174,7 +1169,7 @@ All tests are two-sided; exact p-values are reported uncorrected and multiplicit
 by disclosure and by the replication requirements rather than correction. Claims about
 individual differences use the animal as the unit (n = 9 Spearman/Wilcoxon; mixed models with
 mouse random effects); trial-level models are never used for between-animal claims
-(pseudoreplication is flagged wherever a raw trial-level statistic is shown, e.g. Fig. 6g).
+(pseudoreplication is flagged wherever a raw trial-level statistic is shown, e.g. Fig. 6g); within-animal effects (Fig. 4b) are tested by permutation within each mouse, with the across-animal test reported beside them.
 Every pooled pseudo-population claim is paired with a per-animal companion statistic. A result
 is starred only if it replicates across both decoder pipelines (no-PCA and PCA-20); †
 marks pipeline-dependent results, which are reported without a verdict.
@@ -1183,9 +1178,7 @@ marks pipeline-dependent results, which are reported without a verdict.
 
 Analysis code (Python; one shared decoder module, per-figure scripts) will be deposited at
 **[AUTHOR: repository/DOI]**; imaging and behavioral data at **[AUTHOR: archive/DOI]**.
-(Reproducibility note: the CCGD tensor's cross-validation partition is currently unseeded —
-re-running the tensor build permutes folds; all downstream statistics average over folds, but
-bit-exact tensor reproduction requires seeding, flagged for the deposition.)
+(Reproducibility note: the canonical CCGD tensor was built before the pipeline's fold partition was seeded; the seeded pipeline reproduces its statistics to within fold-draw variability — the Fig. 4c coupling is ρ = −0.69 to −0.80 across draws — and the deposited tensor will be the seeded one.)
 
 ---
 
