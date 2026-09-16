@@ -62,7 +62,7 @@ k > 2 folds because the estimator is a cross-product of two independent conditio
 whose variance is minimised by equal halves (n₁ = n₂ = n/2); k-fold variants use noisier per-fold
 means and additionally deflate the spectrum through basis misalignment. Effective dimensionality was
 summarised as the participation ratio, PR = (Σλ)²/Σλ², over the positive reliable spectrum
-(Extended Data Fig. 2a,b; the main figure reports the spectra themselves). The null
+(Extended Data Fig. 3a,b; the main figure reports the spectra themselves). The null
 shuffled condition labels within mouse (preserving trial counts and noise structure) and is compared
 on reliable variance, not on PR (the PR of a near-zero noise spectrum is undefined-ly large); the null
 spectrum shown in Fig. 2b is normalised by the real spectrum's positive total (its own total is near
@@ -70,11 +70,11 @@ zero, so a self-normalised null would be meaningless). Windows:
 mid-delay (bins 36–38, data 5.5–6.3 s: it opens at distractor offset (4.5–5.5 s) and closes before
 the Go/NoGo response cue (6.5–7 s) and its reward (7–7.5 s), so no Go/NoGo lick has yet occurred —
 the clean maintenance window; used throughout Fig. 2b–d; the distractor odour's sensory tail may
-contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); the twelve-condition spectra and participation ratios of Extended Data Fig. 2a,b use these same two windows and the same estimator (since 2026-09-15; the earlier build used late delay, bins 48–53, and bins 57–65). The time-resolved (trajectory) dimensionality
+contribute at its start) and decision (bins 54–62, from test onset to 0.5 s after test offset — the canonical window since 2026-09-08); the twelve-condition spectra and participation ratios of Extended Data Fig. 3a,b use these same two windows and the same estimator (since 2026-09-15; the earlier build used late delay, bins 48–53, and bins 57–65). The time-resolved (trajectory) dimensionality
 is not reported because its shuffle null retains ~half the variance through the condition-independent
 time ramp.
 
-**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data Fig. 2b).** 95% confidence intervals are
+**Error bars on the spectra (Fig. 2b) and on the PR (Extended Data Fig. 3b).** 95% confidence intervals are
 from a leave-one-mouse-out jackknife: the averaged reliable spectrum (per-component fractions) or its
 PR was recomputed nine times, excluding each mouse's neurons and trials in turn;
 CI = value ± 1.96 × SE_jackknife (fractions clipped to [0, 1]; the PR lower bound clipped at its floor
@@ -129,7 +129,7 @@ cross-validation and their variables decode at chance (Fig. 2c). They are sampli
 condition means (η² across a finite condition set must land on some contrast for any direction,
 including noise directions). This does not deny preparatory activity, which this decomposition would
 place elsewhere: condition-linked anticipation appears as decodable structure (the naive-stage
-dual-delay choice residue in Fig. 2c, a correct-trial selection effect: gone on all trials, Extended Data Fig. 2e), postural/motor
+dual-delay choice residue in Fig. 2c, a correct-trial selection effect: gone on all trials, Extended Data Fig. 3e), postural/motor
 preparation appears as the condition-independent position of the delay state on the action axis
 (Fig. 4), and purely temporal (timing/ramp) components are shared across conditions and are removed
 with the grand mean by construction. PC4 of the 4-condition DPA set is the degenerate null direction of
@@ -148,7 +148,7 @@ panels; both are linear readouts and the conclusions are unchanged (the axis-ove
 from 0.39→0.53 to 0.32→0.46 for action × distractor, with sample orthogonal to both in either case),
 but the mixed version invited comparisons between quantities built by different estimators.
 
-**Shattering dimension (Extended Data Fig. 2c; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
+**Shattering dimension (Extended Data Fig. 3c; cited in Results §3).** All 462 balanced 6-vs-6 dichotomies of
 the 12 conditions were decoded at the decision window with a leakage-free pseudo-population decoder:
 disjoint train/test trial halves per (mouse, condition), 24 pseudo-trials per condition,
 StandardScaler + PCA(30) fit on the training half only, then LDA per dichotomy; performance is balanced
@@ -164,4 +164,14 @@ cross-decode), `pca/exp_dpa_gng_column.py` (per-PC gng column, Fig. 2d); figure
 `pca/fig_dimensionality_main.py` (`--pr` renders the previous PR/all-tasks build for ED). Reference
 doc: `docs/pca/dimensionality.md`.
 
-**Trial sets (2026-09-15, see results_draft.md Methods › Statistical policy).** Geometry analyses (cvPCA, η², shattering, plane, CCGP, dPCA) use correct laser-off trials; per-variable decoding (Fig. 2c, ED 2e) and the CCGD decoders (Figs 3a,b, 4, 6; ED 4, 6) use all laser-off trials.
+**Trial sets (2026-09-15; corrected 2026-09-16).** The pseudo-population condition-mean analyses — cvPCA and its per-mouse companion (Fig. 2b,
+Extended Data Fig. 3a–d), the η² decomposition (Fig. 2d), the shattering dimension and the demixed-PCA decomposition
+(Extended Data Fig. 5) — use correct laser-off trials, because their conditions are the odor pairs themselves; so do the
+per-mouse code traces, plane snapshots, axis cosines and cross-stage transfer of Fig. 3a,b,d,e. Every analysis in which a
+label could coincide with the lick on correct trials — per-variable decoding (Fig. 2c, Extended Data Fig. 3e), the plane
+ablation and the out-of-context tests (Fig. 3c, Extended Data Fig. 4c,d), cross-condition generalization (Extended Data
+Fig. 4b) and the CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 6 and 9 — uses all laser-off trials, after
+a correct-trial selection effect was found to manufacture an apparent naïve choice signal (Extended Data Fig. 3e); the
+correct-trial versions of the plane and CCGP analyses gave the same picture within 0.05.
+
+**Push statistic (2026-09-16).** The Fig. 4b stage effect is tested within animals by a permutation test (stage labels shuffled within each mouse over its laser-off DPA trials, 10,000 draws; statistic, the mean per-mouse Expert − Naive late-delay depth; two-sided), with the across-animal mixed model (depth ~ stage + sample, random intercept per mouse, 36 observations) and a per-animal paired t as conservative companions (Extended Data Fig. 6a). Extended Data figures renumbered to nine in citation order on 2026-09-16 (see results_draft.md v12.41).

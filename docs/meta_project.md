@@ -1,5 +1,20 @@
 # Project: mPFC Population Geometry (Dual Task)
 
+## Manuscript state (2026-09-16)
+
+Draft `docs/paper/results_draft.md` **v12.46**, `discussion_draft.md` **v6.4** (both reviewed as a Nature Neuroscience reviewer
+would on 2026-09-15/16; the dated `>` banners at the top of results_draft.md are the changelog). Five main figures
+(`make_submission_figs.py`, 183 mm PDFs in `figures/paper_share/submission/`), **nine Extended Data figures in first-citation
+order** (`make_ed_figures.py`: 1 behaviour/licks, 2 imaging/drift, 3 dimensionality, 4 plane, 5 dPCA, 6 push/coupling controls,
+7 opto validation PLACEHOLDER, 8 chronic controls, 9 seven-mouse laser), Supplementary Tables 1–2 (trial counts, laser-OFF / ON).
+Headline statistics as drawn: Fig 4a alignment Δ|cos| +0.04 p .004 (9/9); Fig 4b push Δ −0.078, within-mouse permutation
+p .006 (across-animal mixed model p .10 in ED 6a); Fig 4c coupling ρ −0.80 p .010 (n = 9; holds on no-lick trials, reverses on
+a pooled-stage axis); Fig 6i acute GNG arm ρ −0.69 (per mouse −0.90, n = 5); Fig 3e cross-stage transfer 0.90 / 0.72.
+Two within-animal changes at the detection threshold are disclosed (ED 3c shattering p .055, ED 5b axis alignment p .17).
+Artifacts: draft d338b195, figures 324c8888, ED 95df947e. **Author-supplied gaps:** ED 7 images (histology, placements, FOVs,
+laser parameters, light-only control), confirmation of unilateral illumination, Methods placeholders (curriculum criteria,
+viral/laser parameters, registration metric, DOI), Fig 5 model. Behaviour-file clock rule: `docs/shared_data.md`.
+
 ## Paper hypothesis
 
 mPFC encodes sample identity and lick action on near-orthogonal axes. With learning (Naive→Expert), DPA delay-period activity moves along the **lick (choice) axis** — away from the lick sector — without disrupting sample discriminability along the **sample axis**. Distance to the lick boundary predicts within-animal DPA accuracy.
