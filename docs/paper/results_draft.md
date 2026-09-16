@@ -1,5 +1,11 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.46 (2026-09-16): DISCUSSION v6.4 — the review's judgment calls taken** (Leon: "go for the judgment calls"): one sentence
+> reconciling the learning and acute couplings (the acute shift lacks the learned GNG re-alignment, so it is felt by the GNG readout;
+> proposed test), the stable-vs-dynamic coding question acknowledged as a within-trial question the two windows do not settle
+> ([Stokes 2013] added to the reference list), the Kaufman contrast hedged to the direction of the shift, and the construction
+> counterfactual stated (new reliable dimension, reorganized coding pattern, or an unreadable frame — none appeared).
+
 > **v12.45 (2026-09-16): DISCUSSION REVIEWED (v6.3)** (Leon: "review the discussion the same way"). Fixed: "Figs 2e, 3c–f" (Fig. 3 ends at e;
 > also the Methods heading); "statically orthogonal … throughout the trial" → near-orthogonal at the measured windows against the 1/√N
 > floor; "unchanged by learning, under equivalence bounds" → no change detected, with the two threshold-level within-animal changes
@@ -1428,7 +1434,7 @@ Miller, E. K. & Fusi, S. The importance of mixed selectivity in complex cognitiv
 D., Chase, S. M., Ryu, S. I., Tyler-Kabara, E. C., Yu, B. M. & Batista, A. P. Neural
 constraints on learning. *Nature* **512**, 423–426 (2014). - **[Spaak 2017]** Spaak, E.,
 Watanabe, K., Funahashi, S. & Stokes, M. G. Stable and dynamic coding for working memory in
-primate prefrontal cortex. *J. Neurosci.* **37**, 6503–6516 (2017). - **[Stringer 2019a]**
+primate prefrontal cortex. *J. Neurosci.* **37**, 6503–6516 (2017). - **[Stokes 2013]** Stokes, M. G., Kusunoki, M., Sigala, N., Nili, H., Gaffan, D. & Duncan, J. Dynamic coding for cognitive control in prefrontal cortex. *Neuron* **78**, 364–375 (2013). - **[Stringer 2019a]**
 Stringer, C., Pachitariu, M., Steinmetz, N., Reddy, C. B., Carandini, M. & Harris, K. D.
 Spontaneous behaviors drive multidimensional, brainwide activity. *Science* **364**, eaav7893
 (2019). - **[Stringer 2019b]** Stringer, C., Pachitariu, M., Steinmetz, N., Carandini, M. &

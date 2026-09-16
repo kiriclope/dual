@@ -1,4 +1,6 @@
-# Discussion — draft v6.3 (2026-09-16, review: numbers reconciled with Results v12.44; scope paragraph expanded —
+# Discussion — draft v6.4 (2026-09-16, judgment calls: the two couplings reconciled, stable-vs-dynamic coding
+# acknowledged [Stokes 2013 added], Kaufman contrast hedged to direction, construction counterfactual stated)
+# v6.3 (2026-09-16, review: numbers reconciled with Results v12.44; scope paragraph expanded —
 # within-animal push test, readout-dependent coupling, unilateral illumination, no light-only cohort; "orthogonal
 # throughout the trial" calibrated to the measured windows and the 1/√N floor; "unchanged" → "no change detected"
 # with the two threshold-level within-animal changes named; ED 3d n = 7; stale Fig. 3f reference)
@@ -41,13 +43,12 @@ of single cells.
 
 In auditory cortex, memories are protected from incoming sensory drive by rotational dynamics
 that move the memory into a dimension orthogonal to the sensory response [Libby 2021]. In our
-task, mPFC uses a different, two-layered scheme. The memory axis is near-orthogonal to both the choice and the GNG code at the windows we measured (|cos| 0.07–0.10 against a random-direction floor of 0.05; Fig. 3d), a stable rather than a dynamic memory code [Murray 2017; Spaak 2017], and learning adds a second layer, a positional
+task, mPFC uses a different, two-layered scheme. The memory axis is near-orthogonal to both the choice and the GNG code at the windows we measured (|cos| 0.07–0.10 against a random-direction floor of 0.05; Fig. 3d), a stable rather than a dynamic memory code at the two windows we measured [Murray 2017; Spaak 2017]. Whether the code is stable or dynamic within the delay [Stokes 2013; Spaak 2017] is a within-trial question that a fixed axis read at two windows does not settle, although the sample readout kept its sign across the whole delay on DPA trials (Fig. 3a). Learning adds a second layer, a positional
 offset along the choice axis itself, which holds the delay state at an increasingly
 output-suppressing set-point on the no-lick side (Fig. 4b). The set-point is close to, but
 distinct from, the output-null principle of motor cortex [Kaufman 2014]. Preparatory activity
 there is held where it cannot drive output; the memory here is held where the readout of the
-same axis is no-lick, a displacement along the potent axis rather than a retreat into the null
-space. Several observations fit a protective function. The behavioral cost of the Go/NoGo task is
+same axis is no-lick, a displacement along the potent axis rather than a retreat into the null space. This contrast rests on the direction of the shift, which we established within animals; its size varies across mice (Fig. 4b), so the claim concerns where the delay state sits relative to the readout boundary, not a fixed magnitude. Several observations fit a protective function. The behavioral cost of the Go/NoGo task is
 an evoked lick that propagates to the test response, the false-alarm route (Fig. 1g); the
 animals that push deeper improve more (Fig. 4c); and the false-alarm arm of that propagation is
 selectively weakened, relative to its hit arm, over the same period of learning in which the
@@ -59,7 +60,7 @@ Brain–computer-interface experiments have shown that short-term learning is co
 network's existing manifold [Sadtler 2014] and proceeds by reassociation, reusing a fixed
 repertoire of activity patterns while changing what they are used for [Golub 2018], with
 genuinely new dimensions accessible only slowly and with effort [Oby 2019]. Our results extend
-the same principle to the natural acquisition of a composite task. We detected no change in the subspace or its axes with dual task learning — per-mouse cross-task transfer sat on the unity line with confidence intervals of ±0.05 (Fig. 2f), and axes fitted before learning read the activity after it at 90% of the within-stage ceiling for the sample and 72% for the choice (Fig. 3e) — while the position of the state and the alignment of the GNG code changed (Fig. 4). Two within-animal changes sit at the threshold of detection, a small rise of the shattering dimension in each mouse's own population and a closer alignment of the choice and task axes in the pooled demixed decomposition (Extended Data Figs 3c, 5b), and we report them without a verdict. Learning here does not
+the same principle to the natural acquisition of a composite task. We detected no change in the subspace or its axes with dual task learning — per-mouse cross-task transfer sat on the unity line with confidence intervals of ±0.05 (Fig. 2f), and axes fitted before learning read the activity after it at 90% of the within-stage ceiling for the sample and 72% for the choice (Fig. 3e) — while the position of the state and the alignment of the GNG code changed (Fig. 4). Construction would have appeared as a new reliable dimension in the expert spectra, a reorganized coding pattern of the components, or a frame that the naïve axes could no longer read; none appeared (Figs 2b,d, 3e). Two within-animal changes sit at the threshold of detection, a small rise of the shattering dimension in each mouse's own population and a closer alignment of the choice and task axes in the pooled demixed decomposition (Extended Data Figs 3c, 5b), and we report them without a verdict. Learning here does not
 build coding dimensions; it re-parameterizes a fixed geometry. This is also the solution that
 network models of multitask computation converge on, since recurrent networks trained on
 families of tasks solve new tasks by composing shared, reusable dynamical motifs rather than by
@@ -76,8 +77,7 @@ This is top-down control acting on the same variable that learning acts on, the 
 state, in the spirit of executive inputs that configure a computation rather than carry it
 [Mante 2013; Panichello 2021]. The contrast between the two couplings is telling. Learning's
 repositioning buys memory accuracy at no cost to the GNG task (Fig. 4c), whereas the
-acute displacement is coupled to the GNG task (Fig. 6g–i). The slow process arrives at a
-solution that the brief perturbation does not reproduce.
+acute displacement is coupled to the GNG task (Fig. 6g–i). The slow process arrives at a solution that the brief perturbation does not reproduce. One reading consistent with both is that the acute shift moves the state without the re-alignment of the GNG code that accompanies learning (Fig. 4a), so that it is felt by the readout with which the state now shares an axis, the GNG response, rather than by the memory readout that learning tuned; a direct test would displace the state before and after that alignment has formed, or over a graded dose of silencing.
 
 Four features of the design set the scope of these conclusions. The pooled pseudo-population
 combines neurons recorded in different animals, so its single-trial states carry no cross-mouse
