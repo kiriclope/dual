@@ -82,19 +82,25 @@ VARIANTS = [
      'overlaps/figures/overlaps/behavior/png/behavior_opto_main_antact_robust.png'),
 ]
 SUPP = [
-    # ── THE EXTENDED DATA SET (native composites; numbered by first citation since 2026-09-15; make_ed_figures.py) ──
-    ('ED Fig. 1 · the plane per animal & out of context: GNG/test codes, per-mouse CCGP (canonical windows), OOC plane test, plane-ablation grid (a-d)',
+    # ── THE EXTENDED DATA SET (native composites; nine figures numbered by first citation since 2026-09-16; make_ed_figures.py) ──
+    ('ED Fig. 1 · behaviour: lick rasters + PSTHs per trial type, delay-lick rate per mouse, per-animal learning curves, Fig 1g with trial-history covariates (a-e)',
      'figures/ed/png/ed_fig1.png'),
-    ('ED Fig. 2 · dimensionality: 12-condition spectra + PR at Fig 2 windows, 462-dichotomy shattering, per-mouse cvPCA, the correct-trial selection effect behind Fig 2c (a-e)',
+    ('ED Fig. 2 · imaging: neurons per mouse, per-session held-out sample/choice decodability (drift check) (a-b)',
      'figures/ed/png/ed_fig2.png'),
-    ('ED Fig. 3 · demixed-PCA trajectories (2×4) + axis alignment slopegraph (a-b)',
+    ('ED Fig. 3 · dimensionality: 12-condition spectra + PR at Fig 2 windows, 462-dichotomy shattering (jackknife + own-population), per-mouse cvPCA, the correct-trial selection effect behind Fig 2c (a-e)',
      'figures/ed/png/ed_fig3.png'),
-    ('ED Fig. 4 · push/coupling under six units, three decoders, one pooled-stage CCGD axis (coupling reverses, ρ=+0.65), lick covariate (a-d)',
+    ('ED Fig. 4 · the plane per animal & out of context: GNG/test codes, per-mouse CCGP (canonical windows, all trials), OOC plane test, plane-ablation grid (a-d)',
      'figures/ed/png/ed_fig4.png'),
-    ('ED Fig. 5 · chronic silencing of the two control projections: ACC somata null, Prl→ACC impairs GNG (a-b)',
+    ('ED Fig. 5 · demixed-PCA trajectories (2×4) + axis alignment slopegraph with the refit mouse bootstrap (a-b)',
      'figures/ed/png/ed_fig5.png'),
-    ('ED Fig. 6 · acute laser ON−OFF coupling over all 7 laser mice, Fig 6 estimator (GNG ρ=−0.94 p=.002; DPA ρ=+0.71 p=.074)',
+    ('ED Fig. 6 · push/coupling under six units, three decoders, one pooled-stage CCGD axis (coupling reverses), trial-level lick control (a-d)',
      'figures/ed/png/ed_fig6.png'),
+    ('ED Fig. 7 · PLACEHOLDER opto/imaging validation (histology, placements, FOVs, laser parameters — author-supplied)',
+     'figures/ed/png/ed_fig7.png'),
+    ('ED Fig. 8 · chronic silencing of the two control projections: ACC somata null, Prl→ACC impairs GNG (a-b)',
+     'figures/ed/png/ed_fig8.png'),
+    ('ED Fig. 9 · acute laser ON−OFF coupling over all 7 laser mice, Fig 6 estimator (GNG ρ=−0.94 p=.002; DPA trend = the ChR2 mice)',
+     'figures/ed/png/ed_fig9.png'),
     # ── components / candidates below ─────────────────────────────────────────
     ('ED — per-mouse CCGP (abstraction unchanged) + per-mouse cross-task generalisation  [left the mains 2026-08-31]',
      'pca/figures/pseudo/dimensionality/png/fig_manifold_supp.png'),

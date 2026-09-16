@@ -1,5 +1,5 @@
-"""(RENUMBERED 2026-09-15 to citation order: this script draws Extended Data Fig. 2.)
-fig_ed1_dimensionality.py — Extended Data Fig. 2: dimensionality, provenance and robustness
+"""(RENUMBERED 2026-09-16 to citation order, nine figures: this script draws Extended Data Fig. 3.)
+fig_ed1_dimensionality.py — Extended Data Fig. 3: dimensionality, provenance and robustness
 (companion to Fig. 2b–d). Built 2026-09-15 (Leon: "keep only what is essential for the paper's
 argumentation") — every panel here is one the Results, Methods or Discussion cite; nothing else.
 
@@ -13,7 +13,7 @@ argumentation") — every panel here is one the Results, Methods or Discussion c
 
 Reads caches only: results.pkl (CV / FITDATA / PR_JK / PM_CVPCA / ANTACT_TRAJ / DPCA_COUNT).
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python fig_ed1_dimensionality.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig2.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig3.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, warnings, pickle
@@ -245,7 +245,7 @@ plabel(axA, 'a', dx=-0.28); plabel(axB, 'b', dx=-0.30); plabel(axC, 'c', dx=-0.4
 plabel(axD, 'd', dx=-0.30); plabel(axE, 'e', dx=-0.34)
 
 CAP = [
-    'Extended Data Fig. 2 | Dimensionality: provenance and robustness (companion to Fig. 2b–d). '
+    'Extended Data Fig. 3 | Dimensionality: provenance and robustness (companion to Fig. 2b–d). '
     'a, Cross-validated spectra of the DPA state (four conditions) and of the full twelve-condition state, at '
     'mid-delay (5.5–6.5 s) and at the decision (9.0–10.5 s), the windows and estimator of Fig. 2b (30 half-splits; '
     'naïve and expert; dashed, the shuffle null of the expert fit). b, The participation ratio of the same three '
@@ -276,6 +276,6 @@ CAP = [
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig2.png', bbox_inches='tight')
-fig.savefig(f'{OUT}/svg/ed_fig2.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig2.png')
+fig.savefig(f'{OUT}/png/ed_fig3.png', bbox_inches='tight')
+fig.savefig(f'{OUT}/svg/ed_fig3.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig3.png')

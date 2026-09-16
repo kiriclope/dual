@@ -35,18 +35,24 @@ SRC = f'{ROOT}/figures/ed/png'
 
 # (file stem, eyebrow, title, one-line claim) — titles/claims mirror the captions in make_ed_figures.py
 SPECS = [
-    ('ed_fig1', 'Extended Data Fig. 1', 'The sample x choice plane, per animal and out of context',
+    ('ed_fig1', 'Extended Data Fig. 1', 'Licking and per-animal learning in the imaged cohort',
+     'Lick rasters and rates per trial type, the fall of the delay lick with training, per-animal learning curves, and Fig. 1g with trial-history covariates.'),
+    ('ed_fig2', 'Extended Data Fig. 2', 'The imaged population and the session-by-session stability of its codes',
+     'Neurons per mouse (3,319) and held-out sample/choice decodability in every session: no session-to-session drift behind the cross-stage transfer.'),
+    ('ed_fig3', 'Extended Data Fig. 3', 'Dimensionality: provenance and robustness',
+     'Twelve-condition spectra and participation ratios at Fig. 2 windows, the 462-dichotomy shattering dimension with across-animal intervals, the per-mouse cvPCA companion, and the correct-trial selection effect behind Fig. 2c.'),
+    ('ed_fig4', 'Extended Data Fig. 4', 'The sample x choice plane, per animal and out of context',
      'GNG and test codes over time, per-mouse CCGP on the canonical windows, the out-of-context plane test, and the plane-ablation grid in every animal.'),
-    ('ed_fig2', 'Extended Data Fig. 2', 'Dimensionality: provenance and robustness',
-     'Twelve-condition spectra and participation ratios at Fig. 2 windows, the 462-dichotomy shattering dimension, the per-mouse cvPCA companion, and the correct-trial selection effect behind Fig. 2c.'),
-    ('ed_fig3', 'Extended Data Fig. 3', 'The demixed-PCA decomposition gives the same picture',
-     'Single-axis time courses sharpen without reorganizing; the choice and task axes align and the sample and test axes separate.'),
-    ('ed_fig4', 'Extended Data Fig. 4', 'The push and the learning coupling under other units, other decoders, a fixed axis and a lick covariate',
-     'All on held-out CCGD decision functions: the coupling holds under every unit and decoder except LDA, reverses on one axis fitted to both stages, and is unchanged by a lick covariate.'),
-    ('ed_fig5', 'Extended Data Fig. 5', 'Chronic silencing of the two control projections',
-     'ACC cell bodies: no deficit; prelimbic-to-ACC terminals: GNG impaired, DPA spared - the DPA deficit is specific to the ACC-to-mPFC projection.'),
-    ('ed_fig6', 'Extended Data Fig. 6', 'The acute laser ON-OFF coupling over all seven laser mice',
-     'With the Fig. 6 estimator: GNG arm rho = -0.94, p = 0.002; DPA arm a trend, rho = +0.71, p = 0.074 (n = 7).'),
+    ('ed_fig5', 'Extended Data Fig. 5', 'The demixed-PCA decomposition gives the same picture',
+     'Single-axis time courses sharpen without reorganizing; no change in the angles between axes is resolved across animals (refit mouse bootstrap).'),
+    ('ed_fig6', 'Extended Data Fig. 6', 'The push and the learning coupling under other units, other decoders, a fixed axis and a trial-level lick control',
+     'All on held-out CCGD decision functions: the coupling holds under every unit and decoder except LDA, reverses on one axis fitted to both stages, and holds on no-lick trials.'),
+    ('ed_fig7', 'Extended Data Fig. 7', 'Optogenetic and imaging validation (PLACEHOLDER)',
+     'Author-supplied histology, expression, placements, fields of view and laser parameters - slots reserved.'),
+    ('ed_fig8', 'Extended Data Fig. 8', 'Chronic silencing of the two control projections',
+     'ACC cell bodies: no deficit detected; prelimbic-to-ACC terminals: GNG impaired, DPA spared - bounded nulls that do not reproduce the ACC-to-mPFC DPA deficit.'),
+    ('ed_fig9', 'Extended Data Fig. 9', 'The acute laser ON-OFF coupling over all seven laser mice',
+     'With the Fig. 6 estimator: GNG arm rho = -0.94, p = 0.002; the DPA trend is carried by the two ChR2 mice (n = 7).'),
 ]
 
 style = re.search(r'<style>.*?</style>', open(FIGPAGE, encoding='utf-8').read(), re.S)

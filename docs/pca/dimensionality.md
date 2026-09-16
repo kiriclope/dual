@@ -1,3 +1,7 @@
+> **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
+> imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
+> opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.
+
 > **2026-09-15 (latest) — REFIT-dPCA MOUSE BOOTSTRAP (ED 3b):** `exp_dpca_refit_boot.py` (6.9 min; loads X_all_blcenter, rebuilds
 > the sample × test × tasks pseudo-population per stage with `build_pseudo_population`, then `dpca_decode` on each of 1,000
 > resampled sets of nine mice — a mouse drawn twice contributes its block twice) → `DPCA_REFIT_BOOT` in results.pkl. The

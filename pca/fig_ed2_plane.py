@@ -1,5 +1,5 @@
-"""(RENUMBERED 2026-09-15 to citation order: this script draws Extended Data Fig. 1.)
-fig_ed2_plane.py — Extended Data Fig. 1: the sample × choice plane, per animal and out of context
+"""(RENUMBERED 2026-09-16 to citation order, nine figures: this script draws Extended Data Fig. 4.)
+fig_ed2_plane.py — Extended Data Fig. 4: the sample × choice plane, per animal and out of context
 (companion to Fig. 3). Built 2026-09-15 (Leon: "keep only what is essential for the paper's
 argumentation") — every panel is one the Results or the Fig. 3 legend cite; nothing else.
 
@@ -13,7 +13,7 @@ argumentation") — every panel is one the Results or the Fig. 3 legend cite; no
 Reads caches only (pca results.pkl ORIG_TRACES / OOC_PLANE* / PM_PLANE_nopca + the overlaps per-mouse CCGP
 cache). Canonical no-PCA pipeline throughout.
 Run:  cd /home/leon/dual/pca && /home/leon/mambaforge/envs/dual/bin/python fig_ed2_plane.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig1.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig4.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, warnings, pickle
@@ -266,7 +266,7 @@ axD = panel_d(fig, gsD)
 plabel(axA, 'a', dx=-0.26); plabel(axB, 'b', dx=-0.34); plabel(axC, 'c', dx=-0.30); plabel(axD, 'd', dx=-0.42)
 
 CAP = [
-    'Extended Data Fig. 1 | The sample × choice plane, per animal and out of context (companion to Fig. 3). '
+    'Extended Data Fig. 4 | The sample × choice plane, per animal and out of context (companion to Fig. 3). '
     'a, The GNG and test codes over time on their own cross-validated decoder axes (naïve | expert; mean ± SEM '
     'across mice; evoked-s.d. units, conventions as Fig. 3a), the definitional reference for the two codes Fig. 3c–e '
     'ablate and align. b, Per-mouse cross-condition generalization (CCGP) of each variable, naïve against expert '
@@ -291,6 +291,6 @@ CAP = [
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig1.png', bbox_inches='tight')
-fig.savefig(f'{OUT}/svg/ed_fig1.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig1.png')
+fig.savefig(f'{OUT}/png/ed_fig4.png', bbox_inches='tight')
+fig.savefig(f'{OUT}/svg/ed_fig4.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig4.png')

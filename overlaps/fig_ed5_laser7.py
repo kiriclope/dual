@@ -1,5 +1,5 @@
-"""(RENUMBERED 2026-09-15 to citation order: this script draws Extended Data Fig. 6.)
-fig_ed5_laser7.py — Extended Data Fig. 6: the acute laser ON−OFF coupling over all seven laser mice
+"""(RENUMBERED 2026-09-16 to citation order, nine figures: this script draws Extended Data Fig. 9.)
+fig_ed5_laser7.py — Extended Data Fig. 9: the acute laser ON−OFF coupling over all seven laser mice
 (companion to Fig. 6g–i). Built 2026-09-15 (Leon: "keep only what is essential") — Results §6 cites it
 once: "Computing the same coupling over all seven mice that received laser gives the same answer".
 
@@ -12,7 +12,7 @@ rank test is sign-agnostic: it asks only whether a displacement of either sign t
 The seven per-mouse rows are cached (figures/overlaps/behavior/ed5_laser7_cache.pkl); --recompute reloads
 the ~1 GB laser tensor.
 Run:  cd /home/leon/dual/overlaps && /home/leon/mambaforge/envs/dual/bin/python fig_ed5_laser7.py [--nocap] [--recompute]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig6.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig9.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, warnings, pickle
@@ -131,7 +131,7 @@ for ax, s in zip(axes, 'ab'):
     ax.text(-0.22, 1.05, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 CAP = [
-    'Extended Data Fig. 6 | The acute laser ON−OFF coupling over all seven laser mice (companion to Fig. 6g–i). '
+    'Extended Data Fig. 9 | The acute laser ON−OFF coupling over all seven laser mice (companion to Fig. 6g–i). '
     'The within-mouse change in choice-code depth under laser against the change in accuracy, one point per mouse, '
     'for every mouse carrying interleaved laser trials (five Jaws inhibition, circles; two ChR2 excitation, triangles; '
     'the ACC-implant mice received no laser); same axis, window and units as Fig. 6 (expert stage, DPA trials, depth '
@@ -147,5 +147,5 @@ CAP = [
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig6.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig6.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig6.png')
+fig.savefig(f'{OUT}/png/ed_fig9.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig9.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig9.png')
