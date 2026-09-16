@@ -257,6 +257,7 @@ for ax in (axB, axC, axD, axE):
     ax.set_ylim(0.18, 1.07); ax.set_xticks(DAYS); ax.set_xlabel('session')
     ax.legend(frameon=False, fontsize=PS*6.5, loc='lower right')
 axB.set_ylabel('performance')
+axB.text(DAYS[-1] + 0.15, 0.60, f'session 6:\n{d[d.day == DAYS[-1]].mouse.nunique()} mice', ha='right', va='top', fontsize=PS*6, color='0.45')   # review 2026-09-16
 # orientation titles (Leon 2026-09-09: say what each learning panel shows) — house style: what the panel
 # CONTAINS, left-aligned, not a claim (the legend makes the claims)
 for _ax, _t in [(axB, 'both tasks: DPA vs GNG'), (axC, 'GNG: Go vs NoGo'),
@@ -451,7 +452,7 @@ CAP_PARAS = [
     '(OR = 1.48, p = .02). Across stages the overall propagation fell only as a trend (lick × stage '
     'interaction, OR ratio 0.68 [0.45, 1.04], p = .074; lower in 6/9 mice), whereas its pairing '
     'selectivity changed (lick × stage × pairing interaction p = 10⁻⁴). Unwarranted delay licks on NoGo '
-    'trials fall from 0.24 to 0.08 of trials. Learning did not abolish the chain of delay lick and test '
+    'trials fall from 0.24 to 0.08 of trials (pooled; per-mouse means 0.21 to 0.07, Extended Data Fig. 1c). Learning did not abolish the chain of delay lick and test '
     'lick; it disconnected its false-alarm arm, the arm the no-lick repositioning in Fig. 4 acts on.',
     'h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each '
     'animal (color, mouse; marker, opsin group; star, the corner where both tasks are optimal). '
@@ -467,5 +468,17 @@ if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the fi
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_main.{ext}'
+    # ── house style (2026-09-16): stage words lowercase inside panels (naïve / expert), as in the EDs ──
+    import matplotlib.text as _mtext, re as _re
+    for _t in fig.findobj(_mtext.Text):
+        _s = _t.get_text()
+        if _s and ('Naive' in _s or 'Expert' in _s) and not _s.startswith(('Figure', 'Extended')):
+            _t.set_text(_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', _s)))
+    from matplotlib.ticker import FixedFormatter as _FF
+    for _ax in fig.get_axes():                                   # tick labels live in the formatter (re-set at draw time)
+        for _axis in (_ax.xaxis, _ax.yaxis):
+            _f = _axis.get_major_formatter()
+            if isinstance(_f, _FF):
+                _f.seq = [_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', str(_x))) for _x in _f.seq]
     fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
 plt.close(fig)

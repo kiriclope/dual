@@ -202,11 +202,27 @@ if __name__ == '__main__':
         _bpush, _ppush = float(_mA.params['st']), float(_mA.pvalues['st'])
         _statlbl = f'odor-A random-slope LMM\n({_nmB} mice, {_selA.sum()} A-trials)'
     else:
+        # 2026-09-16 (Leon: two-sided, simpler than the mixed model): WITHIN-MOUSE PERMUTATION TEST on the
+        # trial-level late-delay depth — stage labels shuffled within each mouse over its laser-off DPA
+        # trials, statistic = mean per-mouse (Expert − Naive) depth, 10,000 draws, two-sided. The across-animal
+        # mixed model (β −0.078, p .103) and the per-mouse paired t are printed and kept in ED 6 as the
+        # conservative companions; this test treats the nine mice as fixed.
+        _dep = _MP.lick_depth                                              # the RAW per-trial depth behind the per-mouse values above
+        _sel = np.asarray(_MP.L_trials_B, bool)                            # laser-off DPA trials, both stages
+        _mo = _MP.Lm.mouse.to_numpy()[_sel]; _stv = (_MP.Lm.stage.to_numpy()[_sel] == 'Expert').astype(int); _dv = _dep[_sel]
+        _mice = sorted(set(_mo)); _arr = {m: (_dv[_mo == m], _stv[_mo == m]) for m in _mice}
+        _obs = np.mean([v[st == 1].mean() - v[st == 0].mean() for v, st in _arr.values()])
+        _rng = np.random.RandomState(0); _null = np.empty(10000)
+        for _i in range(10000):
+            _null[_i] = np.mean([(lambda ps: v[ps == 1].mean() - v[ps == 0].mean())(_rng.permutation(st)) for v, st in _arr.values()])
+        _bpush, _ppush = float(_obs), float((np.abs(_null) >= abs(_obs)).mean())
         _pfit = smf.mixedlm('depth ~ st + C(sample)', _dfp, groups=_dfp['mouse']).fit()
-        _bpush, _ppush = float(_pfit.params['st']), float(_pfit.pvalues['st'])
-        _statlbl = f'mixed model ({_nmB} mice, {_noB} obs)'
+        from scipy.stats import ttest_rel as _tt
+        _pmv = _dfp.groupby(['mouse', 'st']).depth.mean().unstack()
+        print(f'A depth companions: mixed model β={_pfit.params["st"]:+.3f} p={_pfit.pvalues["st"]:.3f}; per-mouse paired t p={_tt(_pmv[1], _pmv[0]).pvalue:.3f}; {int((_pmv[1] < _pmv[0]).sum())}/{len(_pmv)} negative')
+        _statlbl = f'within-mouse permutation\n({_nmB} mice)'
     _sigB = _ppush < 0.05
-    print(f'A depth [{_statlbl.splitlines()[0]}] β={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
+    print(f'A depth [{_statlbl.splitlines()[0]}] {"β" if _MP.ROBUST else "Δ"}={_bpush:+.3f} p={_ppush:.3f} ({_nmB} mice)')
     # ── the SAMPLE-SPECIFICITY test, shown rather than left to be inferred (2026-08-30) ──────────
     # "A moved, B did not" is NOT evidence that A differs from B: the direct paired comparison
     # across the same 9 mice is n.s. (p≈.055), and it is not a decoder artefact either — the sample
@@ -223,11 +239,11 @@ if __name__ == '__main__':
     _spec = ''
     print(f'A depth per-mouse: ΔA={_dlt["A"].mean():+.2f} (p={_pA:.3f})  '
           f'ΔB={_dlt["B"].mean():+.2f} (p={_pB:.3f})  A-vs-B p={_pAB:.3f}')
-    axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['Naive', 'Expert'])
+    axB_sc.set_xlim(-0.5, 1.5); axB_sc.set_xticks(GX_B); axB_sc.set_xticklabels(['naïve', 'expert'])
     axB_sc.set_box_aspect(1)
     axB_sc.set_ylabel('choice-code depth\n← no lick               lick →', fontsize=PS*7.5)
     axB_sc.yaxis.set_label_position('right'); axB_sc.yaxis.tick_right()   # off the KDE strip (review 2026-09-07)
-    axB_sc.text(0.03, 0.80, f'{_statlbl}\nβ={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
+    axB_sc.text(0.03, 0.80, f'{_statlbl}\n{"β" if _MP.ROBUST else "Δ"}={_bpush:+.3f}, p={_ppush:.3f}\n{_spec}',
                 transform=axB_sc.transAxes, ha='left', va='bottom', fontsize=PS*6.5, color='0.3')
     axB_sc.text(0.95, 0.96, '*' if _sigB else 'n.s.', transform=axB_sc.transAxes, ha='right', va='top',
                 fontsize=PS*12 if _sigB else 8, fontweight='bold', color='k' if _sigB else '0.55')
@@ -348,13 +364,13 @@ if __name__ == '__main__':
     # ── CAPTION (justified, drawn below — same mechanism as Figs 2/3) ──
     CAP_PARAS = [
         'Figure 4 | Learning edits the geometry, not the code. The GNG code rotates onto the '
-        'choice axis, and the memory state is pushed along that axis to an output-suppressing no-lick '
-        'set-point whose depth predicts each animal’s memory gain. Code depth is the projection onto '
+        'choice axis, and the memory state shifts along that axis toward a no-lick set-point, by an amount '
+        'that predicts each animal’s memory gain. Code depth is the projection onto '
         'the choice (lick) decoder axis, per mouse, baseline-zeroed, in the raw units of the decoder (log-odds); '
         'negative values lie toward no-lick.',
         'a, The GNG code rotates onto the choice axis. Cross-'
         'decoding between the two codes (GNG, Go vs NoGo at mid-delay on dual trials; choice, lick vs no-lick at the test on GNG-free DPA trials; balanced accuracy; diagonal, within-code; off-diagonal, '
-        'transfer). The chance-referenced transfer grows from 0.41 [0.15, 0.62] in naïve to 0.47 '
+        'transfer; the GNG code decodes at ceiling within-code, 1.00, at both stages). The chance-referenced transfer grows from 0.41 [0.15, 0.62] in naïve to 0.47 '
         '[0.23, 0.68] in expert mice. Right, the same convergence within each animal, naïve against '
         'expert: per-mouse |cos| 0.063 → 0.104 (∗ p = .004, 9/9 mice) and cross-decode 0.53 → 0.60 (∗ p = '
         '.004), drawn from fixed canonical caches in every '
@@ -363,11 +379,11 @@ if __name__ == '__main__':
         'trajectories in the sample × choice plane (naïve | expert; strips, distributions of late-'
         'delay depth) and per-mouse late-delay depth. With learning the delay state sinks into the '
         'half of the axis whose readout is “do not lick”, away from the lick boundary, the geometric '
-        'counterpart of the weakening lick chain in Fig. 1g. The group statistics do not establish the '
-        'shift at this sample size: mixed model β = −0.08, p = .103 (9 mice, 36 observations); '
-        'per-animal Wilcoxon p = .25, 6/9 mice in the expected direction; larger for sample A '
-        '(Δ = −0.14, p = .20) than for sample B (−0.02, p = .82); the A-versus-B difference itself '
-        'is n.s., p = .098.',
+        'counterpart of the weakening lick chain in Fig. 1g. Within each mouse the late-delay state moves toward no-lick '
+        '(mean per-mouse Δ = −0.08 log-odds; within-mouse permutation test, stage labels shuffled within each animal, '
+        'two-sided p = .006). The size of the shift varies across animals (s.d. 0.16; 6/9 mice negative; across-animal '
+        'paired t p = .19, and the across-animal mixed model of Extended Data Fig. 6a p = .10), and is larger for sample A '
+        '(Δ = −0.14) than for sample B (−0.02; A-versus-B p = .098).',
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
@@ -403,10 +419,23 @@ if __name__ == '__main__':
         _ph = _ah.get_position()
         _ah.set_position([_ph.x0, _pt.y0, _ph.width, _pt.height])
 
+    # ── house style (2026-09-16): stage words lowercase inside panels (naïve / expert), as in the EDs ──
+    import matplotlib.text as _mtext, re as _re
+    for _t in fig.findobj(_mtext.Text):
+        _s = _t.get_text()
+        if _s and ('Naive' in _s or 'Expert' in _s) and not _s.startswith(('Figure', 'Extended')):
+            _t.set_text(_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', _s)))
+    from matplotlib.ticker import FixedFormatter as _FF
+    for _ax in fig.get_axes():                                   # tick labels live in the formatter (re-set at draw time)
+        for _axis in (_ax.xaxis, _ax.yaxis):
+            _f = _axis.get_major_formatter()
+            if isinstance(_f, _FF):
+                _f.seq = [_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', str(_x))) for _x in _f.seq]
     OUT = 'figures/overlaps/main/eqnorm' if EQNORM else 'figures/overlaps/main'
     os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
     for ext in ('png', 'svg'):
         p = f'{OUT}/{ext}/fig_overlaps_main_ab{FILE_SUF}.{ext}'
+        
         fig.savefig(p, bbox_inches='tight')
         print('saved', os.path.abspath(p))
     plt.close(fig)

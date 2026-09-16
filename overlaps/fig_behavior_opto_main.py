@@ -640,7 +640,7 @@ if not POSTER:
     axK.axhline(0, ls=':', color='0.5', lw=1)
     axK.set_xticks([0, 1]); axK.set_xticklabels(['laser\nOFF', 'laser\nON'])
     axK.set_xlim(-0.5, 1.5)
-    axK.set_ylabel('DPA choice-code depth')     # axis/window named in the caption (print-scale trim)
+    axK.set_ylabel('choice-code depth', labelpad=1)     # axis/window named in the caption (print-scale trim)
     axK.set_title('choice-code depth: OFF vs ON', loc='left', fontsize=TITLE_FS)
     _klo, _khi = axK.get_ylim(); axK.set_ylim(_klo - 0.42 * (_khi - _klo), _khi)      # room for the key below the data
     axK.legend(frameon=False, fontsize=PS*6, loc='lower center', ncol=3, handletextpad=0.3,
@@ -678,7 +678,9 @@ for ax, key, ylab, msg in [
     r_p, p_p = pearsonr(xdep[ok], yv[ok]); rho, ps = spearmanr(xdep[ok], yv[ok])
     _b, _p, _nm, _no = _gi_lmm(key)                 # mouse-respecting LMM — logged caveat, NOT drawn
     print(f'  {key}: corr r={r_p:+.2f} p={p_p:.3f} ρ={rho:+.2f} p={ps:.3f}  |  LMM β={_b:+.3f} p={_p:.3f} ({_nm}m {_no}obs)')
-    ax.text(0.5, 0.02, f'{len(JAWS)} mice, {ok.sum()} obs\nSpearman ρ={rho:+.2f}, p={ps:.3f}',   # Spearman only; unit named as in Fig 4 (Leon)
+    _pmx = pd.DataFrame(dict(m=[r['mouse'] for r in rows_ab], x=xdep, y=yv)).groupby('m').mean()   # per-mouse companion (review 2026-09-16)
+    _rpm, _ppm = spearmanr(_pmx.x, _pmx.y); print(f'  {key}: per-mouse (n={len(_pmx)}) Spearman ρ={_rpm:+.2f} p={_ppm:.3f}')
+    ax.text(0.5, 0.02, f'{len(JAWS)} mice, {ok.sum()} obs\nSpearman ρ={rho:+.2f}, p={ps:.3f}\nper mouse (n = {len(_pmx)}): ρ={_rpm:+.2f}, p={_ppm:.2f}',   # Spearman only (Leon); per-mouse companion 2026-09-16
             transform=ax.transAxes, ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
     ax.text(0.85, 0.93, '*' if ps < 0.05 else 'n.s.', transform=ax.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
             va='top', fontsize=PS*12, fontweight='bold', color='k' if ps < 0.05 else '0.55')
@@ -778,7 +780,9 @@ _ok = ~(np.isnan(_xdep) | np.isnan(_ytr))
 _rp, _pp = pearsonr(_xdep[_ok], _ytr[_ok]); _rs, _ps = spearmanr(_xdep[_ok], _ytr[_ok])
 _gb, _gp, _gnm, _gno = _gi_lmm('trade')          # mouse-respecting LMM — logged caveat, NOT drawn
 print(f'  trade-off: corr r={_rp:+.2f} p={_pp:.3f} ρ={_rs:+.2f} p={_ps:.3f}  |  LMM β={_gb:+.3f} p={_gp:.3f} ({_gnm}m {_gno}obs)')
-axL.text(0.5, 0.02, f'{len(JAWS)} mice, {_ok.sum()} obs\nSpearman ρ={_rs:+.2f}, p={_ps:.3f}',   # Spearman only; unit named as in Fig 4 (Leon)
+_pmt = pd.DataFrame(dict(m=[r['mouse'] for r in rows_ab], x=_xdep, y=_ytr)).groupby('m').mean()   # per-mouse companion (review 2026-09-16)
+_rtm, _ptm = spearmanr(_pmt.x, _pmt.y); print(f'  trade-off: per-mouse (n={len(_pmt)}) Spearman ρ={_rtm:+.2f} p={_ptm:.3f}')
+axL.text(0.5, 0.02, f'{len(JAWS)} mice, {_ok.sum()} obs\nSpearman ρ={_rs:+.2f}, p={_ps:.3f}\nper mouse (n = {len(_pmt)}): ρ={_rtm:+.2f}, p={_ptm:.2f}',   # Spearman only (Leon); per-mouse companion 2026-09-16
          transform=axL.transAxes, ha='center', va='bottom', fontsize=PS*6.2, color='0.3')
 axL.text(0.85, 0.93, '*' if _ps < 0.05 else 'n.s.', transform=axL.transAxes, ha='center',        # verdict = Spearman (Leon 2026-09-08); clustered model in the legend
          va='top', fontsize=PS*12, fontweight='bold', color='k' if _ps < 0.05 else '0.55')
@@ -919,5 +923,17 @@ if not POSTER:
 
 for ext in ('png', 'svg'):
     p = f'{OUT}/{ext}/behavior_opto_main{_SUF}{"_poster" if POSTER else ""}.{ext}'
+    # ── house style (2026-09-16): stage words lowercase inside panels (naïve / expert), as in the EDs ──
+    import matplotlib.text as _mtext, re as _re
+    for _t in fig.findobj(_mtext.Text):
+        _s = _t.get_text()
+        if _s and ('Naive' in _s or 'Expert' in _s) and not _s.startswith(('Figure', 'Extended')):
+            _t.set_text(_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', _s)))
+    from matplotlib.ticker import FixedFormatter as _FF
+    for _ax in fig.get_axes():                                   # tick labels live in the formatter (re-set at draw time)
+        for _axis in (_ax.xaxis, _ax.yaxis):
+            _f = _axis.get_major_formatter()
+            if isinstance(_f, _FF):
+                _f.seq = [_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', str(_x))) for _x in _f.seq]
     fig.savefig(p, bbox_inches='tight'); print('saved', os.path.abspath(p))
 plt.close(fig)

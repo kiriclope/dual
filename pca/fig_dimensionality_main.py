@@ -884,9 +884,9 @@ if CDEC:
         'label-shuffle null). The DPA mid-delay state occupies a single reliable dimension. The dual '
         'tasks add exactly one, the GNG axis (0.90 against sample 0.10), and the decision '
         'state spreads to three reliable axes on DPA trials and two on Go and NoGo trials (an axis counts as '
-        'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; learning does not '
-        'change the dimensionality.',
-        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). All laser-off trials are decoded; the dagger marks the one naïve cell above its null before the test, the mid-delay choice on Go and NoGo trials (0.56 against 0.52), the residue of a correct-trial selection effect (Extended Data Fig. 3e).',
+        'reliable when its jackknife interval clears the shuffle null). Naïve and expert spectra are near-identical; no change in '
+        'dimensionality with learning is detected.',
+        'c, Each axis carries its variable when, and only when, the task engages it. Decoding accuracy along each demixed coding axis on withheld pseudo-trials (expert, bars; naïve, open circles), against the expert label-shuffle null (95th percentile of a null matched to the plotted statistic, short line). All laser-off trials are decoded; the dagger marks the one naïve cell above its null before the test, the mid-delay choice on Go and NoGo trials (0.56 against 0.52), the residue of a correct-trial selection effect (Extended Data Fig. 3e). Per-mouse decodability of each code: Fig. 3c (full population) and Extended Data Fig. 2b (per session).',
         'd, The principal components are the task variables. η² of each condition-mean PC against the '
         'design contrasts, cross-validated exactly as in b: the components are fitted on one half of '
         'the trials and both the η² and the row percentages are measured on the other (30 random '

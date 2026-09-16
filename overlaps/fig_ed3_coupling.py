@@ -293,7 +293,7 @@ CAP = [
     'depth ~ stage + sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman '
     'ρ between Δdepth and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay '
     'depth. Red, p < 0.05. The coupling holds under every unit (ρ = −0.67 to −0.80; the whole-trial-s.d. unit sits '
-    'at the boundary, p = .0499); the push reaches significance only in evoked-s.d. and whole-trial-s.d. units. '
+    'at the boundary, p = .0499); the push, tested here with the across-animal mixed model, is a trend in raw units and reaches significance only in evoked-s.d. and whole-trial-s.d. units (the within-animal permutation test of Fig. 4b gives p = .006). '
     'b, The coupling under three decoders: the ridge logistic decoder of Fig. 4c (ρ = −0.80, bootstrap 95% CI over '
     'mice [−0.98, −0.24]), an L1-regularized logistic decoder (−0.73 [−1.00, −0.11]) and a shrinkage linear '
     'discriminant (−0.45 [−0.89, +0.29]).',

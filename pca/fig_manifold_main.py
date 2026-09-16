@@ -99,7 +99,8 @@ assert 'XSTAGE_DEC' + SUF in RES, ('missing XSTAGE_DEC' + SUF +
                                    ' — run: python exp_plane_frame.py' +
                                    (' --nopca' if NOPCA else ''))
 XSD = RES['XSTAGE_DEC' + SUF]                      # cross-stage decoding (train x test stage)
-PMC = RES['PM_COS' + SUF]                          # per-mouse raw |cos| (E scatters; exp_permouse_frame.py)
+PMC = RES['PM_COS' + SUF]
+import pickle as _pk; _SL = _pk.load(open('../data/pca/mouse_slices.pkl', 'rb')); SLN = {m: _SL[m].stop - _SL[m].start for m in _SL}   # neurons per mouse (floor in d)                          # per-mouse raw |cos| (E scatters; exp_permouse_frame.py)
 assert 'PM_XSTAGE' + SUF in RES, ('missing PM_XSTAGE' + SUF +
                                   ' — run: python exp_permouse_xstage.py' +
                                   (' --nopca' if NOPCA else ''))
@@ -372,9 +373,9 @@ def panel_xstage(fig, gsX):
                 ax.text(j, i, f'{M[i, j]:.2f}', ha='center', va='center', fontsize=PS*6.6,
                         color='w' if M[i, j] > 0.82 else 'k')
         off = np.mean([M[0, 1], M[1, 0]]); dia = np.mean([M[0, 0], M[1, 1]])
-        ax.set_xticks([0, 1]); ax.set_xticklabels(['Naive', 'Expert'], fontsize=PS*6.2)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(['naïve', 'expert'], fontsize=PS*6.2)
         ax.set_yticks([0, 1])
-        ax.set_yticklabels(['Naive', 'Expert'] if k == 0 else [], fontsize=PS*6.2)
+        ax.set_yticklabels(['naïve', 'expert'] if k == 0 else [], fontsize=PS*6.2)
         ax.set_title(f'{vn} axis', loc='left', fontsize=TITLE_FS)   # T/W ratio stated in the legend, not the panel (Leon 2026-09-08)
         ax.set_anchor('C')                              # vertically centred with the scatters
         if k == 0:
@@ -399,6 +400,9 @@ def panel_e_pm(fig, gs):
     for j, (key, lab) in enumerate(PAIRS):
         ax = fig.add_subplot(gs[0, j]); axes.append(ax)
         ax.plot([lo, hi], [lo, hi], ls='--', color='0.6', lw=0.8, zorder=0)
+        _floor = 1.0 / np.sqrt(np.mean([SLN[m] for m in MICE]))        # random-direction floor 1/sqrt(N), mean N over mice (review 2026-09-16)
+        ax.axhline(_floor, ls=':', color='0.5', lw=0.8, zorder=0); ax.axvline(_floor, ls=':', color='0.5', lw=0.8, zorder=0)
+        ax.text(hi - 0.005, _floor + 0.004, 'random floor', fontsize=PS*5.5, color='0.5', ha='right', va='bottom')
         nv, ev = [], []
         for m in MICE:
             if (m, 'Naive') not in PMC or (m, 'Expert') not in PMC:
@@ -650,7 +654,7 @@ CAP_PARAS = [
     'during the test (9.0–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
     'it shows the geometry of the conditions rather than their absolute position (the shared ramp '
     'and the push are carried by a and by Fig. 4b). Dots, per-mouse condition means (at least '
-    'three correct trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
+    'three correct trials, so that each mean is the state of a completed correct trial; the ablation in c reads all trials); ellipses, SEM across mice; large marker, grand mean; filled = lick, '
     'open = no-lick; circle, triangle and square = DPA, Go and NoGo; color = sample; scale bar, '
     '2 z. Whatever the task and the moment, the conditions separate along the same two axes.',
     'c, What lives in the plane. Each variable is decoded from the two '
@@ -659,13 +663,13 @@ CAP_PARAS = [
     'Wilcoxon tests, all comparisons drawn). Sample and choice decode as well from the plane as from '
     'the full population, as they must, since the plane is built from their own decoder axes, and '
     'removing the plane reduces but does not abolish their decoding (sample 0.73 → 0.58, p = .004; choice 0.63 → 0.55, p = .004); the test code is at chance from the plane (0.50 against 0.58 from the full population, p = .012) and untouched without it (p = .57), so it lives outside the manifold; the GNG code’s share is real but partial (p = .004). All laser-off trials.',
-    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.07 in naïve and 0.10 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.07 in naïve and 0.10 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages; dotted, the random-direction floor 1/√N ≈ 0.05 for these population sizes). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
     '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.89 and 0.74 against within-stage 0.94 and 0.83; '
     'robust to resampling and to a common-scaling check, with ratios shifting '
     'by at most 0.02). Right, the same test within each animal (transfer/within 0.91 for sample, 0.59 for choice). This is within-manifold learning: '
-    'the state moves inside the frame (Fig. 4b), and the frame does not rotate.',
+    'the state moves inside the frame (Fig. 4b), and the frame does not rotate. The choice classes pool all trials (lick against no-lick, errors included); the sample classes use correct trials.',
 ]
 if AXENV:
     CAP_PARAS[0] += (f' [BUILD VARIANT {AXENV}: sample/GNG axes on bins '
@@ -692,7 +696,20 @@ if '--nocap' not in sys.argv[1:]:   # submission build: legend goes below the fi
 
 OUT = 'figures/pseudo/dimensionality'
 os.makedirs(f'{OUT}/png', exist_ok=True); os.makedirs(f'{OUT}/svg', exist_ok=True)
+# ── house style (2026-09-16): stage words lowercase inside panels (naïve / expert), as in the EDs ──
+import matplotlib.text as _mtext, re as _re
+for _t in fig.findobj(_mtext.Text):
+    _s = _t.get_text()
+    if _s and ('Naive' in _s or 'Expert' in _s) and not _s.startswith(('Figure', 'Extended')):
+        _t.set_text(_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', _s)))
+from matplotlib.ticker import FixedFormatter as _FF
+for _ax in fig.get_axes():                                   # tick labels live in the formatter (re-set at draw time)
+    for _axis in (_ax.xaxis, _ax.yaxis):
+        _f = _axis.get_major_formatter()
+        if isinstance(_f, _FF):
+            _f.seq = [_re.sub(r'\bNaive\b', 'naïve', _re.sub(r'\bExpert\b', 'expert', str(_x))) for _x in _f.seq]
 fig.savefig(f'{OUT}/png/fig_manifold_main{FIGSUF}.png', bbox_inches='tight')
+
 fig.savefig(f'{OUT}/svg/fig_manifold_main{FIGSUF}.svg', bbox_inches='tight')
 
 # ── ED 6g: the per-mouse plane grid (Fig 3's former panel d), rendered on its own (2026-09-08) ──

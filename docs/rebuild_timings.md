@@ -99,3 +99,4 @@ place or from somewhere less direct.
 | 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_trial.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |
 | 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_ccgd.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |
 | 2026-09-16 13:09 | supplementary review 2026-09-16 | make_ed_figures.py (nine native EDs x 2 builds + 183 mm PDFs + share copies) | 1.6 | sum of the per-figure times printed by the runner |
+| 2026-09-16 13:46 | main-figure review 2026-09-16 | five mains re-run in parallel (fig_behavior_main, fig_dimensionality_main, fig_manifold_main --nopca, fig_overlaps_main_native, fig_behavior_opto_main) | 2.5 | wall time of the parallel run; Fig 4 (2.5 GB tensor) dominates |

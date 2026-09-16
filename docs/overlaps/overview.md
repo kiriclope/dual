@@ -1,3 +1,9 @@
+> **2026-09-16 — Fig 4b PUSH STATISTIC:** the drawn test is a within-mouse permutation test (stage labels shuffled within each
+> mouse over its laser-off DPA trials, statistic = mean per-mouse Δ, 10,000 draws, two-sided): Δ −0.078, p = .006. The
+> across-animal mixed model (β −0.078, p .103) and per-mouse paired t (p .19) remain in ED 6a as conservative companions; the
+> trial-level random-intercept LMM (p .004) is rejected (random slope p .17). Fig 6g–i carry per-mouse (n = 5) companions.
+> Memory: project_overlaps_main_native.md 2026-09-16 block.
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.

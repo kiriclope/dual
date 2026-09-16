@@ -1,3 +1,6 @@
+> **2026-09-16:** panel b's drawn statistic is now the within-mouse permutation test (p .006), not the mixed model (p .103, kept in
+> ED 6a); the per-trial depth behind it is `main_panels.lick_depth[L_trials_B]` (raw). See `overview.md` top note.
+
 # Overlaps MAIN figure — hypothesis, method & reproduction
 
 > **STALE BELOW on the depth unit (2026-09-10):** choice-code depth in Figs 4 and 6 is now the RAW
