@@ -111,6 +111,8 @@ Not done: no P values, no n, no error bars, no effect sizes, no "for the first t
 > abstract, em-dash asides (40 had crept back in, 36 in Methods), "X, not Y" antitheses, "reported as such:" hinges, dates in the
 > prose and a thesis sentence repeated verbatim in Abstract, Introduction and Discussion. Fixed against §1–3 above; the v12.52
 > column is measured with the same script as the v11 column (prose semicolons exclude parentheses). Methods em-dashes are 0 too.
+> Two metrics moved the wrong way during the review weeks and are left for the final trimming pass: main-text words (5,791 → 6,593)
+> and Results words per sentence (21.0 → 26.4, corpus 19–26) — the statistics parentheticals added to the Results carry most of it.
 
 | Metric | Corpus / limit | Draft v10.4 | Draft v11 | Draft v12.52 (2026-09-16) |
 |---|---|---|---|---|
@@ -122,7 +124,7 @@ Not done: no P values, no n, no error bars, no effect sizes, no "for the first t
 | Prose semicolons per 1,000 words | 0.6–9.1 | 16.1 | **1.5** | **2.9** |
 | "we" per 1,000 words | 8–16 | 6.6 | **8.5** | 6.7 |
 | Em-dashes | ≈0 | 0 | 0 | **0** |
-| Untitled opening paragraphs | 2–8 | 0 | **2** | **32** |
+| Untitled opening paragraphs | 2–8 | 0 | **2** | **3** |
 | Heading grammar | one grammar, ≤10 words | mixed, 8–11 | **claims, 8–10** | claims, 8–10 |
 | "Critically" | 0 | 1 | **0** | **0** |
 
