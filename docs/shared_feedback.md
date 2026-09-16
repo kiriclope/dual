@@ -85,3 +85,14 @@ Data-collection functions that are overlaps-specific (`group_mean_trajs`, `grand
 - **Do it with assert-counted phrase rules, then list the leftovers.** ~110 occurrences fell into ~35 rules; the
   script printed every unmatched line so the line-wrapped and split-string cases (`'…the distractor '` +
   `'odor…'`) were handled by hand rather than silently missed.
+
+
+## 2026-09-16 — two lessons from the main-figure review
+- **Within-animal vs across-animal tests.** For a within-mouse stage effect (Fig 4b push) the across-animal tests (mixed model
+  p .10, paired t p .19) were dominated by mouse-to-mouse heterogeneity of Δ; the honest simple alternative is a within-mouse
+  permutation test (labels shuffled within each mouse, statistic = mean per-mouse Δ, two-sided; p .006), stated as treating
+  the mice as fixed, with the across-animal test disclosed beside it. A trial-level LMM with only a random intercept (p .004)
+  is NOT acceptable — with a random slope it is p .17 (pseudoreplication). Leon: two-sided tests always.
+- **Lowercasing labels after the fact.** A post-pass over `fig.findobj(Text)` does not change tick labels (the formatter
+  re-sets them at draw time) and must run before the FIRST savefig; edit the `set_xticklabels([...])` literals instead.
+  Also: `_MP.LICK_D` is the evoked-s.d. depth, `_MP.lick_depth` the raw one — mixing them gives β −1.15 vs −0.08.

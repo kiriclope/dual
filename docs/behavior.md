@@ -1,3 +1,8 @@
+> **2026-09-16 — Fig 4b push statistic changed:** the drawn test is a within-mouse permutation test (stage labels shuffled
+> within each mouse, statistic = mean per-mouse Δ, two-sided): Δ −0.078, **p = .006**. The mixed model (β −0.078, p .103)
+> quoted in older notes below is the across-animal companion, kept in ED 6a. Details: `docs/overlaps/overview.md` top note,
+> memory `project_overlaps_main_native.md` 2026-09-16.
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.
@@ -615,3 +620,12 @@ Wilcoxon p .004 9/9, Go 0.78 → 0.82 n.s.; d per-animal learning curves (DPA / 
 trial-history covariates (previous outcome, previous test lick, previous trial type): naïve OR 2.32 → 2.5–2.9, expert 1.48 → 1.9
 — the propagation is not a trial-history effect (the previous test lick has its own OR ≈ 2.6 in naïve mice).
 `overlaps/fig_ed_opto_validation.py` draws ED 7, the PLACEHOLDER page for author-supplied histology / placements / laser parameters.
+
+
+## Fig 6 g–i per-mouse companions and the light-only limitation (2026-09-16)
+`fig_behavior_opto_main.py` now prints and annotates a per-mouse Spearman (n = 5, one point per mouse) under the 20-point
+Spearman in g–i: trade-off ρ = +0.70 p .19, DPA arm +0.40 p .51, GNG arm −0.90 p .037 — only the GNG arm holds at the animal
+level (as the text claims). The drawn verdict is still the 20-point Spearman (Leon's 2026-09-08 decision); the companion is
+there for the reviewer. Fig 6 legend and §5 state that no opsin-free light-only cohort was imaged (the ACC-implant mice
+received no laser); the light-artefact control slot is ED 7f (author-supplied). Panel f y-label shortened (`choice-code
+depth`, labelpad 1) to clear panel e. Stage words are lowercase inside all panels.

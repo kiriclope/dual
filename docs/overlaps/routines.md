@@ -1,3 +1,8 @@
+> **2026-09-16 — Fig 4b push statistic changed:** the drawn test is a within-mouse permutation test (stage labels shuffled
+> within each mouse, statistic = mean per-mouse Δ, two-sided): Δ −0.078, **p = .006**. The mixed model (β −0.078, p .103)
+> quoted in older notes below is the across-animal companion, kept in ED 6a. Details: `docs/overlaps/overview.md` top note,
+> memory `project_overlaps_main_native.md` 2026-09-16.
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.
