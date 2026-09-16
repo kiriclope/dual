@@ -98,3 +98,4 @@ place or from somewhere less direct.
 | 2026-09-16 12:56 | supplementary review 2026-09-16 | fig_ed_imaging.py (loads the 2.5 GB canonical tensor) | 1.0 | measured in-session |
 | 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_trial.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |
 | 2026-09-16 13:04 | cue-offset fix 2026-09-16 | exp_lick_control_ccgd.py (late-delay window 5.5-7.0 s file time) | 0.1 | measured |
+| 2026-09-16 13:09 | supplementary review 2026-09-16 | make_ed_figures.py (nine native EDs x 2 builds + 183 mm PDFs + share copies) | 1.6 | sum of the per-figure times printed by the runner |

@@ -28,6 +28,9 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
 - **`story_figure_review.md`** — review log: bugs fixed (gated-deformation push, panel J; sec-3 flows
   switched to partial pooling → CV now positive, two shared landscapes for the two epochs) & standing
   caveats (variance is a proxy; sec-4 push depth is fit from data, gate profile is a modeling choice).
+- **ED 2 imaging/drift (2026-09-16):** `fig_ed_imaging.py` (~1 min; loads the 2.5 GB canonical CCGD tensor) — neurons per mouse
+  (113–693, 3,319) and per-session held-out decodability of the sample (mid-delay) and choice (decision) codes: sample 0.74–0.77,
+  choice 0.60–0.66 in every session, per-mouse s.d. 0.03–0.06 — the drift check behind Fig. 3e's cross-stage transfer.
 - **Per-animal shattering + refit-dPCA bootstrap (2026-09-15):** `exp_shatter_permouse.py` (0.7 min; SD_LOO leave-one-mouse-out
   jackknife of the 462-dichotomy shattering + SD_MOUSE own-population → ED 2c) and `exp_dpca_refit_boot.py` (6.9 min; dPCA
   re-fitted on 1,000 resampled nine-mouse sets → DPCA_REFIT_BOOT, the interval ED 3b draws; the fixed-axis bootstrap was

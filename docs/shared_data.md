@@ -114,3 +114,15 @@ idx_laser = (y_single.laser == 0)
 - **Lick axis**: LR weight vector decoding `odr_choice` on Dual trials (class_weight='balanced'), orthogonalised to sample axis; lick=1 → positive
 - Both defined per-mouse from last 2 days
 - DPA delay states sit on the **negative** (no-lick) side
+
+
+## Behaviour-file clock (verified 2026-09-16)
+The behaviour `.mat` files (`/storage/leon/dual_task/data/2Samples-DualTask-BehavioralData/<mouse>-DualTask-BehavioralData/day_<d>/`)
+stamp events in ms: `Sample` (== `FirstOdor`) is the sample-odor ONSET, `Test` == `Sample` + 7.0 s, odors last 1 s, the GNG odor is at
++2.5 s and the response cue at +4.5 s. On the imaging clock (bin b ≈ [b/6, (b+1)/6) s; sample 2–3 s, GNG 4.5–5.5, cue 6.5–7.0,
+test 9–10) every event maps with **file time + 2.0 s = imaging time**. So the late-delay window (bins 45–53, imaging 7.5–9.0 s) is
+**5.5–7.0 s after the `Sample` stamp**. `AllTrials` rows are in imaging order (every session = 192 trials; tasks/laser agree
+100 % with `y_all_nan_`); `.mat sample` 1/2 = sample_odor 0/1 = A/B, `.mat pair` 1–4 = odor_pair 0, 2, 1, 3; `lickTime` are lick
+stamps (ms). Since 2026-09-15 `run_overlaps.py` writes a within-session `trial` column into the tensor labels, so held-out CCGD rows
+join to these files on (mouse, day, trial). An earlier 1.5 s offset (inferred from the lick PSTH with a zero-latency assumption)
+was wrong and let test-odor licks into the 'late-delay' lick window — corrected in the lick controls the same day.

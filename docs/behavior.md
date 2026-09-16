@@ -605,3 +605,13 @@ the legend/§1. NoGo-only unpaired would leave 3/9 expert lines — dead end.
 Per mouse × stage × task counts entering the analyses are Supplementary Tables 1 (laser-OFF, 5,568) and 2 (laser-ON,
 3,648) in `docs/paper/results_draft.md`. Every laser-mouse session has 192 trials, 96 ON interleaved with 96 OFF (32 per
 task each), so ON = OFF by design; the two ACC mice carry no laser trials. Source: `data/pca/y_all_nan_.pkl` (`laser`).
+
+
+## Extended Data Fig. 1 — licks and per-animal learning (`overlaps/fig_ed_behavior.py`, 2026-09-16)
+Built after the supplementary review ("we need an ED figure with the actual licks"). ~1 min. Reads `y_all_nan_` (session order)
+and the behaviour `.mat` lick times (clock rule: `docs/shared_data.md`). Panels: a rasters (ChRM04 NoGo trials, first vs last
+session); b lick-rate PSTHs per trial type × stage, 9 mice; c delay-lick (rig `odr_choice`) fraction per mouse — NoGo 0.21 → 0.07
+Wilcoxon p .004 9/9, Go 0.78 → 0.82 n.s.; d per-animal learning curves (DPA / GNG accuracy per session); e Fig 1g's GEE with
+trial-history covariates (previous outcome, previous test lick, previous trial type): naïve OR 2.32 → 2.5–2.9, expert 1.48 → 1.9
+— the propagation is not a trial-history effect (the previous test lick has its own OR ≈ 2.6 in naïve mice).
+`overlaps/fig_ed_opto_validation.py` draws ED 7, the PLACEHOLDER page for author-supplied histology / placements / laser parameters.
