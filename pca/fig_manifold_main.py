@@ -635,7 +635,7 @@ CAP_PARAS = [
     'choice codes on every trial type, excludes the test code, and is the same plane before and after dual task learning. A '
     'code is the projection of population activity onto a per-mouse cross-validated decoder axis '
     '(the decoder never sees the trials it projects), baseline-zeroed, in units of that mouse’s '
-    'evoked s.d.; correct laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
+    'evoked s.d.; correct laser-off trials except in c, which reads all laser-off trials; mean ± SEM across nine mice; p values uncorrected.',
     'a, The two axes of the frame, read in each task (columns, DPA | Go | NoGo × sample / choice; '
     'rows, naïve | expert). The DPA sample code is maintained across the delay. On dual trials '
     'the same readout decays after the Go/NoGo odor, the code-morphing signature that follows an '
@@ -644,7 +644,7 @@ CAP_PARAS = [
     'the Go trace rises at the cue in both trial classes, a motor and reward transient (every '
     'correct Go trial licks at the cue), and the lick/no-lick split opens only at the test; the '
     'expert NoGo trace runs below baseline through the late delay (7/9 mice), consistent with '
-    'active withholding. GNG and test codes are shown in Extended Data.',
+    'active withholding. GNG and test codes are shown in Extended Data Fig. 4a.',
     'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.5 '
     's) and decision (10.0–11.2 s, the response window); the choice axis is trained '
     'during the test (9.0–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '
@@ -659,12 +659,12 @@ CAP_PARAS = [
     'Wilcoxon tests, all comparisons drawn). Sample and choice decode as well from the plane as from '
     'the full population, as they must, since the plane is built from their own decoder axes, and '
     'removing the plane reduces but does not abolish their decoding (sample 0.73 → 0.58, p = .004; choice 0.63 → 0.55, p = .004); the test code is at chance from the plane (0.50 against 0.58 from the full population, p = .012) and untouched without it (p = .57), so it lives outside the manifold; the GNG code’s share is real but partial (p = .004). All laser-off trials.',
-    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.06 in naïve and 0.08 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
+    'd, The memory and choice axes are orthogonal. |cos| between the sample and choice decoder axes, corrected for attenuation by the split-half reliabilities of the axes (Methods; 0 = orthogonal): 0.07 in naïve and 0.10 in expert mice, the static layer of protection. Right, the raw within-mouse sample × choice |cos|, naïve against expert (below 0.10 in every mouse at both stages). The choice × GNG overlap, which grows with learning, is quantified in Fig. 4a. No tests are drawn here.',
     'e, The frame is fixed across dual task learning. Axes trained in one stage read the withheld activity '
     'of the other stage (registered neurons) at 90% of the within-stage ceiling for the sample and 72% for the choice '
-    '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.88 and 0.74 against within-stage 0.92 and 0.83; '
+    '(transfer/within 0.90 and 0.72; cross-stage accuracy 0.89 and 0.74 against within-stage 0.94 and 0.83; '
     'robust to resampling and to a common-scaling check, with ratios shifting '
-    'by at most 0.02). Right, the same test within each animal (transfer/within 0.86 for sample, 0.59 for choice). This is within-manifold learning: '
+    'by at most 0.02). Right, the same test within each animal (transfer/within 0.91 for sample, 0.59 for choice). This is within-manifold learning: '
     'the state moves inside the frame (Fig. 4b), and the frame does not rotate.',
 ]
 if AXENV:
