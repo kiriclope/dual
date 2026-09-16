@@ -453,7 +453,7 @@ CAP_PARAS = [
     'interaction, OR ratio 0.68 [0.45, 1.04], p = .074; lower in 6/9 mice), whereas its pairing '
     'selectivity changed (lick × stage × pairing interaction p = 10⁻⁴). Unwarranted delay licks on NoGo '
     'trials fall from 0.24 to 0.08 of trials (pooled; per-mouse means 0.21 to 0.07, Extended Data Fig. 1c). Learning did not abolish the chain of delay lick and test '
-    'lick; it disconnected its false-alarm arm, the arm the no-lick repositioning in Fig. 4 acts on.',
+    'lick; it selectively weakened its false-alarm arm, the arm the no-lick repositioning in Fig. 4 acts on.',
     'h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each '
     'animal (color, mouse; marker, opsin group; star, the corner where both tasks are optimal). '
     'No animal reaches the corner (mean gap 0.18), and the two accuracies are uncorrelated across '

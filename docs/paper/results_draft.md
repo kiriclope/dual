@@ -1,5 +1,14 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.51 (2026-09-16): ABSTRACT AND INTRODUCTION REVIEWED.** Abstract rewritten to 150 words: "GNG" was undefined there
+> (→ Go/NoGo); "Memory, Go/NoGo and choice occupied nearly orthogonal axes" contradicted the next sentence (the Go/NoGo code
+> rotates ONTO the choice axis; corrected |cos| 0.28 → 0.44) → "Memory and choice … nearly orthogonal"; the state now "moved
+> along that axis" (the within-animal push, p .006) rather than "sat at"; the chronic result (silencing during training impairs
+> learning) was missing. Introduction: "uncoupling of the delay lick from the false alarms" overstated Fig. 1g (expert FA arm
+> OR 1.48, p .02 — weaker, not gone) → "selective weakening", same in §1 and the Fig. 1 legend/caption; tense fixed in the task
+> sentence; the closing thesis sentence varied so Abstract, Introduction and Discussion do not repeat it verbatim; "every pooled
+> result" → "the principal pooled results" (as in Methods). All seventeen Introduction citations have reference entries.
+
 > **v12.50 (2026-09-16): LEON'S 2026-09-07 ARTIFACT COMMENTS APPLIED** (15 open threads on the draft page, never actioned).
 > First sentence recast ("Remembering while acting is hard …"); "representation" → subspace/code/geometry in Abstract and
 > Introduction; "delay" defined at first use; the dual task named in the construction-vs-editing paragraph and the next paragraph
@@ -513,11 +522,15 @@ Trial-type-adjusted ORs added as a robustness line.
 
 ## Abstract
 
-Remembering while acting is hard: the prefrontal neurons that hold a memory also respond to the events and actions that interrupt it. How a circuit manages both is unknown. Here we
-show that mouse medial prefrontal cortex accommodates a second task by moving activity within an existing subspace rather than building a new one. We imaged prelimbic neurons as mice
-learned a delayed paired association with an embedded Go/NoGo discrimination. Memory, Go/NoGo and choice occupied nearly orthogonal axes of one low-dimensional subspace, shared across trial types and already present when dual task training began. Learning added no coding dimension. Instead, the GNG code rotated onto the choice axis and the memory state sat at a no-lick set-point whose depth predicted each animal's
-improvement. Silencing anterior cingulate input displaced the state without degrading its code.
-Learning and top-down control act on where the state sits within a fixed geometry.
+Remembering while acting is hard: the prefrontal neurons that hold a memory also respond to the events and actions that
+interrupt it. Here we show that mouse medial prefrontal cortex accommodates a second task by moving activity within an
+existing subspace rather than building a new one. We imaged prelimbic neurons as mice learned a delayed paired association
+with an embedded Go/NoGo discrimination. Memory and choice occupied nearly orthogonal axes of one low-dimensional subspace,
+shared across trial types and already present when dual task training began. Learning added no coding dimension. Instead,
+the Go/NoGo code rotated onto the choice axis and the memory state moved along that axis to a no-lick set-point, by an
+amount that predicted each animal's improvement. Anterior cingulate input displaced the state without degrading its code,
+and its silencing during training impaired learning of the memory task. Learning and top-down control act on where the
+state sits within a fixed geometry.
 
 ---
 
@@ -548,16 +561,14 @@ Construction requires the set of coding dimensions to change as the second task 
 whereas editing requires that set to stay fixed while the states within it move. Which of the
 two describes the natural acquisition of a composite task?
 
-The dual task composes a delayed paired association (DPA) with a Go/NoGo (GNG) discrimination embedded in its delay, so that the same delay period sometimes demanded an intervening action and sometimes did not. Delay
+The dual task composes a delayed paired association (DPA) with a Go/NoGo (GNG) discrimination embedded in its delay, so that the same delay period sometimes demands an intervening action and sometimes does not. Delay
 activity in medial prefrontal cortex (mPFC) is required for learning this class of task [Liu
 2014], and we imaged its prelimbic population throughout dual task learning. Here we show that mPFC does not build a new subspace for the composition. The memory and the choice are
 carried on nearly orthogonal axes of a low-dimensional subspace that is already present, with
 the same axes, when dual task training begins, and learning adds no dimension. What learning changes lies inside that subspace: the GNG code aligns with the pre-existing choice axis, and the working-memory state moves along that axis into the half that
-suppresses licking. This shift accompanies the uncoupling of the delay lick from the false
-alarms it produced, predicts memory performance animal by animal, and is itself moved by
+suppresses licking. This shift accompanies a selective weakening of the link between the delay lick and the false alarms it produced, predicts memory performance animal by animal, and is itself moved by
 top-down input from the anterior cingulate cortex (ACC), a projection whose silencing during
-training impairs learning of the memory task. The geometry of the code is a fixed constraint,
-and both learning and top-down input act on where the state sits within it.
+training impairs learning of the memory task. Learning and top-down input thus act on the same variable, the position of the state within a geometry that neither of them changes.
 
 <!-- RESULTS -->
 
@@ -583,8 +594,7 @@ those mice light was delivered on a pseudo-random half of the trials; every resu
 section uses laser-off trials only (5,568 trials over the nine mice). We analyze the data at
 two levels. Within each mouse we work on its own simultaneously recorded neurons, which
 supplies the animal-level statistics throughout, and for the geometry analyses we also pool the
-neurons of all nine mice into a pseudo-population, pairing every pooled result with a
-within-animal companion (Methods).
+neurons of all nine mice into a pseudo-population, pairing the principal pooled results with within-animal companions (Methods).
 
 Mice reached the dual task through a fixed curriculum, learning DPA and then GNG on their own
 before the two were combined (Methods). Throughout, we compare the first three dual task
@@ -627,8 +637,7 @@ Tested across stages in one model, the overall propagation fell only as a trend 
 interaction, OR ratio 0.68, 95% CI [0.45, 1.04], p = 0.074; lower in 6 of 9 mice), whereas its
 selectivity for pairing changed clearly (lick × stage × pairing interaction p = 10⁻⁴).
 Unwarranted delay licks on NoGo trials had also largely disappeared (rate 0.24 → 0.08).
-Learning did not abolish the chain from delay lick to test lick; it disconnected the arm of
-that chain that produces false alarms.
+Learning did not abolish the chain from delay lick to test lick; it selectively weakened the arm of that chain that produces false alarms.
 
 Even in expert mice the two tasks were not both performed at their best. For each animal we
 compared memory accuracy on the GNG-free DPA trials with discrimination accuracy on the
@@ -1221,8 +1230,7 @@ pairing-dependent (interaction p = .009): strong where the test lick is a hit (O
 propagation fell only as a trend (lick × stage interaction, OR ratio 0.68 [0.45, 1.04], p =
 .074; lower in 6/9 mice), whereas its pairing selectivity changed (lick × stage × pairing
 interaction p = 10⁻⁴). Unwarranted delay licks on NoGo trials fall from 0.24 to 0.08 of trials (pooled; per-mouse means 0.21 to 0.07, Extended Data Fig. 1c).
-Learning did not abolish the chain of delay lick and test lick; it disconnected its false-alarm
-arm, the arm the no-lick repositioning in Fig. 4 acts on.
+Learning did not abolish the chain of delay lick and test lick; it selectively weakened its false-alarm arm, the arm the no-lick repositioning in Fig. 4 acts on.
 
 h, Learned, but not jointly optimal. Expert DPA accuracy against GNG accuracy for each animal
 (color, mouse; marker, opsin group; star, the corner where both tasks are optimal). No animal
