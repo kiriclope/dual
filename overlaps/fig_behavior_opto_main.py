@@ -885,7 +885,7 @@ if not POSTER:
         'Figure 6 | ACC→mPFC input moves the state on the learned geometry. Silencing the projection '
         'during training impairs learning of the memory task, and acutely it shifts the position of the '
         'state without degrading the code. Code depth as in Fig. 4.',
-        'a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; 635-nm light on a '
+        'a, Design. hSyn-GCaMP6s imaging in mPFC with CaMKII-Jaws-tdTomato in ACC; unilateral 635-nm illumination of the ACC terminals on a '
         'pseudo-random 50% of trials, restricted to the delay period, so every comparison in d–l is '
         'within-mouse, laser ON against OFF.',
         'b, c, Silencing the projection during training impairs learning of the memory task. Chronic every-trial '
