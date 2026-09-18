@@ -180,24 +180,28 @@ for r, wn in enumerate(['md', 'decision']):
         ax.set_xticks([]); ax.set_yticks([]); [sp.set_visible(False) for sp in ax.spines.values()]
         pu = G['purity'][wn][nm]
         ax.set_title(f'{WLAB[wn]} · by {nm if nm != "match" else "choice (match)"}', loc='left', fontsize=TITLE_FS)
-        ax.text(0.5, -0.02, f'kNN purity {pu[0]:.2f} (null {pu[1]:.2f})', transform=ax.transAxes, ha='center', va='top', fontsize=PS*6.5, color='0.3')
+        ax.text(0.5, -0.02, 'one draw', transform=ax.transAxes, ha='center', va='top', fontsize=PS*6.0, color='0.45')
         hs = ([mlines.Line2D([0], [0], marker='o', ls='none', ms=4, color=TASKC[t], label=SHORT[t]) for t in TASKC] if nm == 'task' else
               [mlines.Line2D([0], [0], marker='o', ls='none', ms=4, color=SAMPC[x], label=f'sample {"A" if x == 0 else "B"}') for x in SAMPC] if nm == 'sample' else
               [mlines.Line2D([0], [0], marker='o', ls='none', ms=4, color=MATCHC[x], label='match (lick)' if x else 'nonmatch') for x in MATCHC] if nm == 'match' else
               [mlines.Line2D([0], [0], marker='o', ls='none', ms=4, color=STAGEC[x], label='naïve' if x == 0 else 'expert') for x in STAGEC])
         ax.legend(handles=hs, frameon=False, loc='upper left', handletextpad=0.2, borderaxespad=0.1)
-# c: purity bars, both windows
+# c: purity bars, both windows — DRAW-AVERAGED (a single map's purity is itself a random variable)
 ax = fig.add_subplot(outer[0, 18:24]); firsts['c'] = ax
+DR = pickle.load(open('figures/pseudo/dimensionality/manifold_purity_draws.pkl', 'rb'))
+DR = DR[(DR.set == 'all') & (DR.method == 'umap')]
 names = ['task', 'sample', 'match', 'stage']
 for i_, nm in enumerate(names):
     for k_, wn in enumerate(['md', 'decision']):
-        o, nu, hi, pv = G['purity'][wn][nm]; x = i_ * 2.4 + k_ * 0.9
-        ax.bar(x, o, color=('0.45' if k_ == 0 else '#332288') if pv < .05 else ('0.8' if k_ == 0 else '#b9b2d6'), width=0.82)
-        ax.plot([x - 0.41, x + 0.41], [hi, hi], color='#cc3311', lw=1.0, zorder=4)
-        ax.text(x, o + 0.03, '∗' if pv < .05 else 'n.s.', ha='center', va='bottom', fontsize=PS*(10 if pv < .05 else 5.8), fontweight='bold', color='k' if pv < .05 else '0.55')
+        r_ = DR[(DR.win == wn) & (DR['var'] == nm)].iloc[0]; x = i_ * 2.4 + k_ * 0.9
+        ax.bar(x, r_.purity, color=('0.45' if k_ == 0 else '#332288') if r_.p < .05 else ('0.8' if k_ == 0 else '#b9b2d6'), width=0.82)
+        ax.errorbar(x, r_.purity, yerr=r_.sd_draws, color='k', lw=0.9, capsize=2, zorder=5)
+        ax.plot([x - 0.41, x + 0.41], [r_.null, r_.null], color='#cc3311', lw=1.0, zorder=4)
+        ax.text(x, r_.purity + r_.sd_draws + 0.03, '∗' if r_.p < .05 else 'n.s.', ha='center', va='bottom',
+                fontsize=PS*(10 if r_.p < .05 else 5.8), fontweight='bold', color='k' if r_.p < .05 else '0.55')
 ax.set_xticks([i_ * 2.4 + 0.45 for i_ in range(4)]); ax.set_xticklabels(names, fontsize=PS*6.8)
 ax.set_ylim(0, 1.15); ax.set_yticks([0, 0.5, 1.0]); ax.set_ylabel('kNN label purity')
-ax.set_title('purity vs shuffle (grey mid-delay, indigo decision)', loc='left', fontsize=TITLE_FS)
+ax.set_title('purity over 20 draws (grey mid-delay, indigo decision)', loc='left', fontsize=TITLE_FS)
 # e1: MDS of the mean RDM, expert, both windows
 gse = outer[2, 15:24].subgridspec(1, 2, wspace=0.10)
 for c, wn in enumerate(['md', 'decision']):
@@ -256,12 +260,7 @@ CAP = [
     'population states, not resampled duplicates (' + f'{G["maps"]["md"]["kp"][0]} naïve and {G["maps"]["md"]["kp"][1]} expert pseudo-trials per condition' + '); '
     'neurons scaled and centered per stage. Axes are arbitrary and distances between clusters are not metric.',
     'b, The same at the decision, coloured by task, by choice (match, the lick) and by stage.',
-    'c, k-nearest-neighbour label purity (k = 7) in the maps of a and b against label-shuffle nulls (red, 97.5th percentile; '
-    f'∗ p < .05). Mid-delay: task {pm["md"]["task"][0]:.2f}, sample {pm["md"]["sample"][0]:.2f}, match {pm["md"]["match"][0]:.2f}, stage {pm["md"]["stage"][0]:.2f}; '
-    f'decision: task {pm["decision"]["task"][0]:.2f}, sample {pm["decision"]["sample"][0]:.2f}, match {pm["decision"]["match"][0]:.2f}, stage {pm["decision"]["stage"][0]:.2f} '
-    '(nulls 0.33 for task, 0.50 otherwise). The task context is the only variable that structures the map; the memory and '
-    'the choice, decodable from the same states (Figs 2c, 4c), occupy too small a share of the variance to organize '
-    'neighbourhoods in two dimensions, and naïve and expert states interleave.',
+    'c, k-nearest-neighbour label purity (k = 7) in maps of this kind against label-shuffle nulls (red line; bars, mean over 20 independent pseudo-trial draws; error bars, s.d. across draws; ∗ p < .05 on the draw-averaged statistic). A single embedding of ~150 pseudo-trials is itself a random variable — the same data can give purity 0.48 on one draw and 0.61 on the next — so the statistic is the average over draws, not the map shown in a and b. Mid-delay: task 0.90, sample 0.57, match 0.48, stage 0.51; decision: task 0.94, sample 0.52, match 0.55, stage 0.51 (nulls 0.33 for task, 0.50 otherwise); t-SNE gives the same values to within 0.01. The task context organizes the map (0.45 above its null); everything else that reaches significance does so by 0.02–0.06, so the memory and the choice are present in the geometry but far too small to shape it in two dimensions.',
     'd, The condition geometry is reliable within, shared across and preserved between animals: split-half reliability of each mouse\'s '
     f'RDM (median {np.median(rd["md"]["rel"]["Expert"]):.2f} mid-delay, {np.median(rd["decision"]["rel"]["Expert"]):.2f} decision), its correlation with the leave-one-out mean of the other eight '
     f'(median {np.median(rd["md"]["cons"]["Expert"]):.2f}, {np.median(rd["decision"]["cons"]["Expert"]):.2f}) and the correlation of each mouse\'s naïve and expert RDMs '
