@@ -64,7 +64,7 @@ parts = ['<title>mPFC Dual-Task Extended Data</title>', style.group(0), '''<main
 <header>
 <p class="kicker">Extended Data &middot; composed pages</p>
 <h1>Extended Data figures &mdash; mPFC population geometry, dual task</h1>
-<p class="sub">The nine Extended Data figures plus the Supplementary trial-count figure, composed at
+<p class="sub">The ten Extended Data figures plus the Supplementary trial-count figure, composed at
 native panel resolution with full justified captions and verified statistics in-page. Companion to the
 <b>mPFC Dual-Task Figures</b> and <b>mPFC Dual-Task Draft</b> artifacts.</p>
 <div class="formats"><span class="tag">PNG</span><span class="tag">PDF</span>
