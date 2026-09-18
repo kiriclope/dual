@@ -23,6 +23,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE, MDS
+import umap
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import spearmanr
@@ -54,6 +55,8 @@ WLAB = {'md': 'mid-delay', 'decision': 'decision'}
 K_NN = 7; NSHUF = 500
 NB = 84; SM = 5                                            # trajectory bins and smoothing
 EVENTS = [(12, 'sample', '#332288'), (27, 'GNG', '#cc3311'), (39, 'cue', '#ee7733'), (54, 'test', '#377eb8')]
+DPA4 = [c for c in ALL12 if c[0] == 'DPA']
+UM_NN, UM_MD = 120, 0.05                                   # n_neighbors must exceed the within-condition temporal neighbourhood
 
 _c = pickle.load(open('figures/pseudo/dimensionality/fits_inputs.pkl', 'rb'))
 AW = _c['AW']; VALIDIX = _c['VALIDIX']; N = _c['N']
@@ -142,14 +145,16 @@ else:
         print(f'{wn}: naive-vs-expert RDM ρ per mouse median {np.median(xstage):.2f} (range {min(xstage):.2f}-{max(xstage):.2f}); mean RDMs ρ {xmean:.2f}', flush=True)
     CMBIN = pickle.load(open('figures/pseudo/dimensionality/results.pkl', 'rb'))['CMBIN']
     G['traj'] = {}
+    selDPA = [ALL12.index(c) for c in DPA4]
     for st in STAGES:
-        CM = np.asarray(CMBIN[st], float); k = np.ones(SM) / SM
+        CM = np.asarray(CMBIN[st], float)[selDPA]; k = np.ones(SM) / SM
         CM = np.apply_along_axis(lambda v: np.convolve(v, k, mode='same'), 2, CM)
-        CM = CM - CM.mean(0, keepdims=True)                     # remove the condition-independent ramp
-        Z = CM.transpose(0, 2, 1).reshape(-1, CM.shape[1]); sd = Z.std(0); sd[sd < 1e-9] = 1.0; Z = (Z - Z.mean(0)) / sd
-        pc = PCA(6, random_state=0); Y = pc.fit_transform(Z)
-        G['traj'][st] = dict(Y=Y.reshape(12, NB, 6), ev=pc.explained_variance_ratio_)
-        print(f'{st}: trajectory PCs ' + ' '.join(f'{100*v:.0f}%' for v in pc.explained_variance_ratio_[:3]), flush=True)
+        CM = CM - CM.mean(0, keepdims=True)                     # remove the component shared by all conditions
+        Z = CM.transpose(0, 2, 1).reshape(-1, CM.shape[1]); sd = Z.std(0); sd[sd < 1e-9] = 1.0
+        P = PCA(50, random_state=0).fit_transform((Z - Z.mean(0)) / sd)
+        E = umap.UMAP(n_components=2, n_neighbors=UM_NN, min_dist=UM_MD, metric='euclidean', random_state=0).fit_transform(P)
+        G['traj'][st] = dict(E=E.reshape(len(DPA4), NB, 2))
+        print(f'{st}: UMAP trajectories on DPA trials (n_neighbors {UM_NN}, min_dist {UM_MD})', flush=True)
     pickle.dump(G, open(CACHE, 'wb'))
 
 
@@ -203,23 +208,25 @@ for c, wn in enumerate(['md', 'decision']):
     ax.set_aspect('equal'); ax.set_xticks([]); ax.set_yticks([]); [sp.set_visible(False) for sp in ax.spines.values()]
     ax.set_title(f'{WLAB[wn]}', loc='left', fontsize=TITLE_FS)
     ax.margins(0.18)
-# d: unsupervised metric trajectories (PCA of the condition-mean state space, CI removed)
+# e: UMAP trajectories on DPA trials
 gst = outer[2, 0:14].subgridspec(1, 2, wspace=0.12)
 for c, st in enumerate(STAGES):
-    ax = fig.add_subplot(gst[0, c]); Y = G['traj'][st]['Y']; ev = G['traj'][st]['ev']
+    ax = fig.add_subplot(gst[0, c]); E = G['traj'][st]['E']
     if c == 0: firsts['d'] = ax
-    for ci, cd in enumerate(ALL12):
-        tr = Y[ci]
-        ax.plot(tr[:, 0], tr[:, 1], '-', color=TASKC[cd[0]], lw=1.0, alpha=0.8, zorder=2)
-        ax.scatter(tr[0, 0], tr[0, 1], s=14, color=TASKC[cd[0]], marker='o', lw=0, zorder=4)
+    for ci, cd in enumerate(DPA4):
+        tr = E[ci]; match = cd[1] == cd[2]
+        ax.plot(tr[:, 0], tr[:, 1], '-' if match else '--', color=SAMPC[cd[1]], lw=1.2, alpha=0.9, zorder=2)
+        ax.scatter(tr[0, 0], tr[0, 1], s=16, color=SAMPC[cd[1]], marker='o', lw=0, zorder=4)
         for b, nm, col in EVENTS:
-            ax.scatter(tr[b, 0], tr[b, 1], s=12, color=col, marker='s', lw=0, zorder=5)
+            if nm == 'GNG': continue
+            ax.scatter(tr[b, 0], tr[b, 1], s=13, color=col, marker='s', lw=0, zorder=5)
     ax.set_xticks([]); ax.set_yticks([]); [sp.set_visible(False) for sp in ax.spines.values()]
-    ax.set_xlabel(f'PC1 ({100*ev[0]:.0f}%)', fontsize=PS*6.8); ax.set_ylabel(f'PC2 ({100*ev[1]:.0f}%)', fontsize=PS*6.8)
-    ax.set_title(f'{"naïve" if st == "Naive" else "expert"} · condition-mean trajectories', loc='left', fontsize=TITLE_FS)
+    ax.set_title(f'{"naïve" if st == "Naive" else "expert"} · DPA trajectories (UMAP)', loc='left', fontsize=TITLE_FS)
     if c == 0:
-        ax.legend(handles=[mlines.Line2D([0], [0], marker='s', ls='none', ms=4, color=col, label=nm) for _, nm, col in EVENTS],
-                  frameon=False, loc='upper left', ncol=2, handletextpad=0.2, columnspacing=0.6, fontsize=PS*5.8)
+        ax.legend(handles=[mlines.Line2D([0], [0], color=SAMPC[x], label=f'sample {"A" if x == 0 else "B"}') for x in SAMPC] +
+                          [mlines.Line2D([0], [0], color='0.4', ls='-', label='match'), mlines.Line2D([0], [0], color='0.4', ls='--', label='nonmatch')] +
+                          [mlines.Line2D([0], [0], marker='s', ls='none', color=col, label=nm) for _, nm, col in EVENTS if nm != 'GNG'],
+                  frameon=False, loc='upper left', ncol=2, handletextpad=0.3, columnspacing=0.7, fontsize=PS*5.8)
 # e2: per-mouse RDM reliability / consistency / naive-vs-expert
 ax = fig.add_subplot(outer[1, 18:24]); firsts['e2'] = ax
 X0 = 0
@@ -260,13 +267,7 @@ CAP = [
     f'(median {np.median(rd["md"]["cons"]["Expert"]):.2f}, {np.median(rd["decision"]["cons"]["Expert"]):.2f}) and the correlation of each mouse\'s naïve and expert RDMs '
     f'(median {np.median(rd["md"]["xstage"]):.2f}, {np.median(rd["decision"]["xstage"]):.2f}; mean RDMs, ρ = {rd["md"]["xmean"]:.2f} and {rd["decision"]["xmean"]:.2f}). '
     'Spearman ρ over the 66 condition pairs; one point per mouse, line = median.',
-    'e, The same state space with time, and with a metric: principal components of the twelve condition-mean trajectories '
-    'over the whole trial, after removing the condition-independent component that all conditions share (5-bin smoothing; '
-    f'PC1 and PC2 carry {100*G["traj"]["Expert"]["ev"][0]:.0f}% and {100*G["traj"]["Expert"]["ev"][1]:.0f}% of the condition-mean variance in expert mice). Dots, trial start; squares, event onsets. '
-    'The conditions leave a common state at the sample and travel along three task-specific arms; the arrangement is the '
-    'same before and after learning. Nonlinear embeddings cannot show this: t-SNE and UMAP preserve local neighbourhoods, '
-    'and a condition\'s own temporal sequence is its strongest neighbourhood, so each condition becomes an isolated filament '
-    'and the geometry between conditions is lost (Methods).',
+    'e, The same states with time: UMAP of the four DPA condition-mean trajectories over the whole trial, after removing the component shared by all conditions (5-bin smoothing; n_neighbors 120, min_dist 0.05). Solid, match; dashed, nonmatch; dots, trial start; squares, sample, cue and test onsets. The four conditions leave a common state and separate by sample, the same arrangement before and after learning. Two properties of the method set the settings and the trial set. n_neighbors must exceed the number of time points a condition spends near itself, or the graph splits into one filament per condition and the geometry between conditions is lost; and on dual trials the Go/NoGo code dominates so strongly that the map is eight filaments at every setting, which is why the trajectories are shown on the DPA trials, where no Go/NoGo code exists (Methods). Distances between arms are not metric.',
     'f, Two-dimensional multidimensional scaling of the twelve-condition dissimilarity matrix averaged over the nine mice '
     '(expert, both windows; colour, task; circle, sample A; square, sample B; black edge, match): the conditions group by '
     'task, and split by sample and by choice within every task.',
