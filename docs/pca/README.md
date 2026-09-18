@@ -1,3 +1,13 @@
+> **2026-09-18 — A TENTH EXTENDED DATA FIGURE, THE UNSUPERVISED GEOMETRY PAGE (ED 4):** `pca/fig_ed_geometry.py`
+> enters as **ED 4** (the same geometry read with no axes chosen: t-SNE maps + 20-draw kNN purity, per-mouse manifold
+> geometry at MATCHED trial counts, cross-validated unsupervised axes, UMAP trajectories on DPA trials), first cited in
+> §2 beside Fig 2d. Everything after it shifts: plane 4 → **5**, dPCA 5 → **6**, coupling 6 → **7**, opto placeholder
+> 7 → **8**, chronic 8 → **9**, laser 9 → **10**. Scripts keep their file names. Dated notes below keep the numbering
+> of their day. Renumbering checklist: `make_ed_figures.py` FIGS, `build_ed_artifact.py` SPECS, `serve_figures.py`
+> SUPP, each script's `ed_fig{N}` path AND any `ED_N = <n>` constant (`fig_ed_behavior.py`, `fig_ed_imaging.py`,
+> `fig_ed_opto_validation.py` have one), the `Extended Data Fig. N |` caption, cross-references in OTHER figures'
+> captions, and in `docs/paper/` the citations, the `**ED Fig. N |` legend headings and the plural "Figs 7 and 10".
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.
@@ -28,6 +38,20 @@ no-lick learning push. See `docs/meta_project.md` for the paper overview.
 - **`story_figure_review.md`** — review log: bugs fixed (gated-deformation push, panel J; sec-3 flows
   switched to partial pooling → CV now positive, two shared landscapes for the two epochs) & standing
   caveats (variance is a proxy; sec-4 push depth is fit from data, gate profile is a modeling choice).
+- **ED 4 unsupervised geometry (2026-09-18):** `fig_ed_geometry.py` (0.2 min, caches only; `--nocap` for the submission
+  build, `--printcap` dumps the caption so the `results_draft.md` legend can be kept in step). Reads four caches:
+  `geometry_cache.pkl` (`fig_geometry_main.py --recompute`, 0.6 min — the t-SNE maps and the UMAP DPA trajectories),
+  `manifold_purity_draws.pkl` (`exp_manifold_purity_draws.py` — kNN purity averaged over 20 pseudo-trial draws with paired
+  shuffle nulls, UMAP and t-SNE), `manifold_matched.pkl` (`exp_manifold_matched.py`, 1.6 min — the per-mouse manifold
+  geometry at matched trial counts) and `unsup_axes_cv.pkl` (`fig_unsup_axes_cv.py`, needs `cmbin_splits.pkl` from
+  `exp_cmbin_splits.py`, 0.5 min and one 20 GB X pass). **Two traps this page exists to avoid.** (i) A single 2-D embedding
+  of ~150 pseudo-trials is a random variable: the same data gave sample purity 0.48 on one draw and 0.61 on the next, so
+  every purity quoted is a 20-draw mean against a draw-paired null, never one map. (ii) `exp_manifold_geometry.py` (the
+  first pass) compared clouds of different size and scaled each by its own s.d.; that made the dual manifold look
+  higher-dimensional (PR 37 → 49, p .004) and fixed the radius at sqrt(nneu) in every set. `exp_manifold_matched.py` matches
+  n within mouse/stage/window and uses one condition-agnostic scale: **the PR effect disappears** (all p ≥ .20) and what
+  survives is the lower sample separation on every dual set and the rise of the Go/NoGo separation with learning. Use the
+  matched script for any per-mouse manifold claim.
 - **ED 2 imaging/drift (2026-09-16):** `fig_ed_imaging.py` (~1 min; loads the 2.5 GB canonical CCGD tensor) — neurons per mouse
   (113–693, 3,319) and per-session held-out decodability of the sample (mid-delay) and choice (decision) codes: sample 0.74–0.77,
   choice 0.60–0.66 in every session, per-mouse s.d. 0.03–0.06 — the drift check behind Fig. 3e's cross-stage transfer.

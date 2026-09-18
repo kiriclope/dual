@@ -163,12 +163,12 @@ doc: `docs/pca/dimensionality.md`.
 
 **Trial sets (2026-09-15; corrected 2026-09-16).** The pseudo-population condition-mean analyses — cvPCA and its per-mouse companion (Fig. 2b,
 Extended Data Fig. 3a–d), the η² decomposition (Fig. 2d), the shattering dimension and the demixed-PCA decomposition
-(Extended Data Fig. 5) — use correct laser-off trials, because their conditions are the odor pairs themselves; so do the
+(Extended Data Fig. 6) — use correct laser-off trials, because their conditions are the odor pairs themselves; so do the
 per-mouse code traces, plane snapshots, axis cosines and cross-stage transfer of Fig. 3a,b,d,e. Every analysis in which a
 label could coincide with the lick on correct trials — per-variable decoding (Fig. 2c, Extended Data Fig. 3e), the plane
-ablation and the out-of-context tests (Fig. 3c, Extended Data Fig. 4c,d), cross-condition generalization (Extended Data
-Fig. 4b) and the CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 6 and 9 — uses all laser-off trials, after
+ablation and the out-of-context tests (Fig. 3c, Extended Data Fig. 5c,d), cross-condition generalization (Extended Data
+Fig. 5b) and the CCGD decoders behind Figs 3a,b, 4 and 6 and Extended Data Figs 7 and 10 — uses all laser-off trials, after
 a correct-trial selection effect was found to manufacture an apparent naïve choice signal (Extended Data Fig. 3e); the
 correct-trial versions of the plane and CCGP analyses gave the same picture within 0.05.
 
-**Push statistic (2026-09-16).** The Fig. 4b stage effect is tested within animals by a permutation test (stage labels shuffled within each mouse over its laser-off DPA trials, 10,000 draws; statistic, the mean per-mouse Expert − Naive late-delay depth; two-sided), with the across-animal mixed model (depth ~ stage + sample, random intercept per mouse, 36 observations) and a per-animal paired t as conservative companions (Extended Data Fig. 6a). Extended Data figures renumbered to nine in citation order on 2026-09-16 (see results_draft.md v12.41).
+**Push statistic (2026-09-16).** The Fig. 4b stage effect is tested within animals by a permutation test (stage labels shuffled within each mouse over its laser-off DPA trials, 10,000 draws; statistic, the mean per-mouse Expert − Naive late-delay depth; two-sided), with the across-animal mixed model (depth ~ stage + sample, random intercept per mouse, 36 observations) and a per-animal paired t as conservative companions (Extended Data Fig. 7a). Extended Data figures renumbered to nine in citation order on 2026-09-16 (see results_draft.md v12.41).

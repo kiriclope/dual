@@ -15,6 +15,30 @@ Always verify data structure and code behaviour by running Python checks, not by
 
 ---
 
+## Match the nuisance before comparing manifolds (2026-09-18)
+
+Any statistic computed on a cloud of trials in neuron space inherits the cloud's size and its scaling. Two comparisons
+in this project were artifacts of exactly that, caught only when a control was run:
+
+1. **Participation ratio grows with the number of trials.** A dual cloud holds about twice the trials of a DPA cloud in
+   the same mouse (medians 164 against 88), and `exp_manifold_geometry.py` reported PR 37 → 49, p = .004, at every window
+   and stage. Subsampling every set to the smallest set's n (`exp_manifold_matched.py`, 20 draws) removes the effect
+   entirely: all p ≥ .20. Nothing about the dual manifold is larger.
+2. **Per-cloud z-scoring makes the manifold radius a constant.** Scaling each cloud by its own standard deviations forces
+   the mean distance to the centroid to sqrt(n_neurons) in every set and stage (R = 18.7–18.8 everywhere in that first
+   pass, an obvious tell). Sets that are to be compared must share one condition-agnostic scale, taken from all of that
+   mouse and stage's trials.
+
+**Why:** both effects point the same way as the hypothesis, so neither looks wrong on the plot. A flat column in a
+results table (the R column here) is often the signature of a normalization that has removed the quantity being measured.
+
+**How to apply:** before comparing any geometry statistic across trial sets or stages, ask what differs between the sets
+besides the variable of interest — trial count, condition count, neuron count, scaling — and neutralize each one. Add a
+design-matched control set where possible: Go-only and NoGo-only have the DPA design exactly (four conditions, sample ×
+test), so DPA-versus-Go separates the cost of distraction from the extra conditions of the pooled dual set.
+
+---
+
 ## Run commands
 ```bash
 /home/leon/mambaforge/envs/dual/bin/python script.py

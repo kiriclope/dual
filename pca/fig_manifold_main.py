@@ -648,7 +648,7 @@ CAP_PARAS = [
     'the Go trace rises at the cue in both trial classes, a motor and reward transient (every '
     'correct Go trial licks at the cue), and the lick/no-lick split opens only at the test; the '
     'expert NoGo trace runs below baseline through the late delay (7/9 mice), consistent with '
-    'active withholding. GNG and test codes are shown in Extended Data Fig. 4a.',
+    'active withholding. GNG and test codes are shown in Extended Data Fig. 5a.',
     'b, The same data as geometry. Snapshots of the sample × choice plane at mid-delay (5.5–6.5 '
     's) and decision (10.0–11.2 s, the response window); the choice axis is trained '
     'during the test (9.0–10.5 s). Each panel is re-centered per mouse on the mean state of that window, so '

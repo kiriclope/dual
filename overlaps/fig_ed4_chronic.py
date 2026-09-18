@@ -1,5 +1,5 @@
-"""(RENUMBERED 2026-09-16 to citation order, nine figures: this script draws Extended Data Fig. 8.)
-fig_ed4_chronic.py — Extended Data Fig. 8: chronic silencing of the two control projections during
+"""(RENUMBERED 2026-09-18 to citation order, ten figures after the unsupervised-geometry page was inserted as Extended Data Fig. 4: this script draws Extended Data Fig. 9.)
+fig_ed4_chronic.py — Extended Data Fig. 9: chronic silencing of the two control projections during
 training (companion to Fig. 6b,c). Built 2026-09-15 (Leon: "keep only what is essential") — Results §6
 cites it once: "Silencing ACC cell bodies instead of their terminals in mPFC did not produce this deficit,
 and silencing the reverse projection, from prelimbic cortex to ACC, impaired the GNG task instead".
@@ -11,7 +11,7 @@ curves (mean ± SEM across mice) and the between-group mixed model perf ~ group 
   b  prelimbic → ACC terminals (DualTask-Silencing-Prl-ACC)
 Reads the batch .mat sessions directly (fast; no tensors).
 Run:  cd /home/leon/dual/overlaps && /home/leon/mambaforge/envs/dual/bin/python fig_ed4_chronic.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig8.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig9.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os, glob, warnings
@@ -138,7 +138,7 @@ for ax, s in ((axA, 'a'), (axB, 'b')):
     ax.text(-0.22, 1.06, s, transform=ax.transAxes, fontsize=PS*11, fontweight='bold', va='bottom', ha='right')
 
 CAP = [
-    'Extended Data Fig. 8 | Chronic silencing of the two control projections during training (companion to '
+    'Extended Data Fig. 9 | Chronic silencing of the two control projections during training (companion to '
     'Fig. 6b,c). Every-trial silencing throughout training in two further between-group cohorts, drawn as Fig. 6b,c '
     'draws the ACC→mPFC batch: DPA, GNG and DPA-unpaired accuracy against training day (mean ± SEM across mice; '
     'grey, control illumination; indigo, opsin) and the between-group mixed model, accuracy ~ group × day with a '
@@ -154,5 +154,5 @@ CAP = [
 if not NOCAP:
     draw_justified(fig, CAP, fontsize=PS*7.2)
 OUT = '/home/leon/dual/figures/ed'
-fig.savefig(f'{OUT}/png/ed_fig8.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig8.svg', bbox_inches='tight')
-print('saved', f'{OUT}/png/ed_fig8.png')
+fig.savefig(f'{OUT}/png/ed_fig9.png', bbox_inches='tight'); fig.savefig(f'{OUT}/svg/ed_fig9.svg', bbox_inches='tight')
+print('saved', f'{OUT}/png/ed_fig9.png')

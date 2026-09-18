@@ -102,3 +102,6 @@ place or from somewhere less direct.
 | 2026-09-16 13:46 | main-figure review 2026-09-16 | five mains re-run in parallel (fig_behavior_main, fig_dimensionality_main, fig_manifold_main --nopca, fig_overlaps_main_native, fig_behavior_opto_main) | 2.5 | wall time of the parallel run; Fig 4 (2.5 GB tensor) dominates |
 | 2026-09-18 11:53 | geometry figure 2026-09-18 | fig_geometry_main.py --recompute (2 t-SNE maps + purity shuffles + per-mouse RDMs + UMAP trajectories) | 0.6 | measured |
 | 2026-09-18 13:17 | unsupervised axes CV 2026-09-18 | exp_cmbin_splits.py (one 20 GB X pass, 6 splits x 2 halves x 2 stages of per-bin condition means) | 0.5 | measured |
+| 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | pca/exp_manifold_matched.py (20 draws, 4 sets x 3 windows) | 1.6 | measured in place |
+| 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | pca/fig_ed_geometry.py (caches only, both builds) | 0.2 | measured in place (make_ed_figures.py row) |
+| 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | make_ed_figures.py, ten figures, two builds each + PDFs | 1.7 | measured in place |

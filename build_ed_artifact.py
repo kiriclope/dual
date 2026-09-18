@@ -7,7 +7,7 @@ then publish the result with the Artifact tool, passing the URL so it updates in
   file_path = figures/paper_share/artifact_build/mpfc_dual_ed_v1.html
   url       = https://claude.ai/code/artifact/95df947e-a8d6-452f-8d6f-431ea9cf7dcb
 
-Inputs  figures/ed/png/ed_fig{1..6}.png   (captions and panel letters are drawn INTO these
+Inputs  figures/ed/png/ed_fig{1..10}.png   (captions and panel letters are drawn INTO these
         pages by make_ed_figures.py — the HTML only adds an eyebrow, a title and a one-line claim)
 Style   reuses the <style> block of figures/paper_share/artifact_build/mpfc_dual_figures_v1.html, so the two
         shared galleries stay visually identical
@@ -41,17 +41,19 @@ SPECS = [
      'Neurons per mouse (3,319) and held-out sample/choice decodability in every session: no session-to-session drift behind the cross-stage transfer.'),
     ('ed_fig3', 'Extended Data Fig. 3', 'Dimensionality: provenance and robustness',
      'Twelve-condition spectra and participation ratios at Fig. 2 windows, the 462-dichotomy shattering dimension with across-animal intervals, the per-mouse cvPCA companion, and the correct-trial selection effect behind Fig. 2c.'),
-    ('ed_fig4', 'Extended Data Fig. 4', 'The sample x choice plane, per animal and out of context',
+    ('ed_fig4', 'Extended Data Fig. 4', 'The same geometry with no axes chosen',
+     'Unsupervised maps of the state space are organized by the task context and by nothing else; at matched trial counts the manifold is no larger under distraction but the sample is less separated, and the Go/NoGo separation is what learning increases; cross-validated unsupervised axes find the action variables first and the memory last.'),
+    ('ed_fig5', 'Extended Data Fig. 5', 'The sample x choice plane, per animal and out of context',
      'GNG and test codes over time, per-mouse CCGP on the canonical windows, the out-of-context plane test, and the plane-ablation grid in every animal.'),
-    ('ed_fig5', 'Extended Data Fig. 5', 'The demixed-PCA decomposition gives the same picture',
+    ('ed_fig6', 'Extended Data Fig. 6', 'The demixed-PCA decomposition gives the same picture',
      'Single-axis time courses sharpen without reorganizing; no change in the angles between axes is resolved across animals (refit mouse bootstrap).'),
-    ('ed_fig6', 'Extended Data Fig. 6', 'The push and the learning coupling under other units, other decoders, a fixed axis and a trial-level lick control',
+    ('ed_fig7', 'Extended Data Fig. 7', 'The push and the learning coupling under other units, other decoders, a fixed axis and a trial-level lick control',
      'All on held-out CCGD decision functions: the coupling holds under every unit and decoder except LDA, reverses on one axis fitted to both stages, and holds on no-lick trials.'),
-    ('ed_fig7', 'Extended Data Fig. 7', 'Optogenetic and imaging validation (PLACEHOLDER)',
+    ('ed_fig8', 'Extended Data Fig. 8', 'Optogenetic and imaging validation (PLACEHOLDER)',
      'Author-supplied histology, expression, placements, fields of view and laser parameters - slots reserved.'),
-    ('ed_fig8', 'Extended Data Fig. 8', 'Chronic silencing of the two control projections',
+    ('ed_fig9', 'Extended Data Fig. 9', 'Chronic silencing of the two control projections',
      'ACC cell bodies: no deficit detected; prelimbic-to-ACC terminals: GNG impaired, DPA spared - bounded nulls that do not reproduce the ACC-to-mPFC DPA deficit.'),
-    ('ed_fig9', 'Extended Data Fig. 9', 'The acute laser ON-OFF coupling over all seven laser mice',
+    ('ed_fig10', 'Extended Data Fig. 10', 'The acute laser ON-OFF coupling over all seven laser mice',
      'With the Fig. 6 estimator: GNG arm rho = -0.94, p = 0.002; the DPA trend is carried by the two ChR2 mice (n = 7).'),
 ]
 

@@ -382,14 +382,14 @@ if __name__ == '__main__':
         'counterpart of the weakening lick chain in Fig. 1g. Within each mouse the late-delay state moves toward no-lick '
         '(mean per-mouse Δ = −0.08 log-odds; within-mouse permutation test, stage labels shuffled within each animal, '
         'two-sided p = .006). The size of the shift varies across animals (s.d. 0.16; 6/9 mice negative; across-animal '
-        'paired t p = .19, and the across-animal mixed model of Extended Data Fig. 6a p = .10), and is larger for sample A '
+        'paired t p = .19, and the across-animal mixed model of Extended Data Fig. 7a p = .10), and is larger for sample A '
         '(Δ = −0.14) than for sample B (−0.02; A-versus-B p = .098).',
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
         'state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.80, p = .010 ∗; on the '
         'dual trials ρ = −0.70, p = .036 ∗), whereas the same change '
-        'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 6c).',
+        'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
         'rejections from false alarms (sample A, Δ(CR−FA) = −0.17, p = .11; sample B, −0.02, p = '

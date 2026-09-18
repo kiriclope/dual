@@ -1,10 +1,11 @@
-"""fig_ed_opto_validation.py — Extended Data Fig. 7: PLACEHOLDER for the optogenetic and imaging validation page
+"""(RENUMBERED 2026-09-18 to citation order, ten figures after the unsupervised-geometry page was inserted as Extended Data Fig. 4: this script draws Extended Data Fig. 8.)
+fig_ed_opto_validation.py — Extended Data Fig. 8: PLACEHOLDER for the optogenetic and imaging validation page
 (companion to Fig. 6a). Built 2026-09-16 after the supplementary review: histology, expression, fibre placement and
 laser parameters are author-supplied and not in the pipeline; this page reserves the slot, the panel letters and
 the legend so the manuscript can cite it. Replace each box with the real image (same letters) when the material
 arrives.
 Run:  cd /home/leon/dual/overlaps && python fig_ed_opto_validation.py [--nocap]
-Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig7.{png,svg}
+Output: /home/leon/dual/figures/ed/{png,svg}/ed_fig8.{png,svg}
 """
 import matplotlib; matplotlib.use('Agg')
 import sys, os
@@ -23,7 +24,7 @@ plt.rcParams.update({
 })
 TITLE_FS = PS*8
 NOCAP = '--nocap' in sys.argv[1:]
-ED_N = 7
+ED_N = 8
 PANELS = [
     ('a', 'ACC injection site', 'Jaws–GFP expression in ACC\n(coronal section, DAPI)\n[AUTHOR: image, scale bar, coordinates]'),
     ('b', 'ACC terminals in mPFC', 'Jaws–GFP axons in prelimbic mPFC\nwith the GRIN lens / imaging FOV\n[AUTHOR: image, lens track]'),

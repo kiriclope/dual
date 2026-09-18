@@ -34,7 +34,7 @@ cross-condition generalization has revealed in primate prefrontal cortex and hip
 axes have to serve a memory while an embedded action task runs through it. Our data also refine
 the mixed-selectivity picture [Rigotti 2013]. The decision state occupies about three reliable
 dimensions and the test code is conjunctive, in that it barely generalizes across sample
-(per-mouse cross-condition accuracy 0.55–0.58; Extended Data Fig. 4b), so the high-dimensional component is there. The maintained memory, by
+(per-mouse cross-condition accuracy 0.55–0.58; Extended Data Fig. 5b), so the high-dimensional component is there. The maintained memory, by
 contrast, is deliberately minimal, a single reliable dimension (Fig. 2b). The two regimes
 coexist with a division of labour: low-dimensional and abstract where information has to be
 protected and transferred, higher-dimensional where stimulus–response conjunctions have to be
@@ -92,9 +92,9 @@ composing the tasks added none we could detect. The repositioning and its coupli
 animals. The shift itself is established within animals (a permutation test over each mouse's own
 trials) but varies in size across them, and the depth–accuracy coupling is an individual-difference
 correlation that holds only on stage-specific readouts: on a single choice axis fitted to both
-stages it reverses as a trend (Extended Data Fig. 6c). And although the choice axis is defined by
+stages it reverses as a trend (Extended Data Fig. 7c). And although the choice axis is defined by
 licking, late-delay licks were rare, carried no information about the depth of the state trial by
-trial, and the coupling held on trials without one (Extended Data Fig. 6d); the optogenetic
+trial, and the coupling held on trials without one (Extended Data Fig. 7d); the optogenetic
 experiments used unilateral illumination, no opsin-free light-only cohort was imaged, and the
 chronic and acute cohorts were different animals (Fig. 6).
 

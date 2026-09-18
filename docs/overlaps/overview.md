@@ -4,6 +4,16 @@
 > trial-level random-intercept LMM (p .004) is rejected (random slope p .17). Fig 6g–i carry per-mouse (n = 5) companions.
 > Memory: project_overlaps_main_native.md 2026-09-16 block.
 
+> **2026-09-18 — A TENTH EXTENDED DATA FIGURE, THE UNSUPERVISED GEOMETRY PAGE (ED 4):** `pca/fig_ed_geometry.py`
+> enters as **ED 4** (the same geometry read with no axes chosen: t-SNE maps + 20-draw kNN purity, per-mouse manifold
+> geometry at MATCHED trial counts, cross-validated unsupervised axes, UMAP trajectories on DPA trials), first cited in
+> §2 beside Fig 2d. Everything after it shifts: plane 4 → **5**, dPCA 5 → **6**, coupling 6 → **7**, opto placeholder
+> 7 → **8**, chronic 8 → **9**, laser 9 → **10**. Scripts keep their file names. Dated notes below keep the numbering
+> of their day. Renumbering checklist: `make_ed_figures.py` FIGS, `build_ed_artifact.py` SPECS, `serve_figures.py`
+> SUPP, each script's `ed_fig{N}` path AND any `ED_N = <n>` constant (`fig_ed_behavior.py`, `fig_ed_imaging.py`,
+> `fig_ed_opto_validation.py` have one), the `Extended Data Fig. N |` caption, cross-references in OTHER figures'
+> captions, and in `docs/paper/` the citations, the `**ED Fig. N |` legend headings and the plural "Figs 7 and 10".
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.

@@ -1,17 +1,25 @@
 # Project: mPFC Population Geometry (Dual Task)
 
-## Manuscript state (2026-09-16)
+## Manuscript state (2026-09-18)
 
-Draft `docs/paper/results_draft.md` **v12.46**, `discussion_draft.md` **v6.4** (both reviewed as a Nature Neuroscience reviewer
+Draft `docs/paper/results_draft.md` **v12.53**, `discussion_draft.md` **v6.5** (both reviewed as a Nature Neuroscience reviewer
 would on 2026-09-15/16; the dated `>` banners at the top of results_draft.md are the changelog). Five main figures
-(`make_submission_figs.py`, 183 mm PDFs in `figures/paper_share/submission/`), **nine Extended Data figures in first-citation
-order** (`make_ed_figures.py`: 1 behaviour/licks, 2 imaging/drift, 3 dimensionality, 4 plane, 5 dPCA, 6 push/coupling controls,
-7 opto validation PLACEHOLDER, 8 chronic controls, 9 seven-mouse laser), Supplementary Tables 1–2 (trial counts, laser-OFF / ON).
+(`make_submission_figs.py`, 183 mm PDFs in `figures/paper_share/submission/`), **ten Extended Data figures in first-citation
+order** (`make_ed_figures.py`: 1 behaviour/licks, 2 imaging/drift, 3 dimensionality, 4 unsupervised geometry, 5 plane, 6 dPCA,
+7 push/coupling controls, 8 opto validation PLACEHOLDER, 9 chronic controls, 10 seven-mouse laser), Supplementary Tables 1–2
+(trial counts, laser-OFF / ON).
 Headline statistics as drawn: Fig 4a alignment Δ|cos| +0.04 p .004 (9/9); Fig 4b push Δ −0.078, within-mouse permutation
-p .006 (across-animal mixed model p .10 in ED 6a); Fig 4c coupling ρ −0.80 p .010 (n = 9; holds on no-lick trials, reverses on
+p .006 (across-animal mixed model p .10 in ED 7a); Fig 4c coupling ρ −0.80 p .010 (n = 9; holds on no-lick trials, reverses on
 a pooled-stage axis); Fig 6i acute GNG arm ρ −0.69 (per mouse −0.90, n = 5); Fig 3e cross-stage transfer 0.90 / 0.72.
-Two within-animal changes at the detection threshold are disclosed (ED 3c shattering p .055, ED 5b axis alignment p .17).
-Artifacts: draft d338b195, figures 324c8888, ED 95df947e. **Author-supplied gaps:** ED 7 images (histology, placements, FOVs,
+Two within-animal changes at the detection threshold are disclosed (ED 3c shattering p .055, ED 6b axis alignment p .17).
+ED 4 (2026-09-18, `pca/fig_ed_geometry.py`) is the unsupervised companion to Fig 2: with no label used to find a direction
+the 2-D map is organized by task context (kNN purity 0.89/0.94 against a null of 0.33) and by almost nothing else, and the
+cross-validated unsupervised axes find the choice (DPA, η² 0.72/0.85) and the Go/NoGo odor (dual, 0.99/0.98) first, the sample
+axis third at 2–3% of the reliable variance. At MATCHED trial counts the manifold is no larger under distraction (all p ≥ .20)
+but the sample separation is lower on every dual set (Go p .008 naïve, .020 expert) and the Go/NoGo separation is what learning
+raises (0.33 → 0.46 at the late delay, p .004, 9/9).
+Artifacts: draft d338b195, figures 324c8888, ED 95df947e (the ED artifact predates the tenth figure — rebuild with
+`build_ed_artifact.py`). **Author-supplied gaps:** ED 8 images (histology, placements, FOVs,
 laser parameters, light-only control), confirmation of unilateral illumination, Methods placeholders (curriculum criteria,
 viral/laser parameters, registration metric, DOI), Fig 5 model. Behaviour-file clock rule: `docs/shared_data.md`.
 

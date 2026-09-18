@@ -1,6 +1,41 @@
+> **2026-09-18 — A TENTH EXTENDED DATA FIGURE, THE UNSUPERVISED GEOMETRY PAGE (ED 4):** `pca/fig_ed_geometry.py`
+> enters as **ED 4** (the same geometry read with no axes chosen: t-SNE maps + 20-draw kNN purity, per-mouse manifold
+> geometry at MATCHED trial counts, cross-validated unsupervised axes, UMAP trajectories on DPA trials), first cited in
+> §2 beside Fig 2d. Everything after it shifts: plane 4 → **5**, dPCA 5 → **6**, coupling 6 → **7**, opto placeholder
+> 7 → **8**, chronic 8 → **9**, laser 9 → **10**. Scripts keep their file names. Dated notes below keep the numbering
+> of their day. Renumbering checklist: `make_ed_figures.py` FIGS, `build_ed_artifact.py` SPECS, `serve_figures.py`
+> SUPP, each script's `ed_fig{N}` path AND any `ED_N = <n>` constant (`fig_ed_behavior.py`, `fig_ed_imaging.py`,
+> `fig_ed_opto_validation.py` have one), the `Extended Data Fig. N |` caption, cross-references in OTHER figures'
+> captions, and in `docs/paper/` the citations, the `**ED Fig. N |` legend headings and the plural "Figs 7 and 10".
+
 > **2026-09-16 — EXTENDED DATA RENUMBERED AGAIN (nine figures, first-citation order):** behaviour = ED 1 (new, `overlaps/fig_ed_behavior.py`),
 > imaging/drift = ED 2 (new, `pca/fig_ed_imaging.py`), dimensionality 2 → **3**, plane 1 → **4**, dPCA 3 → **5**, coupling 4 → **6**,
 > opto validation placeholder = ED 7 (new), chronic 5 → **8**, laser 6 → **9**. Dated notes below keep the numbering of their day.
+
+> **2026-09-18 — ED 4, THE UNSUPERVISED GEOMETRY PAGE (settled numbers).** `fig_ed_geometry.py` (0.2 min, caches only).
+> **a,b maps and purity** (`fig_geometry_main.py --recompute` for the maps, `exp_manifold_purity_draws.py` for the statistic).
+> 12 conditions × 6 pseudo-trials per stage = 144 points, no real trial used twice (kp = min pool over mouse × condition).
+> kNN purity (k = 7), mean over 20 draws, t-SNE: mid-delay task 0.89, sample 0.58, choice 0.49, stage 0.51; decision task
+> 0.94, sample 0.53, choice 0.56, stage 0.52 (nulls 0.33 / 0.50; UMAP within 0.02). Task stands 0.56–0.60 above its null,
+> everything else 0.01–0.08. **A single map's purity is NOT a statistic** — identical data gave 0.48 and 0.61 on two draws.
+> **c per-mouse geometry at MATCHED n** (`exp_manifold_matched.py`, 1.6 min, 20 draws). Every set subsampled to the smallest
+> set's n in that mouse/stage/window (medians 68 naïve, 79 expert), one condition-agnostic per-neuron scale for all sets.
+> Participation ratio: **no difference** between DPA and Go / NoGo / dual at mid-delay, Δ medians −0.7 to +0.9, smallest
+> p = .20. Sample separation lower on every dual set: Go 0.299 → 0.261 naïve (p .008, 1/9 up) and 0.338 → 0.284 expert
+> (p .020, 1/9); NoGo p .039 / .027; dual-8 p .020 / .012. Go/NoGo separation rises with learning at all three windows:
+> mid-delay 0.32 → 0.48 p .012, late delay 0.33 → 0.46 p .004 (9/9), decision 0.31 → 0.41 p .020. Sample separation does not
+> change with stage in any set (all p ≥ .16).
+> **DEAD END, do not re-report:** `exp_manifold_geometry.py` (the first pass) found PR 37 → 49 on dual trials, p .004, at
+> every window and stage. It is a **trial-count artifact** — dual clouds hold ~2× the trials (164 vs 88) and PR grows with
+> sample count. That pass also z-scored each cloud by its own s.d., which pins the radius R at sqrt(nneu) ≈ 18.8 in every
+> cell (hence the flat R column). Use `exp_manifold_matched.py` for any per-mouse manifold claim.
+> **e,f cross-validated unsupervised axes** (`fig_unsup_axes_cv.py`; needs `cmbin_splits.pkl` from `exp_cmbin_splits.py`,
+> 0.5 min, one 20 GB X pass). Basis fitted on one half of the trials, trajectories projected from the other, 6 splits × 2
+> directions, components Hungarian-matched to the full-data reference and sign-aligned. Reliable variance (cvPCA cross-term)
+> and η² identity: DPA naïve PC1 23% / choice 0.72, expert PC1 28% / choice 0.85; dual naïve PC1 28% / GNG 0.99, PC2 5% /
+> GNG 0.73; dual expert PC1 30% / GNG 0.98, PC2 7% / GNG 0.96. The **sample axis is PC2–PC3 on DPA trials, η² 0.82–0.99 but
+> only 2–3% of the reliable variance**. Without cross-validation PC2/PC3 look 4–8× larger (17–18% / 15–16%) and appear
+> coded; out of sample they carry neither. Draft v12.53.
 
 > **2026-09-15 (latest) — REFIT-dPCA MOUSE BOOTSTRAP (ED 3b):** `exp_dpca_refit_boot.py` (6.9 min; loads X_all_blcenter, rebuilds
 > the sample × test × tasks pseudo-population per stage with `build_pseudo_population`, then `dpca_decode` on each of 1,000
