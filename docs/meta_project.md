@@ -22,7 +22,7 @@ Shared artifacts (all three republished 2026-09-18/21): draft **d338b195**, figu
 The figures page moved to a new link on 2026-09-21 because the old one (324c8888) was shared with a PINNED version:
 republishing updated only what the owner saw while link-holders kept the snapshot pinned when the page was first
 shared, so a coworker read the nine-figure build for three days after the renumbering. Advancing a pin is a
-share-menu action with no tool behind it. 324c8888 is retired, not deleted. Details: memory
+share-menu action with no tool behind it. 324c8888 is retired (retitled "OLD Figures page (retired)" with a do-not-share banner, because two identically-named entries in the gallery made the wrong one easy to share), not deleted. Details: memory
 `reference_figure_viewing.md`. **Author-supplied gaps:** ED 8 images (histology, placements, FOVs,
 laser parameters, light-only control), confirmation of unilateral illumination, Methods placeholders (curriculum criteria,
 viral/laser parameters, registration metric, DOI), Fig 5 model. Behaviour-file clock rule: `docs/shared_data.md`.
