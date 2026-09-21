@@ -1,5 +1,22 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
+> **v12.55 (2026-09-21): FIG. 4d POOLS BOTH STAGES, ON THE DPA TRIALS** (Leon: "use all trials for the
+> x axis, and DPA trials for computing the depth", then the correction "only DPA trials, both paired and
+> unpaired"). Panel d now averages DPA-trial depth over naïve AND expert unpaired trials: sample A
+> Δ(CR−FA) = −0.23, p = .08; sample B +0.09, p = .43. Still null, so the panel keeps its role as the control
+> against a within-stage readout of accuracy, and §4's first control sentence keeps its conclusion with new
+> numbers. `--naivefacr` restores the naïve-only build published through 2026-09-18.
+> **A first attempt at this let DUAL trials contribute depth, and that reversed the panel** (sample A −0.41,
+> p = .006). Diagnosed rather than written up: it was not the stage pooling (within naïve alone, −0.36,
+> p = .005) but the dual trials, on both Go and NoGo arms (naïve sample A: DPA −0.17 p .105, Go −0.53 p .004,
+> NoGo −0.44 p .012). On a dual trial the animal meets the Go/NoGo lick decision mid-delay, so the late-delay
+> state carries how lick-prone it is, which also predicts the false alarm at the test. That is the lick-prone
+> naïve state behind the correct-trial selection effect of §2, not a memory readout. §4 and the Fig. 4d legend
+> now state it explicitly and say why the panel excludes dual trials. **NOTE FOR §2:** its sentence "the delay
+> carries no trial-by-trial choice information at either stage" is drawn from decoding the match/nonmatch
+> contrast; this is a different question (given a nonmatch trial, does the state predict an erroneous lick)
+> and the answer on dual trials is yes. The two are not in conflict, but a reviewer may read them as such.
+
 > **v12.54 (2026-09-21): FIG. 4c LEFT ARM IS NOW COMPUTED ON ALL LASER-OFF TRIALS** (Leon: "change panel c
 > to all trials in the published figure"). The drawn coupling weakens from ρ = −0.80, p = .010 to
 > **ρ = −0.70, p = .036** (n = 9, per-mouse Spearman, two-sided); the ranks are identical to the dual-trial
@@ -879,9 +896,14 @@ state toward no-lick, the more its DPA accuracy had improved (Fig. 4c, left; per
 read with the logistic decoder (on the GNG-free DPA arm, the trial set of the Extended Data battery, it holds under an L1-regularized decoder, ρ = −0.73, p = 0.025, but not under a linear-discriminant one, ρ = −0.45, p = 0.22, Extended Data Fig. 7b; and on a single choice axis fitted per mouse to the naïve and expert trials together, read with held-out decision functions, it does not hold and reverses as a trend, ρ = +0.65, p = 0.058, Extended Data Fig. 7c, so the coupling is a property of the stage-specific readouts rather than of one fixed direction), and it does not replicate on the demixed-PCA axis (Methods).
 
 Two controls sharpen the interpretation. First, the push is a property of animals rather than
-of trials. Within naïve unpaired trials, the trial-by-trial depth of the state did not
-detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −0.17, p = 0.11; sample B −0.02, p = 0.89), so we found no evidence that the repositioning is a
-within-stage readout of accuracy rather than a between-animal learning effect. Second, what
+of trials. On the unpaired DPA trials of both stages, the trial-by-trial depth of the state did not
+detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −0.23, p = 0.08; sample B +0.09, p = 0.43), so we found no evidence that the repositioning is a
+readout of accuracy on the memory trials rather than a between-animal learning effect. On dual-task
+trials the picture differs, and the panel excludes them for that reason: the animal meets the Go/NoGo
+lick decision in the middle of their delay, and there the late-delay state does predict the upcoming
+false alarm (naïve, sample A: Δ = −0.53, p = 0.004 on Go trials and −0.44, p = 0.012 on NoGo trials).
+That signal tracks how lick-prone the animal is on a given dual trial, the same state that produces
+the correct-trial selection effect of §2, rather than a readout of the memory itself. Second, what
 moved was the position of the state rather than the code itself, since we found no detectable
 change in the discriminability of the choice code across learning (Fig. 4e; d′ 0.55 → 0.63, Δ = +0.09, p = 0.57). Third, late-delay licks were rare (one laser-off DPA trial in fourteen carried one over the late-delay window; 7% at both stages), and trial by trial their rate carried no information about the depth of the state (Spearman ρ within mouse and stage, median +0.05, p = 0.20 over the eight mice that licked at both stages; lick-rate covariate β = +0.06, p = 0.28); the coupling held on the trials without a lick (ρ = −0.80, p = 0.009; Extended Data Fig. 7d).
 ## A circuit model of the gated no-lick repositioning
@@ -1440,9 +1462,13 @@ c, The push predicts behavior across animals. Each mouse’s change in depth aga
 accuracy (circles, the two sample classes per mouse, joined; the regression band, ρ and p are
 computed on the nine per-mouse means). The deeper a mouse pushes its memory state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).
 
-d, The push is a between-animal learning effect, not a trial-level readout of accuracy. Within a
-stage (naïve unpaired trials), single-trial depth does not separate correct rejections from false
-alarms (sample A, Δ(CR−FA) = −0.17, p = .11; sample B, −0.02, p = .89).
+d, The push is a between-animal learning effect, not a trial-level readout of accuracy. On the
+unpaired DPA trials of both stages, single-trial depth does not separate correct rejections from
+false alarms (sample A, Δ(CR−FA) = −0.23, p = .08; sample B, +0.09, p = .43; paired t over mice on
+per-mouse medians). Dual trials are excluded from this panel because the animal meets the Go/NoGo
+lick decision in the middle of their delay: there the late-delay state does predict the upcoming
+false alarm (naïve, sample A: −0.53, p = .004 on Go trials and −0.44, p = .012 on NoGo trials), a
+trial-by-trial lick propensity rather than a readout of the memory (Methods).
 
 e, Position, not fidelity. The discriminability of the choice code (d′, lick against no-lick)
 is unchanged by learning (0.55 → 0.63, p = .57). Learning moves where the memory state sits on

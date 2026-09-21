@@ -441,18 +441,20 @@ resp_arr    = Lm.response.values
 FA_CR_SPEC  = [('AD', 'A', 1, '#332288'), ('BC', 'B', 3, '#44AA99')]  # (pair, sample, odor_pair, colour)
 
 
-# 2026-09-21 (Leon): panel d's correct-rejection / false-alarm pool is now EVERY laser-off unpaired trial —
-# both stages and both tasks — instead of the naive DPA ones only. The depth is unchanged: each trial's
-# projection on that mouse's choice axis, which the CCGD pipeline fits on DPA trials across both stages.
-# --naivefacr restores the build published through 2026-09-18.
-# CAVEAT carried in the legend: pooling stages lets the naive->expert push of panel b enter this comparison,
-# because expert trials sit deeper AND are more often correct rejections. Leon chose the pooled version with
-# that stated (2026-09-21); the within-stage build is the flag.
+# 2026-09-21 (Leon): panel d pools BOTH STAGES but stays on the DPA trials — "use only DPA trials (both
+# paired and unpaired)" for the depth. Only DPA-trial depth is averaged in each cell; dual trials contribute
+# nothing. Correct rejection and false alarm are unpaired outcomes by definition, so paired DPA trials still
+# cannot enter a cell; they do set the per-mouse scale inside _norm_code, which already pools all DPA trials.
+# --naivefacr restores the build published through 2026-09-18 (naive only).
+# An earlier build of this change let dual trials into the depth. That made the panel significant
+# (sample A -0.41, p .006) and the effect was carried entirely by the dual trials, where the animal has just
+# met the Go/NoGo lick decision (naive sample A: DPA -0.17 p .105, Go -0.53 p .004, NoGo -0.44 p .012).
+# Leon corrected it; keep dual trials out of this panel.
 FACR_NAIVE = '--naivefacr' in sys.argv[1:]
 if FACR_NAIVE:
     FILE_SUF += '_naivefacr'
-_facr_base = (base_dpa_ch & (Lm.stage == 'Naive').values) if FACR_NAIVE else ((Lm.laser == 0) & L_tgt).values
-FACR_LABEL = 'Naive unpaired DPA trials' if FACR_NAIVE else 'Unpaired trials, both tasks and stages'
+_facr_base = (base_dpa_ch & (Lm.stage == 'Naive').values) if FACR_NAIVE else base_dpa_ch
+FACR_LABEL = 'Naive unpaired DPA trials' if FACR_NAIVE else 'Unpaired DPA trials, both stages'
 
 
 def _facr_cell(mouse, odor_pair, r):
