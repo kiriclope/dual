@@ -461,11 +461,14 @@ FA_CR_SPEC  = [('AD', 'A', 1, '#332288'), ('BC', 'B', 3, '#44AA99')]  # (pair, s
 # (sample A -0.41, p .006) and the effect was carried entirely by the dual trials, where the animal has just
 # met the Go/NoGo lick decision (naive sample A: DPA -0.17 p .105, Go -0.53 p .004, NoGo -0.44 p .012).
 # Leon corrected it; keep dual trials out of this panel.
-FACR_NAIVE = '--naivefacr' in sys.argv[1:]
-if FACR_NAIVE:
-    FILE_SUF += '_naivefacr'
-_facr_base = (base_dpa_ch & (Lm.stage == 'Naive').values) if FACR_NAIVE else base_dpa_ch
-FACR_LABEL = 'Naive unpaired DPA trials' if FACR_NAIVE else 'Unpaired DPA trials, both stages'
+FACR_STAGE = ('Naive' if '--naivefacr' in sys.argv[1:] else
+              'Expert' if '--expertfacr' in sys.argv[1:] else 'both')
+if FACR_STAGE != 'both':
+    FILE_SUF += f'_{FACR_STAGE.lower()}facr'
+_facr_base = base_dpa_ch if FACR_STAGE == 'both' else (base_dpa_ch & (Lm.stage == FACR_STAGE).values)
+FACR_LABEL = {'both': 'Unpaired DPA trials, both stages', 'Naive': 'Naive unpaired DPA trials',
+              'Expert': 'Expert unpaired DPA trials'}[FACR_STAGE]
+FACR_NAIVE = FACR_STAGE == 'Naive'                    # name kept for older callers
 
 
 def _facr_cell(mouse, odor_pair, r):
