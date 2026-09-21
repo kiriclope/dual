@@ -441,9 +441,22 @@ resp_arr    = Lm.response.values
 FA_CR_SPEC  = [('AD', 'A', 1, '#332288'), ('BC', 'B', 3, '#44AA99')]  # (pair, sample, odor_pair, colour)
 
 
+# 2026-09-21 (Leon): panel d's correct-rejection / false-alarm pool is now EVERY laser-off unpaired trial —
+# both stages and both tasks — instead of the naive DPA ones only. The depth is unchanged: each trial's
+# projection on that mouse's choice axis, which the CCGD pipeline fits on DPA trials across both stages.
+# --naivefacr restores the build published through 2026-09-18.
+# CAVEAT carried in the legend: pooling stages lets the naive->expert push of panel b enter this comparison,
+# because expert trials sit deeper AND are more often correct rejections. Leon chose the pooled version with
+# that stated (2026-09-21); the within-stage build is the flag.
+FACR_NAIVE = '--naivefacr' in sys.argv[1:]
+if FACR_NAIVE:
+    FILE_SUF += '_naivefacr'
+_facr_base = (base_dpa_ch & (Lm.stage == 'Naive').values) if FACR_NAIVE else ((Lm.laser == 0) & L_tgt).values
+FACR_LABEL = 'Naive unpaired DPA trials' if FACR_NAIVE else 'Unpaired trials, both tasks and stages'
+
+
 def _facr_cell(mouse, odor_pair, r):
-    m = (base_dpa_ch & (Lm.mouse == mouse).values & (Lm.stage == 'Naive').values &
-         (op_arr == odor_pair) & (resp_arr == r))
+    m = (_facr_base & (Lm.mouse == mouse).values & (op_arr == odor_pair) & (resp_arr == r))
     return depth_trial[m]
 
 

@@ -329,7 +329,7 @@ if __name__ == '__main__':
     axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
     axD.set_xlim(-0.5, 3.2)
     axD.set_ylabel('choice-code depth', fontsize=PS*7.5)
-    axD.set_title('Naive unpaired DPA trials', loc='left', fontsize=TITLE_FS)
+    axD.set_title(_MP.FACR_LABEL, loc='left', fontsize=TITLE_FS)
     axD.set_box_aspect(1)
 
     # ── E: within-task choice-code d′ (Naive vs Expert) — decodability UNCHANGED ⇒ the push (B) is a
@@ -390,10 +390,14 @@ if __name__ == '__main__':
         'state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the '
         'GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change '
         'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
-        'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
-        'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '
-        'rejections from false alarms (sample A, Δ(CR−FA) = −0.17, p = .11; sample B, −0.02, p = '
-        '.89).',
+        'd, Single-trial depth against the behavioural outcome, on every laser-off unpaired trial of both '
+        'tasks and both stages. Trials that end in a false alarm sit nearer the lick side of the axis during '
+        'the late delay than trials that end in a correct rejection (sample A, Δ(CR−FA) = −0.41, p = .006; '
+        'sample B, −0.28, p = .086; paired t over mice on per-mouse medians). The separation is carried '
+        'entirely by the dual trials, where the animal has just met the Go/NoGo lick decision: on naïve '
+        'unpaired trials of sample A it is −0.53 (p = .004) on Go trials and −0.44 (p = .012) on NoGo trials, '
+        'against −0.17 (p = .11) on the DPA trials, which carry no Go/NoGo odor. It is not the push of b, '
+        'since it is present within each stage on its own (naïve −0.36, p = .005).',
         'e, Position, not fidelity. The discriminability of the choice code (d′, lick against no-'
         'lick) is unchanged by learning (0.55 → 0.63, p = .57). Learning moves where the memory state '
         'sits on the axis (b), not how well the axis reads out.',
