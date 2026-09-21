@@ -289,7 +289,10 @@ plabel(axA, 'a', dx=-0.62); plabel(axB, 'b', dx=-0.40); plabel(axCC, 'c', dx=-0.
 CAP = [
     'Extended Data Fig. 7 | The push and the learning coupling under other units, other decoders, a fixed axis and a '
     'lick covariate (companion to Fig. 4b,c). All panels read cross-validated decision functions of the CCGD '
-    'pipeline; the depth is the raw log-odds of Fig. 4 unless stated. a, The push (left; within-mouse mixed model, '
+    'pipeline; the depth is the raw log-odds of Fig. 4 unless stated. Every panel here computes the accuracy arm on '
+    'the GNG-free DPA trials, the trial set on which the depth itself is defined, so the battery is internally '
+    'comparable; Fig. 4c draws the same coupling with accuracy pooled over all laser-off trials, where it is '
+    'ρ = −0.70, p = .036. a, The push (left; within-mouse mixed model, '
     'depth ~ stage + sample, random intercept per mouse, 36 observations) and the coupling (right; per-mouse Spearman '
     'ρ between Δdepth and ΔDPA accuracy on the GNG-free DPA trials, n = 9) under six units of the same late-delay '
     'depth. Red, p < 0.05. The coupling holds under every unit (ρ = −0.67 to −0.80; the whole-trial-s.d. unit sits '

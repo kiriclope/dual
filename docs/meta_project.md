@@ -9,7 +9,7 @@ order** (`make_ed_figures.py`: 1 behaviour/licks, 2 imaging/drift, 3 dimensional
 7 push/coupling controls, 8 opto validation PLACEHOLDER, 9 chronic controls, 10 seven-mouse laser), Supplementary Tables 1–2
 (trial counts, laser-OFF / ON).
 Headline statistics as drawn: Fig 4a alignment Δ|cos| +0.04 p .004 (9/9); Fig 4b push Δ −0.078, within-mouse permutation
-p .006 (across-animal mixed model p .10 in ED 7a); Fig 4c coupling ρ −0.80 p .010 (n = 9; holds on no-lick trials, reverses on
+p .006 (across-animal mixed model p .10 in ED 7a); Fig 4c coupling ρ −0.70 p .036 (n = 9, ALL laser-off trials since 2026-09-21; GNG-free DPA arm −0.80 p .010; holds on no-lick trials, reverses on
 a pooled-stage axis); Fig 6i acute GNG arm ρ −0.69 (per mouse −0.90, n = 5); Fig 3e cross-stage transfer 0.90 / 0.72.
 Two within-animal changes at the detection threshold are disclosed (ED 3c shattering p .055, ED 6b axis alignment p .17).
 ED 4 (2026-09-18, `pca/fig_ed_geometry.py`) is the unsupervised companion to Fig 2: with no label used to find a direction

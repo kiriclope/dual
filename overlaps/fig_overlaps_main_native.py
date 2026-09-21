@@ -255,7 +255,7 @@ if __name__ == '__main__':
     # ── C: Δdepth ↔ Δperf (Expert−Naive), A&B independent (ΔDPA | ΔGNG) ──
     gsC = gs[2, 0:6].subgridspec(1, 2, wspace=0.55)
     axC = [fig.add_subplot(gsC[0, 0]), fig.add_subplot(gsC[0, 1])]
-    _pl = 'dual trials' if _MP.DUALPERF else 'DPA trials'
+    _pl = _MP.PERF_LABEL
     C_specs = [(delta_dpa_perf_sample, f'Δ DPA accuracy, {_pl}', 'Δ depth vs Δ DPA accuracy',
                 _panelC_coupling(delta_dpa_perf_sample)),
                (delta_gng_perf_sample, 'Δ GNG accuracy, dual trials', 'Δ depth vs Δ GNG accuracy',
@@ -387,8 +387,8 @@ if __name__ == '__main__':
         'c, The push predicts behavior across animals. Each mouse’s change in depth against its '
         'change in accuracy (circles, the two sample classes per mouse, joined; the regression band, '
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
-        'state, the more its DPA accuracy improves (GNG-free DPA trials, ρ = −0.80, p = .010 ∗; on the '
-        'dual trials ρ = −0.70, p = .036 ∗), whereas the same change '
+        'state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the '
+        'GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change '
         'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. '
         'Within a stage (naïve unpaired trials), single-trial depth does not separate correct '

@@ -19,10 +19,15 @@ if '--worker' in sys.argv:
     import numpy as np
     from scipy.stats import spearmanr
     import main_panels as MP
+    # 2026-09-21: Fig. 4c's drawn accuracy arm moved to ALL laser-off trials, but ED 7's other panels (units,
+    # fixed axis, licking) hard-code the GNG-free DPA trials for both depth and accuracy, so this battery is
+    # PINNED to the DPA arm and the whole ED page stays internally consistent. Do not swap it for
+    # MP.delta_dpa_perf_sample, which now follows the main panel. The all-trial value is in the ED 7 legend.
+    _dpa_perf = MP._perf_delta_by_sample('performance', MP.y.tasks == 'DPA')
     mice, dd, dpa, gng = [], [], [], []
     for mo in MP.ALL_MICE:
         d = np.nanmean([MP.delta_choice_sample[(mo, cls)] for cls, _ in MP.D_SAMPLE_CLASSES])
-        a = np.nanmean([MP.delta_dpa_perf_sample.get((mo, cls), np.nan) for cls, _ in MP.D_SAMPLE_CLASSES])
+        a = np.nanmean([_dpa_perf.get((mo, cls), np.nan) for cls, _ in MP.D_SAMPLE_CLASSES])
         g = np.nanmean([MP.delta_gng_perf_sample.get((mo, cls), np.nan) for cls, _ in MP.D_SAMPLE_CLASSES])
         if np.isfinite(d) and np.isfinite(a):
             mice.append(mo); dd.append(float(d)); dpa.append(float(a)); gng.append(float(g))

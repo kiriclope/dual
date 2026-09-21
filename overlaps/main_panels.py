@@ -378,12 +378,17 @@ def _perf_delta_by_sample(perf_col, task_mask):
     return out
 
 
-# 2026-09-09 (Leon): panel c's DPA arm = change in DPA accuracy on the distractor-free DPA trials (kept: ρ −0.72 p .030;
-# on the dual trials or all trials the same ranks give ρ −0.63 p .067 — stated in the text). --dualperf draws the dual-trial arm.
-DUALPERF = '--dualperf' in sys.argv[1:]
-if DUALPERF:
-    FILE_SUF += '_dualperf'
-delta_dpa_perf_sample = _perf_delta_by_sample('performance', (y.tasks != 'DPA') if DUALPERF else (y.tasks == 'DPA'))
+# 2026-09-21 (Leon: "change panel c to all trials in the published figure"): panel c's DPA arm is now the change in
+# DPA accuracy on ALL laser-off trials. Earlier builds stay reachable: --dpaperf = the distractor-free DPA trials
+# (ρ −0.80 p .010, the published build through 2026-09-18), --dualperf = the dual trials only (ρ −0.70 p .036).
+# All trials gives ρ −0.70 p .036, ranks identical to the dual-trial arm; exp_push_nogo_coupling.py prints every slice.
+PERFSET = 'DPA' if '--dpaperf' in sys.argv[1:] else 'dual' if '--dualperf' in sys.argv[1:] else 'all'
+DUALPERF = PERFSET == 'dual'                      # name kept: other scripts read it
+PERF_LABEL = {'all': 'all trials', 'DPA': 'DPA trials', 'dual': 'dual trials'}[PERFSET]
+if PERFSET != 'all':
+    FILE_SUF += f'_{PERFSET.lower()}perf'
+_PERF_MASK = {'all': y.tasks.notna(), 'DPA': y.tasks == 'DPA', 'dual': y.tasks != 'DPA'}[PERFSET]
+delta_dpa_perf_sample = _perf_delta_by_sample('performance', _PERF_MASK)
 delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
 
 
