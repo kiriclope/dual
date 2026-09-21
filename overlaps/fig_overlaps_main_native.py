@@ -258,7 +258,7 @@ if __name__ == '__main__':
     _pl = _MP.PERF_LABEL
     C_specs = [(delta_dpa_perf_sample, f'Δ DPA accuracy, {_pl}', 'Δ depth vs Δ DPA accuracy',
                 _panelC_coupling(delta_dpa_perf_sample)),
-               (delta_gng_perf_sample, 'Δ GNG accuracy, dual trials', 'Δ depth vs Δ GNG accuracy',
+               (delta_gng_perf_sample, _MP.GNG_LABEL, 'Δ depth vs Δ GNG accuracy',
                 _panelC_coupling(delta_gng_perf_sample))]
     _allyC = np.array([d[(m, c)] for d, _, _, _ in C_specs for m in ALL_MICE for c in (0, 1)], float)
     _allyC = _allyC[~np.isnan(_allyC)]
@@ -389,7 +389,7 @@ if __name__ == '__main__':
         'ρ and p are computed on the nine per-mouse means). The deeper a mouse pushes its memory '
         'state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the '
         'GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change '
-        'predicts nothing for GNG (ρ = −0.07, p = .87; Go trials alone ρ = −0.20, p = .61; NoGo trials alone ρ = +0.60, p = .090, a ceiling effect of the already-high naïve NoGo accuracy, Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
+        'does not predict the change in NoGo accuracy (ρ = +0.60, p = .090, n.s.; the pooled Go-and-NoGo arm is ρ = −0.07, p = .87 and Go trials alone ρ = −0.20, p = .61). The positive trend on the NoGo arm is at least partly a ceiling: mice already withholding correctly on 82–95% of naïve NoGo trials had least room to gain (naïve NoGo accuracy against ΔNoGo, ρ = −0.87, p = .002), and controlling for it the association falls to +0.55 (p = .13), or +0.48 (p = .19) on a scale-free measure of the same gain. With nine mice none of this is resolved (Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
         'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. On the '
         'unpaired DPA trials of both stages, single-trial depth does not separate correct rejections from '
         'false alarms (sample A, Δ(CR−FA) = −0.23, p = .08; sample B, +0.09, p = .43; paired t over mice on '

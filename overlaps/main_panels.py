@@ -389,7 +389,18 @@ if PERFSET != 'all':
     FILE_SUF += f'_{PERFSET.lower()}perf'
 _PERF_MASK = {'all': y.tasks.notna(), 'DPA': y.tasks == 'DPA', 'dual': y.tasks != 'DPA'}[PERFSET]
 delta_dpa_perf_sample = _perf_delta_by_sample('performance', _PERF_MASK)
-delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    y.tasks != 'DPA')
+# 2026-09-21 (Leon): panel c's right arm reads NoGo accuracy instead of the pooled Go+NoGo one.
+# --gngperf = the pooled arm published through 2026-09-18 (rho -0.07, p .87), --goperf = Go trials only
+# (-0.20, p .61). CAVEAT the legend must carry: the NoGo arm is rho +0.60, p .090, and exp_push_nogo_ceiling.py
+# shows it is a CEILING effect of the already-high naive NoGo accuracy (naive NoGo accuracy vs dNoGo
+# rho -0.87 p .002; partial rank correlation of ddepth with dNoGo controlling for it +0.27, p .49).
+GNGSET = 'gng' if '--gngperf' in sys.argv[1:] else 'go' if '--goperf' in sys.argv[1:] else 'nogo'
+GNG_LABEL = {'gng': 'Δ GNG accuracy, dual trials', 'go': 'Δ Go accuracy, Go trials',
+             'nogo': 'Δ NoGo accuracy, NoGo trials'}[GNGSET]
+if GNGSET != 'nogo':
+    FILE_SUF += f'_{GNGSET}perf'
+_GNG_MASK = {'gng': y.tasks != 'DPA', 'go': y.tasks == 'DualGo', 'nogo': y.tasks == 'DualNoGo'}[GNGSET]
+delta_gng_perf_sample = _perf_delta_by_sample('odr_perf',    _GNG_MASK)
 
 
 def _panelC_coupling(perf_dict):
