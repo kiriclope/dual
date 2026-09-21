@@ -18,8 +18,12 @@ cross-validated unsupervised axes find the choice (DPA, η² 0.72/0.85) and the 
 axis third at 2–3% of the reliable variance. At MATCHED trial counts the manifold is no larger under distraction (all p ≥ .20)
 but the sample separation is lower on every dual set (Go p .008 naïve, .020 expert) and the Go/NoGo separation is what learning
 raises (0.33 → 0.46 at the late delay, p .004, 9/9).
-Artifacts: draft d338b195, figures 324c8888, ED 95df947e (the ED artifact predates the tenth figure — rebuild with
-`build_ed_artifact.py`). **Author-supplied gaps:** ED 8 images (histology, placements, FOVs,
+Shared artifacts (all three republished 2026-09-18/21): draft **d338b195**, figures **c6bb33d7**, ED **95df947e**.
+The figures page moved to a new link on 2026-09-21 because the old one (324c8888) was shared with a PINNED version:
+republishing updated only what the owner saw while link-holders kept the snapshot pinned when the page was first
+shared, so a coworker read the nine-figure build for three days after the renumbering. Advancing a pin is a
+share-menu action with no tool behind it. 324c8888 is retired, not deleted. Details: memory
+`reference_figure_viewing.md`. **Author-supplied gaps:** ED 8 images (histology, placements, FOVs,
 laser parameters, light-only control), confirmation of unilateral illumination, Methods placeholders (curriculum criteria,
 viral/laser parameters, registration metric, DOI), Fig 5 model. Behaviour-file clock rule: `docs/shared_data.md`.
 

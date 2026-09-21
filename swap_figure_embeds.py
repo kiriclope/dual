@@ -7,8 +7,14 @@ and the 4 MB page beside the figures it embeds, in `figures/paper_share/artifact
   cd /home/leon/dual && /home/leon/mambaforge/envs/dual/bin/python swap_figure_embeds.py Fig4_learning [Fig2_geometry ...]
 
 then publish the page with the Artifact tool, passing the artifact URL so it updates in place:
-  file_path = figures/paper_share/artifact_build/mpfc_dual_figures_v1.html
-  url       = https://claude.ai/code/artifact/324c8888-f67a-4a74-b581-d51ef0c73abd
+  file_path = figures/paper_share/artifact_build/mpfc_dual_figures_v2.html
+  url       = https://claude.ai/code/artifact/c6bb33d7-deab-4ddb-9bdc-b447fdd09db3
+
+RE-PUBLISHED UNDER A NEW LINK 2026-09-21. The v1 page (324c8888) was shared with a PINNED version, so
+every republish updated only what the owner saw while link-holders kept the snapshot pinned when the page
+was first shared — Leon's coworker was still reading the nine-figure build three days after the ED
+renumbering. Pinning is a share-menu action with no tool behind it, so the page was published as a fresh
+artifact instead. v2 is canonical; v1 and its URL are retired, not deleted.
 
 Web copies are max-dim 2800 + quantize(256) (~0.6-0.9 MB each) so the page stays under the 16 MB artifact cap;
 full-resolution PNG/SVG/PDF travel in dual_paper_figures.zip. If the page is ever lost again, recover it with
@@ -21,7 +27,7 @@ from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 ROOT = '/home/leon/dual/figures/paper_share'
 BUILD = f'{ROOT}/artifact_build'
-PAGE = f'{BUILD}/mpfc_dual_figures_v1.html'
+PAGE = f'{BUILD}/mpfc_dual_figures_v2.html'
 ORDER = ['Fig1_behaviour', 'Fig2_geometry', 'Fig3_one_manifold', 'Fig4_learning', 'Fig6_opto']
 
 targets = sys.argv[1:]
