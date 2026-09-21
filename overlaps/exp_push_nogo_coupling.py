@@ -13,6 +13,7 @@ tasks = sorted(y.tasks.unique()); print('tasks:', tasks)
 go = [t for t in tasks if 'go' in t.lower() and 'nogo' not in t.lower()][0]
 nogo = [t for t in tasks if 'nogo' in t.lower()][0]
 rows = [('DPA, DPA trials', 'performance', y.tasks == 'DPA'), ('DPA, dual trials', 'performance', y.tasks != 'DPA'),
+        ('DPA, ALL trials', 'performance', y.tasks.isin(tasks)),        # 2026-09-21: the all-trial arm Leon asked for
         ('DPA, Go trials', 'performance', y.tasks == go), ('DPA, NoGo trials', 'performance', y.tasks == nogo),
         ('GNG (Go+NoGo)', 'odr_perf', y.tasks != 'DPA'),
         ('Go only', 'odr_perf', y.tasks == go), ('NoGo only', 'odr_perf', y.tasks == nogo)]   # 2026-09-09: DPA arm by trial set
