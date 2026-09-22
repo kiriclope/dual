@@ -897,7 +897,7 @@ read with the logistic decoder (on the GNG-free DPA arm, the trial set of the Ex
 
 Two controls sharpen the interpretation. First, the push is a property of animals rather than
 of trials. On the unpaired DPA trials of both stages, the trial-by-trial depth of the state did not
-detectably separate correct rejections from false alarms (Fig. 4d; sample A Δ(CR−FA) = −0.23, p = 0.08; sample B +0.09, p = 0.43), so we found no evidence that the repositioning is a
+detectably separate correct rejections from false alarms (Fig. 4d; Δ = −0.06, within-mouse permutation p = 0.20, the test of Fig. 4b, with the two sample pairs pooled; 9 mice, 18 points), so we found no evidence that the repositioning is a
 readout of accuracy on the memory trials rather than a between-animal learning effect. On dual-task
 trials the picture differs, and the panel excludes them for that reason: the animal meets the Go/NoGo
 lick decision in the middle of their delay, and there the late-delay state does predict the upcoming
@@ -1462,10 +1462,7 @@ c, The push predicts behavior across animals. Each mouse’s change in depth aga
 accuracy (circles, the two sample classes per mouse, joined; the regression band, ρ and p are
 computed on the nine per-mouse means). The deeper a mouse pushes its memory state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change does not predict the change in NoGo accuracy (ρ = +0.60, p = .090, n.s.; the pooled Go-and-NoGo arm is ρ = −0.07, p = .87 and Go trials alone ρ = −0.20, p = .61). The positive trend on the NoGo arm is at least partly a ceiling: mice already withholding correctly on 82–95% of naïve NoGo trials had least room to gain (naïve NoGo accuracy against ΔNoGo, ρ = −0.87, p = .002), and controlling for it the association falls to +0.55 (p = .13), or +0.48 (p = .19) on a scale-free measure of the same gain. With nine mice none of this is resolved (Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).
 
-d, The push is a between-animal learning effect, not a trial-level readout of accuracy. On the
-unpaired DPA trials of both stages, single-trial depth does not separate correct rejections from
-false alarms (sample A, Δ(CR−FA) = −0.23, p = .08; sample B, +0.09, p = .43; paired t over mice on
-per-mouse medians). Dual trials are excluded from this panel because the animal meets the Go/NoGo
+d, The push is a between-animal learning effect, not a trial-level readout of accuracy. Late-delay depth on the unpaired DPA trials of both stages, split by the behavioural outcome, with the two sample pairs pooled (filled, sample A; open, sample B; one point per mouse and pair, joined). Depth does not separate correct rejections from false alarms: Δ = −0.06, within-mouse permutation p = .20 (the test of b, with the outcome label shuffled within each mouse over its unpaired trials, 10,000 draws, two-sided; 9 mice, 18 points). Points are clipped to the 10th–90th percentile for display and the test reads the unclipped trials. Dual trials are excluded from this panel because the animal meets the Go/NoGo
 lick decision in the middle of their delay: there the late-delay state does predict the upcoming
 false alarm (naïve, sample A: −0.53, p = .004 on Go trials and −0.44, p = .012 on NoGo trials), a
 trial-by-trial lick propensity rather than a readout of the memory (Methods).

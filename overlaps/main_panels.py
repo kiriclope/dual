@@ -466,8 +466,8 @@ FACR_STAGE = ('Naive' if '--naivefacr' in sys.argv[1:] else
 if FACR_STAGE != 'both':
     FILE_SUF += f'_{FACR_STAGE.lower()}facr'
 _facr_base = base_dpa_ch if FACR_STAGE == 'both' else (base_dpa_ch & (Lm.stage == FACR_STAGE).values)
-FACR_LABEL = {'both': 'Unpaired DPA trials, both stages', 'Naive': 'Naive unpaired DPA trials',
-              'Expert': 'Expert unpaired DPA trials'}[FACR_STAGE]
+FACR_LABEL = {'both': 'Unpaired DPA, both stages', 'Naive': 'Naive unpaired DPA',
+              'Expert': 'Expert unpaired DPA'}[FACR_STAGE]
 FACR_NAIVE = FACR_STAGE == 'Naive'                    # name kept for older callers
 
 
@@ -484,6 +484,25 @@ for lab, samp, odor_pair, col in FA_CR_SPEC:
         if len(a) >= MIN_TR and len(b) >= MIN_TR:
             va.append(_E_AGG(a)); vb.append(_E_AGG(b)); used.append(mouse)
     facr[lab] = dict(cr=np.array(va), fa=np.array(vb), used=used)
+# 2026-09-22 (Leon: "combine the two pairs and run the stats on both just as in panel B", then "redraw it
+# as a single pair"): panel d is now ONE correct-rejection / false-alarm pair pooling AD and BC. Points are
+# per (mouse, sample) MEANS, matching panel b's estimator; the test in the figure script is panel b's
+# within-mouse permutation, pooling both sample pairs within a mouse exactly as panel b pools its two sample
+# classes. The per-pair medians above are kept (facr) for the two-column build and for the printed companions.
+FACR_ONE = {'pts': [], 'trials': {}}
+for _lab, _samp, _op, _col in FA_CR_SPEC:
+    for _mouse in ALL_MICE:
+        _a = _facr_cell(_mouse, _op, 'correct_rej'); _b = _facr_cell(_mouse, _op, 'incorrect_fa')
+        if len(_a) >= MIN_TR and len(_b) >= MIN_TR:
+            FACR_ONE['pts'].append(dict(mouse=_mouse, samp=_samp, lab=_lab, colour=_col,
+                                        cr=float(_a.mean()), fa=float(_b.mean()),
+                                        n_cr=len(_a), n_fa=len(_b)))
+# the trial-level pool the permutation shuffles: unpaired laser-off DPA trials, both pairs, both stages
+_f1 = _facr_base & np.isin(op_arr, [1, 3]) & np.isin(resp_arr, ['correct_rej', 'incorrect_fa'])
+FACR_ONE['trials'] = {m: (depth_trial[_f1 & (Lm.mouse == m).values],
+                          (resp_arr[_f1 & (Lm.mouse == m).values] == 'incorrect_fa').astype(int))
+                      for m in ALL_MICE if (_f1 & (Lm.mouse == m).values).sum() > 0}
+
 # winsorise the per-mouse values to the 10–90th percentile across ALL cr/fa cells: a couple of mice have a
 # tiny pooled-evoked denominator so their whole depth distribution is huge (±15) — clip to keep E readable.
 # DISPLAY-ONLY: the paired t-test must run on cr_raw/fa_raw (clipping before testing is silent
@@ -711,7 +730,7 @@ __all__ = [
     'MIN_TR', 'VARS_A', 'VAR_GNG', 'SAMPLE_TRAJ',
     'SAMPLE_SPLITS_HIST', 'FA_CR_SPEC', 'D_SAMPLE_CLASSES', '_setup_A',
     '_draw_trace_col', '_lick_dprime', '_wax', '_act_cos',
-    '_norm_code', '_perf_delta_by_sample', '_panelC_coupling', '_facr_cell',
+    '_norm_code', '_perf_delta_by_sample', '_panelC_coupling', '_facr_cell', 'FACR_ONE',
     '_mouse_trajs_B', '_mouse_depth_B', '_draw_traj_B', '_draw_hist_B',
     'regression_band',
 ]

@@ -294,42 +294,54 @@ if __name__ == '__main__':
               mlines.Line2D([0], [0], marker='o', color='k', mfc='w', ls='none', ms=5, label='sample B')]
     # no legend in C: the filled/open glyph key sits directly above in the panel-B depth strip (review 2026-09-07)
 
-    # ── D: Naive nonpaired corr-rej vs false-alarm depth, sample A | sample B ──
+    # ── D: ONE corr-rej vs false-alarm pair, AD + BC pooled (2026-09-22, Leon: "redraw it as a single
+    #      pair"). Points are per (mouse, sample) MEAN depth; the test is panel b's WITHIN-MOUSE PERMUTATION
+    #      — the correct-rejection / false-alarm label is shuffled within each mouse over its unpaired
+    #      laser-off DPA trials, statistic = mean over mice of (mean CR − mean FA), 10,000 draws, two-sided.
+    #      Pooling the two sample pairs within a mouse is what panel b does with its two sample classes.
+    #      The median aggregator gives −0.111, p = .024, but that turns on one mouse (JawsM15, whose two
+    #      pairs disagree by 1.76 on false-alarm cells of 9 and 6 trials) — printed below, not drawn.
     axD = fig.add_subplot(gs[2, 6:9])
-    GX_FACR = {'AD': (0.0, 0.8), 'BC': (1.9, 2.7)}
-    for lab, samp, odor_pair, col in FA_CR_SPEC:
-        xc, xe = GX_FACR[lab]; r = facr[lab]
-        for ya, yb, mouse in zip(r['cr'], r['fa'], r['used']):
-            mc = MOUSE_COLOR[mouse]
-            axD.plot([xc, xe], [ya, yb], '-', color=mc, lw=0.7, alpha=0.5, zorder=2)
-            axD.scatter(xc, ya, s=34, facecolors=mc, edgecolors=mc, linewidths=1.0, zorder=3)
-            axD.scatter(xe, yb, s=34, facecolors='w', edgecolors=mc, linewidths=1.1, zorder=3)
-        for xx, vals in ((xc, r['cr']), (xe, r['fa'])):
-            if len(vals):
-                mu = vals.mean(); se = vals.std(ddof=1) / np.sqrt(len(vals)) if len(vals) > 1 else 0
-                axD.plot([xx - 0.18, xx + 0.18], [mu, mu], color='k', lw=1.3, zorder=4)
-                axD.errorbar(xx, mu, yerr=se, color='k', capsize=2.5, lw=1.2, zorder=4)
-        # stat on the UNCLIPPED per-mouse medians: the 10-90% clip in main_panels is display-only
-        # (testing the clipped values would be silent winsorisation, with clip bounds pooled
-        # across AD+BC so one pair's outliers would set the other's test)
-        n = len(r['cr']); d_mean = float((r['cr_raw'] - r['fa_raw']).mean()) if n else np.nan
-        tp = float(ttest_rel(r['cr_raw'], r['fa_raw']).pvalue) if n >= 3 else np.nan
-        sig = (tp == tp and tp < 0.05)
-        axD.text((xc + xe) / 2, 0.99, f'{lab} (sample {samp})', transform=axD.get_xaxis_transform(),
-                 ha='center', va='top', fontsize=PS*7, color=col)
-        axD.text((xc + xe) / 2, 0.87, '*' if sig else 'n.s.', transform=axD.get_xaxis_transform(),
-                 ha='center', va='top', fontsize=PS*12 if sig else 8, fontweight='bold', color='k' if sig else '0.55')
-        axD.text((xc + xe) / 2, 0.02, f'p={tp:.3f}', transform=axD.get_xaxis_transform(),
-                 ha='center', va='bottom', fontsize=PS*6.5, color='0.3')
-        print(f'C(FA/CR)[Naive {lab} sample {samp}] Δ(cr−fa)={d_mean:+.3f} paired-t p={tp:.3f} n={n}')
+    _P1 = _MP.FACR_ONE['pts']; _TR1 = _MP.FACR_ONE['trials']
+    _obs1 = np.mean([v[f_ == 0].mean() - v[f_ == 1].mean() for v, f_ in _TR1.values()])
+    _rng1 = np.random.RandomState(0); _null1 = np.empty(10000)
+    for _i in range(10000):
+        _null1[_i] = np.mean([(lambda ps: v[ps == 0].mean() - v[ps == 1].mean())(_rng1.permutation(f_))
+                              for v, f_ in _TR1.values()])
+    _p1 = float((np.abs(_null1) >= abs(_obs1)).mean())
+    _obsM = np.mean([np.median(v[f_ == 0]) - np.median(v[f_ == 1]) for v, f_ in _TR1.values()])
+    _cr1 = np.array([p['cr'] for p in _P1]); _fa1 = np.array([p['fa'] for p in _P1])
+    _lo1, _hi1 = np.nanpercentile(np.r_[_cr1, _fa1], [10, 90])          # DISPLAY-ONLY clip, as in the old build
+    XC1, XE1 = 0.0, 1.0
+    for _pt, _yc, _yf in zip(_P1, np.clip(_cr1, _lo1, _hi1), np.clip(_fa1, _lo1, _hi1)):
+        mc = MOUSE_COLOR[_pt['mouse']]; filled = _pt['samp'] == 'A'
+        axD.plot([XC1, XE1], [_yc, _yf], '-', color=mc, lw=0.7, alpha=0.5, zorder=2)
+        axD.scatter(XC1, _yc, s=34, facecolors=mc if filled else 'w', edgecolors=mc, linewidths=1.1, zorder=3)
+        axD.scatter(XE1, _yf, s=34, facecolors=mc if filled else 'w', edgecolors=mc, linewidths=1.1, zorder=3)
+    for xx, vals in ((XC1, np.clip(_cr1, _lo1, _hi1)), (XE1, np.clip(_fa1, _lo1, _hi1))):
+        mu = vals.mean(); se = vals.std(ddof=1) / np.sqrt(len(vals))
+        axD.plot([xx - 0.22, xx + 0.22], [mu, mu], color='k', lw=1.3, zorder=4)
+        axD.errorbar(xx, mu, yerr=se, color='k', capsize=2.5, lw=1.2, zorder=4)
+    _sigD = _p1 < 0.05
+    axD.text(0.5, 0.99, f'within-mouse permutation\n({len(_TR1)} mice, {len(_P1)} points)',
+             transform=axD.transAxes, ha='center', va='top', fontsize=PS*6.2, color='0.3')
+    axD.text(0.5, 0.86, '*' if _sigD else 'n.s.', transform=axD.transAxes, ha='center', va='top',
+             fontsize=PS*12 if _sigD else 8, fontweight='bold', color='k' if _sigD else '0.55')
+    axD.text(0.5, 0.79, f'Δ={_obs1:+.3f}, p={_p1:.3f}', transform=axD.transAxes,
+             ha='center', va='top', fontsize=PS*6.5, color='0.3')
+    print(f'D(FA/CR) one pair: Δ(cr−fa)={_obs1:+.3f} perm p={_p1:.4f} n={len(_TR1)} mice, {len(_P1)} points'
+          f'   [median aggregator Δ={_obsM:+.3f}]')
     axD.axhline(0, ls=':', color='0.6', lw=0.7)
     _y0D, _y1D = axD.get_ylim()
-    axD.set_ylim(_y0D, _y1D + 0.30 * (_y1D - _y0D))   # headroom so the pair titles/stars clear the data
-    axD.set_xticks([0.0, 0.8, 1.9, 2.7])
-    axD.set_xticklabels(['corr.\nrej.', 'false\nalarm', 'corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
-    axD.set_xlim(-0.5, 3.2)
+    axD.set_ylim(_y0D - 0.04 * (_y1D - _y0D), _y1D + 0.52 * (_y1D - _y0D))
+    axD.set_xticks([XC1, XE1]); axD.set_xticklabels(['corr.\nrej.', 'false\nalarm'], fontsize=PS*6.5)
+    axD.set_xlim(-0.45, 1.45)
     axD.set_ylabel('choice-code depth', fontsize=PS*7.5)
     axD.set_title(_MP.FACR_LABEL, loc='left', fontsize=TITLE_FS)
+    axD.legend(handles=[mlines.Line2D([0], [0], marker='o', ls='none', ms=5, color='0.35', label='sample A'),
+                        mlines.Line2D([0], [0], marker='o', ls='none', ms=5, mfc='w', mec='0.35', label='sample B')],
+               frameon=False, loc='lower center', bbox_to_anchor=(0.5, -0.40), ncol=2,
+               handletextpad=0.2, columnspacing=0.8, fontsize=PS*6.2)
     axD.set_box_aspect(1)
 
     # ── E: within-task choice-code d′ (Naive vs Expert) — decodability UNCHANGED ⇒ the push (B) is a
@@ -390,10 +402,13 @@ if __name__ == '__main__':
         'state, the more its DPA accuracy improves (all laser-off trials, ρ = −0.70, p = .036 ∗; on the '
         'GNG-free DPA trials alone ρ = −0.80, p = .010 ∗), whereas the same change '
         'does not predict the change in NoGo accuracy (ρ = +0.60, p = .090, n.s.; the pooled Go-and-NoGo arm is ρ = −0.07, p = .87 and Go trials alone ρ = −0.20, p = .61). The positive trend on the NoGo arm is at least partly a ceiling: mice already withholding correctly on 82–95% of naïve NoGo trials had least room to gain (naïve NoGo accuracy against ΔNoGo, ρ = −0.87, p = .002), and controlling for it the association falls to +0.55 (p = .13), or +0.48 (p = .19) on a scale-free measure of the same gain. With nine mice none of this is resolved (Methods). The coupling is specific to the memory task, and it is a property of the stage-specific readouts: on one choice axis fitted to both stages together it does not hold (ρ = +0.65, p = .058; Extended Data Fig. 7c).',
-        'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. On the '
-        'unpaired DPA trials of both stages, single-trial depth does not separate correct rejections from '
-        'false alarms (sample A, Δ(CR−FA) = −0.23, p = .08; sample B, +0.09, p = .43; paired t over mice on '
-        'per-mouse medians). Dual trials are excluded from this panel because the animal meets the Go/NoGo '
+        'd, The push is a between-animal learning effect, not a trial-level readout of accuracy. Late-delay '
+        'depth on the unpaired DPA trials of both stages, split by the behavioural outcome, with the two '
+        'sample pairs pooled (filled, sample A; open, sample B; one point per mouse and pair, joined). Depth '
+        'does not separate correct rejections from false alarms: Δ = −0.06, within-mouse permutation p = .20 '
+        '(the test of b, with the outcome label shuffled within each mouse over its unpaired trials, 10,000 '
+        'draws, two-sided; 9 mice, 18 points). Points are clipped to the 10th–90th percentile for display and '
+        'the test reads the unclipped trials. Dual trials are excluded because the animal meets the Go/NoGo '
         'lick decision in the middle of their delay: there the late-delay state does predict the upcoming '
         'false alarm (naïve, sample A: −0.53, p = .004 on Go trials and −0.44, p = .012 on NoGo trials), '
         'a trial-by-trial lick propensity rather than a readout of the memory (Methods).',
