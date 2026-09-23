@@ -1,3 +1,32 @@
+> **2026-09-22/23 — FIG. 4 PANELS c AND d REDEFINED. This supersedes every panel-c/d description below.**
+> **c left arm** = Δ DPA accuracy on ALL laser-off trials (ρ = −0.70, p = .036; GNG-free DPA trials alone
+> −0.80, p = .010; dual trials alone −0.70, p = .036). `main_panels.PERFSET` defaults to `'all'`; `--dpaperf`
+> and `--dualperf` restore the alternatives. **c right arm** = Δ NoGo accuracy on NoGo trials (ρ = +0.60,
+> p = .090, n.s.); `--gngperf` restores the pooled Go-and-NoGo arm (−0.07, p = .87), `--goperf` gives Go only
+> (−0.20, p = .61). AWAITING LEON'S SIGN-OFF — committed and rendered but NOT on the shared figures page.
+> The NoGo trend is only PARTLY a ceiling: naïve NoGo accuracy predicts the NoGo gain ρ = −0.87 p = .002, but
+> the partial rank correlation with the push is **+0.55, p = .13** (the +0.27, p = .49 quoted in older blocks
+> and in Methods until 2026-09-21 was computed on the evoked-s.d. unit retired in v12.29), and a relative-gain
+> or logit measure gives +0.48, p = .19.
+> **d** = ONE correct-rejection / false-alarm pair on the unpaired DPA trials of BOTH stages, the two sample
+> pairs pooled (filled sample A, open sample B, one point per mouse and pair). Statistic = panel b's
+> within-mouse permutation, outcome label shuffled within each mouse, mean over mice of (mean CR − mean FA),
+> 10,000 draws, two-sided: **Δ = −0.058, p = .196**, 9 mice, 18 points. Null, so the panel keeps its role as
+> the control against a within-stage readout of accuracy. `--naivefacr` / `--expertfacr` restore single-stage
+> builds. Points drawn are per (mouse, sample) MEANS, matching the estimator; display is clipped to the
+> 10th–90th percentile while the test reads unclipped trials.
+> **Three traps recorded from this round**, all in memory `project_overlaps_main_native`:
+> (i) letting DUAL trials into panel d reverses it (Δ −0.41, p = .006) — the effect is carried entirely by the
+> dual trials, where the animal meets the Go/NoGo lick decision mid-delay (naïve sample A: DPA −0.17 p .105,
+> Go −0.53 p .004, NoGo −0.44 p .012), a lick-propensity signal, not a memory readout; keep dual trials out.
+> (ii) `exp_coupling_variants.py` reads the MODULE-LEVEL `delta_dpa_perf_sample`, so changing panel c's default
+> silently moved ED 7's decoder battery (L1 fell from p .025 to .058); it is now PINNED to the DPA arm.
+> (iii) panel d's verdict depends on the within-mouse aggregator — the median gives Δ −0.111, p = .024, which
+> does not survive dropping one animal (JawsM15, whose two sample pairs disagree by 1.76 on false-alarm cells
+> of 9 and 6 trials). The mean is drawn because it is panel b's estimator.
+> Stage splits of the drawn panel d, all null: both −0.058 p .196 (9 mice), naïve −0.082 p .167 (9 mice),
+> expert +0.109 p .176 (5 mice, 64 FA trials, 33 of them from ACCM04).
+
 > **2026-09-16:** panel b's drawn statistic is now the within-mouse permutation test (p .006), not the mixed model (p .103, kept in
 > ED 6a); the per-trial depth behind it is `main_panels.lick_depth[L_trials_B]` (raw). See `overview.md` top note.
 

@@ -1,3 +1,7 @@
+> **2026-09-22/23 — Fig. 4 panels c and d redefined** (c left = all laser-off trials, c right = Δ NoGo
+> accuracy pending sign-off, d = one CR/FA pair over both stages with panel b's permutation test,
+> Δ −0.058 p .196). Full definitions, flags and the three traps: `main_figure.md` top banner.
+
 > **2026-09-16 — Fig 4b PUSH STATISTIC:** the drawn test is a within-mouse permutation test (stage labels shuffled within each
 > mouse over its laser-off DPA trials, statistic = mean per-mouse Δ, 10,000 draws, two-sided): Δ −0.078, p = .006. The
 > across-animal mixed model (β −0.078, p .103) and per-mouse paired t (p .19) remain in ED 6a as conservative companions; the

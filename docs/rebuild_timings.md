@@ -105,3 +105,8 @@ place or from somewhere less direct.
 | 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | pca/exp_manifold_matched.py (20 draws, 4 sets x 3 windows) | 1.6 | measured in place |
 | 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | pca/fig_ed_geometry.py (caches only, both builds) | 0.2 | measured in place (make_ed_figures.py row) |
 | 2026-09-18 13:38 | ED 4 geometry (2026-09-18) | make_ed_figures.py, ten figures, two builds each + PDFs | 1.7 | measured in place |
+| 2026-09-23 13:28 | Fig 4 panels c/d rework (2026-09-21/23) | fig_overlaps_main_native.py (one build, panel d permutation 10k draws included) | 0.6 | measured in place |
+| 2026-09-23 13:28 | Fig 4 panels c/d rework (2026-09-21/23) | make_submission_figs.py Fig4_learning (nocap + captioned + PDF) | 0.6 | measured in place |
+| 2026-09-23 13:28 | Fig 4 panels c/d rework (2026-09-21/23) | overlaps/exp_coupling_variants.py (l2 + l1 + lda, three tensors) | 0.4 | measured in place |
+| 2026-09-23 13:28 | Fig 4 panels c/d rework (2026-09-21/23) | overlaps/exp_push_nogo_coupling.py / exp_push_nogo_ceiling.py (cached tensor) | 0.2 | measured in place |
+| 2026-09-23 13:28 | Fig 4 panels c/d rework (2026-09-21/23) | swap_figure_embeds.py + build_draft_artifact.py + build_ed_artifact.py (three pages) | 0.8 | measured in place |

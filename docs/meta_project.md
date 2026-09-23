@@ -1,8 +1,8 @@
 # Project: mPFC Population Geometry (Dual Task)
 
-## Manuscript state (2026-09-18)
+## Manuscript state (2026-09-23)
 
-Draft `docs/paper/results_draft.md` **v12.53**, `discussion_draft.md` **v6.5** (both reviewed as a Nature Neuroscience reviewer
+Draft `docs/paper/results_draft.md` **v12.56**, `discussion_draft.md` **v6.5** (both reviewed as a Nature Neuroscience reviewer
 would on 2026-09-15/16; the dated `>` banners at the top of results_draft.md are the changelog). Five main figures
 (`make_submission_figs.py`, 183 mm PDFs in `figures/paper_share/submission/`), **ten Extended Data figures in first-citation
 order** (`make_ed_figures.py`: 1 behaviour/licks, 2 imaging/drift, 3 dimensionality, 4 unsupervised geometry, 5 plane, 6 dPCA,
@@ -25,7 +25,7 @@ shared, so a coworker read the nine-figure build for three days after the renumb
 share-menu action with no tool behind it. 324c8888 is retired (retitled "OLD Figures page (retired)" with a do-not-share banner, because two identically-named entries in the gallery made the wrong one easy to share), not deleted. Details: memory
 `reference_figure_viewing.md`. **Author-supplied gaps:** ED 8 images (histology, placements, FOVs,
 laser parameters, light-only control), confirmation of unilateral illumination, Methods placeholders (curriculum criteria,
-viral/laser parameters, registration metric, DOI), Fig 5 model. Behaviour-file clock rule: `docs/shared_data.md`.
+viral/laser parameters, registration metric, DOI), Fig 5 model. Fig 4d is one CR/FA pair over both stages on unpaired DPA trials, tested with panel b's within-mouse permutation (Δ −0.058, p .196, 9 mice, 18 points) — null, so it still serves as the control against a within-stage readout. **OPEN DECISION:** Fig 4c's right arm is committed on Δ NoGo accuracy (ρ +0.60, p .090) but NOT published; `--gngperf` restores the pooled Go-and-NoGo arm (−0.07, p .87). The shared figures and draft pages are held until that is settled. Fig 4 panel definitions, flags and traps: `docs/overlaps/main_figure.md` top banner. Behaviour-file clock rule: `docs/shared_data.md`.
 
 ## Paper hypothesis
 

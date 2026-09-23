@@ -1,3 +1,7 @@
+> **2026-09-22/23 — Fig. 4 panels c and d redefined** (c left = all laser-off trials, c right = Δ NoGo
+> accuracy pending sign-off, d = one CR/FA pair over both stages with panel b's permutation test,
+> Δ −0.058 p .196). Full definitions, flags and the three traps: `main_figure.md` top banner.
+
 > **2026-09-16 — Fig 4b push statistic changed:** the drawn test is a within-mouse permutation test (stage labels shuffled
 > within each mouse, statistic = mean per-mouse Δ, two-sided): Δ −0.078, **p = .006**. The mixed model (β −0.078, p .103)
 > quoted in older notes below is the across-animal companion, kept in ED 6a. Details: `docs/overlaps/overview.md` top note,

@@ -1,6 +1,31 @@
 # Compositional learning by geometric editing — main paper (draft v12)
 
-> **v12.55 (2026-09-21): FIG. 4d POOLS BOTH STAGES, ON THE DPA TRIALS** (Leon: "use all trials for the
+> **v12.56 (2026-09-23): FIG. 4d IS ONE CR/FA PAIR, TESTED AS PANEL b IS** (Leon: "combine the two pairs and
+> run the stats on both just as in panel B", then "redraw it as a single pair"). Both sample pairs pooled,
+> filled sample A and open sample B, one point per mouse and pair. Statistic = panel b's within-mouse
+> permutation (outcome label shuffled within each mouse over its unpaired laser-off DPA trials, mean over mice
+> of mean CR − mean FA, 10,000 draws, two-sided): **Δ = −0.058, p = .196**, 9 mice, 18 points. Still null, so
+> §4's first control keeps its conclusion. Drawn points are per (mouse, sample) MEANS, matching the estimator.
+> The median aggregator gives −0.111, p = .024 but does not survive dropping one animal (−0.052, p = .24;
+> JawsM15's two sample pairs disagree by 1.76 on false-alarm cells of 9 and 6 trials), so it is printed to the
+> console and not reported. Stage splits, all null and available as a robustness line: naïve −0.082, p = .167
+> (9 mice); expert +0.109, p = .176 (only 5 mice clear the three-trial minimum, 33 of the 64 false alarms from
+> one animal). `--naivefacr` / `--expertfacr` draw the single-stage builds.
+
+> **v12.55 (2026-09-21): FIG. 4c RIGHT ARM READS Δ NoGo ACCURACY** (Leon: "can you do panel c gng but with
+> delta nogo accuracy instead") — **NOT YET PUBLISHED, awaiting sign-off.** ρ = +0.60, p = .090 (n.s.), against
+> the pooled Go-and-NoGo arm it replaces (−0.07, p = .87) and Go trials alone (−0.20, p = .61). This changes
+> what the panel argues: the right arm was the specificity control showing the push predicts the memory gain
+> and nothing for the Go/NoGo task, and on NoGo accuracy it is a positive trend rather than a clean null.
+> `--gngperf` restores the published arm. In the same pass the Methods ceiling sentence was found to carry
+> numbers from the evoked-s.d. unit retired in v12.29, and to disagree with the Results body on the same
+> statistic: the partial rank correlation of the push with the NoGo gain controlling for naïve NoGo accuracy
+> is **+0.55, p = .13** (Methods said +0.27, p = .49), a relative-gain or logit measure gives +0.48, p = .19,
+> and depth and NoGo accuracy are unrelated at either stage (+0.24, p = .53 naïve; +0.45, p = .22 expert). The
+> ceiling therefore accounts for part of the NoGo trend rather than all of it, and the wording no longer
+> claims otherwise. That correction stands whichever arm is drawn.
+
+> **v12.54b (2026-09-21): FIG. 4d POOLS BOTH STAGES, ON THE DPA TRIALS** (Leon: "use all trials for the
 > x axis, and DPA trials for computing the depth", then the correction "only DPA trials, both paired and
 > unpaired"). Panel d now averages DPA-trial depth over naïve AND expert unpaired trials: sample A
 > Δ(CR−FA) = −0.23, p = .08; sample B +0.09, p = .43. Still null, so the panel keeps its role as the control
