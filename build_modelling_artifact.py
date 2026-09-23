@@ -27,7 +27,7 @@ def uri(fp):
 fig5=f'{FIGDIR}/fig5_model.png'
 if os.path.exists(fig5):
     html['extended']=re.sub(r'(<p>Figure 5 \|)', f'<p><img src="{uri(fig5)}" alt="Figure 5" style="max-width:100%"></p>\n\\1', html['extended'], count=1)
-for n in range(11,19):
+for n in range(11,20):
     fp=f'{FIGDIR}/ed{n}.png'
     if os.path.exists(fp): html['extended']=re.sub(rf'(<p>Extended Data Fig\. {n} \|)', f'<p><img src="{uri(fp)}" alt="ED {n}" style="max-width:100%"></p>\n\\1', html['extended'], count=1)
 tpl=open(f'{BUILD}/modelling_template.html').read()

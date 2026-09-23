@@ -1,4 +1,8 @@
-# A circuit model of the gated no-lick repositioning — modelling section (draft v1.4)
+# A circuit model of the gated no-lick repositioning — modelling section (draft v1.7)
+
+> **v1.7 (2026-09-23): the objective is now the probit cross-entropy of every scored event (Methods, eq. 6); new Results section on the depth law and the other computables; Supplementary Note §13. Numbers to be re-anchored on the eight networks of `sweep_lif_log` when they land.**
+
+> **v1.6 (2026-09-23): the no-lick ablation (ED 19) — without the dual-stage no-lick term the wells rise into the lick half in 12/12, tied or not: the cost is the push, the symmetry its geometry. v1.5: every accuracy in Fig. 5, ED 17 and ED 18 rescored with the any-time lick criterion (a lick = κ₁ crossing the line at any step of the window, as for the animals); NoGo is then ≈ 0 at the trained wells, and the perturbation (drive to the cue) shows the NoGo response appearing only for wells 2–3 η deep.**
 
 > **v1.4 (2026-09-22, night): the post-stimulus scoring sweep landed — the NoGo paragraph is rewritten from it (the post-cue lick was priced all along; the networks pay the price). Fig. 5 re-laid out on Leon's plan — a model, b curriculum, c the symmetries with a tied network's flow under each element, d the group across the curriculum, e the push, f–h performance against the well position; the lick probabilities, the checkpoint flows and the populations move to Extended Data Fig. 18.**
 
@@ -75,6 +79,15 @@ disk |κ| ≤ 1.5, median 0.30 and 0.57 after DPA, 0.80 and 0.83 after Dual), an
 (median 0.25 at every checkpoint). This is why the push of Fig. 5e is a rigid displacement: the element
 that survives exchanges the two samples and fixes the choice axis, so the wells move together, to one height.
 
+The cost, not the symmetry, is what moves the wells. Removing the no-lick term from the dual stage alone,
+everything else unchanged, sends both wells up into the lick half in every network (12/12; 0.2 to 1.5 η above
+the line after the dual stage, against 0.6 to 1.9 η below with the term), whether the network is free, tied
+to σ₁ during DPA, or tied to σ₁ through the whole curriculum (Extended Data Fig. 19). With the tie held
+throughout the two wells stay at exactly one height while they rise. The remaining terms of the dual
+objective, the Go response and the pairing, are not neutral on the choice axis: they leave a net upward pull
+on the delay state, and the no-lick term is what overrides it. The symmetry fixes the geometry of the push,
+one height for the two wells; the one-signed cost fixes its direction.
+
 ## Holding the symmetry during DPA training makes the repositioning reliable
 
 If the symmetry is what keeps the memory on the line and the dual cost is what moves it, then holding the
@@ -138,27 +151,58 @@ should move performance, and the two tasks should be pulled in opposite directio
 no-lick half is safer against a NoGo lick but further from the lick threshold the test must reach on a
 paired trial. We tested this in the trained networks by a delay-only perturbation that mimics the optogenetic
 manipulation of Fig. 6, a constant drive to every unit in proportion to its choice write weight m₁, applied
-from the end of the sample until the stimulus to be read out arrives (Methods). The drive shifts the state
+from the end of the sample until the stimulus that triggers the response arrives (Methods). The drive shifts the state
 along the choice axis while it lasts and leaves the trained field, including the test-driven one, untouched;
 so the well is moved without retraining and without acting on the response. Because both wells move
 together, each drive strength gives two well locations, one per sample. Across eight networks, 81 drive
 strengths and both wells, DPA accuracy stayed at ceiling for wells from 1.8 η below the line to 2 η above it
-and fell on both sides (Fig. 5f): for deeper wells from misses only (mean 0.66 below −2.4 η; Spearman
-ρ = 0.88 over the wells below the trained position), and for wells more than 2 η above the line from false
-alarms only (the unpaired trial no longer returns below the line before the response is read; ρ = −0.63
-above +2 η). Go/NoGo accuracy stayed at ceiling for every well below the line (mean 0.98) and fell as the
-well rose above it, from NoGo licks only (Fig. 5g; ρ = −0.71; at 2 η above the line NoGo accuracy 0.53 to
-0.60). Combining the two as the probability that both responses of a dual trial are correct, the product of
-the two accuracies, gives the dual performance as a function of the well position (Fig. 5h): it peaks at
-0.97 for wells 0.5 to 1 η below the line and falls on both sides, to 0.63 at 2 η below and 0.67 at 2 η
-above. The trained position, 0.9 η below the line when the odor arrives, is at the peak: it is the
-compromise the dual cost selects, as deep as DPA allows and no deeper. The group reads these curves
-directly. Under σ₁, which every stage keeps, the drive maps the A well onto the B well, so the two wells
-sit at one height and give the same performance at every drive (the A and B points coincide in Fig. 5f–h).
-Under σ₃, which the dual cost breaks, performance would be a mirror-symmetric function of the well position
-about the lick line and the optimum would sit on the line; the measured curves are not symmetric (Fig. 5h,
-the σ₃ image of the dual curve), and the optimum is below the line by the same asymmetry that moved the
-wells there. A control that moves the wells by a parameter change instead, a mean added to n₁,
+and fell on both sides (Fig. 5f): for deeper wells from misses only (mean 0.73 below −2.4 η; Spearman
+ρ = 0.85 over the wells below the trained position), and for wells more than 2 η above the line from false
+alarms only (the unpaired trial no longer returns below the line before the response is read; mean 0.79).
+Go/NoGo accuracy, scored as the animals are, a lick being any crossing of the line in the response window,
+depends on the well the cue finds: at the trained position, 0.9 η below the line, the cue's transient
+crosses the line on nearly every NoGo trial (NoGo 0.02), and the NoGo response only appears as the well is
+pushed deeper, 0.31 at 2 to 2.5 η below, 0.61 at 2.5 to 3 η, 0.78 to 0.89 beyond 3 η, where Go begins to
+fail (0.77 to 0.88) because the cue no longer lifts the state across the line (Fig. 5g; ρ = −0.85). The two
+tasks are traded against each other along the choice axis. Combining them as the probability that both
+responses of a dual trial are correct, the product of the two accuracies, gives the dual performance as a
+function of the well position (Fig. 5h): it is 0.51 at the trained position and peaks at 0.64 for wells 2 to
+3 η below the line, where the NoGo gain outweighs the DPA misses. The trained position is therefore not the
+optimum of the animals' criterion: it is the optimum of the objective the network was trained on, whose
+no-lick term prices the mean excursion above the line rather than any crossing (Methods), and under which
+the transient costs little. A network trained to withhold any lick would have to place its wells 2 to 3 η
+deep and pay for it in DPA misses.
+
+The group reads these curves directly. Under σ₁, which every stage keeps, the drive maps the A well onto the
+B well, so the two wells sit at one height and give the same performance at every drive (the A and B points
+coincide in Fig. 5f–h). Under σ₃, which the dual cost breaks, performance would be a mirror-symmetric
+function of the well position about the lick line; the measured curves are not (Fig. 5h, the σ₃ image of
+the dual curve), by the same asymmetry that moved the wells there.
+
+## The likelihood of the lick sets the depth of the wells
+
+Because the objective is the likelihood of the behavior, the geometry it produces is computable
+(Supplementary Note §13). The no-lick term pushes a well down with a force that decays like the Gaussian tail
+of the noise, and the paired response pulls it up with the mirror tail centered on the state the test
+displaces it to; with each term a mean over its own steps the window lengths cancel, and the well settles
+where the two tails balance,
+
+$$d^\ast = \frac{k}{2} + \frac{\eta^2}{k}\ln\frac{w_{\mathrm{nl}}}{w_{\mathrm{p}}},$$
+
+half the test-evoked displacement k below the line at equal weights, plus a logarithmic correction. The
+networks obey it: with k measured on paired trials and d from the delay, d/(k/2) = 1.01 ± 0.03 for the
+probability cost and 1.08 ± 0.06 for its cross-entropy over four seeds each, against 0.85 ± 0.13 for
+networks trained on a softplus at the wrong scale, which optimize a different model [to be re-stated on the
+eight networks of the final recipe]. The same likelihood converts any geometry to behavior, per-step false
+alarms Φ(−d) at the well and hits Φ(k − d) at the test, which is the model's psychometric function and the
+formula behind Fig. 5f–h; it gives the optimum under the animals' any-crossing criterion, the same balance
+with the window lengths in place of the weights, which is why that optimum lies deeper than the trained well
+by ln(T_NoGo/T_test)/k; it drives the carrier of the symmetry break, the mean of the choice readout, downward
+at a rate set by the hazard at the well, fast near the line and vanishing once the well is deep; it makes the
+objective convex in the height of the well, so the four-well configuration of the whole-group tie is a
+DPA-stage object and not a dual-stage optimum; and its curvature at the well, the Fisher information of the
+lick model, is the stiffness with which training holds the well against a displacement such as the
+optogenetic one of Fig. 6. A control that moves the wells by a parameter change instead, a mean added to n₁,
 shifts the readout itself together with the field, so every response moves with the well and both tasks
 collapse on either side of the trained position (Extended Data Fig. 17); only a drive confined to the
 delay isolates the position of the well.
@@ -186,12 +230,17 @@ the state it induces (0.37).
 Trials follow Fig. 1a with dt = 15 ms: DPA (sample 2–3 s, test 8–9 s, 11 s trials), Go/NoGo (odor 2–3 s,
 cue 4–4.5 s), dual (sample, Go/NoGo odor, cue, test at 2, 4, 6, 8 s). Each network was trained on DPA
 (250 epochs), then Go/NoGo (100), then the dual task (150), with the sample mode and the sample inputs
-frozen during Go/NoGo and all inputs and the bias frozen during the dual stage. The loss is a hinge on the
-readout: the pairing decision must exceed ±1 in the last 0.5 s of the test, the Go response must exceed +1
-in the last 0.5 s of the cue, and a lick is penalized wherever it is wrong, κ₁ ≤ 0 on NoGo trials and
-throughout the delay of dual trials (the no-lick cost, eq. 6); the sample is held on κ₀ for 0.5 s after
-its offset; the state is pinned at zero before the sample. Nothing else constrains κ₁, in particular
-nothing during the DPA delay. Adam, learning rate 0.01, batch 516 trials, eight seeds.
+frozen during Go/NoGo and all inputs and the bias frozen during the dual stage. Every event the animal is
+scored on is priced by the likelihood of a probit lick model with the network's own noise as its scale: a
+lick at step t is the event that the noisy readout crosses the line, P(lick) = Φ(κ₁(t)/η), and the cost of a
+required lick is −log Φ(κ₁/η), of a required no-lick −log Φ(−κ₁/η) (eq. 6). A lick is required in the last
+0.5 s of the test on paired trials and in the last 0.5 s of the cue on Go trials; a no-lick is required in
+the last 0.5 s of the test on unpaired trials, on NoGo trials from cue onset to the test, and throughout the
+delay of the dual trials that carry no Go/NoGo odor, which sit on the memory wells. The internal requirements
+keep quadratic forms: the sample is held on κ₀ for 0.5 s after its offset, the Go/NoGo rule on κ₁ for 0.2 s
+before the cue, and the state is pinned at zero before the sample. Nothing else constrains κ₁, in particular
+nothing during the DPA delay. Adam, learning rate 0.01, batch 516 trials, eight seeds. [Networks of the
+earlier hinge-and-softplus objective are kept for comparison: Extended Data Fig. 20.]
 
 ### Symmetries and ties
 
@@ -222,18 +271,27 @@ how far its autonomous field is from respecting σ.
 
 ### The dual cost as a breaking field
 
-With $\theta$ the lick threshold and $W$ the windows where a lick is wrong,
+With $W$ the steps where a lick is wrong and $H(x) = \varphi(x)/\Phi(-x)$ the Gaussian hazard,
 
-$$L_{\mathrm{nl}} = \sum_{t\in W}\mathrm{relu}\big(\kappa_1(t)\big)^2, \qquad \partial L_{\mathrm{nl}}
-/ \partial\kappa_1 = 2\,\mathrm{relu}(\kappa_1) \ge 0, \tag{6}$$
+$$L_{\mathrm{nl}} = \Big\langle -\log\Phi\big(-\kappa_1(t)/\eta\big)\Big\rangle_{t\in W}, \qquad
+\frac{\partial L_{\mathrm{nl}}}{\partial\kappa_1} = \frac{1}{\eta}\,H\big(\kappa_1/\eta\big) > 0, \tag{6}$$
 
 is invariant under κ₁ → −κ₁ for no window, so every element with a minus sign on κ₁ is broken by the dual
-objective and its gradient is one-signed. For a transfer function that is a constant plus an odd function,
+objective and its gradient is one-signed; the gradient decays like the Gaussian tail below the line, which is
+what sets the depth of the wells (Supplementary Note §13). For a transfer function that is a constant plus an odd function,
 the field's even part is $\Psi(\kappa) + \Psi(-\kappa) = 2c\langle n\rangle + \tfrac1N\sum_i n_i
 [\psi(u_i + \beta_i) - \psi(u_i - \beta_i)]$ (eq. 5), so with the bias frozen the dual cost can break the
 inversion only through $\langle n_1\rangle$.
 
 ### Readouts
+
+A lick is scored when κ₁ crosses zero at any step of the response window (the last 0.5 s of the cue for the
+Go/NoGo response and of the test for the pairing response, or the 0.5 s after each stimulus in the post-stimulus
+configuration), the criterion used for the animals, where any lick in the window counts. The training sweeps'
+own accuracies (Extended Data Figs 13–17) use the window mean of κ₁ instead, the criterion of the training code;
+the two agree for DPA and Go, whose states sit 2 to 3 η from the line throughout the window, and differ for NoGo,
+where the cue drives a transient of 0.4 to 0.9 η above the line that the window mean averages away (Results).
+Every NoGo number in the main text and in Fig. 5 uses the any-time criterion unless stated otherwise.
 
 Wells are the stable zeros of the noise-averaged field found from 41 seeds on the disk |κ| ≤ 2.5 and
 classified by their Jacobian; the memory wells are the attractors with |κ₀| > 0.5 nearest the line on each
@@ -245,17 +303,18 @@ quadrants of units with |m₀| > 1.5, the pure-choice pair the units with |m₀|
 
 To move the memory wells along the choice axis without retraining, a constant per-unit drive δ·m̂₁ (m̂₁ the
 choice write vector scaled to unit r.m.s.) was added to the input current of every unit on every trial, from
-sample offset until the onset of the stimulus to be read out: the test on DPA-only trials, the Go/NoGo odor
-on dual trials. The drive is off while the response is formed, so the trained field, including its
+sample offset until the onset of the stimulus that triggers the response: the test on DPA-only trials, the
+cue on dual trials. The drive is off while the response is formed, so the trained field, including its
 test-driven part, acts unchanged from a displaced starting point. δ took 81 values from −0.6 to 1.0. For
 each network and δ, 2048 DPA-only trials and 2048 dual trials were simulated under the trained noise. The
 well location of each sample is the mean κ₁ (in units of η) of that sample's trials at the last step of the
 drive; DPA accuracy is scored per sample on DPA-only trials and Go/NoGo accuracy per sample on dual trials,
-with the scoring windows of the training configuration; the dual performance is the product of the two
+in the response windows of the training configuration and with the any-time lick criterion (Readouts); the
+dual performance is the product of the two
 accuracies of the same network, sample and δ, the probability that both responses of a dual trial are correct
 if they fail independently. The control adds δ/2 to every entry of n₁ instead
 (nine values from −1.2 to 1.2), which moves the wells but also the field and the readout κ₁ = n₁ᵀr/N
-itself. Pooled points (network × sample × δ) are binned into septiles of the well location, with a bootstrap
+itself. Pooled points (network × sample × δ) are binned in 0.5 η steps of the well location, with a bootstrap
 95% CI per bin and a Spearman correlation over all points.
 
 ### Statistics
@@ -296,24 +355,29 @@ the no-lick cost of the dual stage is a downward field, and σ₁ makes both wel
 the choice readout n₁ (filled) and the sample readout n₀ (open) with the Go (blue) and NoGo (green) input columns at
 each checkpoint, one line per network, thick the median: σ₂ and σ₃ force the choice overlaps to zero, σ₁ the sample
 ones. Right, the equivariance residual of the autonomous field for each element (‖F(Dκ) − DF(κ)‖/‖F‖ over the disk
-|κ| ≤ 1.5), one line per network, thick the median: σ₂ and σ₃ are broken in the dual stage, σ₁ is kept.
+|κ| ≤ 1.5), one line per network, thick the median: σ₂ and σ₃ are broken in the dual stage, σ₁ is kept. Lower row, under the three columns of the account, the autonomous flow of one free
+network at the corresponding checkpoint (arrows, the field of eq. 1; background, speed, dark is slow; dashed, the
+lick line), with the memory wells of all eight networks overlaid (A, indigo; B, teal): pinned on the line after
+DPA, unmoved after GNG, both below after Dual.
 
 e, The push. Memory-well height across the curriculum in units of the noise s.d. η, one line per network (A
 filled, B open; colour, network), with the mean ± 95% bootstrap CI (black); Wilcoxon signed-rank test on the
 DPA → Dual change per sample (networks with the well at both checkpoints). Both wells end below the line in 8/8.
 
 f–h, Performance against the position of the well, moved by a drive along m₁ applied from the end of the sample
-until the stimulus to be read out arrives, which displaces the state and leaves the trained field unchanged
-(Methods). Gray, every point (8 networks × 2 wells × 81 drive strengths; A filled, B open); coloured, mean ± 95%
-bootstrap CI in bins of 0.5 η of the well location. f, DPA accuracy on DPA-only trials against the well location
-of the sample when the test arrives: deeper wells cost misses, wells far above the line cost false alarms. g,
-Go/NoGo accuracy on dual trials against the well location the Go/NoGo odor lands on: wells above the line cost
-NoGo licks. h, Dual performance, the probability that both responses of a dual trial are correct (the product of
-f and g for the same network, sample and drive), against the well location at the odor; gray dotted, the trained
-position, at the peak. Two signatures of the group: the A and B points coincide in f–h because the surviving σ₁
-maps one well onto the other; and the curves are not mirror-symmetric about the lick line (red dotted, the σ₃
-image of the dual curve), because the no-lick cost broke σ₃, which is why the optimum sits below the line rather
-than on it.
+until the stimulus that triggers the response arrives (the test on DPA-only trials, the cue on dual trials),
+which displaces the state and leaves the trained field unchanged (Methods). A lick is any crossing of the line
+in the response window, as for the animals. Gray, every point (8 networks × 2 wells × 81 drive strengths; A
+filled, B open); coloured, mean ± 95% bootstrap CI in bins of 0.5 η of the well location. f, DPA accuracy on
+DPA-only trials against the well location of the sample when the test arrives: deeper wells cost misses, wells
+far above the line cost false alarms. g, Go/NoGo accuracy on dual trials against the well location the cue
+finds: the NoGo response appears only for wells 2 η or more below the line, where Go begins to fail. h, Dual
+performance, the probability that both responses of a dual trial are correct (the product of f and g for the
+same network, sample and drive), against the well location at the cue; gray dotted, the trained position, the
+optimum of the training objective but not of the any-time criterion. Two signatures of the group: the A and B
+points coincide in f–h because the surviving σ₁ maps one well onto the other; and the curves are not
+mirror-symmetric about the lick line (red dotted, the σ₃ image of the dual curve), because the no-lick cost
+broke σ₃.
 
 Extended Data Fig. 11 | The four-group of DPA and what it predicts for the wells and the populations. The task and its relabelings; the actions on the plane and on the units; per tie, the wells the autonomous flow may have and the population orbits.
 
@@ -338,6 +402,13 @@ checkpoint in the plane of their write vectors: six populations, four carrying a
 (colour, sample sign; opaque, choice +) and a pure-choice pair on the axis (gray), the two orbit types the group
 allows. c, The autonomous flow of one network at the three checkpoints (arrows, the field of eq. 1; background,
 speed; dashed, the lick line), with the memory wells of all eight networks overlaid (A, indigo; B, teal).
+
+Extended Data Fig. 19 | The no-lick cost is the push. The autonomous flow after the dual stage, one panel per network,
+for the free recipe with the no-lick term (reference, top row) and for three sets trained without any no-lick
+term in the dual stage, everything else unchanged: free, tied to σ₁ during DPA and released, and tied to σ₁
+through all three stages. First column, the wells the theory allows in each case; orange, the wells found; dashed,
+the lick line. Without the cost every network ends with both wells above the line; with the tie held they rise at
+exactly one height.
 
 ### References
 
